@@ -1,0 +1,29 @@
+<div style="text-align: center; padding: 0px; font-family: Helvetica;">
+    <!-- Header Section -->
+    <div style="margin-bottom: 0px;">
+        <h1 style="font-size: 18pt; margin: 0; font-weight: bold; text-align: center;">
+            {{ unit.name }} {{ unit.number }}
+        </h1>
+    </div>
+    
+    <!-- Summary Section -->
+    <div style="margin-bottom: 0px;">
+        {{ if location }}
+            <p style="font-size: 10pt; margin: 5px 0; text-align: center;">
+                Meets as {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
+            </p>
+        {{ else }}
+            <p style="font-size: 10pt; margin: 5px 0; text-align: center;">
+                NO LOCATION INFORMATION AVAILABLE
+            </p>
+        {{ end }}
+        <p style="font-size: 10pt; margin: 5px 0; text-align: center;">
+            Contact: {{ unit.email }}
+        </p>
+    </div>
+    
+    <!-- Footer -->
+    <!--div style="border-top: 1px solid #ccc; margin-top: 20px; padding-top: 10px; font-size: 8pt; color: #808080;">
+        <p style="margin: 0; text-align: center;">Generated: {{ now }}</p>
+    </div-->
+</div>

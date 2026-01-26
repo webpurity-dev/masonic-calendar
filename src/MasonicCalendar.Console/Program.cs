@@ -1,5 +1,6 @@
 using MasonicCalendar.Core.Services;
 using MasonicCalendar.Export.Pdf;
+using MasonicCalendar.Export.Html;
 using QuestPDF.Infrastructure;
 
 // Configure QuestPDF license for community use (non-profit)
@@ -21,6 +22,36 @@ if (!Directory.Exists(outputDir))
 // Meetings calendar CLI switch
 if (args.Contains("--meetings-calendar"))
 {
+    // Check for output format (default to PDF)
+    var meetingsOutputFormat = "pdf";
+    var outputIndex = Array.IndexOf(args, "--output");
+    if (outputIndex != -1 && outputIndex + 1 < args.Length)
+    {
+        var format = args[outputIndex + 1].ToLower();
+        if (format == "pdf" || format == "html")
+        {
+            meetingsOutputFormat = format;
+        }
+    }
+    
+    // Check for page size (default to A6)
+    var meetingsPageSize = "A6";
+    var pageSizeIndex = Array.IndexOf(args, "--pagesize");
+    if (pageSizeIndex != -1 && pageSizeIndex + 1 < args.Length)
+    {
+        var size = args[pageSizeIndex + 1].ToUpper();
+        if (size == "A4" || size == "A5" || size == "A6")
+        {
+            meetingsPageSize = size;
+        }
+    }
+    
+    // Check for include Sundays (default to false)
+    var includeSundays = args.Contains("--incSunday");
+    
+    // Check for landscape orientation (default to false for portrait)
+    var isLandscape = args.Contains("--landscape");
+    
     var meetingsPath = Path.Combine(dataPath, "sample-unit-meetings.csv");
     var meetingsIngestor = new CsvIngestorService();
     var meetingsResult = meetingsIngestor.ReadUnitMeetingsFromCsv(meetingsPath);
@@ -48,11 +79,68 @@ if (args.Contains("--meetings-calendar"))
     var expanded = MeetingRecurrenceExpander.ExpandMeetings(meetingsResult.Data!, 2026, new DateOnly(2026, 1, 1));
     Console.WriteLine($"✅ Generated {expanded.Count} calendar dates from recurrence rules\n");
     
-    Console.WriteLine("Generating meetings calendar PDF...");
-    var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026.pdf");
-    var meetingsExporter = new MeetingsCalendarExporter();
-    meetingsExporter.ExportMeetingsToPdf(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data);
-    Console.WriteLine($"✅ Meetings calendar PDF generated: {meetingsOutputPath}");
+    // Group meetings by unit and export to CSV
+    var unitDict = meetingsUnitsResult.Data!.ToDictionary(u => u.Id);
+    var expandedByUnit = expanded
+        .GroupBy(x => x.meeting.UnitId)
+        .OrderBy(g => SortKey(g))
+        .ToList();
+    
+    int SortKey(IGrouping<Guid, (MasonicCalendar.Core.Domain.UnitMeeting, DateOnly)> g)
+    {
+        if (unitDict.TryGetValue(g.Key, out var unit))
+        {
+            try
+            {
+                return Convert.ToInt32(unit.Number);
+            }
+            catch { }
+        }
+        return 999999;
+    }
+    
+    // Export to CSV
+    var csvPath = Path.Combine(outputDir, "meetings-2026.csv");
+    using (var writer = new System.IO.StreamWriter(csvPath))
+    {
+        writer.WriteLine("Unit Number,Unit Name,Unit Type,Meeting Date,Meeting Title");
+        
+        foreach (var group in expandedByUnit)
+        {
+            if (unitDict.TryGetValue(group.Key, out var unit))
+            {
+                foreach (var item in group.OrderBy(x => x.date))
+                {
+                    var date = item.date.ToString("yyyy-MM-dd");
+                    var title = item.meeting.Title.Replace("\"", "\"\""); // Escape quotes
+                    writer.WriteLine($"\"{unit.Number}\",\"{unit.Name}\",\"{unit.UnitType}\",\"{date}\",\"{title}\"");
+                }
+            }
+        }
+    }
+    
+    Console.WriteLine($"✅ Exported meetings to CSV: {csvPath}\n");
+    
+    Console.WriteLine($"\n==========================================");
+    var sundayLabel = includeSundays ? "-withsunday" : "";
+    if (meetingsOutputFormat == "html")
+    {
+        Console.WriteLine("Generating meetings calendar HTML...");
+        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026{sundayLabel}.html");
+        var meetingsExporter = new MeetingsCalendarHtmlExporter();
+        meetingsExporter.ExportMeetingsToHtml(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data, includeSundays);
+        Console.WriteLine($"✅ Meetings calendar HTML generated: {meetingsOutputPath}");
+    }
+    else
+    {
+        Console.WriteLine("Generating meetings calendar PDF...");
+        var orientationLabel = isLandscape ? "landscape" : "portrait";
+        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026-{meetingsPageSize}-{orientationLabel}{sundayLabel}.pdf");
+        var meetingsExporter = new MeetingsCalendarExporter();
+        meetingsExporter.ExportMeetingsToPdf(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data, meetingsPageSize, includeSundays, isLandscape);
+        Console.WriteLine($"✅ Meetings calendar PDF generated: {meetingsOutputPath}");
+    }
+    
     Console.WriteLine($"\n✨ Meetings calendar completed successfully!");
     return 0;
 }
@@ -100,14 +188,6 @@ if (args.Length > 0)
     {
         filterUnitNumber = unitNum;
     }
-}
-
-// Clear output directory before running
-{
-    // Only remove files matching the current output type
-    var ext = outputFormat == "html" ? ".html" : ".pdf";
-    foreach (var file in Directory.GetFiles(outputDir, "*" + ext))
-        File.Delete(file);
 }
 
 // Generate filename based on unit filter and page size

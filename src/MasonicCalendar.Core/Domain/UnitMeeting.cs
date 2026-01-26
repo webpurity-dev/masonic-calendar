@@ -12,5 +12,6 @@ public class UnitMeeting
     public int? DayNumber { get; set; }
     public string StartMonth { get; set; } = string.Empty;
     public string EndMonth { get; set; } = string.Empty;
+    public string? Months { get; set; }
     public string? Override { get; set; }
 }

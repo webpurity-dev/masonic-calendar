@@ -103,15 +103,48 @@ Generate a 12-month calendar grid showing all unit meetings with recurrence rule
 
 ```
 --meetings-calendar
-  Generates: meetings-output-<year>.pdf
-  Output:    12-page PDF with one month per page
-  Features:  Calendar grid layout with unit number, name, and meeting title on each date
-  Format:    Always PDF (A4 size)
+  Generates: meetings-output-2026-<pagesize>-<orientation>.pdf or meetings-output-2026.html
+  Output:    12-page PDF with one month per page, or responsive HTML
+  Features:  Calendar grid layout with unit number and meeting title on each date
+  Supported: PDF (A4/A5/A6), HTML
+```
+
+#### Page Size (PDF only)
+```
+--pagesize <size>
+  A4        - Large format (210×297mm) 
+  A5        - Medium format (148×210mm)
+  A6        - Small format (105×148mm) DEFAULT
+```
+
+#### Orientation (PDF only)
+```
+--landscape
+  portrait  - Taller than wide (DEFAULT)
+  landscape - Wider than tall (use --landscape flag)
+```
+
+#### Include Sundays
+```
+--incSunday
+  Includes Sunday column (DEFAULT: excludes Sundays as no meetings scheduled)
+  Filename adds "-withsunday" suffix when used
+```
+
+#### Output Format
+```
+--output <format>
+  pdf   - Generate PDF document (DEFAULT)
+  html  - Generate browser-viewable HTML
 ```
 
 #### Meetings Calendar Examples
 ```
---meetings-calendar                    # Generate 2026 calendar (default year)
+--meetings-calendar                                      # A6 portrait PDF (default)
+--meetings-calendar --pagesize A4                        # A4 portrait PDF
+--meetings-calendar --pagesize A6 --landscape            # A6 landscape PDF
+--meetings-calendar --output html                        # HTML format
+--meetings-calendar --pagesize A6 --incSunday            # Include Sunday column
 ```
 
 ### Complete Examples
@@ -123,7 +156,11 @@ Generate a 12-month calendar grid showing all unit meetings with recurrence rule
 | `dotnet run --137` | `units-output-137-A6.pdf` (unit 137, A6) |
 | `dotnet run --output html` | `units-output-6827-A6.html` (HTML format) |
 | `dotnet run --pagesize A5 --output html --137` | `units-output-137-A5.html` (A5 HTML) |
-| `dotnet run --meetings-calendar` | `meetings-output-2026.pdf` (12-page calendar) |
+| `dotnet run --meetings-calendar` | `meetings-output-2026-A6-portrait.pdf` (12-page calendar) |
+| `dotnet run --meetings-calendar --pagesize A4` | `meetings-output-2026-A4-portrait.pdf` (A4) |
+| `dotnet run --meetings-calendar --landscape` | `meetings-output-2026-A6-landscape.pdf` (landscape) |
+| `dotnet run --meetings-calendar --output html` | `meetings-output-2026.html` (HTML calendar) |
+| `dotnet run --meetings-calendar --incSunday` | `meetings-output-2026-A6-portrait-withsunday.pdf` (with Sundays) |
 
 ### Default Behavior
 
@@ -178,15 +215,27 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 - **Usage:** Preview layout before PDF generation
 
 ### Meetings Calendar PDF
-- **File:** `meetings-output-<year>.pdf`
-- **Example:** `meetings-output-2026.pdf`
+- **File:** `meetings-output-2026-<pagesize>-<orientation>.pdf`
+- **Examples:** 
+  - `meetings-output-2026-A6-portrait.pdf` (default)
+  - `meetings-output-2026-A4-landscape.pdf` (large landscape)
+  - `meetings-output-2026-A6-portrait-withsunday.pdf` (with Sundays included)
 - **Features:** 12-page calendar (one month per page), professional grid layout
-- **Format:** Always A4, always PDF
+- **Page Sizes:** A4 (large), A5 (medium), A6 (small/default)
+- **Orientations:** Portrait (default) or Landscape
 - **Content Per Date Cell:**
-  - Date number (bold)
-  - Unit number and name (italic)
-  - Meeting title
+  - Date number (bold, 7pt)
+  - Unit number and meeting title (6pt, color-coded by unit type)
+  - Craft units: Blue (#1e73be)
+  - Royal Arch units: Red (#c41e3a) with "C" prefix
 - **Data Source:** Reads from `sample-unit-meetings.csv` with recurrence rules expanded
+- **Default Behavior:** Excludes Sundays (no meetings scheduled); use `--incSunday` to include
+
+### Meetings Calendar HTML
+- **File:** `meetings-output-2026.html` or `meetings-output-2026-withsunday.html`
+- **Features:** Responsive calendar grid, browser-viewable, print-friendly
+- **Content:** Same as PDF format with color-coded units
+- **Usage:** Preview or web-based calendar view
 
 ## 🎨 Template Customization
 
@@ -220,9 +269,10 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 - Id, UnitId, LastName, Initials, Installed, ProvRank, ProvRankIssued
 
 ### UnitMeeting
-- Id, UnitId, Title, RecurrenceType, RecurrenceStrategy, DayOfWeek, WeekNumber, DayNumber, StartMonth, EndMonth, Override
+- Id, UnitId, Title, RecurrenceType, RecurrenceStrategy, DayOfWeek, WeekNumber, DayNumber, StartMonth, EndMonth, Months, Override
 
-## 🔄 Workflow
+### Unit
+- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, WarrantIssued, LastInstallationDate, UnitType
 
 ### Unit Pages
 1. **Read CSV Files** → CsvIngestorService parses events, units, locations, officers, and past masters
@@ -232,11 +282,15 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 5. **Output** → Generate timestamped PDF or HTML file
 
 ### Meetings Calendar
-1. **Read CSV Files** → CsvIngestorService parses meetings and units
-2. **Expand Recurrence Rules** → MeetingRecurrenceExpander converts meeting rules into actual dates
-3. **Lookup Unit Information** → Map each UnitId to Unit details (number and name)
-4. **Generate Calendar Grid** → MeetingsCalendarExporter creates 12-month calendar layout
-5. **Output** → Generate 12-page PDF with one month per page
+1. **Read CSV Files** → CsvIngestorService parses meetings and units (including UnitType)
+2. **Expand Recurrence Rules** → MeetingRecurrenceExpander converts meeting rules into actual dates with Months field support
+3. **Lookup Unit Information** → Map each UnitId to Unit details (number, type) for color-coding
+4. **Generate Calendar Grid** → MeetingsCalendarExporter creates 12-month calendar layout with:
+   - Configurable page size (A4/A5/A6)
+   - Portrait or Landscape orientation
+   - Optional Sunday column (default: excluded)
+   - Color-coded by unit type (Craft: blue, Royal Arch: red)
+5. **Output** → Generate PDF (multiple page sizes/orientations) or responsive HTML
 
 ## 📖 Further Reading
 

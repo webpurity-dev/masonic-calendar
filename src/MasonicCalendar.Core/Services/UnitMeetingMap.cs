@@ -17,6 +17,7 @@ public class UnitMeetingMap : ClassMap<UnitMeeting>
         Map(m => m.DayNumber).Name("DayNumber").Optional();
         Map(m => m.StartMonth).Name("StartMonth");
         Map(m => m.EndMonth).Name("EndMonth");
+        Map(m => m.Months).Name("Months").Optional();
         Map(m => m.Override).Name("Override").Optional();
     }
 }

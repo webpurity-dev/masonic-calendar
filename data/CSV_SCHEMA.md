@@ -25,6 +25,7 @@
 - `MeetingSummary` (string) - Summary of unit meetings
 - `WarrantIssued` (date) - Date the unit was issued a warrant
 - `LastInstallationDate` (date) - Date of the last installation meeting
+- `UnitType` (string) - Type of unit
 
 ## sample-officers.csv
 - `ID` (guid) - Primary key
@@ -59,4 +60,5 @@
 - `DayNumber` (string) - DayNumber
 - `StartMonth` (string) - StartMonth
 - `EndMonth` (string) - EndMonth
+- `Months` (string) - Colon seperated list of months
 - `Override` (string) - Override

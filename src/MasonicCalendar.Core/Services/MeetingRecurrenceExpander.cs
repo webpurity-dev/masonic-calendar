@@ -10,7 +10,7 @@ public static class MeetingRecurrenceExpander
         var results = new List<(UnitMeeting, DateOnly)>();
         foreach (var m in meetings)
         {
-            var months = GetMonthRange(m.StartMonth, m.EndMonth, year);
+            var months = GetMonthRange(m, year);
             foreach (var (month, actualYear) in months)
             {
                 if (m.DayNumber.HasValue)
@@ -46,11 +46,27 @@ public static class MeetingRecurrenceExpander
         return results.OrderBy(t => t.Item2).ToList();
     }
 
-    private static List<(int month, int year)> GetMonthRange(string startMonth, string endMonth, int baseYear)
+    private static List<(int month, int year)> GetMonthRange(UnitMeeting meeting, int baseYear)
     {
         var months = new List<(int, int)>();
-        var start = ParseMonth(startMonth);
-        var end = ParseMonth(endMonth);
+        
+        // If specific months are provided (colon-separated list), use those
+        if (!string.IsNullOrWhiteSpace(meeting.Months))
+        {
+            var monthList = meeting.Months.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var monthStr in monthList)
+            {
+                var month = ParseMonth(monthStr.Trim());
+                if (month > 0)
+                {
+                    months.Add((month, baseYear));
+                }
+            }
+            return months;
+        }
+        
+        var start = ParseMonth(meeting.StartMonth);
+        var end = ParseMonth(meeting.EndMonth);
         if (start == 0 || end == 0) return months;
         
         // If startMonth > endMonth, the series wraps across years

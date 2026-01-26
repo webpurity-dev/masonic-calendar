@@ -231,6 +231,7 @@ public class UnitMap : ClassMap<Unit>
         Map(m => m.MeetingSummary).Name("MeetingSummary");
         Map(m => m.WarrantIssued).Name("WarrantIssued").TypeConverter<DateOnlyConverter>();
         Map(m => m.LastInstallationDate).Name("LastInstallationDate").TypeConverter<DateOnlyConverter>();
+        Map(m => m.UnitType).Name("UnitType").Optional();
     }
 }
 

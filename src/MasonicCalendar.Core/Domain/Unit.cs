@@ -22,5 +22,7 @@ public class Unit
 
     public DateOnly? LastInstallationDate { get; set; }
 
+    public string? UnitType { get; set; }
+
     public virtual UnitLocation? LocationDetails { get; set; }
 }

@@ -47,3 +47,16 @@
 - `Installed` (string) - Year the past master was installed
 - `ProvRank` (string) - Current provincial rank
 - `ProvRankIssued` (string) - Year the provincial rank was issued
+
+## sample-unit-pmo.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `Title` (string) - Title of the meeting
+- `RecurrenceType` (string) - RecurrenceType
+- `RecurrenceStrategy` (string) - RecurrenceStrategy
+- `DayOfWeek` (string) - DayOfWeek
+- `WeekNumber` (string) - WeekNumber
+- `DayNumber` (string) - DayNumber
+- `StartMonth` (string) - StartMonth
+- `EndMonth` (string) - EndMonth
+- `Override` (string) - Override

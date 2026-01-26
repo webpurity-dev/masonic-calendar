@@ -1,3 +1,5 @@
+
+
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -5,9 +7,6 @@ using MasonicCalendar.Core.Domain;
 
 namespace MasonicCalendar.Core.Services;
 
-/// <summary>
-/// Service for ingesting entities from CSV files using CsvHelper.
-/// </summary>
 public class CsvIngestorService
 {
     private static CsvConfiguration CreateCsvConfig()
@@ -136,6 +135,26 @@ public class CsvIngestorService
         catch (Exception ex)
         {
             return Result<List<UnitPastMaster>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
+
+    public Result<List<UnitMeeting>> ReadUnitMeetingsFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitMeeting>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitMeetingMap>();
+
+            var meetings = csv.GetRecords<UnitMeeting>().ToList();
+            return Result<List<UnitMeeting>>.Ok(meetings);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitMeeting>>.Fail($"Error reading CSV: {ex.Message}");
         }
     }
 }

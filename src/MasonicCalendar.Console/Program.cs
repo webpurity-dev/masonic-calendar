@@ -1,5 +1,61 @@
 using MasonicCalendar.Core.Services;
 using MasonicCalendar.Export.Pdf;
+using QuestPDF.Infrastructure;
+
+// Configure QuestPDF license for community use (non-profit)
+QuestPDF.Settings.License = LicenseType.Community;
+
+var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data");
+var eventsPath = Path.Combine(dataPath, "sample-events.csv");
+var unitsPath = Path.Combine(dataPath, "sample-units.csv");
+var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
+var officersPath = Path.Combine(dataPath, "sample-officers.csv");
+var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
+var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
+
+// Output directory
+var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+if (!Directory.Exists(outputDir))
+    Directory.CreateDirectory(outputDir);
+
+// Meetings calendar CLI switch
+if (args.Contains("--meetings-calendar"))
+{
+    var meetingsPath = Path.Combine(dataPath, "sample-unit-meetings.csv");
+    var meetingsIngestor = new CsvIngestorService();
+    var meetingsResult = meetingsIngestor.ReadUnitMeetingsFromCsv(meetingsPath);
+    if (!meetingsResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading meetings: {meetingsResult.Error}");
+        return 1;
+    }
+    
+    // Read units to lookup unit numbers and names
+    var meetingsUnitsResult = meetingsIngestor.ReadUnitsFromCsv(unitsPath);
+    if (!meetingsUnitsResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading units: {meetingsUnitsResult.Error}");
+        return 1;
+    }
+    
+    Console.WriteLine("🗓️  Masonic Calendar - Meetings Calendar Generator");
+    Console.WriteLine($"==========================================");
+    Console.WriteLine($"Reading meetings data...");
+    Console.WriteLine($"✅ Loaded {meetingsResult.Data!.Count} meeting series");
+    Console.WriteLine($"✅ Loaded {meetingsUnitsResult.Data!.Count} units");
+    
+    // Expand meetings to see how many dates are generated
+    var expanded = MeetingRecurrenceExpander.ExpandMeetings(meetingsResult.Data!, 2026, new DateOnly(2026, 1, 1));
+    Console.WriteLine($"✅ Generated {expanded.Count} calendar dates from recurrence rules\n");
+    
+    Console.WriteLine("Generating meetings calendar PDF...");
+    var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026.pdf");
+    var meetingsExporter = new MeetingsCalendarExporter();
+    meetingsExporter.ExportMeetingsToPdf(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data);
+    Console.WriteLine($"✅ Meetings calendar PDF generated: {meetingsOutputPath}");
+    Console.WriteLine($"\n✨ Meetings calendar completed successfully!");
+    return 0;
+}
 
 // Parse command-line arguments
 var outputFormat = "pdf"; // default to PDF
@@ -46,21 +102,7 @@ if (args.Length > 0)
     }
 }
 
-
-var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data");
-var eventsPath = Path.Combine(dataPath, "sample-events.csv");
-var unitsPath = Path.Combine(dataPath, "sample-units.csv");
-var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
-var officersPath = Path.Combine(dataPath, "sample-officers.csv");
-var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
-var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
-
-// Output directory
-
-var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
-if (!Directory.Exists(outputDir))
-    Directory.CreateDirectory(outputDir);
-else
+// Clear output directory before running
 {
     // Only remove files matching the current output type
     var ext = outputFormat == "html" ? ".html" : ".pdf";

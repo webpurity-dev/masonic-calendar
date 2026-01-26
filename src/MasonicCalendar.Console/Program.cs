@@ -46,6 +46,7 @@ if (args.Length > 0)
     }
 }
 
+
 var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data");
 var eventsPath = Path.Combine(dataPath, "sample-events.csv");
 var unitsPath = Path.Combine(dataPath, "sample-units.csv");
@@ -54,9 +55,22 @@ var officersPath = Path.Combine(dataPath, "sample-officers.csv");
 var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
 var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
 
+// Output directory
+
+var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+if (!Directory.Exists(outputDir))
+    Directory.CreateDirectory(outputDir);
+else
+{
+    // Only remove files matching the current output type
+    var ext = outputFormat == "html" ? ".html" : ".pdf";
+    foreach (var file in Directory.GetFiles(outputDir, "*" + ext))
+        File.Delete(file);
+}
+
 // Generate filename based on unit filter and page size
 var filenameIdentifier = filterUnitNumber.Value.ToString();
-var unitsOutputPath = Path.Combine(Directory.GetCurrentDirectory(), $"units-output-{filenameIdentifier}-{pageSize}.{outputFormat}");
+var unitsOutputPath = Path.Combine(outputDir, $"units-output-{filenameIdentifier}-{pageSize}.{outputFormat}");
 
 Console.WriteLine("🗓️  Masonic Calendar - CSV to Output Converter");
 Console.WriteLine($"==========================================");

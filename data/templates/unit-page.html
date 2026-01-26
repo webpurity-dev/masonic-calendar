@@ -70,19 +70,19 @@
         <table style="border-collapse: collapse; font-size: 9pt; margin-left: auto; margin-right: auto;">
             <thead>
                 <tr>
-                    <th style="padding: 4px 12px; border-bottom: 1px solid #ccc;">Year</th>
-                    <th style="padding: 4px 12px; border-bottom: 1px solid #ccc;">Name</th>
-                    <th style="padding: 4px 12px; border-bottom: 1px solid #ccc;">ProvRank</th>
-                    <th style="padding: 4px 12px; border-bottom: 1px solid #ccc;">ProvRankIssued</th>
+                    <th style="padding: 4px; text-align: left; font-weight: 800;">Name</th>
+                    <th style="padding: 4px; text-align: center; font-weight: 800;">Installed</th>
+                    <th style="padding: 4px; text-align: left; font-weight: 800;">Provincial Rank</th>
+                    <th style="padding: 4px; text-align: right; font-weight: 800;">Date</th>
                 </tr>
             </thead>
             <tbody>
-                {{ for master in pastMasters | orderby: "installed" }}
+                {{ for master in pastMasters }}
                 <tr>
-                    <td style="padding: 4px; text-align: center; min-width: 50px;">{{ master.installed }}</td>
                     <td style="padding: 4px; text-align: left; min-width: 100px;">{{ master.lastName }}{{ if master.initials }}, {{ master.initials }}{{ end }}</td>
+                    <td style="padding: 4px; text-align: center; min-width: 50px;">{{ master.installed }}</td>
                     <td style="padding: 4px; text-align: left; min-width: 80px;">{{ master.provRank }}</td>
-                    <td style="padding: 4px; text-align: center; min-width: 60px;">{{ master.provRankIssued }}</td>
+                    <td style="padding: 4px; text-align: right; min-width: 60px;">{{ master.provRankIssued }}</td>
                 </tr>
                 {{ end }}
             </tbody>

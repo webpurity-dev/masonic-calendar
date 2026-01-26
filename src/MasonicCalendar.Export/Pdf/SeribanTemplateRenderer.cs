@@ -19,7 +19,7 @@ public class SeribanTemplateRenderer
     /// <summary>
     /// Renders a unit page as HTML using the Scriban template.
     /// </summary>
-    public string RenderUnitPage(Unit unit, UnitLocation? location)
+    public string RenderUnitPage(Unit unit, UnitLocation? location, List<UnitOfficer>? unitOfficers = null, List<UnitPastMaster>? pastMasters = null)
     {
         var template = LoadTemplate();
         
@@ -35,6 +35,26 @@ public class SeribanTemplateRenderer
             { "what3_words", location.What3Words } // Also add snake_case version
         } : null;
 
+        // Build officers list with resolved officer names
+        var officersList = unitOfficers?.Select(uo => new Dictionary<string, object?>
+        {
+            { "name", uo.Officer?.Name ?? "Unknown" },
+            { "abbreviation", uo.Officer?.Abbreviation ?? "" },
+            { "lastName", uo.LastName },
+            { "initials", uo.Initials },
+            { "order", uo.Officer?.Order ?? 0 }
+        }).OrderBy(o => (int?)o["order"] ?? 999).ToList() ?? new List<Dictionary<string, object?>>();
+
+        // Build past masters list sorted by installed year (ascending - oldest first)
+        var pastMastersList = pastMasters?.Select(pm => new Dictionary<string, object?>
+        {
+            { "lastName", pm.LastName },
+            { "initials", pm.Initials },
+            { "installed", pm.Installed },
+            { "provRank", pm.ProvRank ?? "" },
+            { "provRankIssued", pm.ProvRankIssued ?? "" }
+        }).OrderBy(pm => pm["installed"]).ToList() ?? new List<Dictionary<string, object?>>();
+
         var model = new Dictionary<string, object?>
         {
             {
@@ -46,10 +66,13 @@ public class SeribanTemplateRenderer
                     { "location", unit.Location },
                     { "installationMonth", unit.InstallationMonth },
                     { "meetingSummary", unit.MeetingSummary },
-                    { "warrantIssued", unit.WarrantIssued?.ToString("MMM d, yyyy") ?? "" }
+                    { "warrantIssued", unit.WarrantIssued?.ToString("MMM d, yyyy") ?? "" },
+                    { "lastInstallationDate", unit.LastInstallationDate?.ToString("MMM d, yyyy") ?? "" }
                 }
             },
             { "location", locationDict },
+            { "officers", officersList },
+            { "pastMasters", pastMastersList },
             { "now", DateTime.Now.ToString("MMM d, yyyy") }
         };
 

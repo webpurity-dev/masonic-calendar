@@ -3,6 +3,9 @@ using MasonicCalendar.Export.Pdf;
 
 // Parse command-line arguments
 var outputFormat = "pdf"; // default to PDF
+int? filterUnitNumber = 6827; // default to unit 6827
+var pageSize = "A6"; // default to A6 (A4, A5, A6)
+
 if (args.Length > 0)
 {
     var outputIndex = Array.IndexOf(args, "--output");
@@ -19,16 +22,41 @@ if (args.Length > 0)
             return 1;
         }
     }
+
+    var pageSizeIndex = Array.IndexOf(args, "--pagesize");
+    if (pageSizeIndex != -1 && pageSizeIndex + 1 < args.Length)
+    {
+        var size = args[pageSizeIndex + 1].ToUpper();
+        if (size == "A4" || size == "A5" || size == "A6")
+        {
+            pageSize = size;
+        }
+        else
+        {
+            Console.WriteLine($"❌ Invalid page size: {size}. Use 'A4', 'A5', or 'A6'.");
+            return 1;
+        }
+    }
+
+    // Check for unit number filter (e.g., --6827)
+    var unitFilterArg = args.FirstOrDefault(a => a.StartsWith("--") && int.TryParse(a.Substring(2), out _));
+    if (unitFilterArg != null && int.TryParse(unitFilterArg.Substring(2), out var unitNum))
+    {
+        filterUnitNumber = unitNum;
+    }
 }
 
 var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data");
 var eventsPath = Path.Combine(dataPath, "sample-events.csv");
 var unitsPath = Path.Combine(dataPath, "sample-units.csv");
 var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
+var officersPath = Path.Combine(dataPath, "sample-officers.csv");
+var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
+var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
 
-// Generate timestamp for unique filenames
-var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-var unitsOutputPath = Path.Combine(Directory.GetCurrentDirectory(), $"units-output_{timestamp}.{outputFormat}");
+// Generate filename based on unit filter and page size
+var filenameIdentifier = filterUnitNumber.Value.ToString();
+var unitsOutputPath = Path.Combine(Directory.GetCurrentDirectory(), $"units-output-{filenameIdentifier}-{pageSize}.{outputFormat}");
 
 Console.WriteLine("🗓️  Masonic Calendar - CSV to Output Converter");
 Console.WriteLine($"==========================================");
@@ -65,7 +93,52 @@ if (!unitsResult.Success)
     Console.WriteLine($"❌ Error reading units: {unitsResult.Error}");
     return 1;
 }
-Console.WriteLine($"✅ Loaded {unitsResult.Data!.Count} units\n");
+Console.WriteLine($"✅ Loaded {unitsResult.Data!.Count} units");
+
+// Read Officers
+Console.WriteLine("Reading officers...");
+var officersResult = ingestor.ReadOfficersFromCsv(officersPath);
+if (!officersResult.Success)
+{
+    Console.WriteLine($"❌ Error reading officers: {officersResult.Error}");
+    return 1;
+}
+var officerDict = officersResult.Data!.ToDictionary(o => o.Id);
+Console.WriteLine($"✅ Loaded {officerDict.Count} officer positions");
+
+// Read Unit Officers
+Console.WriteLine("Reading unit officers...");
+var unitOfficersResult = ingestor.ReadUnitOfficersFromCsv(unitOfficersPath);
+if (!unitOfficersResult.Success)
+{
+    Console.WriteLine($"❌ Error reading unit officers: {unitOfficersResult.Error}");
+    return 1;
+}
+Console.WriteLine($"✅ Loaded {unitOfficersResult.Data!.Count} unit officer assignments");
+
+// Read Unit Past Masters
+Console.WriteLine("Reading unit past masters...");
+var unitPastMastersResult = ingestor.ReadUnitPastMastersFromCsv(unitPastMastersPath);
+if (!unitPastMastersResult.Success)
+{
+    Console.WriteLine($"❌ Error reading unit past masters: {unitPastMastersResult.Error}");
+    return 1;
+}
+Console.WriteLine($"✅ Loaded {unitPastMastersResult.Data!.Count} unit past master records\n");
+
+// Filter units if a specific unit number was requested
+var unitsToExport = unitsResult.Data;
+if (filterUnitNumber.HasValue)
+{
+    unitsToExport = unitsResult.Data.Where(u => u.Number == filterUnitNumber.Value).ToList();
+    if (unitsToExport.Count == 0)
+    {
+        Console.WriteLine($"❌ No unit found with number {filterUnitNumber}");
+        return 1;
+    }
+    Console.WriteLine($"Filtering to unit number: {filterUnitNumber}");
+    Console.WriteLine($"Units to export: {unitsToExport.Count}\n");
+}
 
 // Generate output
 try
@@ -73,19 +146,19 @@ try
     if (outputFormat == "pdf")
     {
         Console.WriteLine("Generating unit pages PDF...");
-        var unitExporter = new UnitPdfExporter();
-        unitExporter.ExportUnitsToPdf(unitsResult.Data, locationDict, unitsOutputPath);
-        Console.WriteLine($"✅ Units PDF generated: {unitsOutputPath}");
+        var unitExporter = new UnitPdfExporter(pageSize: pageSize);
+        unitExporter.ExportUnitsToPdf(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitsOutputPath);
+        Console.WriteLine($"✅ Units PDF generated: {unitsOutputPath} ({pageSize})");
     }
     else if (outputFormat == "html")
     {
         Console.WriteLine("Generating unit pages HTML...");
         var unitExporter = new UnitPdfExporter();
-        unitExporter.ExportUnitsToHtml(unitsResult.Data, locationDict, unitsOutputPath);
+        unitExporter.ExportUnitsToHtml(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitsOutputPath);
         Console.WriteLine($"✅ Units HTML generated: {unitsOutputPath}");
     }
     
-    Console.WriteLine($"   Units included: {unitsResult.Data.Count}");
+    Console.WriteLine($"   Units included: {unitsToExport.Count}");
 }
 catch (Exception ex)
 {

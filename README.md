@@ -59,9 +59,56 @@ data/
 
 ```powershell
 cd src/MasonicCalendar.Console
-dotnet run                      # Generate PDF (default)
-dotnet run --output html        # Generate HTML for preview
+dotnet run                                    # Generate A6 PDF for unit 6827 (default)
+dotnet run --pagesize A4                      # Generate A4 PDF
+dotnet run --output html                      # Generate HTML for preview
+dotnet run --137                              # Generate PDF for unit 137
+dotnet run --pagesize A5 --output html --137  # A5 HTML for unit 137
 ```
+
+## 📋 Console Command-Line Switches
+
+### Output Format
+```
+--output <format>
+  pdf   - Generate PDF document (DEFAULT)
+  html  - Generate browser-viewable HTML
+```
+
+### Page Size (PDF only)
+```
+--pagesize <size>
+  A4    - Standard size (210×297mm)
+  A5    - Half size (148×210mm)
+  A6    - Quarter size (105×148mm) DEFAULT
+```
+
+### Unit Filter
+```
+--<unit-number>
+  Example: --6827  Generate PDF for unit 6827 (DEFAULT)
+           --137   Generate PDF for unit 137
+  
+  If not specified, defaults to unit 6827
+```
+
+### Complete Examples
+
+| Command | Output |
+|---------|--------|
+| `dotnet run` | `units-output-6827-A6.pdf` (default A6) |
+| `dotnet run --pagesize A4` | `units-output-6827-A4.pdf` (A4 size) |
+| `dotnet run --137` | `units-output-137-A6.pdf` (unit 137, A6) |
+| `dotnet run --output html` | `units-output-6827-A6.html` (HTML format) |
+| `dotnet run --pagesize A5 --output html --137` | `units-output-137-A5.html` (A5 HTML) |
+
+### Default Behavior
+
+When run without arguments:
+- **Unit:** 6827 (most complete data)
+- **Page Size:** A6
+- **Format:** PDF
+- **Filename:** `units-output-6827-A6.pdf`
 
 ## 🛠️ Technology Stack
 
@@ -85,12 +132,18 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 ## 📄 Output Formats
 
 ### PDF Output
-- **File:** `units-output_YYYYMMDD_HHMMSS.pdf`
+- **File:** `units-output-<unit-number>-<pagesize>.pdf`
+- **Example:** `units-output-6827-A6.pdf`
 - **Features:** One page per unit, professionally formatted, ready for printing
-- **Font Sizes:** Centered headers (24pt), body text (12pt), footer (8pt)
+- **Font Sizes:** Centered headers (18pt), body text (10pt), table text (9pt)
+- **Page Sizes:**
+  - A4: Full standard letter size
+  - A5: Compact size (half of A4)
+  - A6: Very compact size (quarter of A4)
 
 ### HTML Output
-- **File:** `units-output_YYYYMMDD_HHMMSS.html`
+- **File:** `units-output-<unit-number>-<pagesize>.html`
+- **Example:** `units-output-6827-A6.html`
 - **Features:** Browser-viewable, print-friendly, useful for template previews
 - **Usage:** Preview layout before PDF generation
 

@@ -78,6 +78,66 @@ public class CsvIngestorService
             return Result<List<Unit>>.Fail($"Error reading CSV: {ex.Message}");
         }
     }
+
+    public Result<List<Officer>> ReadOfficersFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<Officer>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<OfficerMap>();
+
+            var officers = csv.GetRecords<Officer>().ToList();
+            return Result<List<Officer>>.Ok(officers);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<Officer>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
+
+    public Result<List<UnitOfficer>> ReadUnitOfficersFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitOfficer>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitOfficerMap>();
+
+            var unitOfficers = csv.GetRecords<UnitOfficer>().ToList();
+            return Result<List<UnitOfficer>>.Ok(unitOfficers);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitOfficer>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
+
+    public Result<List<UnitPastMaster>> ReadUnitPastMastersFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitPastMaster>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitPastMasterMap>();
+
+            var pastMasters = csv.GetRecords<UnitPastMaster>().ToList();
+            return Result<List<UnitPastMaster>>.Ok(pastMasters);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitPastMaster>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
 }
 
 /// <summary>
@@ -151,6 +211,7 @@ public class UnitMap : ClassMap<Unit>
         Map(m => m.InstallationMonth).Name("InstallationMonth");
         Map(m => m.MeetingSummary).Name("MeetingSummary");
         Map(m => m.WarrantIssued).Name("WarrantIssued").TypeConverter<DateOnlyConverter>();
+        Map(m => m.LastInstallationDate).Name("LastInstallationDate").TypeConverter<DateOnlyConverter>();
     }
 }
 
@@ -175,5 +236,51 @@ public class DateOnlyConverter : CsvHelper.TypeConversion.DefaultTypeConverter
             return dateOnly;
 
         return null;
+    }
+}
+
+/// <summary>
+/// ClassMap for Officer CSV parsing.
+/// </summary>
+public class OfficerMap : ClassMap<Officer>
+{
+    public OfficerMap()
+    {
+        Map(m => m.Id).Name("ID");
+        Map(m => m.Order).Name("Order");
+        Map(m => m.Abbreviation).Name("Abbreviation");
+        Map(m => m.Name).Name("Name");
+    }
+}
+
+/// <summary>
+/// ClassMap for UnitOfficer CSV parsing.
+/// </summary>
+public class UnitOfficerMap : ClassMap<UnitOfficer>
+{
+    public UnitOfficerMap()
+    {
+        Map(m => m.Id).Name("ID").Optional();
+        Map(m => m.UnitId).Name("UnitID");
+        Map(m => m.OfficerId).Name("OfficerID");
+        Map(m => m.LastName).Name("LastName");
+        Map(m => m.Initials).Name("Initials");
+    }
+}
+
+/// <summary>
+/// ClassMap for UnitPastMaster CSV parsing.
+/// </summary>
+public class UnitPastMasterMap : ClassMap<UnitPastMaster>
+{
+    public UnitPastMasterMap()
+    {
+        Map(m => m.Id).Name("ID").Optional();
+        Map(m => m.UnitId).Name("UnitID");
+        Map(m => m.LastName).Name("LastName");
+        Map(m => m.Initials).Name("Initials");
+        Map(m => m.Installed).Name("Installed");
+        Map(m => m.ProvRank).Name("ProvRank").Optional();
+        Map(m => m.ProvRankIssued).Name("ProvRankIssued").Optional();
     }
 }

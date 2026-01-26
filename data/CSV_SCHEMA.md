@@ -23,4 +23,27 @@
 - `Email` (string) - Contact email address
 - `InstallationMonth` (string) - Month of unit installation meeting
 - `MeetingSummary` (string) - Summary of unit meetings
-- `WarrantIssued` (date) - Date the unit warrant was issues
+- `WarrantIssued` (date) - Date the unit was issued a warrant
+- `LastInstallationDate` (date) - Date of the last installation meeting
+
+## sample-officers.csv
+- `ID` (guid) - Primary key
+- `Order` (int) - Order they should be displayed
+- `Abbreviation` (string) - Abbrevation of the name
+- `Name` (string) - Officer name
+
+## sample-unit-officers.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `OfficerID` (guid) - FK to sample-officers.csv
+- `LastName` (string) - Officer last name
+- `Initials` (string) - Officer first name initials
+
+## sample-unit-pmo.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `LastName` (string) - Officer last name
+- `Initials` (string) - Officer first name initials
+- `Installed` (string) - Year the past master was installed
+- `ProvRank` (string) - Current provincial rank
+- `ProvRankIssued` (string) - Year the provincial rank was issued

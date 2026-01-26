@@ -20,5 +20,7 @@ public class Unit
 
     public DateOnly? WarrantIssued { get; set; }
 
+    public DateOnly? LastInstallationDate { get; set; }
+
     public virtual UnitLocation? LocationDetails { get; set; }
 }

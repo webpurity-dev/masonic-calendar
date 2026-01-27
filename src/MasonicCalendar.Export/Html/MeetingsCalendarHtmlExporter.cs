@@ -68,7 +68,11 @@ public class MeetingsCalendarHtmlExporter
         html.AppendLine("    th { background: #f0f0f0; padding: 10px; text-align: center; border: 1px solid #ddd; font-weight: bold; word-wrap: break-word; overflow-wrap: break-word; }");
         html.AppendLine("    td { padding: 8px; border: 1px solid #e0e0e0; height: 80px; vertical-align: top; word-wrap: break-word; overflow-wrap: break-word; }");
         html.AppendLine("    td.day-number { font-weight: bold; font-size: 11px; background: #fafafa; }");
-        html.AppendLine("    .meeting { font-size: 11px; margin-bottom: 4px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word; }");
+        html.AppendLine("    .meeting { font-size: 12px; margin-bottom: 4px; line-height: 1.3; word-wrap: break-word; overflow-wrap: break-word; }");
+        html.AppendLine("    .meeting a { text-decoration: none; }");
+        html.AppendLine("    .meeting a:hover { text-decoration: underline; }");
+        html.AppendLine("    .craft a { color: #1e73be; }");
+        html.AppendLine("    .royal-arch a { color: #c41e3a; }");
         html.AppendLine("    .craft { color: #1e73be; }");
         html.AppendLine("    .royal-arch { color: #c41e3a; }");
         html.AppendLine("  </style>");
@@ -155,7 +159,16 @@ public class MeetingsCalendarHtmlExporter
                     };
                     var unitDisplay = unit != null ? $"{unitPrefix}{unit.Number}" : "Unknown";
                     var meetingLine = $"{unitDisplay}-{meeting.Title}";
-                    html.AppendLine($"            <div class=\"meeting {cssClass}\">{System.Net.WebUtility.HtmlEncode(meetingLine)}</div>");
+                    
+                    if (!string.IsNullOrEmpty(unit?.Email))
+                    {
+                        var encodedEmail = System.Net.WebUtility.HtmlEncode(unit.Email);
+                        html.AppendLine($"            <div class=\"meeting {cssClass}\"><a href=\"mailto:{encodedEmail}\">{System.Net.WebUtility.HtmlEncode(meetingLine)}</a></div>");
+                    }
+                    else
+                    {
+                        html.AppendLine($"            <div class=\"meeting {cssClass}\">{System.Net.WebUtility.HtmlEncode(meetingLine)}</div>");
+                    }
                 }
             }
             

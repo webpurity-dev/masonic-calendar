@@ -1,22 +1,67 @@
-ID,UnitID,OfficerID,LastName,Initials
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,21179b8f-8ad7-42a0-86a6-74e00e573fdd,Green,P
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,ebb0f217-64de-4cd6-ab88-ee279f259f1e,Heckford,D
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,8c133956-d811-42c3-b12a-596c70ff6398,Kellard,D
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,4247cfd6-bce7-49a6-805d-17ceec154c99,Rose,S
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,26f9f2d0-5dc7-42b0-bbc4-f0045d03d0e6,Bailey,J
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,025bec07-316c-4258-b74e-9ccac031b7ae,Black,C
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,87beb668-96b5-48ca-90d4-68cd2e99af78,Lockyer,P
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,49ae2dcd-9a35-4f9f-88b8-935f386458b5,Larkin,A
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,10886422-7d95-4878-a141-79eab026b1c9,Jones,B
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,e2eff8fb-cab5-4770-b222-c260105fcebe,Watson,D
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,e1fc6bab-3a8b-4e6b-975a-fb86d850911e,Loft,M
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,3027639b-b01a-455c-928b-593fee22f704,Dancer,P
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,14a0b8d9-3397-46ac-984b-8dab95d1a5e1,Boylan,A
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,cf477c9e-59d2-4d0b-91e4-274306b11b36,Delaney,J
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,0ac27365-e400-471a-88d4-c12a2b850645,Boylin,D
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,02b7fb8b-4db5-48fc-a961-7bb314d0f2bf,Rose,S
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,d0603f84-1a24-4541-ad9f-f16e4c23b050,Hardy,G
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Oliver,S
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Blackwell,D
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Hendry,I
-,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,f713ebaf-1f62-474a-8397-8fb8f0ad4180,Holloway,T
+ID,UnitID,OfficerID,LastName,Initials,Code
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,21179b8f-8ad7-42a0-86a6-74e00e573fdd,Green,Patrick,6827WM
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,ebb0f217-64de-4cd6-ab88-ee279f259f1e,Heckford,D,6827SW
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,8c133956-d811-42c3-b12a-596c70ff6398,Kellard,D,6827JW
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,4247cfd6-bce7-49a6-805d-17ceec154c99,Rose,S,6827Chap
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,26f9f2d0-5dc7-42b0-bbc4-f0045d03d0e6,Bailey,J,6827Treas
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,025bec07-316c-4258-b74e-9ccac031b7ae,Black,C,6827Sec
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,87beb668-96b5-48ca-90d4-68cd2e99af78,Lockyer,P,6827DC
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,49ae2dcd-9a35-4f9f-88b8-935f386458b5,Larkin,A,6827Alm
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,10886422-7d95-4878-a141-79eab026b1c9,Jones,B,6827ChStwd
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,e2eff8fb-cab5-4770-b222-c260105fcebe,Watson,D,6827MO
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,e1fc6bab-3a8b-4e6b-975a-fb86d850911e,Loft,M,6827Mentor
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,3027639b-b01a-455c-928b-593fee22f704,Dancer,P,6827SD
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,14a0b8d9-3397-46ac-984b-8dab95d1a5e1,Boylan,A,6827JD
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,cf477c9e-59d2-4d0b-91e4-274306b11b36,Delaney,J,6827ADC
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,0ac27365-e400-471a-88d4-c12a2b850645,Boylin,D,6827Org
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,02b7fb8b-4db5-48fc-a961-7bb314d0f2bf,Rose,S,6827ASec
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,d0603f84-1a24-4541-ad9f-f16e4c23b050,Hardy,G,6827IG
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Oliver,S,6827Stwd
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Blackwell,D,6827Stwd
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,c79021e0-553e-4818-8154-8d8b66af35ee,Hendry,I,6827Stwd
+,b8a44ddc-0b59-4fab-9a1e-351a04ecb063,f713ebaf-1f62-474a-8397-8fb8f0ad4180,Holloway,T,6827Tyler
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,21179b8f-8ad7-42a0-86a6-74e00e573fdd, Hughes,William,137WM
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,ebb0f217-64de-4cd6-ab88-ee279f259f1e, White,N J ,137SW
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,8c133956-d811-42c3-b12a-596c70ff6398, Howard,B M ,137JW
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,4247cfd6-bce7-49a6-805d-17ceec154c99, Nethercott,S J ,137Chap
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,26f9f2d0-5dc7-42b0-bbc4-f0045d03d0e6, Birkett,T ,137Treas
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,025bec07-316c-4258-b74e-9ccac031b7ae, Ball,M R ,137Sec
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,87beb668-96b5-48ca-90d4-68cd2e99af78,,,137DC
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,49ae2dcd-9a35-4f9f-88b8-935f386458b5, Avery,J ,137Alm
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,10886422-7d95-4878-a141-79eab026b1c9, Barker,M B ,137ChStwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,e2eff8fb-cab5-4770-b222-c260105fcebe, Adlem,M J ,137MO
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,e1fc6bab-3a8b-4e6b-975a-fb86d850911e, Adlem,M J ,137Mentor
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,3027639b-b01a-455c-928b-593fee22f704, Brookes,G L ,137SD
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,14a0b8d9-3397-46ac-984b-8dab95d1a5e1, Williams,M D J ,137JD
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,cf477c9e-59d2-4d0b-91e4-274306b11b36, Gillingham,R K ,137ADC
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,0ac27365-e400-471a-88d4-c12a2b850645,,,137Org
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,02b7fb8b-4db5-48fc-a961-7bb314d0f2bf, Cardy,S ,137ASec
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,d0603f84-1a24-4541-ad9f-f16e4c23b050, Overall,N J ,137IG
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,c79021e0-553e-4818-8154-8d8b66af35ee, Powell,D K ,137Stwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,c79021e0-553e-4818-8154-8d8b66af35ee, Kennedy,C J ,137Stwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,c79021e0-553e-4818-8154-8d8b66af35ee, Carter,A J ,137Stwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,c79021e0-553e-4818-8154-8d8b66af35ee, D'Arcy-Wykes,A J ,137Stwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,c79021e0-553e-4818-8154-8d8b66af35ee, Allingham,B D ,137Stwd
+,162ae613-7b8e-4e45-8995-9f8c0a2af8e3,f713ebaf-1f62-474a-8397-8fb8f0ad4180, Mould,G V ,137Tyler
+,ef1fda7a-2765-433a-80eb-540acc687dbf,21179b8f-8ad7-42a0-86a6-74e00e573fdd, Gittins,Christopher,170WM
+,ef1fda7a-2765-433a-80eb-540acc687dbf,ebb0f217-64de-4cd6-ab88-ee279f259f1e, Ward,A J ,170SW
+,ef1fda7a-2765-433a-80eb-540acc687dbf,8c133956-d811-42c3-b12a-596c70ff6398, Williams,L A ,170JW
+,ef1fda7a-2765-433a-80eb-540acc687dbf,4247cfd6-bce7-49a6-805d-17ceec154c99, Barnes,T J ,170Chap
+,ef1fda7a-2765-433a-80eb-540acc687dbf,26f9f2d0-5dc7-42b0-bbc4-f0045d03d0e6, Huckle,D W ,170Treas
+,ef1fda7a-2765-433a-80eb-540acc687dbf,025bec07-316c-4258-b74e-9ccac031b7ae, Pearce,J K ,170Sec
+,ef1fda7a-2765-433a-80eb-540acc687dbf,87beb668-96b5-48ca-90d4-68cd2e99af78, Abbiss,K ,170DC
+,ef1fda7a-2765-433a-80eb-540acc687dbf,49ae2dcd-9a35-4f9f-88b8-935f386458b5, Harper,W B ,170Alm
+,ef1fda7a-2765-433a-80eb-540acc687dbf,10886422-7d95-4878-a141-79eab026b1c9, Smith,A C ,170ChStwd
+,ef1fda7a-2765-433a-80eb-540acc687dbf,e2eff8fb-cab5-4770-b222-c260105fcebe, Carter,J C ,170MO
+,ef1fda7a-2765-433a-80eb-540acc687dbf,e1fc6bab-3a8b-4e6b-975a-fb86d850911e, Capaldi,J R ,170Mentor
+,ef1fda7a-2765-433a-80eb-540acc687dbf,3027639b-b01a-455c-928b-593fee22f704, Ashwin,C L E ,170SD
+,ef1fda7a-2765-433a-80eb-540acc687dbf,14a0b8d9-3397-46ac-984b-8dab95d1a5e1, Impey,M R ,170JD
+,ef1fda7a-2765-433a-80eb-540acc687dbf,cf477c9e-59d2-4d0b-91e4-274306b11b36, Harper,W B ,170ADC
+,ef1fda7a-2765-433a-80eb-540acc687dbf,0ac27365-e400-471a-88d4-c12a2b850645, Williamson,D ,170Org
+,ef1fda7a-2765-433a-80eb-540acc687dbf,02b7fb8b-4db5-48fc-a961-7bb314d0f2bf, Atkins,R V ,170ASec
+,ef1fda7a-2765-433a-80eb-540acc687dbf,d0603f84-1a24-4541-ad9f-f16e4c23b050, Cogdell,N A ,170IG
+,ef1fda7a-2765-433a-80eb-540acc687dbf,c79021e0-553e-4818-8154-8d8b66af35ee, Stevenson,B J ,170Stwd
+,ef1fda7a-2765-433a-80eb-540acc687dbf,c79021e0-553e-4818-8154-8d8b66af35ee, Sharod,P ,170Stwd
+,ef1fda7a-2765-433a-80eb-540acc687dbf,c79021e0-553e-4818-8154-8d8b66af35ee, Malik,E L ,170Stwd
+,ef1fda7a-2765-433a-80eb-540acc687dbf,c79021e0-553e-4818-8154-8d8b66af35ee, Wallis,J ,170Stwd
+,ef1fda7a-2765-433a-80eb-540acc687dbf,f713ebaf-1f62-474a-8397-8fb8f0ad4180, Porter,A M ,170Tyler

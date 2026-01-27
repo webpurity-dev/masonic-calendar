@@ -40,19 +40,19 @@ public class SeribanTemplateRenderer
         {
             { "name", uo.Officer?.Name ?? "Unknown" },
             { "abbreviation", uo.Officer?.Abbreviation ?? "" },
-            { "lastName", uo.LastName },
-            { "initials", uo.Initials },
+            { "lastName", string.IsNullOrWhiteSpace(uo.LastName) ? "" : uo.LastName.Trim() },
+            { "initials", string.IsNullOrWhiteSpace(uo.Initials) ? "" : uo.Initials.Trim() },
             { "order", uo.Officer?.Order ?? 0 }
         }).OrderBy(o => (int?)o["order"] ?? 999).ToList() ?? new List<Dictionary<string, object?>>();
 
         // Build past masters list sorted by installed year (ascending - oldest first)
         var pastMastersList = pastMasters?.Select(pm => new Dictionary<string, object?>
         {
-            { "lastName", pm.LastName },
-            { "initials", pm.Initials },
+            { "lastName", string.IsNullOrWhiteSpace(pm.LastName) ? "" : pm.LastName.Trim() },
+            { "initials", string.IsNullOrWhiteSpace(pm.Initials) ? "" : pm.Initials.Trim() },
             { "installed", pm.Installed },
-            { "provRank", pm.ProvRank ?? "" },
-            { "provRankIssued", pm.ProvRankIssued ?? "" }
+            { "provRank", string.IsNullOrWhiteSpace(pm.ProvRank) ? "" : pm.ProvRank.Trim() },
+            { "provRankIssued", string.IsNullOrWhiteSpace(pm.ProvRankIssued) ? "" : pm.ProvRankIssued.Trim() }
         }).OrderBy(pm => pm["installed"]).ToList() ?? new List<Dictionary<string, object?>>();
 
         var model = new Dictionary<string, object?>

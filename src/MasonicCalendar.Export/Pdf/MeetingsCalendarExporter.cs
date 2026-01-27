@@ -188,7 +188,7 @@ public class MeetingsCalendarExporter
                                     // var unitDisplay = unit != null ? $"{unitPrefix}{unit.Number} - {unit.Name}" : "Unknown Unit";
                                     var meetingLine = $"{unitDisplay}-{meeting.Title}";
                                     
-                                    dayCol.Item().Text(meetingLine).FontSize(6).FontColor(unitColor);
+                                    dayCol.Item().Text(meetingLine).FontSize(5).FontColor(unitColor);
                                 }
                             }
                         });

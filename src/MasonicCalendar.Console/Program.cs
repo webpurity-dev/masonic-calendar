@@ -54,8 +54,9 @@ if (args.Contains("--meetings-calendar"))
     // Check for landscape orientation (default to false for portrait)
     var isLandscape = args.Contains("--landscape");
     
-    // Check for from-date parameter (MM-YYYY format, defaults to current January of current year)
-    DateOnly calendarStartDate = new DateOnly(2026, 1, 1);
+    // Check for from-date parameter (MM-YYYY format, defaults to current month)
+    var today = DateOnly.FromDateTime(DateTime.Now);
+    DateOnly calendarStartDate = new DateOnly(today.Year, today.Month, 1);
     var fromDateIndex = Array.IndexOf(args, "--from-date");
     if (fromDateIndex != -1 && fromDateIndex + 1 < args.Length)
     {
@@ -190,7 +191,8 @@ if (args.Contains("--meetings-calendar"))
 
 // Parse command-line arguments
 var outputFormat = "pdf"; // default to PDF
-int? filterUnitNumber = 6827; // default to unit 6827
+int? filterUnitNumber = null; // default to null (all units)
+string? filterUnitType = null; // default to null (all unit types)
 var pageSize = "A6"; // default to A6 (A4, A5, A6)
 
 if (args.Length > 0)
@@ -225,6 +227,22 @@ if (args.Length > 0)
         }
     }
 
+    // Check for unit type filter (e.g., --unit-type craft)
+    var unitTypeIndex = Array.IndexOf(args, "--unit-type");
+    if (unitTypeIndex != -1 && unitTypeIndex + 1 < args.Length)
+    {
+        var typeArg = args[unitTypeIndex + 1].ToLower();
+        if (typeArg == "craft" || typeArg == "royalarch")
+        {
+            filterUnitType = typeArg == "craft" ? "Craft" : "RoyalArch";
+        }
+        else
+        {
+            Console.WriteLine($"❌ Invalid unit type: {typeArg}. Use 'craft' or 'royalarch'.");
+            return 1;
+        }
+    }
+
     // Check for unit number filter (e.g., --6827)
     var unitFilterArg = args.FirstOrDefault(a => a.StartsWith("--") && int.TryParse(a.Substring(2), out _));
     if (unitFilterArg != null && int.TryParse(unitFilterArg.Substring(2), out var unitNum))
@@ -234,7 +252,7 @@ if (args.Length > 0)
 }
 
 // Generate filename based on unit filter and page size
-var filenameIdentifier = filterUnitNumber.Value.ToString();
+var filenameIdentifier = filterUnitNumber.HasValue ? filterUnitNumber.Value.ToString() : (filterUnitType != null ? filterUnitType.ToLower() : "all-units");
 var unitsOutputPath = Path.Combine(outputDir, $"units-output-{filenameIdentifier}-{pageSize}.{outputFormat}");
 
 Console.WriteLine("🗓️  Masonic Calendar - CSV to Output Converter");
@@ -316,6 +334,22 @@ if (filterUnitNumber.HasValue)
         return 1;
     }
     Console.WriteLine($"Filtering to unit number: {filterUnitNumber}");
+    Console.WriteLine($"Units to export: {unitsToExport.Count}\n");
+}
+else if (filterUnitType != null)
+{
+    unitsToExport = unitsResult.Data.Where(u => u.UnitType == filterUnitType).ToList();
+    if (unitsToExport.Count == 0)
+    {
+        Console.WriteLine($"❌ No units found with type {filterUnitType}");
+        return 1;
+    }
+    Console.WriteLine($"Filtering to unit type: {filterUnitType}");
+    Console.WriteLine($"Units to export: {unitsToExport.Count}\n");
+}
+else
+{
+    Console.WriteLine($"Generating for all units");
     Console.WriteLine($"Units to export: {unitsToExport.Count}\n");
 }
 

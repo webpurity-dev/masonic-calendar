@@ -30,6 +30,9 @@ A comprehensive .NET solution for generating searchable, downloadable calendars 
 - ✅ Customizable layouts via HTML templates
 - ✅ **Meetings Calendar** - 12-month calendar grid view with unit meeting schedules
 - ✅ **Recurrence Rules** - Automatic expansion of recurring meetings (weekly, monthly, nth weekday, etc.)
+- ✅ **Dynamic Date Ranges** - Generate 12-month rolling calendars from any month via `--from-date MM-YYYY`
+- ✅ **Current Month Default** - Automatically generates from current month when no date specified
+- ✅ **Email Integration** - HTML meetings calendar meetings are mailto links to unit email addresses
 
 ## 🏗️ Project Structure
 
@@ -60,13 +63,13 @@ data/
 ## 🚀 Quick Start
 
 ```powershell
-cd src/MasonicCalendar.Console
-dotnet run                                    # Generate A6 PDF for unit 6827 (default)
-dotnet run --pagesize A4                      # Generate A4 PDF
-dotnet run --output html                      # Generate HTML for preview
-dotnet run --137                              # Generate PDF for unit 137
-dotnet run --pagesize A5 --output html --137  # A5 HTML for unit 137
-dotnet run --meetings-calendar                # Generate 12-page meetings calendar
+cd e:\Development\repos\masonic-calendar
+dotnet run --project src/MasonicCalendar.Console                                    # Generate A6 PDF for all units (default)
+dotnet run --project src/MasonicCalendar.Console -- --pagesize A4                      # Generate A4 PDF for all units
+dotnet run --project src/MasonicCalendar.Console -- --output html                      # Generate HTML for all unitsdotnet run --project src/MasonicCalendar.Console -- --unit-type craft                  # Generate PDF for all Craft units
+dotnet run --project src/MasonicCalendar.Console -- --unit-type royalarch --output html # Generate HTML for all RoyalArch unitsdotnet run --project src/MasonicCalendar.Console -- --137                              # Generate PDF for unit 137 only
+dotnet run --project src/MasonicCalendar.Console -- --pagesize A5 --output html --137  # A5 HTML for unit 137
+dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar                # Generate 12-page meetings calendar
 ```
 
 ## 📋 Console Command-Line Switches
@@ -92,10 +95,19 @@ Generate individual unit pages with officer and location information.
 #### Unit Filter
 ```
 --<unit-number>
-  Example: --6827  Generate PDF for unit 6827 (DEFAULT)
-           --137   Generate PDF for unit 137
+  Example: --137   Generate PDF for unit 137 only
+           --6827  Generate PDF for unit 6827 only
   
-  If not specified, defaults to unit 6827
+  If not specified, generates for ALL units (default)
+
+--unit-type <type>
+  craft     Generate for all Craft units (49 units)
+  royalarch Generate for all RoyalArch units (3 units)
+  
+  Example: --unit-type craft generates all Craft lodge units
+           --unit-type royalarch generates all RoyalArch chapter units
+  
+  Note: Cannot be used together with --<unit-number>
 ```
 
 ### Meetings Calendar
@@ -138,37 +150,55 @@ Generate a 12-month calendar grid showing all unit meetings with recurrence rule
   html  - Generate browser-viewable HTML
 ```
 
+#### Date Range Parameter
+```
+--from-date MM-YYYY
+  Generates a 12-month rolling calendar starting from the specified month
+  Format: MM-YYYY (e.g., 06-2026 for June 2026)
+  Default: Current month if not specified
+  Example: --from-date 10-2026 generates Oct 2026 through Sep 2027
+```
+
 #### Meetings Calendar Examples
 ```
---meetings-calendar                                      # A6 portrait PDF (default)
---meetings-calendar --pagesize A4                        # A4 portrait PDF
---meetings-calendar --pagesize A6 --landscape            # A6 landscape PDF
---meetings-calendar --output html                        # HTML format
---meetings-calendar --pagesize A6 --incSunday            # Include Sunday column
+--meetings-calendar                                      # A6 portrait PDF (default, current month)
+--meetings-calendar --pagesize A4                        # A4 portrait PDF (current month)
+--meetings-calendar --pagesize A6 --landscape            # A6 landscape PDF (current month)
+--meetings-calendar --output html                        # HTML format (current month)
+--meetings-calendar --pagesize A6 --incSunday            # Include Sunday column (current month)
+--meetings-calendar --from-date 10-2026                  # A6 PDF for Oct 2026 - Sep 2027
+--meetings-calendar --output html --from-date 06-2026    # HTML for Jun 2026 - May 2027
 ```
 
 ### Complete Examples
 
 | Command | Output |
 |---------|--------|
-| `dotnet run` | `units-output-6827-A6.pdf` (default A6) |
-| `dotnet run --pagesize A4` | `units-output-6827-A4.pdf` (A4 size) |
-| `dotnet run --137` | `units-output-137-A6.pdf` (unit 137, A6) |
-| `dotnet run --output html` | `units-output-6827-A6.html` (HTML format) |
-| `dotnet run --pagesize A5 --output html --137` | `units-output-137-A5.html` (A5 HTML) |
-| `dotnet run --meetings-calendar` | `meetings-output-2026-A6-portrait.pdf` (12-page calendar) |
-| `dotnet run --meetings-calendar --pagesize A4` | `meetings-output-2026-A4-portrait.pdf` (A4) |
-| `dotnet run --meetings-calendar --landscape` | `meetings-output-2026-A6-landscape.pdf` (landscape) |
-| `dotnet run --meetings-calendar --output html` | `meetings-output-2026.html` (HTML calendar) |
-| `dotnet run --meetings-calendar --incSunday` | `meetings-output-2026-A6-portrait-withsunday.pdf` (with Sundays) |
+| `dotnet run --project src/MasonicCalendar.Console` | `units-output-all-units-A6.pdf` (all 52 units, A6) |
+| `dotnet run --project src/MasonicCalendar.Console -- --pagesize A4` | `units-output-all-units-A4.pdf` (all units, A4) |
+| `dotnet run --project src/MasonicCalendar.Console -- --output html` | `units-output-all-units-A6.html` (all units, HTML) |
+| `dotnet run --project src/MasonicCalendar.Console -- --unit-type craft` | `units-output-craft-A6.pdf` (49 Craft units, A6) |
+| `dotnet run --project src/MasonicCalendar.Console -- --unit-type craft --output html` | `units-output-craft-A6.html` (49 Craft units, HTML) |
+| `dotnet run --project src/MasonicCalendar.Console -- --unit-type royalarch` | `units-output-royalarch-A6.pdf` (3 RoyalArch units, A6) |
+| `dotnet run --project src/MasonicCalendar.Console -- --unit-type royalarch --pagesize A5` | `units-output-royalarch-A5.pdf` (3 RoyalArch units, A5) |
+| `dotnet run --project src/MasonicCalendar.Console -- --137` | `units-output-137-A6.pdf` (unit 137 only, A6) |
+| `dotnet run --project src/MasonicCalendar.Console -- --output html --137` | `units-output-137-A6.html` (unit 137 only, HTML) |
+| `dotnet run --project src/MasonicCalendar.Console -- --pagesize A5 --output html --137` | `units-output-137-A5.html` (unit 137 only, A5 HTML) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar` | `meetings-output-01-2026-A6-portrait.pdf` (current month, 12-month calendar) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --pagesize A4` | `meetings-output-01-2026-A4-portrait.pdf` (A4, current month) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --landscape` | `meetings-output-01-2026-A6-landscape.pdf` (landscape, current month) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --output html` | `meetings-output-01-2026.html` (HTML calendar, current month, with mailto links) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --incSunday` | `meetings-output-01-2026-A6-portrait-withsunday.pdf` (with Sundays, current month) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --from-date 10-2026` | `meetings-output-10-2026-A6-portrait.pdf` (Oct 2026 - Sep 2027) |
+| `dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar --output html --from-date 06-2026` | `meetings-output-06-2026.html` (Jun 2026 - May 2027, with mailto links) |
 
 ### Default Behavior
 
 When run without arguments:
-- **Unit:** 6827 (most complete data)
+- **Units:** All 52 units
 - **Page Size:** A6
 - **Format:** PDF
-- **Filename:** `units-output-6827-A6.pdf`
+- **Filename:** `units-output-all-units-A6.pdf`
 
 ## 🛠️ Technology Stack
 
@@ -215,11 +245,11 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 - **Usage:** Preview layout before PDF generation
 
 ### Meetings Calendar PDF
-- **File:** `meetings-output-2026-<pagesize>-<orientation>.pdf`
+- **File:** `meetings-output-<MM>-<YYYY>-<pagesize>-<orientation>.pdf`
 - **Examples:** 
-  - `meetings-output-2026-A6-portrait.pdf` (default)
-  - `meetings-output-2026-A4-landscape.pdf` (large landscape)
-  - `meetings-output-2026-A6-portrait-withsunday.pdf` (with Sundays included)
+  - `meetings-output-01-2026-A6-portrait.pdf` (default, Jan 2026-Dec 2026)
+  - `meetings-output-10-2026-A4-landscape.pdf` (large landscape, Oct 2026-Sep 2027)
+  - `meetings-output-06-2026-A6-portrait-withsunday.pdf` (with Sundays included, Jun 2026-May 2027)
 - **Features:** 12-page calendar (one month per page), professional grid layout
 - **Page Sizes:** A4 (large), A5 (medium), A6 (small/default)
 - **Orientations:** Portrait (default) or Landscape
@@ -232,10 +262,13 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 - **Default Behavior:** Excludes Sundays (no meetings scheduled); use `--incSunday` to include
 
 ### Meetings Calendar HTML
-- **File:** `meetings-output-2026.html` or `meetings-output-2026-withsunday.html`
-- **Features:** Responsive calendar grid, browser-viewable, print-friendly
-- **Content:** Same as PDF format with color-coded units
-- **Usage:** Preview or web-based calendar view
+- **File:** `meetings-output-<MM>-<YYYY>.html` or `meetings-output-<MM>-<YYYY>-withsunday.html`
+- **Examples:**
+  - `meetings-output-01-2026.html` (Jan 2026-Dec 2026)
+  - `meetings-output-10-2026-withsunday.html` (Oct 2026-Sep 2027, with Sundays)
+- **Features:** Responsive calendar grid, browser-viewable, print-friendly, clickable mailto links
+- **Content:** Same as PDF format with color-coded units, each meeting is a clickable mailto link to the unit's email address
+- **Usage:** Preview or web-based calendar view with email integration
 
 ## 🎨 Template Customization
 
@@ -282,15 +315,18 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 5. **Output** → Generate timestamped PDF or HTML file
 
 ### Meetings Calendar
-1. **Read CSV Files** → CsvIngestorService parses meetings and units (including UnitType)
+1. **Read CSV Files** → CsvIngestorService parses meetings and units (including UnitType and Email)
 2. **Expand Recurrence Rules** → MeetingRecurrenceExpander converts meeting rules into actual dates with Months field support
-3. **Lookup Unit Information** → Map each UnitId to Unit details (number, type) for color-coding
-4. **Generate Calendar Grid** → MeetingsCalendarExporter creates 12-month calendar layout with:
+3. **Lookup Unit Information** → Map each UnitId to Unit details (number, type, email) for color-coding and mailto links
+4. **Generate Calendar Grid** → MeetingsCalendarExporter creates 12-month rolling calendar layout with:
    - Configurable page size (A4/A5/A6)
    - Portrait or Landscape orientation
    - Optional Sunday column (default: excluded)
    - Color-coded by unit type (Craft: blue, Royal Arch: red)
+   - Dynamic date ranges (--from-date MM-YYYY parameter, defaults to current month)
 5. **Output** → Generate PDF (multiple page sizes/orientations) or responsive HTML
+   - HTML meetings are clickable mailto links to unit email addresses
+   - Filenames include date range (e.g., meetings-output-10-2026-A6-portrait.pdf)
 
 ## 📖 Further Reading
 

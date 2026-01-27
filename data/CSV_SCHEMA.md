@@ -39,6 +39,7 @@
 - `OfficerID` (guid) - FK to sample-officers.csv
 - `LastName` (string) - Officer last name
 - `Initials` (string) - Officer first name initials
+- `Code` (string) - Reference code
 
 ## sample-unit-pmo.csv
 - `ID` (guid) - Primary key

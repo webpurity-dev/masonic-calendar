@@ -23,8 +23,8 @@ public class UnitPdfExporter
     public UnitPdfExporter(string? templatePath = null, string pageSize = "A4")
     {
         var defaultTemplatePath = templatePath ?? Path.Combine(
-            Directory.GetCurrentDirectory(), 
-            "..", "..", "data", "templates", "unit-page.html");
+            AppContext.BaseDirectory, 
+            "..", "..", "..", "..", "..", "data", "templates", "unit-page.html");
         
         _templateRenderer = new SeribanTemplateRenderer(defaultTemplatePath);
         _pageSize = pageSize;
@@ -289,12 +289,22 @@ public class UnitPdfExporter
         if (rows == null || rows.Count == 0)
             return;
 
+        // Extract font size from table style (default 9pt)
+        var tableStyle = tableNode.GetAttributeValue("style", "");
+        float fontSize = 9;
+        var fontSizeMatch = System.Text.RegularExpressions.Regex.Match(tableStyle, @"font-size:\s*(\d+(?:\.\d+)?)(pt|px|em)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (fontSizeMatch.Success && float.TryParse(fontSizeMatch.Groups[1].Value, out var size))
+        {
+            // Reduce font size by 27.1% for PDF (triple 10% reduction: 0.9 * 0.9 * 0.9 = 0.729)
+            fontSize = size * 0.729f;
+        }
+
         foreach (var row in rows)
         {
             var rowCells = row.SelectNodes(".//td | .//th");
             if (rowCells != null && rowCells.Count > 0)
             {
-                RenderTableRow(column, rowCells);
+                RenderTableRow(column, rowCells, fontSize);
             }
         }
     }
@@ -310,7 +320,7 @@ public class UnitPdfExporter
     /// <summary>
     /// Renders a single table row as formatted text with proper column layout.
     /// </summary>
-    private void RenderTableRow(ColumnDescriptor column, HtmlNodeCollection cells)
+    private void RenderTableRow(ColumnDescriptor column, HtmlNodeCollection cells, float fontSize = 9)
     {
         column.Item().Row(row =>
         {
@@ -328,7 +338,7 @@ public class UnitPdfExporter
                 cellColumn.Element(container =>
                 {
                     var textItem = container.PaddingHorizontal(2).PaddingVertical(1).Text(cellText);
-                    textItem.FontSize(9);
+                    textItem.FontSize(fontSize);
                     
                     if (isBold)
                         textItem.Bold();

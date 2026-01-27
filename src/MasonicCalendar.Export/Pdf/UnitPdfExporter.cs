@@ -53,6 +53,13 @@ public class UnitPdfExporter
                     };
                     page.Size(width, height);
                     page.Margin(margin);
+                    
+                    // Add footer with page number
+                    page.Footer().AlignCenter().Text(x => 
+                    {
+                        x.Span("").FontSize(6);
+                        x.CurrentPageNumber().FontSize(6);
+                    });
 
                     page.Content().Column(column =>
                     {
@@ -73,7 +80,7 @@ public class UnitPdfExporter
                             var unitLabel = $"{unit.Number} {unit.Name}";
                             var unitDestination = $"unit-{unit.Id:N}";
                             
-                            column.Item().Hyperlink(unitDestination).Row(row =>
+                            column.Item().SectionLink(unitDestination).Row(row =>
                             {
                                 row.RelativeItem().Text(unitLabel).FontSize(6);
                                 row.ConstantItem(40).Text(pageNumber.ToString()).FontSize(6).AlignRight();
@@ -134,12 +141,20 @@ public class UnitPdfExporter
                     page.Size(width, height);
                     
                     page.Margin(margin);
+                    
+                    // Add footer with page number to each unit page
+                    page.Footer().AlignCenter().Text(x => 
+                    {
+                        x.Span("").FontSize(6);
+                        x.CurrentPageNumber().FontSize(6);
+                    });
 
                     // Render the unit page using the Scriban template
                     var html = _templateRenderer.RenderUnitPage(unit, location, unitsOfficers, unitsPastMasters, unitsJoiningPastMasters, unitsMembers, unitsHonoraryMembers);
                     
                     // Parse and display the rendered template content
-                    page.Content().Column(column =>
+                    var unitDestination = $"unit-{unit.Id:N}";
+                    page.Content().Section(unitDestination).Column(column =>
                     {
                         RenderTemplateContent(column, html);
                     });
@@ -304,10 +319,14 @@ public class UnitPdfExporter
 
                 // Extract font size (default 12pt)
                 float fontSize = 12;
-                var fontSizeMatch = System.Text.RegularExpressions.Regex.Match(styleAttr, @"font-size:\s*(\d+(?:\.\d+)?)(pt|px|em)?", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                if (fontSizeMatch.Success && float.TryParse(fontSizeMatch.Groups[1].Value, out var size))
+                // Try to find font-size in the style attribute
+                if (styleAttr.Contains("font-size"))
                 {
-                    fontSize = size;
+                    var match = System.Text.RegularExpressions.Regex.Match(styleAttr, @"font-size\s*:\s*(\d+)");
+                    if (match.Success && float.TryParse(match.Groups[1].Value, out var size))
+                    {
+                        fontSize = size;
+                    }
                 }
 
                 // Extract styles

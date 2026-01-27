@@ -68,7 +68,6 @@ public class SeribanTemplateRenderer
         var membersList = members?.Select(m => new Dictionary<string, object?>
         {
             { "lastName", string.IsNullOrWhiteSpace(m.LastName) ? "" : m.LastName.Trim() },
-            { "firstName", string.IsNullOrWhiteSpace(m.FirstNames) ? "" : m.FirstNames.Trim() },
             { "initials", string.IsNullOrWhiteSpace(m.Initials) ? "" : m.Initials.Trim() },
             { "joined", string.IsNullOrWhiteSpace(m.Joined) ? "" : m.Joined.Trim() }
         }).ToList() ?? new List<Dictionary<string, object?>>();

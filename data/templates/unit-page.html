@@ -9,7 +9,7 @@
     <!-- Summary Section -->
     <div style="margin-bottom: 10px;">
         {{ if location }}
-            <p style="font-size: 10pt; margin: 5px 0; text-align: center;">
+            <p style="font-size: 9pt; margin: 5px 0; text-align: center;">
                 Constituted on {{ unit.established }}. Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
             </p>
         {{ else }}
@@ -17,15 +17,10 @@
                 NO LOCATION INFORMATION AVAILABLE
             </p>
         {{ end }}
-        <p style="font-size: 9pt; margin: 5px 0; text-align: center;">
+        <p style="font-size: 8pt; margin: 5px 0; text-align: center;">
             <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
         </p>
     </div>
-    
-    <!-- Footer -->
-    <!--div style="border-top: 1px solid #ccc; margin-top: 20px; padding-top: 10px; font-size: 8pt; color: #808080;">
-        <p style="margin: 0; text-align: center;">Generated: {{ now }}</p>
-    </div-->
     
     <!-- Officers Table -->
     {{ if officers && officers.size > 0 }}

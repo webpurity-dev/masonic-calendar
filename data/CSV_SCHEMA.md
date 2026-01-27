@@ -62,7 +62,6 @@
 - `ID` (guid) - Primary key
 - `UnitID` (guid) - FK to sample-units.csv
 - `LastName` (string) - Members last name
-- `FirstNames` (string) - Members first names
 - `Initials` (string) - Members first name initials
 - `Joined` (string) - Year the member joined
 - `ProvRank` (string) - Current provincial rank

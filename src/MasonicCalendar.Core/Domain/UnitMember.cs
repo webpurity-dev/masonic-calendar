@@ -14,8 +14,6 @@ public class UnitMember
 
     public string LastName { get; set; } = string.Empty;
 
-    public string FirstNames { get; set; } = string.Empty;
-
     public string Initials { get; set; } = string.Empty;
 
     public string Joined { get; set; } = string.Empty;

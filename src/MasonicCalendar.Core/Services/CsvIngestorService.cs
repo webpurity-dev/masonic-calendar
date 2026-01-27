@@ -431,7 +431,6 @@ public class UnitMemberMap : ClassMap<UnitMember>
         Map(m => m.Id).Name("ID").Optional().TypeConverter<GenerateGuidConverter>();
         Map(m => m.UnitId).Name("UnitID");
         Map(m => m.LastName).Name("LastName");
-        Map(m => m.FirstNames).Name("FirstNames");
         Map(m => m.Initials).Name("Initials").Optional();
         Map(m => m.Joined).Name("Joined").Optional();
         Map(m => m.ProvRank).Name("ProvRank").Optional();

@@ -28,7 +28,13 @@ A comprehensive .NET solution for generating searchable, downloadable calendars 
 - ✅ Support for both PDF and HTML output formats
 - ✅ Centered, professionally formatted documents
 - ✅ Customizable layouts via HTML templates
-- ✅ **Table of Contents** - Automatic TOC page with unit names and estimated page numbers (multi-unit PDFs)
+- ✅ **Table of Contents** - Automatic TOC page with internal PDF links for multi-unit documents
+- ✅ **Page Numbers** - 6pt centered footer page numbers on all PDF pages
+- ✅ **Officer Management** - Current officers displayed by order (Installation/Order 1-14+)
+- ✅ **Past Masters** - Historical master data with installation dates and provincial ranks
+- ✅ **Joining Past Masters** - Members who achieved master rank in other lodges
+- ✅ **Member Lists** - Lodge members with join dates, displayed in two-column layout for space efficiency
+- ✅ **Honorary Members** - Honorary members with grand and provincial ranks
 - ✅ **Meetings Calendar** - 12-month calendar grid view with unit meeting schedules
 - ✅ **Recurrence Rules** - Automatic expansion of recurring meetings (weekly, monthly, nth weekday, etc.)
 - ✅ **Dynamic Date Ranges** - Generate 12-month rolling calendars from any month via `--from-date MM-YYYY`
@@ -215,15 +221,22 @@ When run without arguments:
 The system expects multiple CSV files in the `data/` directory:
 
 ### Required Files
-1. **sample-events.csv** - Calendar events with dates and descriptions
-2. **sample-units.csv** - Lodge units with meeting schedules
-3. **sample-unit-locations.csv** - Physical meeting locations
+1. **sample-units.csv** - Lodge/Chapter units with basic information
+2. **sample-unit-locations.csv** - Physical meeting locations
 
-### Optional Files
-4. **sample-officers.csv** - Officer positions and titles
-5. **sample-unit-officers.csv** - Current officers for each unit
-6. **sample-unit-pmo.csv** - Past Masters for each unit
-7. **sample-unit-meetings.csv** - Meeting recurrence rules for each unit
+### Officer & Leadership Files
+3. **sample-officers.csv** - Officer positions and titles
+4. **sample-unit-officers.csv** - Current officers for each unit (displayed by Order 1-14+)
+5. **sample-unit-pmo.csv** - Past Masters for each unit (historical masters with installation dates)
+6. **sample-unit-pmi.csv** - Joining Past Masters (members who achieved master rank in other lodges)
+
+### Member Files
+7. **sample-unit-members.csv** - Regular lodge members with join dates (displayed in two-column layout)
+8. **sample-unit-honorary.csv** - Honorary members with grand and provincial ranks
+
+### Meeting & Event Files
+9. **sample-unit-meetings.csv** - Meeting recurrence rules for each unit
+10. **sample-events.csv** - Calendar events with dates and descriptions (optional)
 
 Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEMA.md).
 
@@ -286,35 +299,33 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 
 ## 💾 Data Models
 
-### CalendarEvent
-- EventId, EventName, EventDate (DateOnly), Description, Location
+### Unit Information
+- **Unit:** Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, Established, LastInstallationDate, UnitType
+- **UnitLocation:** Id, Name, AddressLine1, Town, Postcode, What3Words
 
-### Unit
-- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, Established, LastInstallationDate
+### Officers & Leadership
+- **Officer:** Id, Order, Abbreviation, Name
+- **UnitOfficer:** Id, UnitId, OfficerId, LastName, Initials (current officers displayed by Order)
+- **UnitPastMaster:** Id, UnitId, LastName, Initials, Installed, ProvRank, ProvRankIssued
+- **UnitPMI** (Joining Past Masters): Id, UnitId, LastName, Initials, ProvRank, ProvRankIssued, Code
 
-### UnitLocation
-- Id, Name, AddressLine1, Town, Postcode, What3Words
+### Members
+- **UnitMember:** Id, UnitId, LastName, Initials, Joined, ProvRank, Code (displayed in two-column layout)
+- **UnitHonrary** (Honorary Members): Id, UnitId, LastName, Initials, GrandRank, ProvRank, Code
 
-### Officer
-- Id, Order, Abbreviation, Name
-
-### UnitOfficer
-- Id, UnitId, OfficerId, LastName, Initials
-
-### UnitPastMaster
-- Id, UnitId, LastName, Initials, Installed, ProvRank, ProvRankIssued
-
-### UnitMeeting
-- Id, UnitId, Title, RecurrenceType, RecurrenceStrategy, DayOfWeek, WeekNumber, DayNumber, StartMonth, EndMonth, Months, Override
-
-### Unit
-- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, Established, LastInstallationDate, UnitType
+### Meetings & Events
+- **UnitMeeting:** Id, UnitId, Title, RecurrenceType, RecurrenceStrategy, DayOfWeek, WeekNumber, DayNumber, StartMonth, EndMonth, Months, Override
+- **CalendarEvent:** EventId, EventName, EventDate (DateOnly), Description, Location
+## 🔄 Data Processing Pipeline
 
 ### Unit Pages
-1. **Read CSV Files** → CsvIngestorService parses events, units, locations, officers, and past masters
+1. **Read CSV Files** → CsvIngestorService parses units, locations, officers, past masters, PMI, members, and honorary members
 2. **Build Location Dictionary** → Map LocationId to UnitLocation objects
-3. **Render Templates** → SeribanTemplateRenderer processes HTML templates with data
-4. **Parse HTML → PDF** → UnitPdfExporter converts styled HTML to PDF pages
+3. **Render Templates** → SeribanTemplateRenderer processes Scriban HTML templates with unit and member data
+4. **Parse HTML → PDF** → UnitPdfExporter converts styled HTML to PDF pages with:
+   - Table of Contents with internal PDF links
+   - Page numbers (6pt) in center footer
+   - Professional formatting with proper font sizing
 5. **Output** → Generate timestamped PDF or HTML file
 
 ### Meetings Calendar

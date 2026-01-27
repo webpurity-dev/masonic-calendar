@@ -15,6 +15,9 @@ var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
 var officersPath = Path.Combine(dataPath, "sample-officers.csv");
 var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
 var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
+var unitPMIPath = Path.Combine(dataPath, "sample-unit-pmi.csv");
+var unitMembersPath = Path.Combine(dataPath, "sample-unit-members.csv");
+var unitHonraryPath = Path.Combine(dataPath, "sample-unit-honorary.csv");
 
 // Output directory (in the project root)
 var outputDir = Path.Combine(projectRoot, "output");
@@ -321,7 +324,37 @@ if (!unitPastMastersResult.Success)
     Console.WriteLine($"❌ Error reading unit past masters: {unitPastMastersResult.Error}");
     return 1;
 }
-Console.WriteLine($"✅ Loaded {unitPastMastersResult.Data!.Count} unit past master records\n");
+Console.WriteLine($"✅ Loaded {unitPastMastersResult.Data!.Count} unit past master records");
+
+// Read Unit PMI (Joining Past Masters)
+Console.WriteLine("Reading joining past masters...");
+var unitPMIResult = ingestor.ReadUnitPMIFromCsv(unitPMIPath);
+if (!unitPMIResult.Success)
+{
+    Console.WriteLine($"❌ Error reading joining past masters: {unitPMIResult.Error}");
+    return 1;
+}
+Console.WriteLine($"✅ Loaded {unitPMIResult.Data!.Count} joining past master records");
+
+// Read Unit Members
+Console.WriteLine("Reading members...");
+var unitMembersResult = ingestor.ReadUnitMembersFromCsv(unitMembersPath);
+if (!unitMembersResult.Success)
+{
+    Console.WriteLine($"❌ Error reading members: {unitMembersResult.Error}");
+    return 1;
+}
+Console.WriteLine($"✅ Loaded {unitMembersResult.Data!.Count} member records");
+
+// Read Unit Honorary Members
+Console.WriteLine("Reading honorary members...");
+var unitHonraryResult = ingestor.ReadUnitHonraryFromCsv(unitHonraryPath);
+if (!unitHonraryResult.Success)
+{
+    Console.WriteLine($"❌ Error reading honorary members: {unitHonraryResult.Error}");
+    return 1;
+}
+Console.WriteLine($"✅ Loaded {unitHonraryResult.Data!.Count} honorary member records\n");
 
 // Filter units if a specific unit number was requested
 var unitsToExport = unitsResult.Data;
@@ -360,14 +393,14 @@ try
     {
         Console.WriteLine("Generating unit pages PDF...");
         var unitExporter = new UnitPdfExporter(pageSize: pageSize);
-        unitExporter.ExportUnitsToPdf(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitsOutputPath);
+        unitExporter.ExportUnitsToPdf(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitPMIResult.Data, unitMembersResult.Data, unitHonraryResult.Data, unitsOutputPath);
         Console.WriteLine($"✅ Units PDF generated: {unitsOutputPath} ({pageSize})");
     }
     else if (outputFormat == "html")
     {
         Console.WriteLine("Generating unit pages HTML...");
         var unitExporter = new UnitPdfExporter();
-        unitExporter.ExportUnitsToHtml(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitsOutputPath);
+        unitExporter.ExportUnitsToHtml(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitPMIResult.Data, unitMembersResult.Data, unitHonraryResult.Data, unitsOutputPath);
         Console.WriteLine($"✅ Units HTML generated: {unitsOutputPath}");
     }
     

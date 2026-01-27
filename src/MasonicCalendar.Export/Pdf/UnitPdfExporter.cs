@@ -32,12 +32,61 @@ public class UnitPdfExporter
 
     /// <summary>
     /// Exports a list of units to a PDF file with one page per unit.
+    /// Includes a table of contents at the beginning (if more than one unit).
     /// </summary>
-    public void ExportUnitsToPdf(List<Unit> units, Dictionary<Guid, UnitLocation> locations, List<UnitOfficer> unitOfficers, Dictionary<Guid, Officer> officers, List<UnitPastMaster> pastMasters, string outputPath)
+    public void ExportUnitsToPdf(List<Unit> units, Dictionary<Guid, UnitLocation> locations, List<UnitOfficer> unitOfficers, Dictionary<Guid, Officer> officers, List<UnitPastMaster> pastMasters, List<UnitPMI> joiningPastMasters, List<UnitMember> members, List<UnitHonrary> honoraryMembers, string outputPath)
     {
+        var orderedUnits = units.OrderBy(u => u.Number).ToList();
+        
         var document = Document.Create(container =>
         {
-            foreach (var unit in units.OrderBy(u => u.Number))
+            // Add table of contents if multiple units
+            if (orderedUnits.Count > 1)
+            {
+                container.Page(page =>
+                {
+                    var (width, height, margin) = _pageSize switch
+                    {
+                        "A5" => (419.53f, 595.28f, 10f),
+                        "A6" => (297.64f, 419.53f, 8f),
+                        _ => (595.28f, 841.89f, 20f)
+                    };
+                    page.Size(width, height);
+                    page.Margin(margin);
+
+                    page.Content().Column(column =>
+                    {
+                        column.Item().Text("Table of Contents").FontSize(16).Bold().AlignCenter();
+                        column.Item().PaddingBottom(20);
+
+                        int pageNumber = 2; // TOC is page 1, units start at page 2
+                        foreach (var unit in orderedUnits)
+                        {
+                            // Estimate unit content to approximate pages needed
+                            // Most units fit on 1 page, some with many officers might need 2
+                            var unitsOfficers = unitOfficers.Where(uo => uo.UnitId == unit.Id).Count();
+                            var pastMastersCount = pastMasters.Where(pm => pm.UnitId == unit.Id).Count();
+                            var estimatedPages = (unitsOfficers > 20 || pastMastersCount > 30) ? 2 : 1;
+
+                            // Render TOC entry - format: "Number Name" with dotted line and page number
+                            // Font size reduced by 40% (10pt → 6pt)
+                            var unitLabel = $"{unit.Number} {unit.Name}";
+                            var unitDestination = $"unit-{unit.Id:N}";
+                            
+                            column.Item().Hyperlink(unitDestination).Row(row =>
+                            {
+                                row.RelativeItem().Text(unitLabel).FontSize(6);
+                                row.ConstantItem(40).Text(pageNumber.ToString()).FontSize(6).AlignRight();
+                            });
+
+                            pageNumber += estimatedPages;
+                        }
+                    });
+                });
+            }
+
+            // Add unit pages
+            foreach (var unit in orderedUnits)
             {
                 locations.TryGetValue(unit.LocationId, out var location);
                 
@@ -57,6 +106,21 @@ public class UnitPdfExporter
                     .Where(pm => pm.UnitId == unit.Id)
                     .ToList();
 
+                // Get joining past masters for this unit
+                var unitsJoiningPastMasters = joiningPastMasters
+                    .Where(jpm => jpm.UnitId == unit.Id)
+                    .ToList();
+
+                // Get members for this unit
+                var unitsMembers = members
+                    .Where(m => m.UnitId == unit.Id)
+                    .ToList();
+
+                // Get honorary members for this unit
+                var unitsHonoraryMembers = honoraryMembers
+                    .Where(hm => hm.UnitId == unit.Id)
+                    .ToList();
+
                 container.Page(page =>
                 {
                     // Set page size based on configuration
@@ -72,7 +136,7 @@ public class UnitPdfExporter
                     page.Margin(margin);
 
                     // Render the unit page using the Scriban template
-                    var html = _templateRenderer.RenderUnitPage(unit, location, unitsOfficers, unitsPastMasters);
+                    var html = _templateRenderer.RenderUnitPage(unit, location, unitsOfficers, unitsPastMasters, unitsJoiningPastMasters, unitsMembers, unitsHonoraryMembers);
                     
                     // Parse and display the rendered template content
                     page.Content().Column(column =>
@@ -89,9 +153,11 @@ public class UnitPdfExporter
     /// <summary>
     /// Exports a list of units to an HTML file with one page per unit.
     /// Useful for verifying layout and content before PDF generation.
+    /// Includes a table of contents with clickable links for multi-unit documents.
     /// </summary>
-    public void ExportUnitsToHtml(List<Unit> units, Dictionary<Guid, UnitLocation> locations, List<UnitOfficer> unitOfficers, Dictionary<Guid, Officer> officers, List<UnitPastMaster> pastMasters, string outputPath)
+    public void ExportUnitsToHtml(List<Unit> units, Dictionary<Guid, UnitLocation> locations, List<UnitOfficer> unitOfficers, Dictionary<Guid, Officer> officers, List<UnitPastMaster> pastMasters, List<UnitPMI> joiningPastMasters, List<UnitMember> members, List<UnitHonrary> honoraryMembers, string outputPath)
     {
+        var orderedUnits = units.OrderBy(u => u.Number).ToList();
         var html = new System.Text.StringBuilder();
         
         html.AppendLine("<!DOCTYPE html>");
@@ -103,12 +169,47 @@ public class UnitPdfExporter
         html.AppendLine("    <style>");
         html.AppendLine("        body { font-family: Arial, sans-serif; margin: 0; padding: 10px; background: #f5f5f5; }");
         html.AppendLine("        .unit-page { page-break-after: always; background: white; padding: 40px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }");
-        html.AppendLine("        @media print { body { padding: 0; margin: 0; background: white; } .unit-page { margin-bottom: 0; box-shadow: none; } }");
+        html.AppendLine("        .toc-page { page-break-after: always; background: white; padding: 40px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }");
+        html.AppendLine("        .toc-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 30px; }");
+        html.AppendLine("        .toc-entry { margin: 8px 0; display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; padding-bottom: 4px; }");
+        html.AppendLine("        .toc-entry a { text-decoration: none; color: #0066cc; flex: 1; }");
+        html.AppendLine("        .toc-entry a:hover { text-decoration: underline; }");
+        html.AppendLine("        .toc-page-number { margin-left: 20px; text-align: right; min-width: 40px; }");
+        html.AppendLine("        @media print { body { padding: 0; margin: 0; background: white; } .unit-page, .toc-page { margin-bottom: 0; box-shadow: none; } }");
         html.AppendLine("    </style>");
         html.AppendLine("</head>");
         html.AppendLine("<body>");
 
-        foreach (var unit in units.OrderBy(u => u.Number))
+        // Add table of contents if multiple units
+        if (orderedUnits.Count > 1)
+        {
+            html.AppendLine("    <div class=\"toc-page\">");
+            html.AppendLine("        <div class=\"toc-title\">Table of Contents</div>");
+            
+            int pageNumber = 2; // TOC is page 1, units start at page 2
+            foreach (var unit in orderedUnits)
+            {
+                // Estimate unit content to approximate pages needed
+                var unitsOfficers = unitOfficers.Where(uo => uo.UnitId == unit.Id).Count();
+                var pastMastersCount = pastMasters.Where(pm => pm.UnitId == unit.Id).Count();
+                var estimatedPages = (unitsOfficers > 20 || pastMastersCount > 30) ? 2 : 1;
+
+                var unitLabel = $"{unit.Number} {unit.Name}";
+                var unitAnchor = $"unit-{unit.Id:N}";
+                
+                html.AppendLine($"        <div class=\"toc-entry\">");
+                html.AppendLine($"            <a href=\"#{unitAnchor}\">{HtmlEncode(unitLabel)}</a>");
+                html.AppendLine($"            <div class=\"toc-page-number\">{pageNumber}</div>");
+                html.AppendLine($"        </div>");
+                
+                pageNumber += estimatedPages;
+            }
+            
+            html.AppendLine("    </div>");
+        }
+
+        // Add unit pages with anchors
+        foreach (var unit in orderedUnits)
         {
             locations.TryGetValue(unit.LocationId, out var location);
             
@@ -127,10 +228,26 @@ public class UnitPdfExporter
             var unitsPastMasters = pastMasters
                 .Where(pm => pm.UnitId == unit.Id)
                 .ToList();
+
+            // Get joining past masters for this unit
+            var unitsJoiningPastMasters = joiningPastMasters
+                .Where(jpm => jpm.UnitId == unit.Id)
+                .ToList();
+
+            // Get members for this unit
+            var unitsMembers = members
+                .Where(m => m.UnitId == unit.Id)
+                .ToList();
+
+            // Get honorary members for this unit
+            var unitsHonoraryMembers = honoraryMembers
+                .Where(hm => hm.UnitId == unit.Id)
+                .ToList();
             
-            var rendered = _templateRenderer.RenderUnitPage(unit, location, unitsOfficers, unitsPastMasters);
+            var rendered = _templateRenderer.RenderUnitPage(unit, location, unitsOfficers, unitsPastMasters, unitsJoiningPastMasters, unitsMembers, unitsHonoraryMembers);
             
-            html.AppendLine("    <div class=\"unit-page\">");
+            var unitAnchor = $"unit-{unit.Id:N}";
+            html.AppendLine($"    <div class=\"unit-page\" id=\"{unitAnchor}\">");
             html.AppendLine(rendered);
             html.AppendLine("    </div>");
         }
@@ -139,6 +256,14 @@ public class UnitPdfExporter
         html.AppendLine("</html>");
 
         File.WriteAllText(outputPath, html.ToString());
+    }
+
+    /// <summary>
+    /// HTML encodes a string to safely display in HTML.
+    /// </summary>
+    private static string HtmlEncode(string text)
+    {
+        return System.Net.WebUtility.HtmlEncode(text);
     }
 
     /// <summary>

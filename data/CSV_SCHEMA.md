@@ -21,9 +21,7 @@
 - `Name` (string) - Location name
 - `LocationID` (guid) - FK to sample-unit-locations.csv
 - `Email` (string) - Contact email address
-- `InstallationMonth` (string) - Month of unit installation meeting
-- `MeetingSummary` (string) - Summary of unit meetings
-- `WarrantIssued` (date) - Date the unit was issued a warrant
+- `Established` (date) - Date the unit was established
 - `LastInstallationDate` (date) - Date of the last installation meeting
 - `UnitType` (string) - Type of unit
 
@@ -49,6 +47,35 @@
 - `Installed` (string) - Year the past master was installed
 - `ProvRank` (string) - Current provincial rank
 - `ProvRankIssued` (string) - Year the provincial rank was issued
+- `Code` (string) - Reference code
+
+## sample-unit-pmi.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `LastName` (string) - Masters last name
+- `Initials` (string) - Masters first name initials
+- `ProvRank` (string) - Current provincial rank
+- `ProvRankIssued` (string) - Year the provincial rank was issued
+- `Code` (string) - Reference code
+
+## sample-unit-members.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `LastName` (string) - Members last name
+- `FirstNames` (string) - Members first names
+- `Initials` (string) - Members first name initials
+- `Joined` (string) - Year the member joined
+- `ProvRank` (string) - Current provincial rank
+- `Code` (string) - Reference code
+
+## sample-unit-honrary.csv
+- `ID` (guid) - Primary key
+- `UnitID` (guid) - FK to sample-units.csv
+- `LastName` (string) - Masters last name
+- `Initials` (string) - Masters first name initials
+- `GrandRank` (string) - Current grand rank
+- `ProvRank` (string) - Current provincial rank
+- `Code` (string) - Reference code
 
 ## sample-unit-meetings.csv
 - `ID` (guid) - Primary key

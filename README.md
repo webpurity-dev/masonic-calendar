@@ -28,6 +28,7 @@ A comprehensive .NET solution for generating searchable, downloadable calendars 
 - ✅ Support for both PDF and HTML output formats
 - ✅ Centered, professionally formatted documents
 - ✅ Customizable layouts via HTML templates
+- ✅ **Table of Contents** - Automatic TOC page with unit names and estimated page numbers (multi-unit PDFs)
 - ✅ **Meetings Calendar** - 12-month calendar grid view with unit meeting schedules
 - ✅ **Recurrence Rules** - Automatic expansion of recurring meetings (weekly, monthly, nth weekday, etc.)
 - ✅ **Dynamic Date Ranges** - Generate 12-month rolling calendars from any month via `--from-date MM-YYYY`
@@ -232,6 +233,7 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 - **File:** `units-output-<unit-number>-<pagesize>.pdf`
 - **Example:** `units-output-6827-A6.pdf`
 - **Features:** One page per unit, professionally formatted, ready for printing
+- **Table of Contents:** Automatically included for multi-unit PDFs (2+ units) with unit names and estimated page numbers. Omitted for single-unit exports
 - **Font Sizes:** Centered headers (18pt), body text (10pt), table text (6.56pt - optimized for compact layouts)
 - **Optimization:** PDF tables are rendered at 27% smaller than HTML template base size for improved readability in compact formats
 - **Page Sizes:**
@@ -288,7 +290,7 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 - EventId, EventName, EventDate (DateOnly), Description, Location
 
 ### Unit
-- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, WarrantIssued, LastInstallationDate
+- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, Established, LastInstallationDate
 
 ### UnitLocation
 - Id, Name, AddressLine1, Town, Postcode, What3Words
@@ -306,7 +308,7 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 - Id, UnitId, Title, RecurrenceType, RecurrenceStrategy, DayOfWeek, WeekNumber, DayNumber, StartMonth, EndMonth, Months, Override
 
 ### Unit
-- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, WarrantIssued, LastInstallationDate, UnitType
+- Id, Number, Name, Location, LocationId, Email, InstallationMonth, MeetingSummary, Established, LastInstallationDate, UnitType
 
 ### Unit Pages
 1. **Read CSV Files** → CsvIngestorService parses events, units, locations, officers, and past masters

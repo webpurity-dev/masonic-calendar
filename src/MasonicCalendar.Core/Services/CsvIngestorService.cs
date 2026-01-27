@@ -3,9 +3,27 @@
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using MasonicCalendar.Core.Domain;
 
 namespace MasonicCalendar.Core.Services;
+
+/// <summary>
+/// Converts empty or whitespace Guid values to newly generated GUIDs.
+/// </summary>
+public class GenerateGuidConverter : DefaultTypeConverter
+{
+    public override object ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return Guid.NewGuid();
+
+        if (Guid.TryParse(text, out var guid))
+            return guid;
+
+        return Guid.NewGuid();
+    }
+}
 
 public class CsvIngestorService
 {
@@ -157,6 +175,66 @@ public class CsvIngestorService
             return Result<List<UnitMeeting>>.Fail($"Error reading CSV: {ex.Message}");
         }
     }
+
+    public Result<List<UnitPMI>> ReadUnitPMIFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitPMI>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitPMIMap>();
+
+            var pmi = csv.GetRecords<UnitPMI>().ToList();
+            return Result<List<UnitPMI>>.Ok(pmi);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitPMI>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
+
+    public Result<List<UnitMember>> ReadUnitMembersFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitMember>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitMemberMap>();
+
+            var members = csv.GetRecords<UnitMember>().ToList();
+            return Result<List<UnitMember>>.Ok(members);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitMember>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
+
+    public Result<List<UnitHonrary>> ReadUnitHonraryFromCsv(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+                return Result<List<UnitHonrary>>.Fail($"File not found: {filePath}");
+
+            using var reader = new StreamReader(filePath);
+            using var csv = new CsvReader(reader, CreateCsvConfig());
+            csv.Context.RegisterClassMap<UnitHonraryMap>();
+
+            var honorary = csv.GetRecords<UnitHonrary>().ToList();
+            return Result<List<UnitHonrary>>.Ok(honorary);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UnitHonrary>>.Fail($"Error reading CSV: {ex.Message}");
+        }
+    }
 }
 
 /// <summary>
@@ -227,9 +305,9 @@ public class UnitMap : ClassMap<Unit>
         Map(m => m.Location).Name("Location");
         Map(m => m.LocationId).Name("LocationID");
         Map(m => m.Email).Name("Email");
-        Map(m => m.InstallationMonth).Name("InstallationMonth");
-        Map(m => m.MeetingSummary).Name("MeetingSummary");
-        Map(m => m.WarrantIssued).Name("WarrantIssued").TypeConverter<DateOnlyConverter>();
+        Map(m => m.InstallationMonth).Name("InstallationMonth").Optional();
+        Map(m => m.MeetingSummary).Name("MeetingSummary").Optional();
+        Map(m => m.Established).Name("Established").TypeConverter<DateOnlyConverter>();
         Map(m => m.LastInstallationDate).Name("LastInstallationDate").TypeConverter<DateOnlyConverter>();
         Map(m => m.UnitType).Name("UnitType").Optional();
     }
@@ -254,6 +332,28 @@ public class DateOnlyConverter : CsvHelper.TypeConversion.DefaultTypeConverter
         // Try YYYY-MM-DD format
         if (DateOnly.TryParseExact(text, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateOnly))
             return dateOnly;
+
+        // Try textual formats like "1st April 1765", "24th October 1767", "1st Jan 2026"
+        // Strip ordinal suffixes (st, nd, rd, th) from day numbers
+        var textWithoutOrdinals = System.Text.RegularExpressions.Regex.Replace(
+            text, 
+            @"\b(\d+)(st|nd|rd|th)\b", 
+            "$1", 
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+
+        try
+        {
+            // Try to parse using flexible text formats with US culture (handles "January", "1st", etc.)
+            if (DateTime.TryParse(textWithoutOrdinals, System.Globalization.CultureInfo.GetCultureInfo("en-US"), System.Globalization.DateTimeStyles.None, out var dateTime))
+            {
+                return DateOnly.FromDateTime(dateTime);
+            }
+        }
+        catch
+        {
+            // Fall through to return null
+        }
 
         return null;
     }
@@ -302,5 +402,56 @@ public class UnitPastMasterMap : ClassMap<UnitPastMaster>
         Map(m => m.Installed).Name("Installed");
         Map(m => m.ProvRank).Name("ProvRank").Optional();
         Map(m => m.ProvRankIssued).Name("ProvRankIssued").Optional();
+    }
+}
+/// <summary>
+/// ClassMap for UnitPMI (Joining Past Masters) CSV parsing.
+/// </summary>
+public class UnitPMIMap : ClassMap<UnitPMI>
+{
+    public UnitPMIMap()
+    {
+        Map(m => m.Id).Name("ID").Optional().TypeConverter<GenerateGuidConverter>();
+        Map(m => m.UnitId).Name("UnitID");
+        Map(m => m.LastName).Name("LastName");
+        Map(m => m.Initials).Name("Initials");
+        Map(m => m.ProvRank).Name("ProvRank").Optional();
+        Map(m => m.ProvRankIssued).Name("ProvRankIssued").Optional();
+        Map(m => m.Code).Name("Code").Optional();
+    }
+}
+
+/// <summary>
+/// ClassMap for UnitMember CSV parsing.
+/// </summary>
+public class UnitMemberMap : ClassMap<UnitMember>
+{
+    public UnitMemberMap()
+    {
+        Map(m => m.Id).Name("ID").Optional().TypeConverter<GenerateGuidConverter>();
+        Map(m => m.UnitId).Name("UnitID");
+        Map(m => m.LastName).Name("LastName");
+        Map(m => m.FirstNames).Name("FirstNames");
+        Map(m => m.Initials).Name("Initials").Optional();
+        Map(m => m.Joined).Name("Joined").Optional();
+        Map(m => m.ProvRank).Name("ProvRank").Optional();
+        Map(m => m.Code).Name("Code").Optional();
+    }
+}
+
+/// <summary>
+/// ClassMap for UnitHonrary (Honorary Members) CSV parsing.
+/// </summary>
+public class UnitHonraryMap : ClassMap<UnitHonrary>
+{
+    public UnitHonraryMap()
+    {
+        Map(m => m.Id).Name("ID").Optional().TypeConverter<GenerateGuidConverter>();
+        Map(m => m.UnitId).Name("UnitID");
+        Map(m => m.LastName).Name("LastName");
+        Map(m => m.Initials).Name("Initials").Optional();
+        Map(m => m.GrandRank).Name("GrandRank").Optional();
+        Map(m => m.ProvRank).Name("ProvRank").Optional();
+        Map(m => m.Code).Name("Code").Optional();
     }
 }

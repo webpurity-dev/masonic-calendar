@@ -19,7 +19,7 @@ public class SeribanTemplateRenderer
     /// <summary>
     /// Renders a unit page as HTML using the Scriban template.
     /// </summary>
-    public string RenderUnitPage(Unit unit, UnitLocation? location, List<UnitOfficer>? unitOfficers = null, List<UnitPastMaster>? pastMasters = null)
+    public string RenderUnitPage(Unit unit, UnitLocation? location, List<UnitOfficer>? unitOfficers = null, List<UnitPastMaster>? pastMasters = null, List<UnitPMI>? joiningPastMasters = null, List<UnitMember>? members = null, List<UnitHonrary>? honoraryMembers = null)
     {
         var template = LoadTemplate();
         
@@ -55,6 +55,38 @@ public class SeribanTemplateRenderer
             { "provRankIssued", string.IsNullOrWhiteSpace(pm.ProvRankIssued) ? "" : pm.ProvRankIssued.Trim() }
         }).OrderBy(pm => pm["installed"]).ToList() ?? new List<Dictionary<string, object?>>();
 
+        // Build joining past masters list
+        var joiningPastMastersList = joiningPastMasters?.Select(jpm => new Dictionary<string, object?>
+        {
+            { "lastName", string.IsNullOrWhiteSpace(jpm.LastName) ? "" : jpm.LastName.Trim() },
+            { "initials", string.IsNullOrWhiteSpace(jpm.Initials) ? "" : jpm.Initials.Trim() },
+            { "provRank", string.IsNullOrWhiteSpace(jpm.ProvRank) ? "" : jpm.ProvRank.Trim() },
+            { "provRankIssued", string.IsNullOrWhiteSpace(jpm.ProvRankIssued) ? "" : jpm.ProvRankIssued.Trim() }
+        }).ToList() ?? new List<Dictionary<string, object?>>();
+
+        // Build members list
+        var membersList = members?.Select(m => new Dictionary<string, object?>
+        {
+            { "lastName", string.IsNullOrWhiteSpace(m.LastName) ? "" : m.LastName.Trim() },
+            { "firstName", string.IsNullOrWhiteSpace(m.FirstNames) ? "" : m.FirstNames.Trim() },
+            { "initials", string.IsNullOrWhiteSpace(m.Initials) ? "" : m.Initials.Trim() },
+            { "joined", string.IsNullOrWhiteSpace(m.Joined) ? "" : m.Joined.Trim() }
+        }).ToList() ?? new List<Dictionary<string, object?>>();
+
+        // Split members into left and right columns
+        var membersMidpoint = (membersList.Count + 1) / 2;
+        var membersLeft = membersList.Take(membersMidpoint).ToList();
+        var membersRight = membersList.Skip(membersMidpoint).ToList();
+
+        // Build honorary members list
+        var honoraryMembersList = honoraryMembers?.Select(hm => new Dictionary<string, object?>
+        {
+            { "lastName", string.IsNullOrWhiteSpace(hm.LastName) ? "" : hm.LastName.Trim() },
+            { "initials", string.IsNullOrWhiteSpace(hm.Initials) ? "" : hm.Initials.Trim() },
+            { "grandRank", string.IsNullOrWhiteSpace(hm.GrandRank) ? "" : hm.GrandRank.Trim() },
+            { "provRank", string.IsNullOrWhiteSpace(hm.ProvRank) ? "" : hm.ProvRank.Trim() }
+        }).ToList() ?? new List<Dictionary<string, object?>>();
+
         var model = new Dictionary<string, object?>
         {
             {
@@ -66,13 +98,18 @@ public class SeribanTemplateRenderer
                     { "location", unit.Location },
                     { "installationMonth", unit.InstallationMonth },
                     { "meetingSummary", unit.MeetingSummary },
-                    { "warrantIssued", unit.WarrantIssued?.ToString("MMM d, yyyy") ?? "" },
-                    { "lastInstallationDate", unit.LastInstallationDate?.ToString("MMM d, yyyy") ?? "" }
+                    { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
+                    { "lastInstallationDate", unit.LastInstallationDate.HasValue ? FormatDateWithOrdinal(unit.LastInstallationDate.Value) : "" }
                 }
             },
             { "location", locationDict },
             { "officers", officersList },
             { "pastMasters", pastMastersList },
+            { "joiningPastMasters", joiningPastMastersList },
+            { "members", membersList },
+            { "membersLeft", membersLeft },
+            { "membersRight", membersRight },
+            { "honoraryMembers", honoraryMembersList },
             { "now", DateTime.Now.ToString("MMM d, yyyy") }
         };
 
@@ -101,5 +138,22 @@ public class SeribanTemplateRenderer
     public void ClearCache()
     {
         _cachedTemplate = null;
+    }
+
+    /// <summary>
+    /// Formats a DateOnly as "d MMMM yyyy" with ordinal suffix (e.g., "1st April 1765").
+    /// </summary>
+    private string FormatDateWithOrdinal(DateOnly date)
+    {
+        var day = date.Day;
+        var suffix = day switch
+        {
+            1 or 21 or 31 => "st",
+            2 or 22 => "nd",
+            3 or 23 => "rd",
+            _ => "th"
+        };
+
+        return date.ToString($"d'{suffix}' MMMM yyyy");
     }
 }

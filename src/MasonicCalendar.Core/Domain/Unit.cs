@@ -18,7 +18,7 @@ public class Unit
 
     public string MeetingSummary { get; set; } = string.Empty;
 
-    public DateOnly? WarrantIssued { get; set; }
+    public DateOnly? Established { get; set; }
 
     public DateOnly? LastInstallationDate { get; set; }
 

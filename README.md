@@ -232,7 +232,8 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 - **File:** `units-output-<unit-number>-<pagesize>.pdf`
 - **Example:** `units-output-6827-A6.pdf`
 - **Features:** One page per unit, professionally formatted, ready for printing
-- **Font Sizes:** Centered headers (18pt), body text (10pt), table text (9pt)
+- **Font Sizes:** Centered headers (18pt), body text (10pt), table text (6.56pt - optimized for compact layouts)
+- **Optimization:** PDF tables are rendered at 27% smaller than HTML template base size for improved readability in compact formats
 - **Page Sizes:**
   - A4: Full standard letter size
   - A5: Compact size (half of A4)

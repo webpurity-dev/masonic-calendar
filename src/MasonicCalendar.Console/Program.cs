@@ -6,7 +6,9 @@ using QuestPDF.Infrastructure;
 // Configure QuestPDF license for community use (non-profit)
 QuestPDF.Settings.License = LicenseType.Community;
 
-var dataPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data");
+// Get the project root directory (up three levels from the bin directory)
+var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
+var dataPath = Path.Combine(projectRoot, "data");
 var eventsPath = Path.Combine(dataPath, "sample-events.csv");
 var unitsPath = Path.Combine(dataPath, "sample-units.csv");
 var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
@@ -14,8 +16,8 @@ var officersPath = Path.Combine(dataPath, "sample-officers.csv");
 var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
 var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
 
-// Output directory
-var outputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+// Output directory (in the project root)
+var outputDir = Path.Combine(projectRoot, "output");
 if (!Directory.Exists(outputDir))
     Directory.CreateDirectory(outputDir);
 
@@ -52,6 +54,26 @@ if (args.Contains("--meetings-calendar"))
     // Check for landscape orientation (default to false for portrait)
     var isLandscape = args.Contains("--landscape");
     
+    // Check for from-date parameter (MM-YYYY format, defaults to current January of current year)
+    DateOnly calendarStartDate = new DateOnly(2026, 1, 1);
+    var fromDateIndex = Array.IndexOf(args, "--from-date");
+    if (fromDateIndex != -1 && fromDateIndex + 1 < args.Length)
+    {
+        var fromDateStr = args[fromDateIndex + 1];
+        // Parse MM-YYYY format
+        if (fromDateStr.Contains("-") && fromDateStr.Split('-').Length == 2)
+        {
+            var parts = fromDateStr.Split('-');
+            if (int.TryParse(parts[0], out int month) && int.TryParse(parts[1], out int year))
+            {
+                if (month >= 1 && month <= 12 && year > 1900 && year < 2100)
+                {
+                    calendarStartDate = new DateOnly(year, month, 1);
+                }
+            }
+        }
+    }
+    
     var meetingsPath = Path.Combine(dataPath, "sample-unit-meetings.csv");
     var meetingsIngestor = new CsvIngestorService();
     var meetingsResult = meetingsIngestor.ReadUnitMeetingsFromCsv(meetingsPath);
@@ -75,14 +97,32 @@ if (args.Contains("--meetings-calendar"))
     Console.WriteLine($"✅ Loaded {meetingsResult.Data!.Count} meeting series");
     Console.WriteLine($"✅ Loaded {meetingsUnitsResult.Data!.Count} units");
     
-    // Expand meetings to see how many dates are generated
-    var expanded = MeetingRecurrenceExpander.ExpandMeetings(meetingsResult.Data!, 2026, new DateOnly(2026, 1, 1));
-    Console.WriteLine($"✅ Generated {expanded.Count} calendar dates from recurrence rules\n");
+    // Calculate end date (12 months after start)
+    DateOnly calendarEndDate = calendarStartDate.AddMonths(12).AddDays(-1);
+    
+    // Expand meetings for the range. Need to consider both years involved
+    var expandedDates = new List<(MasonicCalendar.Core.Domain.UnitMeeting, DateOnly)>();
+    
+    // Generate for the start year and the next year (to cover year boundaries)
+    foreach (var year in new[] { calendarStartDate.Year, calendarStartDate.AddMonths(12).Year })
+    {
+        var yearExpanded = MeetingRecurrenceExpander.ExpandMeetings(meetingsResult.Data!, year, calendarStartDate);
+        expandedDates.AddRange(yearExpanded);
+    }
+    
+    // Filter to only include dates within the 12-month range and remove duplicates
+    var expanded = expandedDates
+        .Where(x => x.Item2 >= calendarStartDate && x.Item2 <= calendarEndDate)
+        .DistinctBy(x => (x.Item1.Id, x.Item2))
+        .ToList();
+    
+    Console.WriteLine($"✅ Generated {expanded.Count} calendar dates from recurrence rules");
+    Console.WriteLine($"📅 Calendar period: {calendarStartDate:MMM yyyy} to {calendarEndDate:MMM yyyy}\n");
     
     // Group meetings by unit and export to CSV
     var unitDict = meetingsUnitsResult.Data!.ToDictionary(u => u.Id);
     var expandedByUnit = expanded
-        .GroupBy(x => x.meeting.UnitId)
+        .GroupBy(x => x.Item1.UnitId)
         .OrderBy(g => SortKey(g))
         .ToList();
     
@@ -100,7 +140,8 @@ if (args.Contains("--meetings-calendar"))
     }
     
     // Export to CSV
-    var csvPath = Path.Combine(outputDir, "meetings-2026.csv");
+    var csvDateLabel = $"{calendarStartDate:MM-yyyy}";
+    var csvPath = Path.Combine(outputDir, $"meetings-{csvDateLabel}.csv");
     using (var writer = new System.IO.StreamWriter(csvPath))
     {
         writer.WriteLine("Unit Number,Unit Name,Unit Type,Meeting Date,Meeting Title");
@@ -109,10 +150,10 @@ if (args.Contains("--meetings-calendar"))
         {
             if (unitDict.TryGetValue(group.Key, out var unit))
             {
-                foreach (var item in group.OrderBy(x => x.date))
+                foreach (var item in group.OrderBy(x => x.Item2))
                 {
-                    var date = item.date.ToString("yyyy-MM-dd");
-                    var title = item.meeting.Title.Replace("\"", "\"\""); // Escape quotes
+                    var date = item.Item2.ToString("yyyy-MM-dd");
+                    var title = item.Item1.Title.Replace("\"", "\"\""); // Escape quotes
                     writer.WriteLine($"\"{unit.Number}\",\"{unit.Name}\",\"{unit.UnitType}\",\"{date}\",\"{title}\"");
                 }
             }
@@ -126,18 +167,20 @@ if (args.Contains("--meetings-calendar"))
     if (meetingsOutputFormat == "html")
     {
         Console.WriteLine("Generating meetings calendar HTML...");
-        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026{sundayLabel}.html");
+        var htmlDateLabel = $"{calendarStartDate:MM-yyyy}";
+        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-{htmlDateLabel}{sundayLabel}.html");
         var meetingsExporter = new MeetingsCalendarHtmlExporter();
-        meetingsExporter.ExportMeetingsToHtml(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data, includeSundays);
+        meetingsExporter.ExportMeetingsToHtml(meetingsResult.Data!, calendarStartDate, meetingsOutputPath, meetingsUnitsResult.Data, includeSundays);
         Console.WriteLine($"✅ Meetings calendar HTML generated: {meetingsOutputPath}");
     }
     else
     {
         Console.WriteLine("Generating meetings calendar PDF...");
         var orientationLabel = isLandscape ? "landscape" : "portrait";
-        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-2026-{meetingsPageSize}-{orientationLabel}{sundayLabel}.pdf");
+        var pdfDateLabel = $"{calendarStartDate:MM-yyyy}";
+        var meetingsOutputPath = Path.Combine(outputDir, $"meetings-output-{pdfDateLabel}-{meetingsPageSize}-{orientationLabel}{sundayLabel}.pdf");
         var meetingsExporter = new MeetingsCalendarExporter();
-        meetingsExporter.ExportMeetingsToPdf(meetingsResult.Data!, 2026, meetingsOutputPath, meetingsUnitsResult.Data, meetingsPageSize, includeSundays, isLandscape);
+        meetingsExporter.ExportMeetingsToPdf(meetingsResult.Data!, calendarStartDate, meetingsOutputPath, meetingsUnitsResult.Data, meetingsPageSize, includeSundays, isLandscape);
         Console.WriteLine($"✅ Meetings calendar PDF generated: {meetingsOutputPath}");
     }
     

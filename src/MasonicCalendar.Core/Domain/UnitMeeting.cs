@@ -10,6 +10,7 @@ public class UnitMeeting
     public string? DayOfWeek { get; set; }
     public string? WeekNumber { get; set; }
     public int? DayNumber { get; set; }
+    public string? InstallationMonth { get; set; }
     public string StartMonth { get; set; } = string.Empty;
     public string EndMonth { get; set; } = string.Empty;
     public string? Months { get; set; }

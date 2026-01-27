@@ -11,7 +11,33 @@ public class MeetingsCalendarHtmlExporter
     public void ExportMeetingsToHtml(List<UnitMeeting> meetings, int year, string outputPath, List<Unit>? units = null, bool includeSundays = false)
     {
         var expanded = MasonicCalendar.Core.Services.MeetingRecurrenceExpander.ExpandMeetings(meetings, year, new DateOnly(year, 1, 1));
+        GenerateHtmlCalendar(expanded, outputPath, units, includeSundays, new DateOnly(year, 1, 1));
+    }
+
+    public void ExportMeetingsToHtml(List<UnitMeeting> meetings, DateOnly startDate, string outputPath, List<Unit>? units = null, bool includeSundays = false)
+    {
+        // Generate meetings for the 12-month period
+        var endDate = startDate.AddMonths(12).AddDays(-1);
+        var expandedDates = new List<(UnitMeeting, DateOnly)>();
         
+        // Generate for both start and end years to cover boundaries
+        foreach (var year in new[] { startDate.Year, startDate.AddMonths(12).Year })
+        {
+            var yearExpanded = MasonicCalendar.Core.Services.MeetingRecurrenceExpander.ExpandMeetings(meetings, year, startDate);
+            expandedDates.AddRange(yearExpanded);
+        }
+        
+        // Filter to the 12-month range and remove duplicates
+        var expanded = expandedDates
+            .Where(x => x.Item2 >= startDate && x.Item2 <= endDate)
+            .DistinctBy(x => (x.Item1.Id, x.Item2))
+            .ToList();
+        
+        GenerateHtmlCalendar(expanded, outputPath, units, includeSundays, startDate);
+    }
+
+    private void GenerateHtmlCalendar(List<(UnitMeeting, DateOnly)> expanded, string outputPath, List<Unit>? units, bool includeSundays, DateOnly startDate)
+    {
         // Create a dictionary of units by ID for lookup
         var unitDict = units?.ToDictionary(u => u.Id) ?? new Dictionary<Guid, Unit>();
         
@@ -31,7 +57,7 @@ public class MeetingsCalendarHtmlExporter
         html.AppendLine("<head>");
         html.AppendLine("  <meta charset=\"UTF-8\">");
         html.AppendLine("  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
-        html.AppendLine("  <title>Masonic Calendar - Meetings 2026</title>");
+        html.AppendLine($"  <title>Masonic Calendar - Meetings {startDate.Year}</title>");
         html.AppendLine("  <style>");
         html.AppendLine("    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }");
         html.AppendLine("    .container { max-width: 1200px; margin: 0 auto; }");
@@ -49,12 +75,13 @@ public class MeetingsCalendarHtmlExporter
         html.AppendLine("</head>");
         html.AppendLine("<body>");
         html.AppendLine("  <div class=\"container\">");
-        html.AppendLine("    <h1>Masonic Meetings Calendar - 2026</h1>");
+        html.AppendLine($"    <h1>Masonic Meetings Calendar - {startDate:MMM yyyy} to {startDate.AddMonths(12).AddDays(-1):MMM yyyy}</h1>");
         
-        // Generate one month per section
-        for (int month = 1; month <= 12; month++)
+        // Generate one month per section for the 12-month period
+        for (int i = 0; i < 12; i++)
         {
-            GenerateMonthHtml(html, year, month, meetingsByDate, includeSundays);
+            var pageDate = startDate.AddMonths(i);
+            GenerateMonthHtml(html, pageDate.Year, pageDate.Month, meetingsByDate, includeSundays);
         }
         
         html.AppendLine("  </div>");

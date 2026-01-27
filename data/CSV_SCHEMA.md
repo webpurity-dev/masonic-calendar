@@ -49,7 +49,7 @@
 - `ProvRank` (string) - Current provincial rank
 - `ProvRankIssued` (string) - Year the provincial rank was issued
 
-## sample-unit-pmo.csv
+## sample-unit-meetings.csv
 - `ID` (guid) - Primary key
 - `UnitID` (guid) - FK to sample-units.csv
 - `Title` (string) - Title of the meeting
@@ -58,6 +58,7 @@
 - `DayOfWeek` (string) - DayOfWeek
 - `WeekNumber` (string) - WeekNumber
 - `DayNumber` (string) - DayNumber
+- `InstallationMonth` (string) - Month of installation meeting
 - `StartMonth` (string) - StartMonth
 - `EndMonth` (string) - EndMonth
 - `Months` (string) - Colon seperated list of months

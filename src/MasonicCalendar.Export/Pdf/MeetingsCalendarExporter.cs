@@ -21,7 +21,33 @@ public class MeetingsCalendarExporter
     public void ExportMeetingsToPdf(List<UnitMeeting> meetings, int year, string outputPath, List<Core.Domain.Unit>? units = null, string pageSize = "A6", bool includeSundays = false, bool isLandscape = false)
     {
         var expanded = MeetingRecurrenceExpander.ExpandMeetings(meetings, year, new DateOnly(year, 1, 1));
+        GenerateCalendarPages(expanded, outputPath, units, pageSize, includeSundays, isLandscape, new DateOnly(year, 1, 1));
+    }
+
+    public void ExportMeetingsToPdf(List<UnitMeeting> meetings, DateOnly startDate, string outputPath, List<Core.Domain.Unit>? units = null, string pageSize = "A6", bool includeSundays = false, bool isLandscape = false)
+    {
+        // Generate meetings for the 12-month period
+        var endDate = startDate.AddMonths(12).AddDays(-1);
+        var expandedDates = new List<(UnitMeeting, DateOnly)>();
         
+        // Generate for both start and end years to cover boundaries
+        foreach (var year in new[] { startDate.Year, startDate.AddMonths(12).Year })
+        {
+            var yearExpanded = MeetingRecurrenceExpander.ExpandMeetings(meetings, year, startDate);
+            expandedDates.AddRange(yearExpanded);
+        }
+        
+        // Filter to the 12-month range and remove duplicates
+        var expanded = expandedDates
+            .Where(x => x.Item2 >= startDate && x.Item2 <= endDate)
+            .DistinctBy(x => (x.Item1.Id, x.Item2))
+            .ToList();
+        
+        GenerateCalendarPages(expanded, outputPath, units, pageSize, includeSundays, isLandscape, startDate);
+    }
+
+    private void GenerateCalendarPages(List<(UnitMeeting, DateOnly)> expanded, string outputPath, List<Core.Domain.Unit>? units, string pageSize, bool includeSundays, bool isLandscape, DateOnly startDate)
+    {
         // Create a dictionary of units by ID for lookup
         var unitDict = units?.ToDictionary(u => u.Id) ?? new Dictionary<Guid, Core.Domain.Unit>();
         
@@ -50,10 +76,11 @@ public class MeetingsCalendarExporter
         
         var document = Document.Create(container =>
         {
-            // Generate one page per month
-            for (int month = 1; month <= 12; month++)
+            // Generate one page per month for the 12-month period
+            for (int i = 0; i < 12; i++)
             {
-                GenerateMonthPage(container, year, month, meetingsByDate, questPageSize, includeSundays, isLandscape);
+                var pageDate = startDate.AddMonths(i);
+                GenerateMonthPage(container, pageDate.Year, pageDate.Month, meetingsByDate, questPageSize, includeSundays, isLandscape);
             }
         });
         

@@ -11,6 +11,8 @@ public static class MeetingRecurrenceExpander
         foreach (var m in meetings)
         {
             var months = GetMonthRange(m, year);
+            var installationMonth = ParseMonth(m.InstallationMonth ?? "");
+            
             foreach (var (month, actualYear) in months)
             {
                 if (m.DayNumber.HasValue)
@@ -20,7 +22,10 @@ public static class MeetingRecurrenceExpander
                     if (DateOnly.TryParse($"{actualYear}-{month:D2}-{day:D2}", out var date))
                     {
                         if (fromDate == null || date >= fromDate)
-                            results.Add((m, date));
+                        {
+                            var meeting = CreateMeetingForDate(m, date, month, installationMonth);
+                            results.Add((meeting, date));
+                        }
                     }
                 }
                 else if (!string.IsNullOrWhiteSpace(m.WeekNumber) && !string.IsNullOrWhiteSpace(m.DayOfWeek))
@@ -30,7 +35,10 @@ public static class MeetingRecurrenceExpander
                     var weekNum = m.WeekNumber.ToLower();
                     var date = GetNthWeekdayOfMonth(actualYear, month, dayOfWeek, weekNum);
                     if (date != null && (fromDate == null || date >= fromDate))
-                        results.Add((m, date.Value));
+                    {
+                        var meeting = CreateMeetingForDate(m, date.Value, month, installationMonth);
+                        results.Add((meeting, date.Value));
+                    }
                 }
                 else if (!string.IsNullOrWhiteSpace(m.DayOfWeek) && m.RecurrenceStrategy == "LunarSeason")
                 {
@@ -39,11 +47,41 @@ public static class MeetingRecurrenceExpander
                     var dayOfWeek = ParseDayOfWeek(m.DayOfWeek);
                     var date = GetNthWeekdayOfMonth(actualYear, month, dayOfWeek, "1st");
                     if (date != null && (fromDate == null || date >= fromDate))
-                        results.Add((m, date.Value));
+                    {
+                        var meeting = CreateMeetingForDate(m, date.Value, month, installationMonth);
+                        results.Add((meeting, date.Value));
+                    }
                 }
             }
         }
         return results.OrderBy(t => t.Item2).ToList();
+    }
+
+    private static UnitMeeting CreateMeetingForDate(UnitMeeting meeting, DateOnly date, int monthOfDate, int installationMonth)
+    {
+        // If this date falls in the installation month, return a copy with "Installation" title
+        if (installationMonth > 0 && date.Month == installationMonth)
+        {
+            return new UnitMeeting
+            {
+                Id = meeting.Id,
+                UnitId = meeting.UnitId,
+                Title = "Installation",
+                RecurrenceType = meeting.RecurrenceType,
+                RecurrenceStrategy = meeting.RecurrenceStrategy,
+                DayOfWeek = meeting.DayOfWeek,
+                WeekNumber = meeting.WeekNumber,
+                DayNumber = meeting.DayNumber,
+                InstallationMonth = meeting.InstallationMonth,
+                StartMonth = meeting.StartMonth,
+                EndMonth = meeting.EndMonth,
+                Months = meeting.Months,
+                Override = meeting.Override
+            };
+        }
+        
+        // Otherwise return the original meeting
+        return meeting;
     }
 
     private static List<(int month, int year)> GetMonthRange(UnitMeeting meeting, int baseYear)

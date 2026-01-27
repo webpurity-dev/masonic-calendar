@@ -15,6 +15,7 @@ public class UnitMeetingMap : ClassMap<UnitMeeting>
         Map(m => m.DayOfWeek).Name("DayOfWeek").Optional();
         Map(m => m.WeekNumber).Name("WeekNumber").Optional();
         Map(m => m.DayNumber).Name("DayNumber").Optional();
+        Map(m => m.InstallationMonth).Name("InstallationMonth").Optional();
         Map(m => m.StartMonth).Name("StartMonth");
         Map(m => m.EndMonth).Name("EndMonth");
         Map(m => m.Months).Name("Months").Optional();

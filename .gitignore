@@ -4,3 +4,4 @@ src/MasonicCalendar.Export/bin/
 src/MasonicCalendar.Export/obj/
 src/MasonicCalendar.Core/bin/
 src/MasonicCalendar.Core/obj/
+output/*

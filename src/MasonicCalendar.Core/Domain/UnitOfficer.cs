@@ -15,6 +15,10 @@ public class UnitOfficer
 
     public string Initials { get; set; } = string.Empty;
 
+    public string Position { get; set; } = string.Empty;
+
+    public int PosNo { get; set; }
+
     // Navigation properties
     public Officer? Officer { get; set; }
 

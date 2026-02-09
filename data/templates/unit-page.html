@@ -26,15 +26,15 @@
     {{ if officers && officers.size > 0 }}
     <div style="margin-top: 15px; text-align: center;">
         <h2 style="font-size: 12pt; margin: 0 0 10px 0; font-weight: bold; text-align: center;">Installation {{ unit.lastInstallationDate }}</h2>
-        <div style="display: flex; gap: 20px; justify-content: center;">
+        <div style="display: flex; gap: 20px; justify-content: center; align-items: flex-start;">
             <!-- Left Column: Orders 1-10 -->
-            <table style="border-collapse: collapse; font-size: 9pt; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 9pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
-                        {{ if officer.order <= 10 }}
-                    <tr>
+                        {{ if officer.posNo <= 11 }}
+                    <tr style="height: 16px;">
                         <td style="padding: 4px; text-align: left; min-width: 100px;">{{ officer.lastName }}{{ if officer.initials }}, {{ officer.initials }}{{ end }}</td>
-                        <td style="padding: 4px; text-align: right; min-width: 50px; font-weight: 800;">{{ officer.abbreviation }}</td>
+                        <td style="padding: 4px; text-align: right; min-width: 70px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
                     {{ end }}
@@ -42,13 +42,13 @@
             </table>
             
             <!-- Right Column: Orders 11+ -->
-            <table style="border-collapse: collapse; font-size: 9pt; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 9pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
-                        {{ if officer.order > 10 }}
-                    <tr>
+                        {{ if officer.posNo > 11 }}
+                    <tr style="height: 16px;">
                         <td style="padding: 4px; text-align: left; min-width: 100px;">{{ officer.lastName }}{{ if officer.initials }}, {{ officer.initials }}{{ end }}</td>
-                        <td style="padding: 4px; text-align: right; min-width: 50px; font-weight: 800;">{{ officer.abbreviation }}</td>
+                        <td style="padding: 4px; text-align: right; min-width: 70px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
                     {{ end }}
@@ -66,7 +66,7 @@
             <thead>
                 <tr>
                     <th style="padding: 4px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 4px; text-align: center; font-weight: 800;">Installed</th>
+                    <th style="padding: 4px; text-align: right; font-weight: 800;">Installed</th>
                     <th style="padding: 4px; text-align: left; font-weight: 800;">Provincial Rank</th>
                     <th style="padding: 4px; text-align: right; font-weight: 800;">Date</th>
                 </tr>
@@ -75,7 +75,7 @@
                 {{ for master in pastMasters }}
                 <tr>
                     <td style="padding: 4px; text-align: left; min-width: 100px;">{{ master.lastName }}{{ if master.initials }}, {{ master.initials }}{{ end }}</td>
-                    <td style="padding: 4px; text-align: center; min-width: 50px;">{{ master.installed }}</td>
+                    <td style="padding: 4px; text-align: right; min-width: 50px;">{{ master.installed }}</td>
                     <td style="padding: 4px; text-align: left; min-width: 80px;">{{ master.provRank }}</td>
                     <td style="padding: 4px; text-align: right; min-width: 60px;">{{ master.provRankIssued }}</td>
                 </tr>

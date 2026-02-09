@@ -42,8 +42,10 @@ public class SeribanTemplateRenderer
             { "abbreviation", uo.Officer?.Abbreviation ?? "" },
             { "lastName", string.IsNullOrWhiteSpace(uo.LastName) ? "" : uo.LastName.Trim() },
             { "initials", string.IsNullOrWhiteSpace(uo.Initials) ? "" : uo.Initials.Trim() },
+            { "position", string.IsNullOrWhiteSpace(uo.Position) ? "" : uo.Position.Trim() },
+            { "posNo", uo.PosNo },
             { "order", uo.Officer?.Order ?? 0 }
-        }).OrderBy(o => (int?)o["order"] ?? 999).ToList() ?? new List<Dictionary<string, object?>>();
+        }).OrderBy(o => (int?)o["posNo"] != 0 ? (int?)o["posNo"] : (int?)o["order"] ?? 999).ToList() ?? new List<Dictionary<string, object?>>();
 
         // Build past masters list sorted by installed year (ascending - oldest first)
         var pastMastersList = pastMasters?.Select(pm => new Dictionary<string, object?>

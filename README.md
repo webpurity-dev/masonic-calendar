@@ -22,6 +22,7 @@ A comprehensive .NET solution for generating searchable, downloadable calendars 
 
 ## 🎯 Features
 
+- ✅ **Dual Data Source Support** - Import from separate CSVs (v1 schema) or consolidated export (v2 hermes schema)
 - ✅ CSV data ingestion with flexible date formats
 - ✅ Template-driven PDF generation using Scriban + QuestPDF
 - ✅ HTML template support with CSS styling
@@ -71,15 +72,36 @@ data/
 
 ```powershell
 cd e:\Development\repos\masonic-calendar
-dotnet run --project src/MasonicCalendar.Console                                    # Generate A6 PDF for all units (default)
-dotnet run --project src/MasonicCalendar.Console -- --pagesize A4                      # Generate A4 PDF for all units
-dotnet run --project src/MasonicCalendar.Console -- --output html                      # Generate HTML for all unitsdotnet run --project src/MasonicCalendar.Console -- --unit-type craft                  # Generate PDF for all Craft units
-dotnet run --project src/MasonicCalendar.Console -- --unit-type royalarch --output html # Generate HTML for all RoyalArch unitsdotnet run --project src/MasonicCalendar.Console -- --137                              # Generate PDF for unit 137 only
+# Using v1 schema (separate CSV files, default)
+dotnet run --project src/MasonicCalendar.Console                                      # Generate A6 PDF for all units
+dotnet run --project src/MasonicCalendar.Console -- --pagesize A4                        # Generate A4 PDF for all units
+dotnet run --project src/MasonicCalendar.Console -- --output html                        # Generate HTML for all units
+
+# Using v2 schema (consolidated hermes export)
+dotnet run --project src/MasonicCalendar.Console -- -source hermes                     # Generate A6 PDF from hermes export
+dotnet run --project src/MasonicCalendar.Console -- -source hermes --output html       # Generate HTML from hermes export
+
+# Additional options
+dotnet run --project src/MasonicCalendar.Console -- --unit-type craft                  # Generate PDF for all Craft units
+dotnet run --project src/MasonicCalendar.Console -- --unit-type royalarch --output html # Generate HTML for all RoyalArch units
+dotnet run --project src/MasonicCalendar.Console -- --137                              # Generate PDF for unit 137 only
 dotnet run --project src/MasonicCalendar.Console -- --pagesize A5 --output html --137  # A5 HTML for unit 137
 dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar                # Generate 12-page meetings calendar
 ```
 
 ## 📋 Console Command-Line Switches
+
+### Data Source
+```
+-source <schema>
+  v1      - Read from separate CSV files (DEFAULT)
+            Requires: sample-units.csv, sample-unit-officers.csv, sample-unit-pmo.csv, etc.
+  hermes  - Read from consolidated hermes-export.csv (v2 schema)
+            Requires: hermes-export.csv with Type column (Off, PMO, PMI, Mem, Hon)
+  
+  Example: -source hermes generates from single consolidated export file
+           -source v1 or omit flag to use separate CSV files (default)
+```
 
 ### Unit Pages (Default)
 Generate individual unit pages with officer and location information.

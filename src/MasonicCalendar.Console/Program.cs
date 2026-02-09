@@ -1,4 +1,5 @@
 using MasonicCalendar.Core.Services;
+using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Export.Pdf;
 using MasonicCalendar.Export.Html;
 using QuestPDF.Infrastructure;
@@ -9,15 +10,33 @@ QuestPDF.Settings.License = LicenseType.Community;
 // Get the project root directory (up three levels from the bin directory)
 var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
 var dataPath = Path.Combine(projectRoot, "data");
+
+// Determine data source (default to v1)
+var dataSource = "v1";
+var sourceIndex = Array.IndexOf(args, "-source");
+if (sourceIndex != -1 && sourceIndex + 1 < args.Length)
+{
+    var source = args[sourceIndex + 1].ToLower();
+    if (source == "hermes" || source == "v1")
+    {
+        dataSource = source;
+    }
+    else
+    {
+        Console.WriteLine($"❌ Invalid data source: {source}. Use 'hermes' or 'v1'.");
+        return 1;
+    }
+}
+
 var eventsPath = Path.Combine(dataPath, "sample-events.csv");
-var unitsPath = Path.Combine(dataPath, "sample-units.csv");
+var unitsPath = Path.Combine(dataPath, dataSource == "hermes" ? "sample-units.csv" : "sample-units.csv");
 var locationsPath = Path.Combine(dataPath, "sample-unit-locations.csv");
 var officersPath = Path.Combine(dataPath, "sample-officers.csv");
-var unitOfficersPath = Path.Combine(dataPath, "sample-unit-officers.csv");
-var unitPastMastersPath = Path.Combine(dataPath, "sample-unit-pmo.csv");
-var unitPMIPath = Path.Combine(dataPath, "sample-unit-pmi.csv");
-var unitMembersPath = Path.Combine(dataPath, "sample-unit-members.csv");
-var unitHonraryPath = Path.Combine(dataPath, "sample-unit-honorary.csv");
+var unitOfficersPath = Path.Combine(dataPath, dataSource == "hermes" ? "hermes-export.csv" : "sample-unit-officers.csv");
+var unitPastMastersPath = Path.Combine(dataPath, dataSource == "hermes" ? "hermes-export.csv" : "sample-unit-pmo.csv");
+var unitPMIPath = Path.Combine(dataPath, dataSource == "hermes" ? "hermes-export.csv" : "sample-unit-pmi.csv");
+var unitMembersPath = Path.Combine(dataPath, dataSource == "hermes" ? "hermes-export.csv" : "sample-unit-members.csv");
+var unitHonraryPath = Path.Combine(dataPath, dataSource == "hermes" ? "hermes-export.csv" : "sample-unit-honorary.csv");
 
 // Output directory (in the project root)
 var outputDir = Path.Combine(projectRoot, "output");
@@ -124,7 +143,7 @@ if (args.Contains("--meetings-calendar"))
     Console.WriteLine($"📅 Calendar period: {calendarStartDate:MMM yyyy} to {calendarEndDate:MMM yyyy}\n");
     
     // Group meetings by unit and export to CSV
-    var unitDict = meetingsUnitsResult.Data!.ToDictionary(u => u.Id);
+    var meetingUnitDict = meetingsUnitsResult.Data!.ToDictionary(u => u.Id);
     var expandedByUnit = expanded
         .GroupBy(x => x.Item1.UnitId)
         .OrderBy(g => SortKey(g))
@@ -132,7 +151,7 @@ if (args.Contains("--meetings-calendar"))
     
     int SortKey(IGrouping<Guid, (MasonicCalendar.Core.Domain.UnitMeeting, DateOnly)> g)
     {
-        if (unitDict.TryGetValue(g.Key, out var unit))
+        if (meetingUnitDict.TryGetValue(g.Key, out var unit))
         {
             try
             {
@@ -152,7 +171,7 @@ if (args.Contains("--meetings-calendar"))
         
         foreach (var group in expandedByUnit)
         {
-            if (unitDict.TryGetValue(group.Key, out var unit))
+            if (meetingUnitDict.TryGetValue(group.Key, out var unit))
             {
                 foreach (var item in group.OrderBy(x => x.Item2))
                 {
@@ -256,11 +275,13 @@ if (args.Length > 0)
 
 // Generate filename based on unit filter and page size
 var filenameIdentifier = filterUnitNumber.HasValue ? filterUnitNumber.Value.ToString() : (filterUnitType != null ? filterUnitType.ToLower() : "all-units");
-var unitsOutputPath = Path.Combine(outputDir, $"units-output-{filenameIdentifier}-{pageSize}.{outputFormat}");
+var sourceLabel = dataSource == "hermes" ? "hermes" : "v1";
+var unitsOutputPath = Path.Combine(outputDir, $"units-output-{filenameIdentifier}-{sourceLabel}-{pageSize}.{outputFormat}");
 
 Console.WriteLine("🗓️  Masonic Calendar - CSV to Output Converter");
 Console.WriteLine($"==========================================");
-Console.WriteLine($"Output Format: {outputFormat.ToUpper()}\n");
+Console.WriteLine($"Output Format: {outputFormat.ToUpper()}");
+Console.WriteLine($"Data Source: {(dataSource == "hermes" ? "Hermes Export (v2)" : "Standard CSV (v1)")}\n");
 
 var ingestor = new CsvIngestorService();
 
@@ -293,68 +314,218 @@ if (!unitsResult.Success)
     Console.WriteLine($"❌ Error reading units: {unitsResult.Error}");
     return 1;
 }
+var unitIdDict = unitsResult.Data!.ToDictionary(u => u.Id);
 Console.WriteLine($"✅ Loaded {unitsResult.Data!.Count} units");
 
-// Read Officers
-Console.WriteLine("Reading officers...");
-var officersResult = ingestor.ReadOfficersFromCsv(officersPath);
-if (!officersResult.Success)
+// Read Hermes export if using that data source
+Result<HermesExportData>? hermesResult = null;
+if (dataSource == "hermes")
 {
-    Console.WriteLine($"❌ Error reading officers: {officersResult.Error}");
-    return 1;
+    Console.WriteLine("Reading Hermes export CSV...");
+    var hermesIngestor = new HermesExportIngestorService();
+    hermesResult = hermesIngestor.ReadHermesExportCsv(unitOfficersPath);
+    if (!hermesResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading Hermes export: {hermesResult.Error}");
+        return 1;
+    }
+    Console.WriteLine($"✅ Loaded Hermes data: {hermesResult.Data!.UnitOfficers.Count} officers, " +
+        $"{hermesResult.Data!.UnitPastMasters.Count} PMOs, {hermesResult.Data!.UnitPMI.Count} PMIs, " +
+        $"{hermesResult.Data!.UnitMembers.Count} members, {hermesResult.Data!.UnitHonrary.Count} honorary");
 }
-var officerDict = officersResult.Data!.ToDictionary(o => o.Id);
-Console.WriteLine($"✅ Loaded {officerDict.Count} officer positions");
 
-// Read Unit Officers
-Console.WriteLine("Reading unit officers...");
-var unitOfficersResult = ingestor.ReadUnitOfficersFromCsv(unitOfficersPath);
-if (!unitOfficersResult.Success)
+// Read Officers (only needed for v1)
+List<UnitOfficer> unitOfficersData;
+Dictionary<Guid, Officer> officerDict;
+
+if (dataSource == "v1")
 {
-    Console.WriteLine($"❌ Error reading unit officers: {unitOfficersResult.Error}");
-    return 1;
+    Console.WriteLine("Reading officers...");
+    var officersResult = ingestor.ReadOfficersFromCsv(officersPath);
+    if (!officersResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading officers: {officersResult.Error}");
+        return 1;
+    }
+    officerDict = officersResult.Data!.ToDictionary(o => o.Id);
+    Console.WriteLine($"✅ Loaded {officerDict.Count} officer positions");
+
+    Console.WriteLine("Reading unit officers...");
+    var unitOfficersResult = ingestor.ReadUnitOfficersFromCsv(unitOfficersPath);
+    if (!unitOfficersResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading unit officers: {unitOfficersResult.Error}");
+        return 1;
+    }
+    unitOfficersData = unitOfficersResult.Data!;
+    
+    // For v1 data, populate PosNo from Officer.Order and Position from Officer.Abbreviation
+    foreach (var uo in unitOfficersData)
+    {
+        if (officerDict.TryGetValue(uo.OfficerId, out var officer))
+        {
+            if (uo.PosNo == 0)
+            {
+                uo.PosNo = officer.Order;
+            }
+            if (string.IsNullOrWhiteSpace(uo.Position))
+            {
+                uo.Position = officer.Abbreviation;
+            }
+        }
+    }
+    
+    Console.WriteLine($"✅ Loaded {unitOfficersData.Count} unit officer assignments");
 }
-Console.WriteLine($"✅ Loaded {unitOfficersResult.Data!.Count} unit officer assignments");
+else
+{
+    unitOfficersData = new List<UnitOfficer>();
+    officerDict = new Dictionary<Guid, Officer>();
+    Console.WriteLine("Reading unit officers from Hermes export...");
+    
+    // Create mapping from unit number to unit ID
+    var unitNumberToId = new Dictionary<int, Guid>();
+    foreach (var unit in unitsResult.Data!)
+    {
+        if (!unitNumberToId.ContainsKey(unit.Number))
+            unitNumberToId[unit.Number] = unit.Id;
+    }
+    
+    // Resolve unit IDs for all hermes data
+    var hermesData = hermesResult!.Data!;
+    var resolvedOfficers = new List<UnitOfficer>();
+    foreach (var (officer, unitNum) in hermesData.UnitOfficers)
+    {
+        if (unitNumberToId.TryGetValue(unitNum, out var unitId))
+        {
+            officer.UnitId = unitId;
+        }
+        resolvedOfficers.Add(officer);
+    }
+    
+    unitOfficersData = resolvedOfficers;
+    Console.WriteLine($"✅ Loaded {unitOfficersData.Count} unit officer assignments");
+}
 
 // Read Unit Past Masters
 Console.WriteLine("Reading unit past masters...");
-var unitPastMastersResult = ingestor.ReadUnitPastMastersFromCsv(unitPastMastersPath);
-if (!unitPastMastersResult.Success)
+List<UnitPastMaster> unitPastMastersData;
+if (dataSource == "v1")
 {
-    Console.WriteLine($"❌ Error reading unit past masters: {unitPastMastersResult.Error}");
-    return 1;
+    var unitPastMastersResult = ingestor.ReadUnitPastMastersFromCsv(unitPastMastersPath);
+    if (!unitPastMastersResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading unit past masters: {unitPastMastersResult.Error}");
+        return 1;
+    }
+    unitPastMastersData = unitPastMastersResult.Data!;
 }
-Console.WriteLine($"✅ Loaded {unitPastMastersResult.Data!.Count} unit past master records");
+else
+{
+    var unitNumberToId = unitsResult.Data!.GroupBy(u => u.Number).ToDictionary(g => g.Key, g => g.First().Id);
+    var hermesData = hermesResult!.Data!;
+    var resolvedPastMasters = new List<UnitPastMaster>();
+    foreach (var (pastMaster, unitNum) in hermesData.UnitPastMasters)
+    {
+        if (unitNumberToId.TryGetValue(unitNum, out var unitId))
+        {
+            pastMaster.UnitId = unitId;
+        }
+        resolvedPastMasters.Add(pastMaster);
+    }
+    unitPastMastersData = resolvedPastMasters;
+}
+Console.WriteLine($"✅ Loaded {unitPastMastersData.Count} unit past master records");
 
 // Read Unit PMI (Joining Past Masters)
 Console.WriteLine("Reading joining past masters...");
-var unitPMIResult = ingestor.ReadUnitPMIFromCsv(unitPMIPath);
-if (!unitPMIResult.Success)
+List<UnitPMI> unitPMIData;
+if (dataSource == "v1")
 {
-    Console.WriteLine($"❌ Error reading joining past masters: {unitPMIResult.Error}");
-    return 1;
+    var unitPMIResult = ingestor.ReadUnitPMIFromCsv(unitPMIPath);
+    if (!unitPMIResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading joining past masters: {unitPMIResult.Error}");
+        return 1;
+    }
+    unitPMIData = unitPMIResult.Data!;
 }
-Console.WriteLine($"✅ Loaded {unitPMIResult.Data!.Count} joining past master records");
+else
+{
+    var unitNumberToId = unitsResult.Data!.GroupBy(u => u.Number).ToDictionary(g => g.Key, g => g.First().Id);
+    var hermesData = hermesResult!.Data!;
+    var resolvedPMI = new List<UnitPMI>();
+    foreach (var (pmi, unitNum) in hermesData.UnitPMI)
+    {
+        if (unitNumberToId.TryGetValue(unitNum, out var unitId))
+        {
+            pmi.UnitId = unitId;
+        }
+        resolvedPMI.Add(pmi);
+    }
+    unitPMIData = resolvedPMI;
+}
+Console.WriteLine($"✅ Loaded {unitPMIData.Count} joining past master records");
 
 // Read Unit Members
 Console.WriteLine("Reading members...");
-var unitMembersResult = ingestor.ReadUnitMembersFromCsv(unitMembersPath);
-if (!unitMembersResult.Success)
+List<UnitMember> unitMembersData;
+if (dataSource == "v1")
 {
-    Console.WriteLine($"❌ Error reading members: {unitMembersResult.Error}");
-    return 1;
+    var unitMembersResult = ingestor.ReadUnitMembersFromCsv(unitMembersPath);
+    if (!unitMembersResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading members: {unitMembersResult.Error}");
+        return 1;
+    }
+    unitMembersData = unitMembersResult.Data!;
 }
-Console.WriteLine($"✅ Loaded {unitMembersResult.Data!.Count} member records");
+else
+{
+    var unitNumberToId = unitsResult.Data!.GroupBy(u => u.Number).ToDictionary(g => g.Key, g => g.First().Id);
+    var hermesData = hermesResult!.Data!;
+    var resolvedMembers = new List<UnitMember>();
+    foreach (var (member, unitNum) in hermesData.UnitMembers)
+    {
+        if (unitNumberToId.TryGetValue(unitNum, out var unitId))
+        {
+            member.UnitId = unitId;
+        }
+        resolvedMembers.Add(member);
+    }
+    unitMembersData = resolvedMembers;
+}
+Console.WriteLine($"✅ Loaded {unitMembersData.Count} member records");
 
 // Read Unit Honorary Members
 Console.WriteLine("Reading honorary members...");
-var unitHonraryResult = ingestor.ReadUnitHonraryFromCsv(unitHonraryPath);
-if (!unitHonraryResult.Success)
+List<UnitHonrary> unitHonraryData;
+if (dataSource == "v1")
 {
-    Console.WriteLine($"❌ Error reading honorary members: {unitHonraryResult.Error}");
-    return 1;
+    var unitHonraryResult = ingestor.ReadUnitHonraryFromCsv(unitHonraryPath);
+    if (!unitHonraryResult.Success)
+    {
+        Console.WriteLine($"❌ Error reading honorary members: {unitHonraryResult.Error}");
+        return 1;
+    }
+    unitHonraryData = unitHonraryResult.Data!;
 }
-Console.WriteLine($"✅ Loaded {unitHonraryResult.Data!.Count} honorary member records\n");
+else
+{
+    var unitNumberToId = unitsResult.Data!.GroupBy(u => u.Number).ToDictionary(g => g.Key, g => g.First().Id);
+    var hermesData = hermesResult!.Data!;
+    var resolvedHonrary = new List<UnitHonrary>();
+    foreach (var (honorary, unitNum) in hermesData.UnitHonrary)
+    {
+        if (unitNumberToId.TryGetValue(unitNum, out var unitId))
+        {
+            honorary.UnitId = unitId;
+        }
+        resolvedHonrary.Add(honorary);
+    }
+    unitHonraryData = resolvedHonrary;
+}
+Console.WriteLine($"✅ Loaded {unitHonraryData.Count} honorary member records\n");
 
 // Filter units if a specific unit number was requested
 var unitsToExport = unitsResult.Data;
@@ -393,14 +564,14 @@ try
     {
         Console.WriteLine("Generating unit pages PDF...");
         var unitExporter = new UnitPdfExporter(pageSize: pageSize);
-        unitExporter.ExportUnitsToPdf(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitPMIResult.Data, unitMembersResult.Data, unitHonraryResult.Data, unitsOutputPath);
+        unitExporter.ExportUnitsToPdf(unitsToExport, locationDict, unitOfficersData, officerDict, unitPastMastersData, unitPMIData, unitMembersData, unitHonraryData, unitsOutputPath);
         Console.WriteLine($"✅ Units PDF generated: {unitsOutputPath} ({pageSize})");
     }
     else if (outputFormat == "html")
     {
         Console.WriteLine("Generating unit pages HTML...");
         var unitExporter = new UnitPdfExporter();
-        unitExporter.ExportUnitsToHtml(unitsToExport, locationDict, unitOfficersResult.Data, officerDict, unitPastMastersResult.Data, unitPMIResult.Data, unitMembersResult.Data, unitHonraryResult.Data, unitsOutputPath);
+        unitExporter.ExportUnitsToHtml(unitsToExport, locationDict, unitOfficersData, officerDict, unitPastMastersData, unitPMIData, unitMembersData, unitHonraryData, unitsOutputPath);
         Console.WriteLine($"✅ Units HTML generated: {unitsOutputPath}");
     }
     

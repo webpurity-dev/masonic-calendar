@@ -385,6 +385,8 @@ public class UnitOfficerMap : ClassMap<UnitOfficer>
         Map(m => m.OfficerId).Name("OfficerID");
         Map(m => m.LastName).Name("LastName");
         Map(m => m.Initials).Name("Initials");
+        Map(m => m.Position).Name("Position").Optional();
+        Map(m => m.PosNo).Name("PosNo").Optional();
     }
 }
 

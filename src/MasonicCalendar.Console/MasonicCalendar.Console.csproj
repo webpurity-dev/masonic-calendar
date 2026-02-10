@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../MasonicCalendar.Core/MasonicCalendar.Core.csproj" />
-    <ProjectReference Include="../MasonicCalendar.Export/MasonicCalendar.Export.csproj" />
   </ItemGroup>
 
 </Project>

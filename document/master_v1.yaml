@@ -13,8 +13,14 @@ sections:
     type: "static"
     template: "cover-page.html"
   
-  - section_id: "toc"
+  - section_id: "master_toc"
     type: "toc"
+    for_section: "all"
+    template: "toc-page.html"
+
+  - section_id: "craft_toc"
+    type: "toc"
+    for_section: "craft"
     template: "toc-page.html"
   
   - section_id: "craft"
@@ -22,9 +28,14 @@ sections:
     template: "unit-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
     section_title: "Craft Freemasonry"
+
+  - section_id: "royalarch_toc"
+    type: "toc"
+    for_section: "royalarch"
+    template: "toc-page.html"
     
   - section_id: "royalarch"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
-    section_title: "Royal Arch"
+    section_title: "Royal Arch Masonry"

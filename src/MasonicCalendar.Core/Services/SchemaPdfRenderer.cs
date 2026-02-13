@@ -122,9 +122,23 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
             if (isToc)
             {
                 // Render table of contents
+                List<Dictionary<string, object?>> tocData;
+                if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    tocData = BuildSectionsTocData(layout?.Sections);
+                }
+                else if (!string.IsNullOrWhiteSpace(section.ForSection))
+                {
+                    tocData = BuildTocData(units, layout?.Sections, section.ForSection);
+                }
+                else
+                {
+                    tocData = BuildTocData(units, layout?.Sections);
+                }
+                
                 var tocModel = new Dictionary<string, object?>
                 {
-                    { "toc_by_section", BuildTocData(units, layout?.Sections) }
+                    { "toc_by_section", tocData }
                 };
                 var tocHtml = template.Render(tocModel);
                 output.AppendLine("<div class='unit-page'>");
@@ -297,9 +311,23 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                 if (isToc)
                 {
                     // Render table of contents
+                    List<Dictionary<string, object?>> tocData;
+                    if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
+                    {
+                        tocData = BuildSectionsTocData(layout.Sections);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(section.ForSection))
+                    {
+                        tocData = BuildTocData(units, layout.Sections, section.ForSection);
+                    }
+                    else
+                    {
+                        tocData = BuildTocData(units, layout.Sections);
+                    }
+                    
                     var tocModel = new Dictionary<string, object?>
                     {
-                        { "toc_by_section", BuildTocData(units, layout.Sections) }
+                        { "toc_by_section", tocData }
                     };
                     var tocHtml = template.Render(tocModel);
                     output.AppendLine("<div class='unit-page'>");
@@ -699,8 +727,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
             if (!section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true)
                 continue;
 
-            // Use section_title from YAML if configured, otherwise fallback to section short names
-            var sectionTitle = section.Title ?? section.SectionName ?? section.SectionId ?? "Unknown";
+            // Use section_title from YAML config, with fallbacks
+            var sectionTitle = section.SectionTitle ?? section.Title ?? section.SectionName ?? section.SectionId ?? "Unknown";
 
             // Get units for this section
             var unitsForSection = units;
@@ -736,6 +764,101 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
             {
                 { "section_title", sectionTitle },
                 { "items", items }
+            });
+        }
+
+        return tocSections;
+    }
+
+    /// <summary>
+    /// Builds TOC data for a specific section only.
+    /// </summary>
+    private List<Dictionary<string, object?>> BuildTocData(List<SchemaUnit> units, List<SectionConfig>? sections, string forSection)
+    {
+        var tocSections = new List<Dictionary<string, object?>>();
+
+        if (sections == null)
+            return tocSections;
+
+        // Calculate page numbers
+        const int unitsPerPage = 2;
+        int currentPageNumber = 3;
+        int unitIndexPerSection = 0;
+
+        // Find the target section
+        var targetSection = sections.FirstOrDefault(s => 
+            s.SectionId?.Equals(forSection, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        if (targetSection == null || targetSection.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) != true)
+            return tocSections;
+
+        // Use section_title from YAML config
+        var sectionTitle = targetSection.SectionTitle ?? targetSection.Title ?? targetSection.SectionName ?? targetSection.SectionId ?? "Unknown";
+
+        // Get units for this section
+        var unitsForSection = units;
+        if (!string.IsNullOrWhiteSpace(targetSection.UnitType))
+        {
+            unitsForSection = units.Where(u => u.UnitType == targetSection.UnitType).ToList();
+        }
+
+        // Build items list for this section
+        var items = new List<object?>();
+        unitIndexPerSection = 0;
+
+        foreach (var u in unitsForSection)
+        {
+            int pageNumber = currentPageNumber + (unitIndexPerSection / unitsPerPage);
+            
+            items.Add(new Dictionary<string, object?>
+            {
+                { "unit_number", u.Number },
+                { "unit_name", CleanName(u.Name) },
+                { "anchor_id", GenerateAnchorId(u) },
+                { "page_number", pageNumber }
+            });
+
+            unitIndexPerSection++;
+        }
+
+        tocSections.Add(new Dictionary<string, object?>
+        {
+            { "section_title", sectionTitle },
+            { "items", items }
+        });
+
+        return tocSections;
+    }
+
+    /// <summary>
+    /// Builds TOC data for section titles only (for_section: "all").
+    /// </summary>
+    private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig>? sections)
+    {
+        var tocSections = new List<Dictionary<string, object?>>();
+
+        if (sections == null)
+            return tocSections;
+
+        // Calculate page numbers
+        const int sectionsPerPage = 2;  // Assume 2 sections fit on a TOC page
+        int currentPageNumber = 2;      // TOC starts on page 2
+
+        // Process only data-driven sections (skip cover, toc, and static sections)
+        var dataDrivenSections = sections.Where(s => 
+            s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+
+        for (int i = 0; i < dataDrivenSections.Count; i++)
+        {
+            var section = dataDrivenSections[i];
+            var sectionTitle = section.SectionTitle ?? section.Title ?? section.SectionName ?? section.SectionId ?? "Unknown";
+            int pageNumber = currentPageNumber + (i / sectionsPerPage);
+
+            tocSections.Add(new Dictionary<string, object?>
+            {
+                { "section_title", sectionTitle },
+                { "page_number", pageNumber },
+                { "items", new List<object?>() }  // Empty items list for section-only TOC
             });
         }
 

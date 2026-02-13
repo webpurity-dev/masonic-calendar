@@ -1,9 +1,8 @@
 <div style="text-align: left; padding: 20px; font-family: Helvetica; font-size: 10pt;">
-    <h1 style="font-size: 18pt; margin: 0 0 20px 0; font-weight: bold;">Table of Contents</h1>
-    
-    {{ if toc_by_section }}
+    {{ if toc_by_section }}        
         {{ for section in toc_by_section }}
     <div style="margin-bottom: 16px;">
+        {{ if section.items && section.items.size > 0 }}
         <h2 style="font-size: 14pt; margin: 0 0 8px 0; font-weight: bold;">{{ section.section_title }}</h2>
             {{ for item in section.items }}
             <div style="font-size: 10pt; margin: 4px 0; display: flex; justify-content: space-between;">
@@ -11,6 +10,12 @@
                 <span style="margin-left: 10px;">{{ item.page_number }}</span>
             </div>
             {{ end }}
+        {{ else }}
+        <div style="font-size: 12pt; margin: 8px 0; display: flex; justify-content: space-between;">
+            <span style="font-weight: normal;">{{ section.section_title }}</span>
+            <span style="margin-left: 10px;">{{ section.page_number }}</span>
+        </div>
+        {{ end }}
     </div>
         {{ end }}
     {{ end }}

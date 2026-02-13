@@ -63,12 +63,10 @@ public class DocumentLayoutLoader
                                     section.DataSource = sectionConfig.DataSource;
                                 if (string.IsNullOrEmpty(section.Template))
                                     section.Template = sectionConfig.Template;
-                                if (section.Pages == null)
-                                    section.Pages = sectionConfig.Pages;
+                                if (section.DataFilters == null)
+                                    section.DataFilters = sectionConfig.DataFilters;
                                 if (section.Styling == null)
                                     section.Styling = sectionConfig.Styling;
-                                if (section.UnitPageStructure == null)
-                                    section.UnitPageStructure = sectionConfig.UnitPageStructure;
                             }
                         }
                     }
@@ -176,24 +174,14 @@ public class SectionConfig
     public string? SectionId { get; set; }
     public string? Type { get; set; }
     public string? Title { get; set; }
+    public string? SectionTitle { get; set; }
     public string? SectionName { get; set; }
     public string? Include { get; set; }
     public string? Template { get; set; }
     public string? DataSource { get; set; }
     public string? DataMapping { get; set; }
     public string? UnitType { get; set; }
-    public Dictionary<string, object>? UnitPageStructure { get; set; }
-    public List<PageConfig>? Pages { get; set; }
-    public SectionStyling? Styling { get; set; }
-}
-
-public class PageConfig
-{
-    public string? PageType { get; set; }
-    public string? Title { get; set; }
-    public string? RepeatFor { get; set; }
-    public string? Template { get; set; }
-    public string? DataSource { get; set; }
+        public string? ForSection { get; set; }
     public int PagesPerUnit { get; set; }
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }

@@ -82,6 +82,31 @@ public class DocumentLayoutLoader
             return Result<DocumentLayout>.Fail($"Error loading layout: {ex.Message}");
         }
     }
+
+    /// <summary>
+    /// Loads data source mappings from a YAML file (e.g., craft_data_source.yaml).
+    /// </summary>
+    public Result<DataSourceMapping> LoadDataSourceMapping(string mappingFileName)
+    {
+        try
+        {
+            var mappingFile = Path.Combine(_documentRoot, mappingFileName);
+            if (!File.Exists(mappingFile))
+                return Result<DataSourceMapping>.Fail($"Data mapping file not found: {mappingFile}");
+
+            var yaml = File.ReadAllText(mappingFile);
+            var mapping = _deserializer.Deserialize<DataSourceMapping>(yaml);
+
+            if (mapping == null)
+                return Result<DataSourceMapping>.Fail("Failed to deserialize data mapping");
+
+            return Result<DataSourceMapping>.Ok(mapping);
+        }
+        catch (Exception ex)
+        {
+            return Result<DataSourceMapping>.Fail($"Error loading data mapping: {ex.Message}");
+        }
+    }
 }
 
 /// <summary>
@@ -155,6 +180,7 @@ public class SectionConfig
     public string? Include { get; set; }
     public string? Template { get; set; }
     public string? DataSource { get; set; }
+    public string? DataMapping { get; set; }
     public string? UnitType { get; set; }
     public Dictionary<string, object>? UnitPageStructure { get; set; }
     public List<PageConfig>? Pages { get; set; }
@@ -176,4 +202,38 @@ public class PageConfig
 public class SectionStyling
 {
     public Dictionary<string, string>? Margins { get; set; }
+}
+
+/// <summary>
+/// Data source mapping configuration loaded from YAML files like craft_data_source.yaml
+/// </summary>
+public class DataSourceMapping
+{
+    public DataSourceDefinition? Units { get; set; }
+    public DataSourceDefinition? Officers { get; set; }
+    public DataSourceDefinition? PastMasters { get; set; }
+    public DataSourceDefinition? JoiningPastMasters { get; set; }
+    public DataSourceDefinition? Members { get; set; }
+    public DataSourceDefinition? HonoraryMembers { get; set; }
+}
+
+/// <summary>
+/// Defines a single data source (CSV file) with field mappings
+/// </summary>
+public class DataSourceDefinition
+{
+    public string? Source { get; set; }
+    public string? FilterField { get; set; }
+    public string? FilterValue { get; set; }
+    public List<FieldMapping>? Fields { get; set; }
+}
+
+/// <summary>
+/// Maps a domain model property to a CSV column
+/// </summary>
+public class FieldMapping
+{
+    public string? Name { get; set; }           // Domain property name (e.g., "Position")
+    public string? CsvColumn { get; set; }      // CSV column name (e.g., "FN01")
+    public string? Type { get; set; }           // Data type: string, int, date
 }

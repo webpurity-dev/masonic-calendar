@@ -14,12 +14,9 @@ using YamlDotNet.Serialization;
 public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yamlDeserializer, string? dataRoot = null)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
-    private readonly ISerializer _yamlDeserializer = yamlDeserializer;
     private readonly string _dataRoot = dataRoot ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "data");
-    private Dictionary<string, object>? _csvMappings;
-    private Dictionary<string, object>? _typeCoercion;
 
-    public async Task<Result<List<SchemaUnit>>> LoadUnitsWithDataAsync(string masterTemplateKey)
+    public async Task<Result<List<SchemaUnit>>> LoadUnitsWithDataAsync(string masterTemplateKey, string? sectionId = null)
     {
         try
         {
@@ -28,26 +25,46 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                 return Result<List<SchemaUnit>>.Fail(layoutResult.Error ?? "Failed to load template");
 
             var layout = layoutResult.Data;
-            if (layout?.DataSources == null)
-                return Result<List<SchemaUnit>>.Fail("No data_sources defined in template");
+            
+            // Determine which data mapping to load
+            string? dataMappingFile = null;
+            
+            if (!string.IsNullOrWhiteSpace(sectionId) && layout?.Sections != null)
+            {
+                // Load specific section's data mapping
+                var section = layout.Sections.FirstOrDefault(s => 
+                    s.SectionId?.Equals(sectionId, StringComparison.OrdinalIgnoreCase) ?? false);
+                dataMappingFile = section?.DataMapping;
+            }
+            else if (layout?.Sections?.Count > 0)
+            {
+                // Use first data-driven section's mapping
+                var firstDataSection = layout.Sections.FirstOrDefault(s => 
+                    s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false);
+                dataMappingFile = firstDataSection?.DataMapping;
+            }
 
-            // Extract CSV mappings and type coercion rules
-            if (layout.CsvColumnMappings != null)
-                _csvMappings = layout.CsvColumnMappings;
-            if (layout.TypeCoercion != null)
-                _typeCoercion = layout.TypeCoercion;
+            if (string.IsNullOrWhiteSpace(dataMappingFile))
+                // Fallback to default craft mapping
+                dataMappingFile = "craft_data_source.yaml";
 
+            // Load the data source mapping
+            var mappingResult = _layoutLoader.LoadDataSourceMapping(dataMappingFile);
+            if (!mappingResult.Success)
+                return Result<List<SchemaUnit>>.Fail(mappingResult.Error ?? "Failed to load data source mapping");
+
+            var mapping = mappingResult.Data;
             var units = new List<SchemaUnit>();
 
-            // Load units from sample-units.csv
-            var unitsResult = await LoadUnitsFromCsvAsync(layout);
+            // Load units from CSV using the mapping
+            var unitsResult = await LoadUnitsFromCsvAsync(mapping!);
             if (!unitsResult.Success)
                 return Result<List<SchemaUnit>>.Fail(unitsResult.Error ?? "Failed to load units CSV");
 
             units = unitsResult.Data ?? [];
 
             // Load hermes export data and attach to units
-            var hermesResult = await LoadHermesDataAsync(layout, units);
+            var hermesResult = await LoadHermesDataAsync(mapping!, units);
             if (!hermesResult.Success)
                 return Result<List<SchemaUnit>>.Fail(hermesResult.Error ?? "Failed to load hermes export");
 
@@ -59,12 +76,16 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
         }
     }
 
-    private async Task<Result<List<SchemaUnit>>> LoadUnitsFromCsvAsync(DocumentLayout layout)
+    private async Task<Result<List<SchemaUnit>>> LoadUnitsFromCsvAsync(DataSourceMapping mapping)
     {
         try
         {
             var units = new List<SchemaUnit>();
-            var unitsFile = Path.Combine(_dataRoot, "sample-units.csv");
+            
+            if (mapping.Units?.Source == null)
+                return Result<List<SchemaUnit>>.Fail("No units source defined in data mapping");
+
+            var unitsFile = Path.Combine(_dataRoot, mapping.Units.Source);
 
             if (!File.Exists(unitsFile))
                 return Result<List<SchemaUnit>>.Fail($"Units file not found: {unitsFile}");
@@ -75,16 +96,27 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
             await csv.ReadAsync();
             csv.ReadHeader();
 
+            var fieldMap = BuildFieldMap(mapping.Units.Fields);
+
             while (await csv.ReadAsync())
             {
+                // Check filter if specified
+                if (!string.IsNullOrWhiteSpace(mapping.Units.FilterField) && 
+                    !string.IsNullOrWhiteSpace(mapping.Units.FilterValue))
+                {
+                    var filterValue = csv.GetField(mapping.Units.FilterField);
+                    if (filterValue != mapping.Units.FilterValue)
+                        continue; // Skip this record, doesn't match filter
+                }
+
                 var unit = new SchemaUnit
                 {
-                    Number = ParseInt(csv.GetField("Number")),
-                    Name = csv.GetField("Name") ?? "",
-                    Email = csv.GetField("Email"),
-                    Established = ParseDate(csv.GetField("Established")),
-                    LastInstallationDate = ParseDate(csv.GetField("LastInstallationDate")),
-                    UnitType = csv.GetField("UnitType")
+                    Number = ParseInt(GetFieldValue(csv, fieldMap, "Number")),
+                    Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
+                    Email = GetFieldValue(csv, fieldMap, "Email"),
+                    Established = ParseDate(GetFieldValue(csv, fieldMap, "Established")),
+                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate")),
+                    UnitType = GetFieldValue(csv, fieldMap, "UnitType")
                 };
 
                 units.Add(unit);
@@ -98,87 +130,112 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
         }
     }
 
-    private async Task<Result<bool>> LoadHermesDataAsync(DocumentLayout layout, List<SchemaUnit> units)
+    private Dictionary<string, string> BuildFieldMap(List<FieldMapping>? fieldMappings)
+    {
+        var map = new Dictionary<string, string>();
+        if (fieldMappings == null)
+            return map;
+
+        foreach (var field in fieldMappings)
+        {
+            if (!string.IsNullOrWhiteSpace(field.Name) && !string.IsNullOrWhiteSpace(field.CsvColumn))
+            {
+                map[field.Name] = field.CsvColumn;
+            }
+        }
+        return map;
+    }
+
+    private string? GetFieldValue(CsvReader csv, Dictionary<string, string> fieldMap, string propertyName)
+    {
+        if (fieldMap.TryGetValue(propertyName, out var csvColumn))
+        {
+            return csv.GetField(csvColumn);
+        }
+        // Fallback to property name if not in map
+        return csv.GetField(propertyName);
+    }    private async Task<Result<bool>> LoadHermesDataAsync(DataSourceMapping mapping, List<SchemaUnit> units)
     {
         try
         {
-            var hermesFile = Path.Combine(_dataRoot, "hermes-export.csv");
-
-            if (!File.Exists(hermesFile))
-                return Result<bool>.Fail($"Hermes file not found: {hermesFile}");
-
-            using var reader = new StreamReader(hermesFile, Encoding.UTF8);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-            await csv.ReadAsync();
-            csv.ReadHeader();
-
-            while (await csv.ReadAsync())
+            // Load officers
+            if (mapping.Officers != null)
             {
-                var unitNumber = ParseInt(csv.GetField("Unit"));
-                var recordType = csv.GetField("Type");
-                var name = csv.GetField("Name");
-
-                // Skip invalid records
-                if (unitNumber == 0 || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(recordType))
-                    continue;
-
-                var unit = units.FirstOrDefault(u => u.Number == unitNumber);
-                if (unit == null)
-                    continue;
-
-                var posNo = ParseInt(csv.GetField("PosNo"));
-
-                switch (recordType.Trim())
+                await LoadPersonTypeAsync(units, mapping.Officers, "officer", schemaUnit =>
                 {
-                    case "Off":
-                        unit.Officers.Add(new SchemaOfficer
+                    return (fieldMap, csv, unitNumber) =>
+                    {
+                        schemaUnit.Officers.Add(new SchemaOfficer
                         {
-                            Name = name,
-                            Position = csv.GetField("FN01"),
-                            DisplayOrder = posNo
+                            Name = csv.GetField("Name") ?? "",
+                            Position = GetFieldValue(csv, fieldMap, "Position"),
+                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
-                        break;
+                    };
+                });
+            }
 
-                    case "PMO":
-                        unit.PastMasters.Add(new SchemaPastMaster
+            // Load past masters
+            if (mapping.PastMasters != null)
+            {
+                await LoadPersonTypeAsync(units, mapping.PastMasters, "past master",
+                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    {
+                        schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
-                            Name = name,
-                            YearInstalled = csv.GetField("FN01"),
-                            ProvincialRank = csv.GetField("FN13"),
-                            RankYear = csv.GetField("FN14"),
-                            DisplayOrder = posNo
+                            Name = csv.GetField("Name") ?? "",
+                            YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
+                            ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
+                            RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
+                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
-                        break;
+                    });
+            }
 
-                    case "PMI":
-                        unit.JoinPastMasters.Add(new SchemaJoinPastMaster
+            // Load joining past masters
+            if (mapping.JoiningPastMasters != null)
+            {
+                await LoadPersonTypeAsync(units, mapping.JoiningPastMasters, "joining past master",
+                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    {
+                        schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
-                            Name = name,
-                            YearInstalled = csv.GetField("FN01"),
-                            ProvincialRank = csv.GetField("FN12"),
-                            RankYear = csv.GetField("FN13"),
-                            DisplayOrder = posNo
+                            Name = csv.GetField("Name") ?? "",
+                            YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
+                            ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
+                            RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
+                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
-                        break;
+                    });
+            }
 
-                    case "Mem":
-                        unit.Members.Add(new SchemaMember
+            // Load members
+            if (mapping.Members != null)
+            {
+                await LoadPersonTypeAsync(units, mapping.Members, "member",
+                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    {
+                        schemaUnit.Members.Add(new SchemaMember
                         {
-                            Name = name,
-                            YearInitiated = csv.GetField("FN01"),
-                            DisplayOrder = posNo
+                            Name = csv.GetField("Name") ?? "",
+                            YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated"),
+                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
-                        break;
+                    });
+            }
 
-                    case "Hon":
-                        unit.HonoraryMembers.Add(new SchemaHonoraryMember
+            // Load honorary members
+            if (mapping.HonoraryMembers != null)
+            {
+                await LoadPersonTypeAsync(units, mapping.HonoraryMembers, "honorary member",
+                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    {
+                        schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
-                            Name = name,
-                            DisplayOrder = posNo
+                            Name = csv.GetField("Name") ?? "",
+                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
-                        break;
-                }
+                    });
             }
 
             // Sort all collections by DisplayOrder
@@ -199,6 +256,62 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
         }
     }
 
+    private async Task LoadPersonTypeAsync(
+        List<SchemaUnit> units,
+        DataSourceDefinition dataSource,
+        string personTypeName,
+        Func<SchemaUnit, Action<Dictionary<string, string>, CsvReader, int>> addPersonDelegate)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(dataSource.Source))
+                return;
+
+            var file = Path.Combine(_dataRoot, dataSource.Source);
+            if (!File.Exists(file))
+                return;
+
+            using var reader = new StreamReader(file, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            await csv.ReadAsync();
+            csv.ReadHeader();
+
+            var fieldMap = BuildFieldMap(dataSource.Fields);
+
+            while (await csv.ReadAsync())
+            {
+                var unitNumber = ParseInt(csv.GetField("Unit"));
+                var name = csv.GetField("Name");
+
+                // Check filter
+                if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
+                    !string.IsNullOrWhiteSpace(dataSource.FilterValue))
+                {
+                    var filterValue = csv.GetField(dataSource.FilterField);
+                    if (filterValue != dataSource.FilterValue)
+                        continue;
+                }
+
+                // Skip invalid records
+                if (unitNumber == 0 || string.IsNullOrWhiteSpace(name))
+                    continue;
+
+                var unit = units.FirstOrDefault(u => u.Number == unitNumber);
+                if (unit == null)
+                    continue;
+
+                var addPerson = addPersonDelegate(unit);
+                addPerson(fieldMap, csv, unitNumber);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log but don't fail - missing person types are not fatal
+            System.Diagnostics.Debug.WriteLine($"Error loading {personTypeName}: {ex.Message}");
+        }
+    }
+
     private int ParseInt(string? value)
     {
         return int.TryParse(value?.Trim(), out var result) ? result : 0;
@@ -209,26 +322,21 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        var formats = _typeCoercion?["date_formats"] as List<object>
-            ?? ["yyyy-MM-dd", "dd/MM/yyyy", "d MMMM yyyy"];
-
-        var formatStrings = formats.Cast<string>().ToArray();
+        // Standard date formats for parsing
+        var formatStrings = new[] 
+        { 
+            "yyyy-MM-dd", 
+            "dd/MM/yyyy", 
+            "d MMMM yyyy",
+            "d'st' MMMM yyyy",
+            "d'nd' MMMM yyyy",
+            "d'rd' MMMM yyyy",
+            "d'th' MMMM yyyy"
+        };
 
         if (DateOnly.TryParseExact(value.Trim(), formatStrings, CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var result))
             return result;
 
         return null;
     }
-}
-
-/// <summary>
-/// Extension to DocumentLayout to support new schema-driven properties
-/// </summary>
-public static class DocumentLayoutExtensions
-{
-    public static Dictionary<string, object>? GetCsvColumnMappings(this DocumentLayout layout)
-        => layout.CsvColumnMappings;
-
-    public static Dictionary<string, object>? GetTypeCoercion(this DocumentLayout layout)
-        => layout.TypeCoercion;
 }

@@ -3,7 +3,7 @@ using MasonicCalendar.Core.Services;
 // Get the project root directory
 var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
 var documentRoot = Path.Combine(projectRoot, "document");
-var dataPath = Path.Combine(projectRoot, "data");
+var dataPath = Path.Combine(documentRoot, "data");
 var outputDir = Path.Combine(projectRoot, "output");
 
 if (!Directory.Exists(outputDir))
@@ -58,20 +58,38 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
-        
-        if (schemaResult.Data.Any())
-        {
-            var unit = schemaResult.Data.First();
-            Console.WriteLine($"  Sample: Unit {unit.Number} - {unit.Name}");
-            Console.WriteLine($"    Officers: {unit.Officers.Count}, Members: {unit.Members.Count}");
-        }
         Console.WriteLine();
+        
+        // Load and display available sections and templates
+        var layoutLoader = new DocumentLayoutLoader(documentRoot);
+        var layoutResult = layoutLoader.LoadMasterLayout(templateName);
+        if (layoutResult.Success && layoutResult.Data?.Sections?.Count > 0)
+        {
+            Console.WriteLine("Available Sections:");
+            foreach (var section in layoutResult.Data.Sections)
+            {
+                if (!string.IsNullOrWhiteSpace(section.SectionId))
+                {
+                    var sectionType = (section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ? "(static)" : "(data-driven)";
+                    Console.WriteLine($"  - {section.SectionId,-12} {sectionType,-15} → {section.Template}");
+                }
+            }
+            Console.WriteLine();
+        }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(new DocumentLayoutLoader(documentRoot), documentRoot);
+        var renderer = new SchemaPdfRenderer(layoutLoader, documentRoot);
         
-        var targetSectionId = sectionId ?? "craft";
-        Console.WriteLine($"📄 Rendering section: {targetSectionId}");
+        var targetSectionId = sectionId ?? null;  // null means render all sections
+        
+        if (targetSectionId != null)
+        {
+            Console.WriteLine($"📄 Rendering section: {targetSectionId}");
+        }
+        else
+        {
+            Console.WriteLine($"📄 Rendering all sections");
+        }
         
         var renderResult = await renderer.RenderUnitsAsync(schemaResult.Data, templateName, targetSectionId, documentOutputFormat);
         
@@ -83,7 +101,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Save output file
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
-        var outputPath = Path.Combine(outputDir, $"{templateName}-{targetSectionId}.{fileExtension}");
+        var sectionPart = targetSectionId ?? "all-sections";
+        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}.{fileExtension}");
         
         File.WriteAllBytes(outputPath, renderResult.Data!);
 
@@ -113,13 +132,15 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
-    Console.WriteLine("  -section    Section ID to render (optional, default: craft)");
+    Console.WriteLine("  -section    Section ID to render (optional, default: all sections)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
+    Console.WriteLine("  cover       Cover page");
     Console.WriteLine("  craft       Craft Freemasonry");
     Console.WriteLine("  royalarch   Royal Arch Chapters");
-    Console.WriteLine("\nExample:");
-    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML");
-    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section royalarch");
+    Console.WriteLine("\nExamples:");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF                     (renders all sections)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -section craft      (renders only craft)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section cover     (renders only cover)");
     return 1;
 }
 
@@ -128,7 +149,8 @@ Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
 Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>]");
-Console.WriteLine("\nExample:");
-Console.WriteLine("  dotnet run -- -template master_v1 -output HTML");
-Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section royalarch");
+Console.WriteLine("\nExample (render all sections):");
+Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
+Console.WriteLine("\nExample (render specific section):");
+Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -section craft");
 return 0;

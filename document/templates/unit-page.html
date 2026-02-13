@@ -1,7 +1,7 @@
-<div style="text-align: center; padding: 2px; font-family: Helvetica; font-size: {{ fonts.body }};">
+<div style="text-align: center; padding: 2px; font-family: Helvetica; font-size: 8pt;">
     <!-- Header Section -->
     <div style="margin-bottom: 8px;">
-        <h1 style="font-size: {{ fonts.large_heading }}; margin: 0; font-weight: bold; text-align: center;">
+        <h1 style="font-size: 14pt; margin: 0; font-weight: bold; text-align: center;">
             {{ unit.name }} {{ unit.number }}
         </h1>
     </div>
@@ -9,15 +9,15 @@
     <!-- Summary Section -->
     <div style="margin-bottom: 8px;">
         {{ if location }}
-            <p style="font-size: {{ fonts.tiny }}; margin: 3px 0; text-align: center;">
+            <p style="font-size: 8pt; margin: 3px 0; text-align: center;">
                 Constituted on {{ unit.established }}. Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
             </p>
         {{ else }}
-            <p style="font-size: {{ fonts.tiny }}; margin: 3px 0; text-align: center;">
+            <p style="font-size: 8pt; margin: 3px 0; text-align: center;">
                 NO LOCATION INFORMATION AVAILABLE
             </p>
         {{ end }}
-        <p style="font-size: {{ fonts.tiny }}; margin: 3px 0; text-align: center;">
+        <p style="font-size: 8pt; margin: 3px 0; text-align: center;">
             <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
         </p>
     </div>
@@ -25,10 +25,10 @@
     <!-- Officers Table -->
     {{ if officers && officers.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
-        <h2 style="font-size: {{ fonts.subsection_heading }}; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Installation {{ unit.lastInstallationDate }}</h2>
+        <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Installation {{ unit.lastInstallationDate }}</h2>
         <div style="display: flex; gap: 12px; justify-content: center; align-items: flex-start;">
             <!-- Left Column: Orders 1-10 -->
-            <table style="border-collapse: collapse; font-size: {{ fonts.small }}; flex: 0 0 auto; table-layout: fixed;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo <= 11 }}
@@ -42,7 +42,7 @@
             </table>
             
             <!-- Right Column: Orders 11+ -->
-            <table style="border-collapse: collapse; font-size: {{ fonts.small }}; flex: 0 0 auto; table-layout: fixed;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo > 11 }}
@@ -61,35 +61,37 @@
     <!-- Past Masters Table -->
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
-        <h2 style="font-size: {{ fonts.subsection_heading }}; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Past Masters</h2>
-        <table style="border-collapse: collapse; font-size: {{ fonts.small }}; margin-left: auto; margin-right: auto;">
-            <thead>
-                <tr>
-                    <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 2px; text-align: right; font-weight: 800;">Installed</th>
-                    <th style="padding: 2px; text-align: left; font-weight: 800;">Provincial Rank</th>
-                    <th style="padding: 2px; text-align: right; font-weight: 800;">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ for master in pastMasters }}
-                <tr>
-                    <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.lastName }}{{ if master.initials }}, {{ master.initials }}{{ end }}</td>
-                    <td style="padding: 2px; text-align: right; min-width: 40px;">{{ master.installed }}</td>
-                    <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRank }}</td>
-                    <td style="padding: 2px; text-align: right; min-width: 50px;">{{ master.provRankIssued }}</td>
-                </tr>
-                {{ end }}
-            </tbody>
-        </table>
+        <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Past Masters</h2>
+        <div style="display: flex; gap: 12px; justify-content: center; align-items: flex-start;">
+            <table style="border-collapse: collapse; font-size: 8pt; margin-left: auto; margin-right: auto;">
+                <thead>
+                    <tr>
+                        <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 2px; text-align: right; font-weight: 800;">Installed</th>
+                        <th style="padding: 2px; text-align: left; font-weight: 800;">Provincial Rank</th>
+                        <th style="padding: 2px; text-align: right; font-weight: 800;">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ for master in pastMasters }}
+                    <tr>
+                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.lastName }}{{ if master.initials }}, {{ master.initials }}{{ end }}</td>
+                        <td style="padding: 2px; text-align: right; min-width: 40px;">{{ master.installed }}</td>
+                        <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRank }}</td>
+                        <td style="padding: 2px; text-align: right; min-width: 50px;">{{ master.provRankIssued }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
     </div>
     {{ end }}
 
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
-        <h2 style="font-size: {{ fonts.subsection_heading }}; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Joining Past Masters</h2>
-        <table style="border-collapse: collapse; font-size: {{ fonts.small }}; margin-left: auto; margin-right: auto;">
+        <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Joining Past Masters</h2>
+        <table style="border-collapse: collapse; font-size: 8pt; margin-left: auto; margin-right: auto;">
             <thead>
                 <tr>
                     <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
@@ -113,10 +115,10 @@
     <!-- Members Table (3-Column Layout) -->
     {{ if members && members.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
-        <h2 style="font-size: {{ fonts.subsection_heading }}; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Members</h2>
+        <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Members</h2>
         <div style="display: flex; gap: 6px; justify-content: center;">
             <!-- Column 1 -->
-            <table style="border-collapse: collapse; font-size: {{ fonts.tiny }}; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
                 <thead>
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
@@ -134,7 +136,7 @@
             </table>
             
             <!-- Column 2 -->
-            <table style="border-collapse: collapse; font-size: {{ fonts.tiny }}; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
                 <thead>
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
@@ -152,7 +154,7 @@
             </table>
             
             <!-- Column 3 -->
-            <table style="border-collapse: collapse; font-size: {{ fonts.tiny }}; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
                 <thead>
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
@@ -175,8 +177,8 @@
     <!-- Honorary Members Table -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
-        <h2 style="font-size: {{ fonts.subsection_heading }}; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Honorary Members</h2>
-        <table style="border-collapse: collapse; font-size: {{ fonts.small }}; margin-left: auto; margin-right: auto;">
+        <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Honorary Members</h2>
+        <table style="border-collapse: collapse; font-size: 8pt; margin-left: auto; margin-right: auto;">
             <thead>
                 <tr>
                     <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>

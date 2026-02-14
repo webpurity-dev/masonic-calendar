@@ -231,12 +231,12 @@ When run without arguments:
 
 ## 🛠️ Technology Stack
 
-- **Framework:** .NET 8.0 (C#)
-- **PDF Generation:** QuestPDF 2024.12.2 (Community License)
-- **Templating:** Scriban 5.9.0
+- **Framework:** .NET 8.0 (C#) Console Application
+- **PDF Generation:** PuppeteerSharp 15.0.0 + Paged.js 1.0+ W3C Paged Media
+- **Templating:** Scriban 5.4.6 (HTML templates with Scriban expressions)
 - **CSV Parsing:** CsvHelper 30.0.0
-- **HTML Parsing:** HtmlAgilityPack 1.11.61
-- **Database:** SQLite with Entity Framework Core (optional)
+- **HTML/CSS Rendering:** Chromium via Puppeteer
+- **Page Layout:** Paged.js CSS @page rules with W3C print media specifications
 
 ## 📋 CSV Files
 
@@ -310,12 +310,25 @@ Detailed column definitions are available in [data/CSV_SCHEMA.md](data/CSV_SCHEM
 
 ## 🎨 Template Customization
 
-The PDF layout is controlled by `data/templates/unit-page.html`, a Scriban template that supports:
+The document layout is controlled by Scriban HTML templates in `document/templates/`:
 
+### Template Files
+- **unit-page.html** - Individual unit page layout (officers, members, meetings, etc.)
+- **toc-page.html** - Table of Contents page with automatic page number injection
+- **cover-page.html** - Cover/title page
+- **print.css** - Print media styling with Paged.js @page rules
+
+### Scriban Template Support
 - **Scriban Variables:** Access to unit and location data (e.g., `{{ unit.name }}`, `{{ location.addressLine1 }}`)
 - **CSS Styling:** Font sizes, colors, alignment, spacing
 - **Conditional Blocks:** Show/hide sections based on data availability
 - **HTML Structure:** Full HTML5 support with inline styles
+
+### CSS & Print Media
+- **Paged.js @page Rules:** Define page size, margins, and margin boxes
+- **Page Numbers:** Automatic via CSS counter and margin boxes (centered in footer)
+- **Page Breaks:** CSS `break-before: always` controls unit pagination
+- **Responsive Design:** CSS flexbox for layout, responsive font sizing
 
 See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template documentation.
 
@@ -340,15 +353,36 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 - **CalendarEvent:** EventId, EventName, EventDate (DateOnly), Description, Location
 ## 🔄 Data Processing Pipeline
 
-### Unit Pages
+### Unit Pages with Multi-Section Document (master_v1)
 1. **Read CSV Files** → CsvIngestorService parses units, locations, officers, past masters, PMI, members, and honorary members
 2. **Build Location Dictionary** → Map LocationId to UnitLocation objects
-3. **Render Templates** → SeribanTemplateRenderer processes Scriban HTML templates with unit and member data
-4. **Parse HTML → PDF** → UnitPdfExporter converts styled HTML to PDF pages with:
-   - Table of Contents with internal PDF links
-   - Page numbers (6pt) in center footer
-   - Professional formatting with proper font sizing
-5. **Output** → Generate timestamped PDF or HTML file
+3. **Initialize Document** → Create HTML scaffold with:
+   - Paged.js CDN inclusion
+   - print.css with @page rules and page number styling
+   - JavaScript for TOC page number injection
+4. **Render Sections in Sequence:**
+   - **Cover Page** (static HTML template)
+   - **Master TOC** (generated from all sections, lists section anchors and unit links)
+   - **Craft TOC** (generated from Craft units only)
+   - **Craft Units** (individual unit pages with `break-before: always` for pagination)
+   - **Royal Arch TOC** (generated from Royal Arch units only)
+   - **Royal Arch Units** (individual unit pages with page breaks)
+5. **TOC Page Number Injection** → JavaScript function:
+   - Finds all TOC links with href anchors
+   - Locates target elements within Paged.js-rendered pages
+   - Creates `<span class="toc-page-number">` elements with calculated page numbers
+   - Appends spans to each TOC link
+6. **PDF Generation via Puppeteer:**
+   - Launch Chromium browser
+   - Load complete HTML document
+   - Wait for Paged.js pagination to stabilize (199 pages in master_v1 example)
+   - Execute page number injection JavaScript
+   - Generate PDF via print-to-PDF with proper margins and page sizing
+7. **Output** → Generate PDF or HTML file with:
+   - Table of Contents with page numbers and internal PDF links
+   - Page numbers (6pt) automatically in center footer via CSS
+   - 199+ pages with professional formatting
+   - Proper unit pagination with one unit per page (typically)
 
 ### Meetings Calendar
 1. **Read CSV Files** → CsvIngestorService parses meetings and units (including UnitType and Email)

@@ -88,40 +88,18 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine($"<meta name='format' content='{format_str}'/>");
             output.AppendLine($"<meta name='orientation' content='{orientation}'/>");
             
-            // CSS for page styling and fonts
-            output.AppendLine("<style>");
-            output.AppendLine($"@page {{ size: {format_str} {orientation}; ");
-            
-            // Apply global margins if available
-            if (layout?.GlobalMargins != null)
+            // Link to print-ready CSS with Paged.js styling
+            var printCssPath = Path.Combine(_templateRoot, "print.css");
+            if (File.Exists(printCssPath))
             {
-                var margins = layout.GlobalMargins;
-                var top = margins.PageTop ?? "5mm";
-                var bottom = margins.PageBottom ?? "5mm";
-                var left = margins.PageLeft ?? "5mm";
-                var right = margins.PageRight ?? "5mm";
-                output.AppendLine($"margin: {top} {right} {bottom} {left}; ");
-            }
-            else
-            {
-                output.AppendLine("margin: 5mm; ");
+                var printCssContent = File.ReadAllText(printCssPath);
+                output.AppendLine("<style>");
+                output.AppendLine(printCssContent);
+                output.AppendLine("</style>");
             }
             
-            output.AppendLine("}");
-            output.AppendLine("body { background-color: #f0f0f0; margin: 0; padding: 10px; }");
-            output.AppendLine(".page-break { page-break-after: always; height: 10px; background-color: #f0f0f0; margin: 0; padding: 0; }");
-            output.AppendLine(".page-break::before { content: \"\"; }");
-            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; padding-bottom: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; min-height: 250px; max-width: 210mm; }");
-            output.AppendLine(".page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 30px; }");
-            output.AppendLine("@media print {");
-            output.AppendLine("  body { background-color: white; margin: 0; padding: 0; }");
-            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; page-break-after: always; }");
-            output.AppendLine("  .unit-page { background-color: white; margin: 0; padding: 20px; padding-bottom: 30px; box-shadow: none; position: relative; page-break-inside: avoid; }");
-            output.AppendLine("  .page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 20px; }");
-            output.AppendLine("}");
-            
-            output.AppendLine("</style>");
-            
+            // Load Paged.js from CDN (or local if offline)
+            output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("</head>");
             output.AppendLine("<body>");
 
@@ -170,20 +148,14 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     { "toc_by_section", tocData }
                 };
                 var tocHtml = template.Render(tocModel);
-                output.AppendLine("<div class='unit-page'>");
-                output.Append(tocHtml);
-                output.AppendLine($"<div class='page-number'>1</div>");
-                output.AppendLine("</div>");
+                output.AppendLine(tocHtml);  // Paged.js handles page numbering via CSS
             }
             else if (isStatic)
             {
                 // Render static template (template handles all content)
                 var staticModel = new Dictionary<string, object?>();
                 var staticHtml = template.Render(staticModel);
-                output.AppendLine("<div class='unit-page'>");
-                output.Append(staticHtml);
-                output.AppendLine($"<div class='page-number'>1</div>");
-                output.AppendLine("</div>");
+                output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
             }
             else
             {
@@ -208,25 +180,16 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
 
                 var unitIndex = 0;
-                int pageNumber = 1;
                 foreach (var unit in unitsToRender)
                 {
                     var anchorId = GenerateAnchorId(unit);
                     var unitHtml = RenderUnitWithScriban(unit, template);
-                    output.AppendLine("<div class='unit-page'>");
-                    output.AppendLine($"<a id=\"{anchorId}\"></a>");
+                    output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
                     output.Append(unitHtml);
-                    output.AppendLine($"<div class='page-number'>{pageNumber}</div>");
                     output.AppendLine("</div>");
-                    pageNumber++;
                     
-                    // Add page breaks based on pages_per_unit configuration
-                    // Each unit typically uses N pages, add breaks between units
+                    // Paged.js handles page breaks automatically via CSS
                     unitIndex++;
-                    if (unitIndex < unitsToRender.Count)
-                    {
-                        output.AppendLine("<div class='page-break'></div>");
-                    }
                 }
             }
 
@@ -238,38 +201,21 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Handle output format
             if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
             {
-                // For PDF, remove page-number divs as we'll use footer instead
-                htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"<div class='page-number'>\d+</div>", "");
-                
                 // Convert relative image paths to data URLs for PDF compatibility
                 htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 
-                // Convert HTML to PDF using Puppeteer with layout settings
-                // Map format string to PuppeteerSharp PaperFormat enum
+                // Convert HTML to PDF using Puppeteer
+                // Paged.js handles all margins, page numbers, and layout via CSS @page rules
                 var paperFormat = MapToPaperFormat(format_str);
                 var isLandscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false;
-                var (pdfWidth, pdfHeight) = GetPaperDimensions(format_str, isLandscape);
-                
-                var pageNumberFontSize = layout?.Document?.PageNumber?.FontSize ?? "10px";
-                var pageNumberFontFamily = layout?.Document?.PageNumber?.FontFamily ?? "Arial, sans-serif";
-                var footerTemplate = $"<div style='font-size: {pageNumberFontSize}; font-family: {pageNumberFontFamily}; width: 100%; text-align: center; padding: 5px 0;'><span class='pageNumber'>1</span></div>";
                 
                 var pdfOptions = new PdfOptions
                 {
                     Format = paperFormat,
-                    Width = pdfWidth,
-                    Height = pdfHeight,
                     Landscape = isLandscape,
-                    DisplayHeaderFooter = true,
                     PrintBackground = true,
-                    MarginOptions = new MarginOptions
-                    {
-                        Top = layout?.GlobalMargins?.PageTop ?? "5mm",
-                        Bottom = layout?.GlobalMargins?.PageBottom ?? "12mm",
-                        Left = layout?.GlobalMargins?.PageLeft ?? "5mm",
-                        Right = layout?.GlobalMargins?.PageRight ?? "5mm"
-                    },
-                    FooterTemplate = footerTemplate
+                    DisplayHeaderFooter = false
+                    // Don't set Width/Height/MarginOptions - let Paged.js CSS @page rules handle all sizing and margins
                 };
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
                 return Result<byte[]>.Ok(pdfBytes);
@@ -300,125 +246,83 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 return Result<byte[]>.Fail("No sections found in template");
 
             var output = new StringBuilder();
+            var format_str = layout?.Document?.Format ?? "A6";
+            var orientation = layout?.Document?.Orientation ?? "portrait";
 
-            // Build complete HTML document once
+            // Build complete HTML document
             output.AppendLine("<!DOCTYPE html>");
             output.AppendLine("<html>");
             output.AppendLine("<head>");
             output.AppendLine("<meta charset='utf-8'/>");
             output.AppendLine("<title>Masonic Calendar</title>");
-            
-            var format_str = layout?.Document?.Format ?? "A6";
-            var orientation = layout?.Document?.Orientation ?? "portrait";
             output.AppendLine($"<meta name='format' content='{format_str}'/>");
             output.AppendLine($"<meta name='orientation' content='{orientation}'/>");
             
-            output.AppendLine("<style>");
-            output.AppendLine($"@page {{ size: {format_str} {orientation}; ");
-            
-            if (layout?.GlobalMargins != null)
+            // Link to print-ready CSS with Paged.js styling
+            var printCssPath = Path.Combine(_templateRoot, "print.css");
+            if (File.Exists(printCssPath))
             {
-                var margins = layout.GlobalMargins;
-                var top = margins.PageTop ?? "5mm";
-                var bottom = margins.PageBottom ?? "5mm";
-                var left = margins.PageLeft ?? "5mm";
-                var right = margins.PageRight ?? "5mm";
-                output.AppendLine($"margin: {top} {right} {bottom} {left}; ");
-            }
-            else
-            {
-                output.AppendLine("margin: 5mm; ");
+                var printCssContent = File.ReadAllText(printCssPath);
+                output.AppendLine("<style>");
+                output.AppendLine(printCssContent);
+                output.AppendLine("</style>");
             }
             
+            // Load Paged.js from CDN
+            output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
+            output.AppendLine("<script>");
+            output.AppendLine("// Wait for Paged.js to be available");
+            output.AppendLine("if (typeof Paged !== 'function' && typeof window.Paged !== 'function') {");
+            output.AppendLine("  console.warn('Paged.js not loaded from CDN - PDF rendering will be basic');");
             output.AppendLine("}");
-            output.AppendLine("body { background-color: #f0f0f0; margin: 0; padding: 10px; }");
-            output.AppendLine(".page-break { page-break-after: always; height: 10px; background-color: #f0f0f0; margin: 0; padding: 0; }");
-            output.AppendLine(".page-break::before { content: \"\"; }");
-            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; padding-bottom: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; min-height: 250px; max-width: 210mm; }");
-            output.AppendLine(".page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 30px; }");
-            output.AppendLine("@media print {");
-            output.AppendLine("  body { background-color: white; margin: 0; padding: 0; }");
-            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; page-break-after: always; }");
-            output.AppendLine("  .unit-page { background-color: white; margin: 0; padding: 20px; padding-bottom: 30px; box-shadow: none; position: relative; page-break-inside: avoid; }");
-            output.AppendLine("  .page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 20px; }");
-            output.AppendLine("}");
-            output.AppendLine("</style>");
-            
+            output.AppendLine("</script>");
             output.AppendLine("</head>");
             output.AppendLine("<body>");
 
-            // Clear and reset page tracking for this render
-            _sectionStartPages.Clear();
-            
-            // First pass: record page numbers for data-driven sections to calculate TOC pages
-            var currentPage = 2; // Start after cover (page 1)
-            foreach (var section in layout?.Sections ?? [])
-            {
-                var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
-                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
-                
-                if (isToc && (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false))
-                {
-                    // Master TOC takes up 1-2 pages, assume 2
-                    currentPage += 2;
-                }
-                else if (isToc)
-                {
-                    // Section-specific TOC takes 1 page
-                    currentPage += 1;
-                }
-                else if (isDataDriven)
-                {
-                    // Mark where this section starts
-                    _sectionStartPages[section.SectionId ?? "unknown"] = currentPage;
-                    
-                    // Estimate section size: rough guess based on section
-                    // This is a rough estimate; actual will be more accurate on second pass
-                    if (section.SectionId?.Equals("craft", StringComparison.OrdinalIgnoreCase) ?? false)
-                        currentPage += 50; // Craft section: ~50 pages
-                    else if (section.SectionId?.Equals("royalarch", StringComparison.OrdinalIgnoreCase) ?? false)
-                        currentPage += 5; // RoyalArch section: ~5 pages
-                    else
-                        currentPage += 10; // Default estimate
-                }
-            }
-
             // Render each section
-            if (layout?.Sections == null || layout.Sections.Count == 0)
-                return Result<byte[]>.Fail("No sections found in template");
-            
-            int currentPageNumber = 1;  // Track page numbers for display
-            var sectionIndex = 0;
+            Console.WriteLine($"  - Processing {layout.Sections.Count} sections...");
             foreach (var section in layout.Sections)
             {
+                Console.WriteLine($"    • {section.SectionId} ({section.Type})");
+
                 if (string.IsNullOrWhiteSpace(section.Template))
+                {
+                    if (_debugMode)
+                        Console.WriteLine($"    ⚠️ No template specified, skipping");
                     continue;
+                }
 
                 var templateFile = Path.Combine(_templateRoot, section.Template);
                 if (!File.Exists(templateFile))
+                {
+                    if (_debugMode)
+                        Console.WriteLine($"    ⚠️ Template file not found: {templateFile}");
                     continue;
+                }
 
                 var templateContent = File.ReadAllText(templateFile);
                 var template = Template.Parse(templateContent);
                 if (template.HasErrors)
+                {
+                    if (_debugMode)
+                        Console.WriteLine($"    ⚠️ Template has parsing errors, skipping");
                     continue;
+                }
 
-                // Check section type
                 var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
                 var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
                 var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
 
                 if (isToc)
                 {
-                    // Render table of contents
+                    // Render table of contents with Paged.js target-counter() for automatic page numbers
                     List<Dictionary<string, object?>> tocData;
                     if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                     {
-                        tocData = BuildSectionsTocData(layout.Sections, _sectionStartPages);
+                        tocData = BuildSectionsTocData(layout.Sections, new Dictionary<string, int>());
                     }
                     else if (!string.IsNullOrWhiteSpace(section.ForSection))
                     {
-                        // Reload units for the specific section using its data mapping
                         var unitsForToc = new List<SchemaUnit>();
                         var targetSection = layout.Sections.FirstOrDefault(s => 
                             s.SectionId?.Equals(section.ForSection, StringComparison.OrdinalIgnoreCase) ?? false);
@@ -427,9 +331,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         {
                             var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, targetSection.SectionId);
                             if (reloadResult.Success)
-                            {
                                 unitsForToc = reloadResult.Data ?? [];
-                            }
                         }
                         else
                         {
@@ -449,112 +351,164 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         { "toc_by_section", tocData }
                     };
                     var tocHtml = template.Render(tocModel);
-                    output.AppendLine("<div class='unit-page'>");
-                    output.Append(tocHtml);
-                    output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
-                    output.AppendLine("</div>");
-                    currentPageNumber++;
+                    output.AppendLine(tocHtml);  // Paged.js handles page numbering via CSS
                 }
                 else if (isStatic)
                 {
-                    // Render static template (template handles all content)
+                    // Render static template
                     var staticModel = new Dictionary<string, object?>();
                     var staticHtml = template.Render(staticModel);
-                    output.AppendLine("<div class='unit-page'>");
-                    output.Append(staticHtml);
-                    output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
-                    output.AppendLine("</div>");
-                    currentPageNumber++;
+                    output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
                 }
                 else if (isDataDriven)
                 {
                     // Add section anchor for TOC links
                     output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
                     
-                    // Reload units for this section using its data mapping
+                    // Reload units for this section
                     var unitsForSection = new List<SchemaUnit>();
                     if (_dataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
                     {
-                        // Reload units from this section's specific data mapping
                         var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
                         if (reloadResult.Success)
-                        {
                             unitsForSection = reloadResult.Data ?? [];
-                        }
                     }
                     else
                     {
-                        // No data mapping, use all units
                         unitsForSection = units;
                     }
 
-                    var unitIndex = 0;
+                    if (_debugMode)
+                        Console.WriteLine($"  - Section '{section.SectionId}' ({section.Type}): {unitsForSection.Count} units");
+
+                    // Render each unit
+                    if (unitsForSection.Count > 0)
+                    {
+                        Console.WriteLine($"      ✓ Rendering {unitsForSection.Count} units");
+                    }
                     foreach (var unit in unitsForSection)
                     {
                         var anchorId = GenerateAnchorId(unit);
                         var unitHtml = RenderUnitWithScriban(unit, template);
-                        output.AppendLine("<div class='unit-page'>");
-                        output.AppendLine($"<a id=\"{anchorId}\"></a>");
+                        output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
                         output.Append(unitHtml);
-                        output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
                         output.AppendLine("</div>");
-                        currentPageNumber++;
-                        
-                        unitIndex++;
-                        if (unitIndex < unitsForSection.Count)
-                        {
-                            output.AppendLine("<div class='page-break'></div>");
-                        }
+                        // Paged.js handles page breaks automatically via CSS
                     }
-                }
-
-                // Add page break between sections
-                sectionIndex++;
-                if (sectionIndex < layout.Sections.Count)
-                {
-                    output.AppendLine("<div class='page-break'></div>");
                 }
             }
 
+            output.AppendLine("<script>");
+            output.AppendLine(@"
+// Function to inject TOC page numbers once Paged.js has rendered pages
+function injectTocPageNumbers() {
+    const tocLinks = document.querySelectorAll('.toc-item a');
+    const pages = document.querySelectorAll('.pagedjs_page');
+    
+    console.log('[injectTocPageNumbers] TOC links found: ' + tocLinks.length);
+    console.log('[injectTocPageNumbers] Paged.js pages found: ' + pages.length);
+    
+    if (pages.length === 0) {
+        console.log('[injectTocPageNumbers] No Paged.js pages found - cannot inject page numbers');
+        return false;
+    }
+    
+    let injectedCount = 0;
+    tocLinks.forEach((link, index) => {
+        const href = link.getAttribute('href');
+        if (!href || !href.startsWith('#')) {
+            console.log(`[injectTocPageNumbers] Link ${index}: skipped (no href or invalid format)`);
+            return;
+        }
+        
+        const anchorId = href.substring(1);
+        const targetElement = document.getElementById(anchorId);
+        
+        console.log(`[injectTocPageNumbers] Link ${index} (${href}): target element ${targetElement ? 'found' : 'NOT found'}`);
+        
+        if (targetElement) {
+            // Find which page contains this element
+            let pageNumber = 0;
+            for (let i = 0; i < pages.length; i++) {
+                if (pages[i].contains(targetElement)) {
+                    pageNumber = i + 1;
+                    console.log(`[injectTocPageNumbers] Link ${index}: Target found on page ${pageNumber}`);
+                    break;
+                }
+            }
+            
+            if (pageNumber > 0 && !link.querySelector('span')) {
+                // Create and append page number span
+                const pageSpan = document.createElement('span');
+                pageSpan.className = 'toc-page-number';
+                pageSpan.textContent = pageNumber.toString();
+                pageSpan.style.display = 'inline-block';
+                pageSpan.style.marginLeft = '6pt';
+                pageSpan.style.minWidth = '30px';
+                pageSpan.style.textAlign = 'right';
+                pageSpan.style.color = '#000';
+                pageSpan.style.fontSize = '9pt';
+                link.appendChild(pageSpan);
+                injectedCount++;
+                console.log(`[injectTocPageNumbers] Link ${index}: Span created and appended with page ${pageNumber}`);
+            } else if (pageNumber === 0) {
+                console.log(`[injectTocPageNumbers] Link ${index}: Target element not found in any page`);
+            } else {
+                console.log(`[injectTocPageNumbers] Link ${index}: Span already exists, skipping`);
+            }
+        }
+    });
+    
+    console.log(`[injectTocPageNumbers] TOTAL INJECTED: ${injectedCount} page numbers`);
+    return injectedCount > 0;
+}
+
+// Use Paged.js event if available, otherwise be called explicitly by Puppeteer
+if (window.Paged && typeof window.Paged.on === 'function') {
+    console.log('[injectTocPageNumbers] Paged.js detected, registering rendered event');
+    window.Paged.on('rendered', () => {
+        console.log('[injectTocPageNumbers] Paged.js rendered event fired');
+        injectTocPageNumbers();
+    });
+} else {
+    console.log('[injectTocPageNumbers] Paged.js not available - page numbers will be injected via external call (Puppeteer)');
+}
+            ");
+            output.AppendLine("</script>");
             output.AppendLine("</body>");
             output.AppendLine("</html>");
 
             var htmlContent = output.ToString();
 
+            // Save debug HTML if debug mode is enabled
+            if (_debugMode)
+            {
+                var debugFile = Path.Combine(_outputRoot, "master_v1-all-sections-debug.html");
+                File.WriteAllText(debugFile, htmlContent);
+                Console.WriteLine($"\n  - Debug HTML saved: {debugFile}");
+            }
+
             // Handle output format
             if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
             {
-                // For PDF, remove page-number divs as we'll use footer instead
-                htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"<div class='page-number'>\d+</div>", "");
-                
+                Console.WriteLine("  - Converting HTML to PDF (initializing Puppeteer)...");
                 // Convert relative image paths to data URLs for PDF compatibility
                 htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 
+                // Convert HTML to PDF using Puppeteer
+                // Paged.js handles all margins, page numbers, and layout via CSS @page rules
                 var paperFormat = MapToPaperFormat(format_str);
                 var isLandscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false;
-                var (pdfWidth, pdfHeight) = GetPaperDimensions(format_str, isLandscape);
-                
-                var pageNumberFontSize = layout?.Document?.PageNumber?.FontSize ?? "10px";
-                var pageNumberFontFamily = layout?.Document?.PageNumber?.FontFamily ?? "Arial, sans-serif";
-                var footerTemplate = $"<div style='font-size: {pageNumberFontSize}; font-family: {pageNumberFontFamily}; width: 100%; text-align: center; padding: 5px 0;'><span class='pageNumber'>1</span></div>";
                 
                 var pdfOptions = new PdfOptions
                 {
                     Format = paperFormat,
-                    Width = pdfWidth,
-                    Height = pdfHeight,
                     Landscape = isLandscape,
-                    MarginOptions = new MarginOptions
-                    {
-                        Top = layout?.GlobalMargins?.PageTop ?? "5mm",
-                        Bottom = layout?.GlobalMargins?.PageBottom ?? "12mm",
-                        Left = layout?.GlobalMargins?.PageLeft ?? "5mm",
-                        Right = layout?.GlobalMargins?.PageRight ?? "5mm"
-                    },
                     PrintBackground = true,
-                    DisplayHeaderFooter = true,
-                    FooterTemplate = footerTemplate
+                    DisplayHeaderFooter = false
+                    // Don't set Width/Height/MarginOptions - let Paged.js CSS @page rules handle all sizing and margins
                 };
+                
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
                 return Result<byte[]>.Ok(pdfBytes);
             }
@@ -568,59 +522,6 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         catch (Exception ex)
         {
             return Result<byte[]>.Fail($"Error rendering all sections: {ex.Message}");
-        }
-    }
-
-    private async Task<byte[]> ConvertHtmlToPdf(string htmlContent, PdfOptions pdfOptions)
-    {
-        try
-        {
-            // DEBUG: Write HTML content to file for inspection (if debug mode enabled)
-            if (_debugMode)
-            {
-                var debugOutputPath = Path.Combine(_outputRoot, "debug_html_before_pdf.html");
-                Directory.CreateDirectory(_outputRoot);
-                await File.WriteAllTextAsync(debugOutputPath, htmlContent);
-                Console.WriteLine($"✓ Debug HTML written to: {debugOutputPath}");
-
-                // DEBUG: Log PdfOptions details
-                Console.WriteLine($"✓ PDF Options:");
-                Console.WriteLine($"  - Format: {pdfOptions.Format}");
-                Console.WriteLine($"  - Width: {pdfOptions.Width}");
-                Console.WriteLine($"  - Height: {pdfOptions.Height}");
-                Console.WriteLine($"  - Landscape: {pdfOptions.Landscape}");
-                Console.WriteLine($"  - DisplayHeaderFooter: {pdfOptions.DisplayHeaderFooter}");
-                Console.WriteLine($"  - FooterTemplate: {pdfOptions.FooterTemplate}");
-                Console.WriteLine($"  - Margins - Top: {pdfOptions.MarginOptions?.Top}, Bottom: {pdfOptions.MarginOptions?.Bottom}, Left: {pdfOptions.MarginOptions?.Left}, Right: {pdfOptions.MarginOptions?.Right}");
-            }
-
-            // Download Chrome if not already present
-            var browserFetcher = new BrowserFetcher();
-            await browserFetcher.DownloadAsync();
-
-            // Launch Chrome and convert HTML to PDF
-            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-            {
-                Headless = true,
-                Args = new[] { "--no-sandbox" }
-            });
-
-            await using var page = await browser.NewPageAsync();
-            
-            // Set content and render
-            await page.SetContentAsync(htmlContent);
-            
-            // Generate PDF with specified options including footer
-            var pdfStream = await page.PdfStreamAsync(pdfOptions);
-            using (var memoryStream = new MemoryStream())
-            {
-                await pdfStream.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"PDF conversion failed: {ex.Message}", ex);
         }
     }
 
@@ -1070,6 +971,147 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         }
 
         return tocSections;
+    }
+
+    private async Task<byte[]> ConvertHtmlToPdf(string htmlContent, PdfOptions pdfOptions)
+    {
+        try
+        {
+            // Download/ensure Chromium is available
+            Console.WriteLine("  - Downloading Chromium if needed...");
+            var browserFetcher = new BrowserFetcher();
+            await browserFetcher.DownloadAsync();
+
+            // Launch Chrome and render PDF
+            Console.WriteLine("  - Launching Puppeteer browser...");
+            await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+            {
+                Headless = true,
+                Args = new[] { "--no-sandbox" }
+            });
+
+            Console.WriteLine("  - Creating new page...");
+            await using var page = await browser.NewPageAsync();
+            
+            // Capture console messages from the page
+            page.Console += (sender, args) => {
+                var message = args.Message.Text;
+                if (message.Contains("[injectTocPageNumbers]"))
+                {
+                    Console.WriteLine($"    [JS] {message}");
+                }
+            };
+            
+            // Set page content
+            Console.WriteLine("  - Loading HTML content (this triggers Paged.js rendering)...");
+            await page.SetContentAsync(htmlContent);
+            
+            // Wait for Paged.js to complete pagination before generating PDF
+            try
+            {
+                Console.WriteLine("  - Waiting for Paged.js to complete pagination (max 90 seconds)...");
+                
+                // First, wait for any initial pages to be created
+                await page.WaitForFunctionAsync(@"() => {
+                    return document.querySelector('.pagedjs_pages') && 
+                           document.querySelectorAll('.pagedjs_page').length > 0;
+                }", new WaitForFunctionOptions { Timeout = 30000 });
+                
+                // Now wait for pages to stabilize by checking if page count stays the same
+                // This ensures all content has been paginated
+                var previousPageCount = -1;
+                var stableCount = 0;
+                var maxWaitTime = 60000; // 60 seconds max
+                var checkInterval = 500; // Check every 500ms
+                var elapsedTime = 0;
+                
+                while (elapsedTime < maxWaitTime && stableCount < 3)
+                {
+                    await Task.Delay(checkInterval);
+                    var currentPageCount = await page.EvaluateFunctionAsync<int>(
+                        "() => document.querySelectorAll('.pagedjs_page').length"
+                    );
+                    
+                    if (currentPageCount == previousPageCount)
+                    {
+                        stableCount++;
+                    }
+                    else
+                    {
+                        stableCount = 0;
+                    }
+                    
+                    previousPageCount = currentPageCount;
+                    elapsedTime += checkInterval;
+                }
+                
+                Console.WriteLine("  - Paged.js pagination complete");
+                var finalPageCount = await page.EvaluateFunctionAsync<int>("() => document.querySelectorAll('.pagedjs_page').length");
+                Console.WriteLine($"  - Total pages: {finalPageCount}");
+                
+                // Inject TOC page numbers using JavaScript
+                try
+                {
+                    Console.WriteLine("  - Calling injectTocPageNumbers function...");
+                    var injectedCount = await page.EvaluateFunctionAsync<int>(@"() => {
+                        if (typeof injectTocPageNumbers === 'function') {
+                            console.log('[injectTocPageNumbers] Function found, executing...');
+                            const result = injectTocPageNumbers();
+                            console.log('[injectTocPageNumbers] Function returned: ' + result);
+                            return result ? 1 : 0;
+                        } else {
+                            console.log('[injectTocPageNumbers] ERROR: injectTocPageNumbers function NOT found');
+                            return -1;
+                        }
+                    }");
+                    
+                    if (injectedCount > 0)
+                    {
+                        Console.WriteLine("  ✓ TOC page numbers injected successfully");
+                    }
+                    else if (injectedCount == 0)
+                    {
+                        Console.WriteLine("⚠️  No TOC page numbers were injected (function returned false)");
+                    }
+                    else
+                    {
+                        Console.WriteLine("⚠️  injectTocPageNumbers function not defined in page context");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠️  Error calling injectTocPageNumbers: {ex.Message}");
+                }
+
+            }
+            catch (WaitTaskTimeoutException)
+            {
+                Console.WriteLine("⚠️  Paged.js timeout - proceeding with available pages");
+                var pageCount = await page.EvaluateFunctionAsync<int>("() => document.querySelectorAll('.pagedjs_page').length");
+                Console.WriteLine($"⚠️  Pages available: {pageCount}");
+            }
+            
+            // Generate PDF with specified options
+            Console.WriteLine("  - Generating PDF from rendered pages...");
+            if (_debugMode)
+            {
+                Console.WriteLine($"  - Format: {pdfOptions.Format}");
+                Console.WriteLine($"  - Landscape: {pdfOptions.Landscape}");
+                Console.WriteLine($"  - DisplayHeaderFooter: {pdfOptions.DisplayHeaderFooter}");
+            }
+
+            var pdfStream = await page.PdfStreamAsync(pdfOptions);
+            using (var memoryStream = new MemoryStream())
+            {
+                await pdfStream.CopyToAsync(memoryStream);
+                Console.WriteLine("  - PDF generation complete");
+                return memoryStream.ToArray();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"PDF conversion failed: {ex.GetType().Name}: {ex.Message}\nStack trace: {ex.StackTrace}", ex);
+        }
     }
 }
 

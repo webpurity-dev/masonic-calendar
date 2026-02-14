@@ -10,9 +10,10 @@ using PuppeteerSharp.Media;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? documentRoot = null)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
+    private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
@@ -129,7 +130,25 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                 }
                 else if (!string.IsNullOrWhiteSpace(section.ForSection))
                 {
-                    tocData = BuildTocData(units, layout?.Sections, section.ForSection);
+                    // Reload units for the specific section using its data mapping
+                    var unitsForToc = new List<SchemaUnit>();
+                    var targetSection = layout?.Sections?.FirstOrDefault(s => 
+                        s.SectionId?.Equals(section.ForSection, StringComparison.OrdinalIgnoreCase) ?? false);
+                    
+                    if (_dataLoader != null && targetSection != null && !string.IsNullOrWhiteSpace(targetSection.DataMapping))
+                    {
+                        var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, targetSection.SectionId);
+                        if (reloadResult.Success)
+                        {
+                            unitsForToc = reloadResult.Data ?? [];
+                        }
+                    }
+                    else
+                    {
+                        unitsForToc = units;
+                    }
+                    
+                    tocData = BuildTocData(unitsForToc, layout?.Sections, section.ForSection);
                 }
                 else
                 {
@@ -138,6 +157,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                 
                 var tocModel = new Dictionary<string, object?>
                 {
+                    { "section_title", section.SectionTitle },
                     { "toc_by_section", tocData }
                 };
                 var tocHtml = template.Render(tocModel);
@@ -156,11 +176,24 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
             }
             else
             {
-                // Filter units by section's unit type if configured
-                var unitsToRender = units;
-                if (!string.IsNullOrWhiteSpace(section.UnitType))
+                // Add section anchor for TOC links
+                output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
+                
+                // Reload units for this section using its data mapping
+                var unitsToRender = new List<SchemaUnit>();
+                if (_dataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
                 {
-                    unitsToRender = units.Where(u => u.UnitType == section.UnitType).ToList();
+                    // Reload units from this section's specific data mapping
+                    var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
+                    if (reloadResult.Success)
+                    {
+                        unitsToRender = reloadResult.Data ?? [];
+                    }
+                }
+                else
+                {
+                    // No data mapping, use all units
+                    unitsToRender = units;
                 }
 
                 var unitIndex = 0;
@@ -318,7 +351,25 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                     }
                     else if (!string.IsNullOrWhiteSpace(section.ForSection))
                     {
-                        tocData = BuildTocData(units, layout.Sections, section.ForSection);
+                        // Reload units for the specific section using its data mapping
+                        var unitsForToc = new List<SchemaUnit>();
+                        var targetSection = layout.Sections.FirstOrDefault(s => 
+                            s.SectionId?.Equals(section.ForSection, StringComparison.OrdinalIgnoreCase) ?? false);
+                        
+                        if (_dataLoader != null && targetSection != null && !string.IsNullOrWhiteSpace(targetSection.DataMapping))
+                        {
+                            var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, targetSection.SectionId);
+                            if (reloadResult.Success)
+                            {
+                                unitsForToc = reloadResult.Data ?? [];
+                            }
+                        }
+                        else
+                        {
+                            unitsForToc = units;
+                        }
+                        
+                        tocData = BuildTocData(unitsForToc, layout.Sections, section.ForSection);
                     }
                     else
                     {
@@ -327,6 +378,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                     
                     var tocModel = new Dictionary<string, object?>
                     {
+                        { "section_title", section.SectionTitle },
                         { "toc_by_section", tocData }
                     };
                     var tocHtml = template.Render(tocModel);
@@ -345,11 +397,24 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
                 }
                 else if (isDataDriven)
                 {
-                    // Render data-driven section with units
-                    var unitsForSection = units;
-                    if (!string.IsNullOrWhiteSpace(section.UnitType))
+                    // Add section anchor for TOC links
+                    output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
+                    
+                    // Reload units for this section using its data mapping
+                    var unitsForSection = new List<SchemaUnit>();
+                    if (_dataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
                     {
-                        unitsForSection = units.Where(u => u.UnitType == section.UnitType).ToList();
+                        // Reload units from this section's specific data mapping
+                        var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
+                        if (reloadResult.Success)
+                        {
+                            unitsForSection = reloadResult.Data ?? [];
+                        }
+                    }
+                    else
+                    {
+                        // No data mapping, use all units
+                        unitsForSection = units;
                     }
 
                     var unitIndex = 0;
@@ -856,6 +921,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
 
             tocSections.Add(new Dictionary<string, object?>
             {
+                { "section_id", section.SectionId },
                 { "section_title", sectionTitle },
                 { "page_number", pageNumber },
                 { "items", new List<object?>() }  // Empty items list for section-only TOC
@@ -865,3 +931,4 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, string? docume
         return tocSections;
     }
 }
+

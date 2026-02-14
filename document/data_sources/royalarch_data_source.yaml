@@ -2,9 +2,7 @@
 # CSV files and column mappings that support royal arch related data
 
 units:
-  source: "sample-units.csv"
-  filter_field: "UnitType"
-  filter_value: "RoyalArch"
+  source: "royalarch_units.csv"
   fields:
     - name: "Number"
       csv_column: "Number"
@@ -21,9 +19,6 @@ units:
     - name: "LastInstallationDate"
       csv_column: "LastInstallationDate"
       type: "date"
-    - name: "UnitType"
-      csv_column: "UnitType"
-      type: "string"
 
 officers:
   source: "hermes-export.csv"

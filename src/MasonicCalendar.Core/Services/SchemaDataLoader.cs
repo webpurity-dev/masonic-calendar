@@ -100,23 +100,13 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
 
             while (await csv.ReadAsync())
             {
-                // Check filter if specified
-                if (!string.IsNullOrWhiteSpace(mapping.Units.FilterField) && 
-                    !string.IsNullOrWhiteSpace(mapping.Units.FilterValue))
-                {
-                    var filterValue = csv.GetField(mapping.Units.FilterField);
-                    if (filterValue != mapping.Units.FilterValue)
-                        continue; // Skip this record, doesn't match filter
-                }
-
                 var unit = new SchemaUnit
                 {
                     Number = ParseInt(GetFieldValue(csv, fieldMap, "Number")),
                     Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                     Email = GetFieldValue(csv, fieldMap, "Email"),
                     Established = ParseDate(GetFieldValue(csv, fieldMap, "Established")),
-                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate")),
-                    UnitType = GetFieldValue(csv, fieldMap, "UnitType")
+                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate"))
                 };
 
                 units.Add(unit);

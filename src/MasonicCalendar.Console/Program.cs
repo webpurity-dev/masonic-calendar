@@ -78,7 +78,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, documentRoot);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot);
         
         var targetSectionId = sectionId ?? null;  // null means render all sections
         

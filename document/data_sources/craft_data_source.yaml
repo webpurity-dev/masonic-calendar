@@ -3,8 +3,6 @@
 
 units:
   source: "sample-units.csv"
-  filter_field: "UnitType"
-  filter_value: "Craft"
   fields:
     - name: "Number"
       csv_column: "Number"
@@ -21,9 +19,6 @@ units:
     - name: "LastInstallationDate"
       csv_column: "LastInstallationDate"
       type: "date"
-    - name: "UnitType"
-      csv_column: "UnitType"
-      type: "string"
 
 officers:
   source: "hermes-export.csv"

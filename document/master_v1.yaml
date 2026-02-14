@@ -1,10 +1,13 @@
 document:
   format: "A6"
   orientation: "portrait"
+  page_number:
+    font_family: "Arial, sans-serif"
+    font_size: "6pt"
 
 global_margins:
   page_top: 5mm
-  page_bottom: 5mm
+  page_bottom: 12mm
   page_left: 5mm
   page_right: 5mm
 
@@ -30,6 +33,7 @@ sections:
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
+    pages_per_unit: 1
 
   - section_id: "royalarch_toc"
     section_title: "Royal Arch Masonry"
@@ -42,3 +46,4 @@ sections:
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
+    pages_per_unit: 1

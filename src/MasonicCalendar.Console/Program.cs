@@ -13,6 +13,7 @@ if (!Directory.Exists(outputDir))
 string? templateName = null;
 string? documentOutputFormat = null;
 string? sectionId = null;
+bool debugMode = false;
 
 var templateIndex = Array.IndexOf(args, "-template");
 if (templateIndex != -1 && templateIndex + 1 < args.Length)
@@ -31,6 +32,9 @@ if (sectionIndex != -1 && sectionIndex + 1 < args.Length)
 {
     sectionId = args[sectionIndex + 1];
 }
+
+// Check for debug flag
+debugMode = Array.IndexOf(args, "-debug") != -1;
 
 // Document renderer mode
 if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(documentOutputFormat))
@@ -78,7 +82,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode);
         
         var targetSectionId = sectionId ?? null;  // null means render all sections
         

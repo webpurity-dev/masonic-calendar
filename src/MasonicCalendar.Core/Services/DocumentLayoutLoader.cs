@@ -130,6 +130,13 @@ public class DocumentInfo
     public string? Copyright { get; set; }
     public string? Format { get; set; }
     public string? Orientation { get; set; }
+    public PageNumberStyle? PageNumber { get; set; }
+}
+
+public class PageNumberStyle
+{
+    public string? FontFamily { get; set; }
+    public string? FontSize { get; set; }
 }
 
 public class GlobalStyling
@@ -181,8 +188,8 @@ public class SectionConfig
     public string? DataSource { get; set; }
     public string? DataMapping { get; set; }
     public string? UnitType { get; set; }
-        public string? ForSection { get; set; }
-    public int PagesPerUnit { get; set; }
+    public string? ForSection { get; set; }
+    public int? PagesPerUnit { get; set; }
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
 }

@@ -10,16 +10,23 @@ using PuppeteerSharp.Media;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
+    private readonly bool _debugMode = debugMode;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
     private readonly string _imagesRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "images")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "images");
+    private readonly string _outputRoot = !string.IsNullOrWhiteSpace(documentRoot)
+        ? Path.Combine(documentRoot, "..", "output")
+        : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "output");
+    
+    // Track page numbers for each section as they are rendered
+    private readonly Dictionary<string, int> _sectionStartPages = new();
 
     public async Task<Result<byte[]>> RenderUnitsAsync(
         List<SchemaUnit> units,
@@ -101,14 +108,16 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             }
             
             output.AppendLine("}");
-            output.AppendLine("body { background-color: #f0f0f0; }");
+            output.AppendLine("body { background-color: #f0f0f0; margin: 0; padding: 10px; }");
             output.AppendLine(".page-break { page-break-after: always; height: 10px; background-color: #f0f0f0; margin: 0; padding: 0; }");
             output.AppendLine(".page-break::before { content: \"\"; }");
-            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }");
+            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; padding-bottom: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; min-height: 250px; max-width: 210mm; }");
+            output.AppendLine(".page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 30px; }");
             output.AppendLine("@media print {");
-            output.AppendLine("  body { background-color: white; }");
-            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; }");
-            output.AppendLine("  .unit-page { background-color: transparent; margin: 0; padding: 0; box-shadow: none; }");
+            output.AppendLine("  body { background-color: white; margin: 0; padding: 0; }");
+            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; page-break-after: always; }");
+            output.AppendLine("  .unit-page { background-color: white; margin: 0; padding: 20px; padding-bottom: 30px; box-shadow: none; position: relative; page-break-inside: avoid; }");
+            output.AppendLine("  .page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 20px; }");
             output.AppendLine("}");
             
             output.AppendLine("</style>");
@@ -126,7 +135,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 List<Dictionary<string, object?>> tocData;
                 if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
-                    tocData = BuildSectionsTocData(layout?.Sections);
+                    tocData = BuildSectionsTocData(layout?.Sections, new Dictionary<string, int>());
                 }
                 else if (!string.IsNullOrWhiteSpace(section.ForSection))
                 {
@@ -163,6 +172,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var tocHtml = template.Render(tocModel);
                 output.AppendLine("<div class='unit-page'>");
                 output.Append(tocHtml);
+                output.AppendLine($"<div class='page-number'>1</div>");
                 output.AppendLine("</div>");
             }
             else if (isStatic)
@@ -172,6 +182,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine("<div class='unit-page'>");
                 output.Append(staticHtml);
+                output.AppendLine($"<div class='page-number'>1</div>");
                 output.AppendLine("</div>");
             }
             else
@@ -197,6 +208,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
 
                 var unitIndex = 0;
+                int pageNumber = 1;
                 foreach (var unit in unitsToRender)
                 {
                     var anchorId = GenerateAnchorId(unit);
@@ -204,7 +216,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     output.AppendLine("<div class='unit-page'>");
                     output.AppendLine($"<a id=\"{anchorId}\"></a>");
                     output.Append(unitHtml);
+                    output.AppendLine($"<div class='page-number'>{pageNumber}</div>");
                     output.AppendLine("</div>");
+                    pageNumber++;
                     
                     // Add page breaks based on pages_per_unit configuration
                     // Each unit typically uses N pages, add breaks between units
@@ -224,32 +238,46 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Handle output format
             if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
             {
+                // For PDF, remove page-number divs as we'll use footer instead
+                htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"<div class='page-number'>\d+</div>", "");
+                
                 // Convert relative image paths to data URLs for PDF compatibility
                 htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 
                 // Convert HTML to PDF using Puppeteer with layout settings
                 // Map format string to PuppeteerSharp PaperFormat enum
                 var paperFormat = MapToPaperFormat(format_str);
+                var isLandscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false;
+                var (pdfWidth, pdfHeight) = GetPaperDimensions(format_str, isLandscape);
+                
+                var pageNumberFontSize = layout?.Document?.PageNumber?.FontSize ?? "10px";
+                var pageNumberFontFamily = layout?.Document?.PageNumber?.FontFamily ?? "Arial, sans-serif";
+                var footerTemplate = $"<div style='font-size: {pageNumberFontSize}; font-family: {pageNumberFontFamily}; width: 100%; text-align: center; padding: 5px 0;'><span class='pageNumber'>1</span></div>";
                 
                 var pdfOptions = new PdfOptions
                 {
                     Format = paperFormat,
-                    Landscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false,
+                    Width = pdfWidth,
+                    Height = pdfHeight,
+                    Landscape = isLandscape,
+                    DisplayHeaderFooter = true,
+                    PrintBackground = true,
                     MarginOptions = new MarginOptions
                     {
                         Top = layout?.GlobalMargins?.PageTop ?? "5mm",
-                        Bottom = layout?.GlobalMargins?.PageBottom ?? "5mm",
+                        Bottom = layout?.GlobalMargins?.PageBottom ?? "12mm",
                         Left = layout?.GlobalMargins?.PageLeft ?? "5mm",
                         Right = layout?.GlobalMargins?.PageRight ?? "5mm"
                     },
-                    PrintBackground = true
+                    FooterTemplate = footerTemplate
                 };
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
                 return Result<byte[]>.Ok(pdfBytes);
             }
             else
             {
-                // Return as HTML
+                // Convert relative image paths to data URLs for HTML portability
+                htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(htmlContent));
             }
         }
@@ -303,24 +331,63 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             }
             
             output.AppendLine("}");
-            output.AppendLine("body { background-color: #f0f0f0; }");
+            output.AppendLine("body { background-color: #f0f0f0; margin: 0; padding: 10px; }");
             output.AppendLine(".page-break { page-break-after: always; height: 10px; background-color: #f0f0f0; margin: 0; padding: 0; }");
             output.AppendLine(".page-break::before { content: \"\"; }");
-            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }");
+            output.AppendLine(".unit-page { background-color: white; margin: 10px auto; padding: 20px; padding-bottom: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; min-height: 250px; max-width: 210mm; }");
+            output.AppendLine(".page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 30px; }");
             output.AppendLine("@media print {");
-            output.AppendLine("  body { background-color: white; }");
-            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; }");
-            output.AppendLine("  .unit-page { background-color: transparent; margin: 0; padding: 0; box-shadow: none; }");
+            output.AppendLine("  body { background-color: white; margin: 0; padding: 0; }");
+            output.AppendLine("  .page-break { height: 0; background-color: transparent; margin: 0; padding: 0; page-break-after: always; }");
+            output.AppendLine("  .unit-page { background-color: white; margin: 0; padding: 20px; padding-bottom: 30px; box-shadow: none; position: relative; page-break-inside: avoid; }");
+            output.AppendLine("  .page-number { display: block; text-align: center; font-size: 9pt; color: #333; font-weight: normal; margin-top: 20px; }");
             output.AppendLine("}");
             output.AppendLine("</style>");
             
             output.AppendLine("</head>");
             output.AppendLine("<body>");
 
+            // Clear and reset page tracking for this render
+            _sectionStartPages.Clear();
+            
+            // First pass: record page numbers for data-driven sections to calculate TOC pages
+            var currentPage = 2; // Start after cover (page 1)
+            foreach (var section in layout?.Sections ?? [])
+            {
+                var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
+                
+                if (isToc && (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false))
+                {
+                    // Master TOC takes up 1-2 pages, assume 2
+                    currentPage += 2;
+                }
+                else if (isToc)
+                {
+                    // Section-specific TOC takes 1 page
+                    currentPage += 1;
+                }
+                else if (isDataDriven)
+                {
+                    // Mark where this section starts
+                    _sectionStartPages[section.SectionId ?? "unknown"] = currentPage;
+                    
+                    // Estimate section size: rough guess based on section
+                    // This is a rough estimate; actual will be more accurate on second pass
+                    if (section.SectionId?.Equals("craft", StringComparison.OrdinalIgnoreCase) ?? false)
+                        currentPage += 50; // Craft section: ~50 pages
+                    else if (section.SectionId?.Equals("royalarch", StringComparison.OrdinalIgnoreCase) ?? false)
+                        currentPage += 5; // RoyalArch section: ~5 pages
+                    else
+                        currentPage += 10; // Default estimate
+                }
+            }
+
             // Render each section
             if (layout?.Sections == null || layout.Sections.Count == 0)
                 return Result<byte[]>.Fail("No sections found in template");
             
+            int currentPageNumber = 1;  // Track page numbers for display
             var sectionIndex = 0;
             foreach (var section in layout.Sections)
             {
@@ -347,7 +414,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     List<Dictionary<string, object?>> tocData;
                     if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                     {
-                        tocData = BuildSectionsTocData(layout.Sections);
+                        tocData = BuildSectionsTocData(layout.Sections, _sectionStartPages);
                     }
                     else if (!string.IsNullOrWhiteSpace(section.ForSection))
                     {
@@ -384,7 +451,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     var tocHtml = template.Render(tocModel);
                     output.AppendLine("<div class='unit-page'>");
                     output.Append(tocHtml);
+                    output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
                     output.AppendLine("</div>");
+                    currentPageNumber++;
                 }
                 else if (isStatic)
                 {
@@ -393,7 +462,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     var staticHtml = template.Render(staticModel);
                     output.AppendLine("<div class='unit-page'>");
                     output.Append(staticHtml);
+                    output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
                     output.AppendLine("</div>");
+                    currentPageNumber++;
                 }
                 else if (isDataDriven)
                 {
@@ -425,7 +496,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         output.AppendLine("<div class='unit-page'>");
                         output.AppendLine($"<a id=\"{anchorId}\"></a>");
                         output.Append(unitHtml);
+                        output.AppendLine($"<div class='page-number'>{currentPageNumber}</div>");
                         output.AppendLine("</div>");
+                        currentPageNumber++;
                         
                         unitIndex++;
                         if (unitIndex < unitsForSection.Count)
@@ -451,28 +524,44 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Handle output format
             if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
             {
+                // For PDF, remove page-number divs as we'll use footer instead
+                htmlContent = System.Text.RegularExpressions.Regex.Replace(htmlContent, @"<div class='page-number'>\d+</div>", "");
+                
                 // Convert relative image paths to data URLs for PDF compatibility
                 htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 
                 var paperFormat = MapToPaperFormat(format_str);
+                var isLandscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false;
+                var (pdfWidth, pdfHeight) = GetPaperDimensions(format_str, isLandscape);
+                
+                var pageNumberFontSize = layout?.Document?.PageNumber?.FontSize ?? "10px";
+                var pageNumberFontFamily = layout?.Document?.PageNumber?.FontFamily ?? "Arial, sans-serif";
+                var footerTemplate = $"<div style='font-size: {pageNumberFontSize}; font-family: {pageNumberFontFamily}; width: 100%; text-align: center; padding: 5px 0;'><span class='pageNumber'>1</span></div>";
+                
                 var pdfOptions = new PdfOptions
                 {
                     Format = paperFormat,
-                    Landscape = orientation?.Equals("landscape", StringComparison.OrdinalIgnoreCase) ?? false,
+                    Width = pdfWidth,
+                    Height = pdfHeight,
+                    Landscape = isLandscape,
                     MarginOptions = new MarginOptions
                     {
                         Top = layout?.GlobalMargins?.PageTop ?? "5mm",
-                        Bottom = layout?.GlobalMargins?.PageBottom ?? "5mm",
+                        Bottom = layout?.GlobalMargins?.PageBottom ?? "12mm",
                         Left = layout?.GlobalMargins?.PageLeft ?? "5mm",
                         Right = layout?.GlobalMargins?.PageRight ?? "5mm"
                     },
-                    PrintBackground = true
+                    PrintBackground = true,
+                    DisplayHeaderFooter = true,
+                    FooterTemplate = footerTemplate
                 };
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
                 return Result<byte[]>.Ok(pdfBytes);
             }
             else
             {
+                // Convert relative image paths to data URLs for HTML portability
+                htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(htmlContent));
             }
         }
@@ -486,6 +575,25 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
     {
         try
         {
+            // DEBUG: Write HTML content to file for inspection (if debug mode enabled)
+            if (_debugMode)
+            {
+                var debugOutputPath = Path.Combine(_outputRoot, "debug_html_before_pdf.html");
+                Directory.CreateDirectory(_outputRoot);
+                await File.WriteAllTextAsync(debugOutputPath, htmlContent);
+                Console.WriteLine($"✓ Debug HTML written to: {debugOutputPath}");
+
+                // DEBUG: Log PdfOptions details
+                Console.WriteLine($"✓ PDF Options:");
+                Console.WriteLine($"  - Format: {pdfOptions.Format}");
+                Console.WriteLine($"  - Width: {pdfOptions.Width}");
+                Console.WriteLine($"  - Height: {pdfOptions.Height}");
+                Console.WriteLine($"  - Landscape: {pdfOptions.Landscape}");
+                Console.WriteLine($"  - DisplayHeaderFooter: {pdfOptions.DisplayHeaderFooter}");
+                Console.WriteLine($"  - FooterTemplate: {pdfOptions.FooterTemplate}");
+                Console.WriteLine($"  - Margins - Top: {pdfOptions.MarginOptions?.Top}, Bottom: {pdfOptions.MarginOptions?.Bottom}, Left: {pdfOptions.MarginOptions?.Left}, Right: {pdfOptions.MarginOptions?.Right}");
+            }
+
             // Download Chrome if not already present
             var browserFetcher = new BrowserFetcher();
             await browserFetcher.DownloadAsync();
@@ -502,7 +610,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Set content and render
             await page.SetContentAsync(htmlContent);
             
-            // Generate PDF with specified options
+            // Generate PDF with specified options including footer
             var pdfStream = await page.PdfStreamAsync(pdfOptions);
             using (var memoryStream = new MemoryStream())
             {
@@ -533,6 +641,31 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             "TABLOID" => PaperFormat.Tabloid,
             _ => PaperFormat.A4 // Default to A4
         };
+    }
+
+    private static (string Width, string Height) GetPaperDimensions(string format, bool landscape)
+    {
+        // Return (width, height) in mm based on format and orientation
+        var (portraitWidth, portraitHeight) = format.ToUpperInvariant() switch
+        {
+            "A0" => ("841mm", "1189mm"),
+            "A1" => ("594mm", "841mm"),
+            "A2" => ("420mm", "594mm"),
+            "A3" => ("297mm", "420mm"),
+            "A4" => ("210mm", "297mm"),
+            "A5" => ("148mm", "210mm"),
+            "A6" => ("105mm", "148mm"),
+            "LETTER" => ("215.9mm", "279.4mm"),
+            "LEGAL" => ("215.9mm", "355.6mm"),
+            "TABLOID" => ("279.4mm", "431.8mm"),
+            _ => ("210mm", "297mm") // Default to A4
+        };
+
+        // Swap dimensions if landscape
+        if (landscape)
+            return (portraitHeight, portraitWidth);
+
+        return (portraitWidth, portraitHeight);
     }
 
     private static decimal ConvertMarginToUnit(string? margin)
@@ -780,8 +913,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             return tocSections;
 
         // Calculate page numbers
-        // Assume: Cover = 1 page, TOC = 1 page, Average 2.5 units per page
-        const int unitsPerPage = 2;  // Conservative estimate
+        // Assume: Cover = 1 page, TOC = 1 page, then calculate based on pages_per_unit from each section
         int currentPageNumber = 3;   // Start after cover (1) and TOC (2)
         int unitIndexPerSection = 0;
 
@@ -805,11 +937,12 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Build items list for this section
             var items = new List<object?>();
             unitIndexPerSection = 0;
+            int pagesPerUnit = section.PagesPerUnit ?? 1;  // Use configured value or default to 1
 
             foreach (var u in unitsForSection)
             {
-                // Calculate page number: start at currentPageNumber, add 1 for every unitsPerPage units
-                int pageNumber = currentPageNumber + (unitIndexPerSection / unitsPerPage);
+                // Calculate page number: each unit occupies pagesPerUnit pages
+                int pageNumber = currentPageNumber + (unitIndexPerSection * pagesPerUnit);
                 
                 items.Add(new Dictionary<string, object?>
                 {
@@ -823,7 +956,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             }
 
             // Update page counter for next section
-            currentPageNumber += (unitIndexPerSection + unitsPerPage - 1) / unitsPerPage; // Round up
+            currentPageNumber += unitIndexPerSection * pagesPerUnit;
 
             tocSections.Add(new Dictionary<string, object?>
             {
@@ -846,7 +979,6 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             return tocSections;
 
         // Calculate page numbers
-        const int unitsPerPage = 2;
         int currentPageNumber = 3;
         int unitIndexPerSection = 0;
 
@@ -870,10 +1002,12 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         // Build items list for this section
         var items = new List<object?>();
         unitIndexPerSection = 0;
+        int pagesPerUnit = targetSection.PagesPerUnit ?? 1;  // Use configured value or default to 1
 
         foreach (var u in unitsForSection)
         {
-            int pageNumber = currentPageNumber + (unitIndexPerSection / unitsPerPage);
+            // Calculate page number: each unit occupies pagesPerUnit pages
+            int pageNumber = currentPageNumber + (unitIndexPerSection * pagesPerUnit);
             
             items.Add(new Dictionary<string, object?>
             {
@@ -898,26 +1032,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
     /// <summary>
     /// Builds TOC data for section titles only (for_section: "all").
     /// </summary>
-    private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig>? sections)
+    private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig>? sections, Dictionary<string, int> sectionStartPages)
     {
         var tocSections = new List<Dictionary<string, object?>>();
 
         if (sections == null)
             return tocSections;
 
-        // Calculate page numbers
-        const int sectionsPerPage = 2;  // Assume 2 sections fit on a TOC page
-        int currentPageNumber = 2;      // TOC starts on page 2
-
         // Process only data-driven sections (skip cover, toc, and static sections)
         var dataDrivenSections = sections.Where(s => 
             s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false).ToList();
 
+        int estimatedPageNumber = 2;  // Start after cover (1) and TOC (2)
+        
         for (int i = 0; i < dataDrivenSections.Count; i++)
         {
             var section = dataDrivenSections[i];
             var sectionTitle = section.SectionTitle ?? section.Title ?? section.SectionName ?? section.SectionId ?? "Unknown";
-            int pageNumber = currentPageNumber + (i / sectionsPerPage);
+            
+            // Use tracked page numbers if available, otherwise estimate
+            int pageNumber = estimatedPageNumber;
+            if (!string.IsNullOrWhiteSpace(section.SectionId) && sectionStartPages.TryGetValue(section.SectionId, out var startPage))
+            {
+                pageNumber = startPage;
+            }
 
             tocSections.Add(new Dictionary<string, object?>
             {
@@ -926,6 +1064,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 { "page_number", pageNumber },
                 { "items", new List<object?>() }  // Empty items list for section-only TOC
             });
+            
+            // Update estimated page for next section (used if actual tracking isn't available)
+            estimatedPageNumber = pageNumber + 1;
         }
 
         return tocSections;

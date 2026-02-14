@@ -50,191 +50,20 @@
 }
 
 /* ========================================
-   TYPOGRAPHY & DEFAULTS
+   PAGE BREAKS (PAGED.JS)
    ======================================== */
-
-html {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 10pt;
-    line-height: 1.4;
-    color: #333;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background: white;
-}
-
-/* ========================================
-   HEADING STYLES
-   ======================================== */
-
-h1 {
-    font-size: 14pt;
-    font-weight: bold;
-    margin: 12pt 0 8pt 0;
-    page-break-after: avoid;
-}
-
-h2 {
-    font-size: 12pt;
-    font-weight: bold;
-    margin: 10pt 0 6pt 0;
-    page-break-after: avoid;
-}
-
-h3 {
-    font-size: 11pt;
-    font-weight: bold;
-    margin: 8pt 0 4pt 0;
-    page-break-after: avoid;
-}
-
-/* ========================================
-   PARAGRAPHS & TEXT
-   ======================================== */
-
-p {
-    margin: 6pt 0;
-    widows: 2;
-    orphans: 2;
-}
-
-/* ========================================
-   TABLE OF CONTENTS
-   ======================================== */
-
-.toc-section {
-    margin-bottom: 12pt;
-    page-break-inside: avoid;
-    width: 100%;
-}
-
-.toc-section-title {
-    font-size: 10pt;
-    font-weight: bold;
-    margin-bottom: 6pt;
-    page-break-after: avoid;
-    text-align: left;
-}
-
-.toc-item {
-    font-size: 9pt;
-    margin: 2pt 0;
-    page-break-inside: avoid;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.toc-item a {
-    color: #000;
-    text-decoration: none;
-    text-align: left;
-    flex: 1;
-}
-
-.toc-item a:hover {
-    text-decoration: underline;
-}
-
-/* PAGE NUMBERS IN TOC - Will be injected via JavaScript */
-.toc-item a::after {
-    content: "";
-    text-align: right;
-    flex-shrink: 0;
-    margin-left: 6pt;
-    min-width: 30px;
-}
-
-/* Styling for injected page number spans */
-.toc-item .toc-page-number {
-    display: inline-block;
-    margin-left: 6pt;
-    min-width: 30px;
-    text-align: right;
-    color: #000;
-    font-size: 9pt;
-    flex-shrink: 0;
-}
-
-/* ========================================
-   SECTION & UNIT PAGES
-   ======================================== */
-
-.section-page {
-    margin-top: 10mm;
-}
 
 .unit-page {
-    margin-top: 0;
-    padding: 2mm;
-    /* Create a page break before each unit page for Paged.js */
+    break-before: always;
+}
+
+.toc-page {
     break-before: always;
 }
 
 .section-divider {
-    margin-top: 10mm;
-    margin-bottom: 10mm;
+    break-before: always;
 }
-
-/* ========================================
-   TABLES
-   ======================================== */
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 8pt 0;
-    page-break-inside: avoid;
-}
-
-thead {
-    background-color: #f5f5f5;
-}
-
-th {
-    font-weight: bold;
-    text-align: left;
-    padding: 4pt;
-    font-size: 9pt;
-    border-bottom: 1pt solid #ddd;
-}
-
-td {
-    padding: 3pt 4pt;
-    font-size: 8pt;
-    border-bottom: 1pt solid #eee;
-}
-
-tr:last-child td {
-    border-bottom: 1pt solid #ddd;
-}
-
-/* ========================================
-   LINKS & ANCHORS
-   ======================================== */
-
-a {
-    color: #0066cc;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* Anchor targets for cross-references */
-[id^="unit_"],
-[id^="section_"] {
-    /* Targets for target-counter() in TOC */
-}
-
-/* ========================================
-   PAGE BREAKS & WIDOWS/ORPHANS
-   ======================================== */
 
 .page-break-before {
     page-break-before: always;
@@ -249,114 +78,28 @@ a:hover {
 }
 
 /* ========================================
-   COVER PAGE
+   TOC PAGE NUMBER SPANS (JAVASCRIPT INJECTED)
    ======================================== */
 
-.cover-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    text-align: center;
-    page-break-after: always;
-}
-
-.cover-page img {
-    max-width: 80mm;
-    max-height: 120mm;
-    margin-bottom: 12pt;
-}
-
-.cover-title {
-    font-size: 18pt;
-    font-weight: bold;
-    margin-bottom: 8pt;
-}
-
-.cover-subtitle {
-    font-size: 12pt;
-    margin-bottom: 4pt;
-}
-
-/* ========================================
-   TOC PAGE
-   ======================================== */
-
-.toc-page {
-    padding: 15pt;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-.toc-page h1 {
-    font-size: 14pt;
-    margin-bottom: 12pt;
-    text-align: left;
-}
-
-/* ========================================
-   CONTENT PAGES
-   ======================================== */
-
-.content-page {
-    padding: 8pt;
-}
-
-.unit-card {
-    margin-bottom: 8pt;
-    page-break-inside: avoid;
-}
-
-.unit-header {
-    font-weight: bold;
-    font-size: 10pt;
-    margin-bottom: 4pt;
-    padding-bottom: 2pt;
-    border-bottom: 1pt solid #ddd;
-}
-
-/* ========================================
-   UTILITY CLASSES
-   ======================================== */
-
-.hidden {
-    display: none;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.text-right {
+.toc-item .toc-page-number {
+    display: inline-block;
+    margin-left: 6pt;
+    min-width: 30px;
     text-align: right;
-}
-
-.text-bold {
-    font-weight: bold;
-}
-
-.text-small {
-    font-size: 8pt;
+    color: #000;
+    font-size: 9pt;
+    flex-shrink: 0;
 }
 
 /* ========================================
-   PAGED.JS SPECIFIC
+   PAGED.JS CONTAINER
    ======================================== */
-
-/* Hide Paged.js UI in print */
-.pagedjs_pages {
-    /* Container for paged output */
-}
 
 .pagedjs_page {
-    /* Individual page */
     background: white;
     box-shadow: 0 0 0 1px #ddd;
 }
 
-/* In print, remove the box-shadow from individual pages */
 @media print {
     .pagedjs_page {
         box-shadow: none;
@@ -365,7 +108,7 @@ a:hover {
 }
 
 /* ========================================
-   PRINT MEDIA OVERRIDES
+   PRINT OVERRIDES
    ======================================== */
 
 @media print {

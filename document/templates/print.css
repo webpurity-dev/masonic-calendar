@@ -14,9 +14,9 @@
 
 /* ODD PAGES (Right Side / Recto) */
 @page :right {
-    margin-top: 10mm;
+    margin-top: 5mm;
     margin-bottom: 12mm;    /* Space for page number in footer */
-    margin-left: 8mm;       /* Inner margin (gutter) */
+    margin-left: 15mm;       /* Inner margin (gutter) */
     margin-right: 5mm;      /* Outer margin */
 
     @bottom-center {
@@ -29,9 +29,9 @@
 
 /* EVEN PAGES (Left Side / Verso) */
 @page :left {
-    margin-top: 10mm;
+    margin-top: 5mm;
     margin-bottom: 12mm;    /* Space for page number in footer */
-    margin-right: 8mm;      /* Inner margin (gutter) */
+    margin-right: 15mm;      /* Inner margin (gutter) */
     margin-left: 5mm;       /* Outer margin */
 
     @bottom-center {
@@ -87,7 +87,7 @@
     min-width: 30px;
     text-align: right;
     color: #000;
-    font-size: 9pt;
+    font-size: 8pt;
     flex-shrink: 0;
 }
 

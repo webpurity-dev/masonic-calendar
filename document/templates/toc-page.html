@@ -6,13 +6,14 @@
             <div class="toc-section-title">{{ section.section_title }}</div>
             {{ for item in section.items }}
             <div class="toc-item">
-                <a href="#{{ item.anchor_id }}"><strong>[{{ item.unit_number }}]</strong> - {{ item.unit_name }}</a>
+                <a style="font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>[{{ item.unit_number }}]</strong> - {{ item.unit_name }}</a>
                 <!-- Page number automatically inserted by Paged.js target-counter() via CSS -->
             </div>
             {{ end }}
         {{ else }}
+        <div class="toc-section-title">{{ section.section_title }}</div>
         <div class="toc-item">
-            <a href="#section_{{ section.section_id }}">{{ section.section_title }}</a>
+            <a style="font-family: Arial, Helvetica, sans-serif; font-size: 8pt; color: #000; text-decoration: none;" href="#section_{{ section.section_id }}">{{ section.section_title }}</a>
             <!-- Page number automatically inserted by Paged.js target-counter() via CSS -->
         </div>
         {{ end }}

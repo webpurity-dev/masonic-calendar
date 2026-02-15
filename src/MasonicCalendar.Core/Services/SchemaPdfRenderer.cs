@@ -27,9 +27,6 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
     private readonly string _outputRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "..", "output")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "output");
-    
-    // Track page numbers for each section as they are rendered
-    private readonly Dictionary<string, int> _sectionStartPages = new();
 
     public async Task<Result<byte[]>> RenderAsync(
         List<SchemaUnit> units,
@@ -517,60 +514,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         };
     }
 
-    private static (string Width, string Height) GetPaperDimensions(string format, bool landscape)
-    {
-        // Return (width, height) in mm based on format and orientation
-        var (portraitWidth, portraitHeight) = format.ToUpperInvariant() switch
-        {
-            "A0" => ("841mm", "1189mm"),
-            "A1" => ("594mm", "841mm"),
-            "A2" => ("420mm", "594mm"),
-            "A3" => ("297mm", "420mm"),
-            "A4" => ("210mm", "297mm"),
-            "A5" => ("148mm", "210mm"),
-            "A6" => ("105mm", "148mm"),
-            "LETTER" => ("215.9mm", "279.4mm"),
-            "LEGAL" => ("215.9mm", "355.6mm"),
-            "TABLOID" => ("279.4mm", "431.8mm"),
-            _ => ("210mm", "297mm") // Default to A4
-        };
-
-        // Swap dimensions if landscape
-        if (landscape)
-            return (portraitHeight, portraitWidth);
-
-        return (portraitWidth, portraitHeight);
-    }
-
-    private static decimal ConvertMarginToUnit(string? margin)
-    {
-        if (string.IsNullOrWhiteSpace(margin))
-            return 0.196m; // 5mm default
-
-        // Convert common CSS units to PuppeteerSharp units (mm)
-        if (margin.EndsWith("mm"))
-        {
-            if (decimal.TryParse(margin[..^2], out var value))
-                return value;
-        }
-        else if (margin.EndsWith("cm"))
-        {
-            if (decimal.TryParse(margin[..^2], out var value))
-                return value * 10;
-        }
-        else if (margin.EndsWith("in"))
-        {
-            if (decimal.TryParse(margin[..^2], out var value))
-                return value * 25.4m;
-        }
-        else if (decimal.TryParse(margin, out var value))
-        {
-            return value; // Assume mm if no unit specified
-        }
-
-        return 0.196m; // 5mm default
-    }
-
     private string RenderUnitWithScriban(SchemaUnit unit, Template template)
     {
         // Build the model for Scriban
@@ -592,6 +535,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .OrderBy(o => o.DisplayOrder ?? 999)
                     .Select(o => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(o.Reference) },
                         { "name", CleanName(o.Name) },
                         { "position", o.Position },
                         { "posNo", o.DisplayOrder ?? 0 }
@@ -602,6 +546,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 "pastMasters", unit.PastMasters
                     .Select(pm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(pm.Reference) },
                         { "name", CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "provRank", CleanProvincialRank(pm.ProvincialRank) },
@@ -613,6 +558,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 "joiningPastMasters", unit.JoinPastMasters
                     .Select(jpm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(jpm.Reference) },
                         { "name", CleanName(jpm.Name) },
                         { "provRank", CleanProvincialRank(jpm.ProvincialRank) },
                         { "provRankIssued", CleanProvincialRank(jpm.RankYear) }
@@ -623,6 +569,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 "members", unit.Members
                     .Select(m => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(m.Reference) },
                         { "name", CleanName(m.Name) },
                         { "joined", m.YearInitiated }
                     })
@@ -635,6 +582,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 "honoraryMembers", unit.HonoraryMembers
                     .Select(hm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(hm.Reference) },
                         { "name", CleanName(hm.Name) },
                         { "grandRank", "" },
                         { "provRank", "" }
@@ -680,12 +628,27 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return cleaned;
     }
 
+    private string CleanReference(string? reference)
+    {
+        if (string.IsNullOrWhiteSpace(reference))
+            return "";
+
+        // Replace spaces with hyphens, remove/replace other special characters
+        var cleaned = System.Text.RegularExpressions.Regex.Replace(reference, @"[^\w\-]", "-");
+        // Remove consecutive hyphens
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"-+", "-");
+        // Remove leading/trailing hyphens
+        cleaned = cleaned.Trim('-');
+        return cleaned.ToLower();
+    }
+
     private List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)
     {
         // Split members into 3 roughly equal columns
         var membersData = members
             .Select(m => new Dictionary<string, object?>
             {
+                { "reference", CleanReference(m.Reference) },
                 { "name", CleanName(m.Name) },
                 { "joined", m.YearInitiated }
             })

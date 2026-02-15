@@ -11,7 +11,7 @@ using YamlDotNet.Serialization;
 /// Schema-driven data loader that reads master_v1.yaml to dynamically load and parse CSV files.
 /// Handles type coercion, field mapping, and creates strongly-typed domain objects.
 /// </summary>
-public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yamlDeserializer, string? dataRoot = null)
+public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoot = null)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly string _dataRoot = dataRoot ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "data");
@@ -158,6 +158,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
+                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             Position = GetFieldValue(csv, fieldMap, "Position"),
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
@@ -174,6 +175,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
+                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
@@ -190,7 +192,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
-                        {
+                        {Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            
                             Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
@@ -208,6 +211,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.Members.Add(new SchemaMember
                         {
+                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated"),
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
@@ -223,6 +227,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
+                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });

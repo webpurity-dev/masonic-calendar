@@ -27,6 +27,7 @@ public class SchemaUnit
 /// </summary>
 public class SchemaOfficer
 {
+    public string? Reference { get; set; }
     public required string Name { get; set; }
     public string? Position { get; set; }  // FN01
     public int? DisplayOrder { get; set; } // PosNo
@@ -37,6 +38,7 @@ public class SchemaOfficer
 /// </summary>
 public class SchemaPastMaster
 {
+    public string? Reference { get; set; }
     public required string Name { get; set; }
     public string? YearInstalled { get; set; }  // FN01
     public string? ProvincialRank { get; set; } // FN13
@@ -49,6 +51,7 @@ public class SchemaPastMaster
 /// </summary>
 public class SchemaJoinPastMaster
 {
+    public string? Reference { get; set; }
     public required string Name { get; set; }
     public string? YearInstalled { get; set; }  // FN01
     public string? ProvincialRank { get; set; } // FN12
@@ -61,6 +64,7 @@ public class SchemaJoinPastMaster
 /// </summary>
 public class SchemaMember
 {
+    public string? Reference { get; set; }
     public required string Name { get; set; }
     public string? YearInitiated { get; set; } // FN01
     public int? DisplayOrder { get; set; }     // PosNo
@@ -71,6 +75,7 @@ public class SchemaMember
 /// </summary>
 public class SchemaHonoraryMember
 {
+    public string? Reference { get; set; }
     public required string Name { get; set; }
     public int? DisplayOrder { get; set; } // PosNo
 }

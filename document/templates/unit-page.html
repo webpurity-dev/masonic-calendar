@@ -32,7 +32,7 @@
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo <= 11 }}
-                    <tr style="height: 14px;">
+                    <tr style="height: 14px;" data-id="{{ officer.reference }}">
                         <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
@@ -46,7 +46,7 @@
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo > 11 }}
-                    <tr style="height: 14px;">
+                    <tr style="height: 14px;" data-id="{{ officer.reference }}">
                         <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
@@ -73,7 +73,7 @@
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
-                    <tr>
+                    <tr data-id="{{ master.reference }}">
                         <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 40px;">{{ master.installed }}</td>
                         <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRank }}</td>
@@ -97,7 +97,7 @@
             </thead>
             <tbody>
                 {{ for joiningPastMaster in joiningPastMasters }}
-                <tr>
+                <tr data-id="{{ joiningPastMaster.reference }}">
                     <td style="padding: 4px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
                 </tr>
                 {{ end }}
@@ -121,7 +121,7 @@
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[0] }}
-                    <tr style="height: 13px;">
+                    <tr style="height: 13px;" data-id="{{ member.reference }}">
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
@@ -139,7 +139,7 @@
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[1] }}
-                    <tr style="height: 13px;">
+                    <tr style="height: 13px;" data-id="{{ member.reference }}">
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
@@ -157,7 +157,7 @@
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[2] }}
-                    <tr style="height: 13px;">
+                    <tr style="height: 13px;" data-id="{{ member.reference }}">
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
@@ -180,7 +180,7 @@
             </thead>
             <tbody>
                 {{ for honoraryMember in honoraryMembers }}
-                <tr style="height: 14px;">
+                <tr style="height: 14px;" data-id="{{ honoraryMember.reference }}">
                     <td style="padding: 2px; text-align: left; min-width: 150px;">{{ honoraryMember.name }}</td>
                 </tr>
                 {{ end }}

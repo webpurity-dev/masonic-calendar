@@ -100,6 +100,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                     .OrderBy(o => o.DisplayOrder ?? 999)
                     .Select(o => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(o.Reference) },
                         { "name", CleanName(o.Name) },
                         { "position", o.Position },
                         { "posNo", o.DisplayOrder ?? 0 }
@@ -110,6 +111,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                 "pastMasters", unit.PastMasters
                     .Select(pm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(pm.Reference) },
                         { "name", CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "provRank", CleanProvincialRank(pm.ProvincialRank) },
@@ -121,6 +123,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                 "joiningPastMasters", unit.JoinPastMasters
                     .Select(jpm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(jpm.Reference) },
                         { "name", CleanName(jpm.Name) },
                         { "provRank", CleanProvincialRank(jpm.ProvincialRank) },
                         { "provRankIssued", CleanProvincialRank(jpm.RankYear) }
@@ -131,6 +134,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                 "members", unit.Members
                     .Select(m => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(m.Reference) },
                         { "name", CleanName(m.Name) },
                         { "joined", m.YearInitiated }
                     })
@@ -143,6 +147,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                 "honoraryMembers", unit.HonoraryMembers
                     .Select(hm => new Dictionary<string, object?>
                     {
+                        { "reference", CleanReference(hm.Reference) },
                         { "name", CleanName(hm.Name) },
                         { "grandRank", "" },
                         { "provRank", "" }
@@ -178,12 +183,27 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         return System.Text.RegularExpressions.Regex.Replace(rank, @"^(Past\s+)|(Provincial\s+)", "");
     }
 
+    private string CleanReference(string? reference)
+    {
+        if (string.IsNullOrWhiteSpace(reference))
+            return "";
+
+        // Replace spaces with hyphens, remove/replace other special characters
+        var cleaned = System.Text.RegularExpressions.Regex.Replace(reference, @"[^\w\-]", "-");
+        // Remove consecutive hyphens
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"-+", "-");
+        // Remove leading/trailing hyphens
+        cleaned = cleaned.Trim('-');
+        return cleaned.ToLower();
+    }
+
     private List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)
     {
         // Split members into 3 roughly equal columns
         var membersData = members
             .Select(m => new Dictionary<string, object?>
             {
+                { "reference", CleanReference(m.Reference) },
                 { "name", CleanName(m.Name) },
                 { "joined", m.YearInitiated }
             })

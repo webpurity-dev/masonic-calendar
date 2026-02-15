@@ -56,7 +56,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         Console.WriteLine();
 
         // Load data using schema
-        var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), null!, dataPath);
+        var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
         var schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
         
         if (!schemaResult.Success)

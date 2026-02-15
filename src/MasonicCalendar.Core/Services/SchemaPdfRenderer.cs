@@ -190,7 +190,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             }
             else
             {
-                // Add section anchor for TOC links
+                // Add section anchor for TOC links at the very start of section
                 output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
                 
                 // Reload units for this section using its data mapping
@@ -917,12 +917,14 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (sections == null)
             return tocSections;
 
-        // Process data-driven and static sections that come AFTER this TOC section
+        // Process data-driven, static, and TOC sections that come AFTER this TOC section
         var dataDrivenAndStaticSections = sections
             .Skip(tocSectionIndex + 1)  // Only sections after this TOC section
             .Where(s => 
-                (s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false))
+                ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                !s.HideFromParentToc)  // Exclude sections that should be hidden from parent TOC
             .ToList();
 
         int estimatedPageNumber = tocSectionIndex + 2;  // Estimate starting page after TOC

@@ -44,27 +44,27 @@ sections:
     template: "forward-page.html"
 
   - section_id: "craft_toc"
-    section_title: "Craft lodges in numerical order"
+    section_title: "Craft Lodges in numerical order"
     type: "toc"
-    for_section: "craft"
+    for_section: "craft_units"
     template: "toc-page.html"
   
-  - section_id: "craft"
-    section_title: "Craft Freemasonry"
+  - section_id: "craft_units"
+    section_title: "Craft Lodges in numerical order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
-    pages_per_unit: 1
+    hide_from_parent_toc: true
 
   - section_id: "royalarch_toc"
     section_title: "Royal Arch Chapters in numerical order"
     type: "toc"
-    for_section: "royalarch"
+    for_section: "royalarch_units"
     template: "toc-page.html"
     
-  - section_id: "royalarch"
-    section_title: "Royal Arch Masonry"
+  - section_id: "royalarch_units"
+    section_title: "Royal Arch Chapters in numerical order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
-    pages_per_unit: 1
+    hide_from_parent_toc: true

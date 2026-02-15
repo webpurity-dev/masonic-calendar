@@ -34,14 +34,13 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
 
         // Add section anchor for TOC links (with page break wrapper, unless first section or preceded by targeted TOC)
         var startPageBreak = sectionIndex > 0 && !precededbytargetedtoc;
+        
+        // Place anchor at the very start of the section, before any wrappers
+        output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
+        
         if (startPageBreak)
         {
             output.AppendLine($"<div class='section-divider'>");
-            output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
-        }
-        else
-        {
-            output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
         }
 
         // Reload units for this section

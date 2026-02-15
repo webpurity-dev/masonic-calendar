@@ -1,5 +1,6 @@
-namespace MasonicCalendar.Core.Services;
+namespace MasonicCalendar.Core.Loaders;
 
+using MasonicCalendar.Core.Domain;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -114,7 +115,7 @@ public class DocumentLayout
 {
     public DocumentInfo? Document { get; set; }
     public GlobalStyling? GlobalStyling { get; set; }
-    public GlobalMargins? GlobalMargins { get; set; }
+    public PageMargins? PageMargins { get; set; }  // Paged.js CSS @page margin configuration
     public PageNumbering? PageNumbering { get; set; }
     public Dictionary<string, object>? DataSources { get; set; }
     public Dictionary<string, object>? CsvColumnMappings { get; set; }
@@ -130,19 +131,14 @@ public class DocumentInfo
     public string? Copyright { get; set; }
     public string? Format { get; set; }
     public string? Orientation { get; set; }
-    public PageNumberStyle? PageNumber { get; set; }
-}
-
-public class PageNumberStyle
-{
-    public string? FontFamily { get; set; }
-    public string? FontSize { get; set; }
+    public GlobalStyling? GlobalStyling { get; set; }
 }
 
 public class GlobalStyling
 {
     public FontConfig? Fonts { get; set; }
     public ColorConfig? Colors { get; set; }
+    public FooterConfig? Footer { get; set; }
 }
 
 public class FontConfig
@@ -159,13 +155,11 @@ public class ColorConfig
     public string? Accent { get; set; }
 }
 
-public class GlobalMargins
+public class FooterConfig
 {
-    public string? PageTop { get; set; }
-    public string? PageBottom { get; set; }
-    public string? PageLeft { get; set; }
-    public string? PageRight { get; set; }
-    public string? BindingEdge { get; set; }
+    public string? FontFamily { get; set; }
+    public string? FontSize { get; set; }
+    public string? TextAlign { get; set; }
 }
 
 public class PageNumbering

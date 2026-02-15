@@ -1,6 +1,8 @@
 namespace MasonicCalendar.Core.Services;
 
 using MasonicCalendar.Core.Domain;
+using MasonicCalendar.Core.Loaders;
+using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 using Scriban;
 using System.Text;
 using PuppeteerSharp;
@@ -10,11 +12,12 @@ using PuppeteerSharp.Media;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly bool _debugMode = debugMode;
+    private readonly bool _showBleeds = showBleeds;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
@@ -28,7 +31,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
     // Track page numbers for each section as they are rendered
     private readonly Dictionary<string, int> _sectionStartPages = new();
 
-    public async Task<Result<byte[]>> RenderUnitsAsync(
+    public async Task<Result<byte[]>> RenderAsync(
         List<SchemaUnit> units,
         string masterTemplateKey,
         string? sectionId = null,
@@ -95,6 +98,31 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var printCssContent = File.ReadAllText(printCssPath);
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
+                
+                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
+                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(marginsCss))
+                {
+                    output.AppendLine("/* Page margins from configuration */");
+                    output.AppendLine(marginsCss);
+                }
+                
+                // Generate and inject global styles CSS from configuration
+                var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(globalStylesCss))
+                {
+                    output.AppendLine("/* Global styles from configuration */");
+                    output.AppendLine(globalStylesCss);
+                }
+                
+                // Add bleed visualization if requested
+                if (_showBleeds)
+                {
+                    output.AppendLine("/* Bleed visualization - shows page boundaries */");
+                    output.AppendLine(".pagedjs_sheet { border: 1px solid red; }");
+                    output.AppendLine(".pagedjs_pagebox { border: 1px solid blue; }");
+                }
+                
                 output.AppendLine("</style>");
             }
             
@@ -113,7 +141,10 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 List<Dictionary<string, object?>> tocData;
                 if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
-                    tocData = BuildSectionsTocData(layout?.Sections, new Dictionary<string, int>());
+                    // Find the index of this section in the layout
+                    var sectionIndex = layout?.Sections?.IndexOf(section) ?? -1;
+                    if (sectionIndex < 0) sectionIndex = 0;
+                    tocData = BuildSectionsTocData(layout?.Sections, sectionIndex, new Dictionary<string, int>());
                 }
                 else if (!string.IsNullOrWhiteSpace(section.ForSection))
                 {
@@ -193,6 +224,42 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
             }
 
+            // Inject JavaScript to disable Paged.js bleed classes
+            output.AppendLine("<script>");
+            output.AppendLine(@"
+// Disable Paged.js bleed classes that are injected at runtime
+// This ensures page_margins configuration in YAML is the single source of truth
+function disablePagedJsBleeds() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .pagedjs_bleed,
+        .pagedjs_bleed_top, 
+        .pagedjs_bleed_bottom, 
+        .pagedjs_bleed_left, 
+        .pagedjs_bleed_right {
+            width: 0 !important;
+            height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-sizing: border-box !important;
+        }
+    `;
+    document.head.appendChild(style);
+    console.log('[disablePagedJsBleeds] Paged.js bleed classes have been disabled');
+}
+
+// Run when Paged.js is ready
+if (typeof Paged !== 'undefined' && Paged.on) {
+    Paged.on('ready', disablePagedJsBleeds);
+} else {
+    // Fallback: run after DOM is ready
+    document.addEventListener('DOMContentLoaded', disablePagedJsBleeds);
+    // Also run after a short delay in case Paged.js loads async
+    setTimeout(disablePagedJsBleeds, 2000);
+}
+            ");
+            output.AppendLine("</script>");
             output.AppendLine("</body>");
             output.AppendLine("</html>");
 
@@ -265,6 +332,31 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var printCssContent = File.ReadAllText(printCssPath);
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
+                
+                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
+                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(marginsCss))
+                {
+                    output.AppendLine("/* Page margins from configuration */");
+                    output.AppendLine(marginsCss);
+                }
+                
+                // Generate and inject global styles CSS from configuration
+                var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(globalStylesCss))
+                {
+                    output.AppendLine("/* Global styles from configuration */");
+                    output.AppendLine(globalStylesCss);
+                }
+                
+                // Add bleed visualization if requested
+                if (_showBleeds)
+                {
+                    output.AppendLine("/* Bleed visualization - shows page boundaries */");
+                    output.AppendLine(".pagedjs_sheet { border: 1px solid red; }");
+                    output.AppendLine(".pagedjs_pagebox { border: 1px solid blue; }");
+                }
+                
                 output.AppendLine("</style>");
             }
             
@@ -280,9 +372,16 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<body>");
 
             // Render each section
+            if (layout?.Sections == null || layout.Sections.Count == 0)
+                return Result<byte[]>.Fail("No sections found in layout");
+
             Console.WriteLine($"  - Processing {layout.Sections.Count} sections...");
-            foreach (var section in layout.Sections)
+            
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode);
+            
+            for (int sectionIndex = 0; sectionIndex < layout.Sections.Count; sectionIndex++)
             {
+                var section = layout.Sections[sectionIndex];
                 Console.WriteLine($"    • {section.SectionId} ({section.Type})");
 
                 if (string.IsNullOrWhiteSpace(section.Template))
@@ -300,102 +399,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     continue;
                 }
 
-                var templateContent = File.ReadAllText(templateFile);
-                var template = Template.Parse(templateContent);
-                if (template.HasErrors)
-                {
-                    if (_debugMode)
-                        Console.WriteLine($"    ⚠️ Template has parsing errors, skipping");
-                    continue;
-                }
-
-                var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
-                var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
-                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
-
-                if (isToc)
-                {
-                    // Render table of contents with Paged.js target-counter() for automatic page numbers
-                    List<Dictionary<string, object?>> tocData;
-                    if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
-                    {
-                        tocData = BuildSectionsTocData(layout.Sections, new Dictionary<string, int>());
-                    }
-                    else if (!string.IsNullOrWhiteSpace(section.ForSection))
-                    {
-                        var unitsForToc = new List<SchemaUnit>();
-                        var targetSection = layout.Sections.FirstOrDefault(s => 
-                            s.SectionId?.Equals(section.ForSection, StringComparison.OrdinalIgnoreCase) ?? false);
-                        
-                        if (_dataLoader != null && targetSection != null && !string.IsNullOrWhiteSpace(targetSection.DataMapping))
-                        {
-                            var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, targetSection.SectionId);
-                            if (reloadResult.Success)
-                                unitsForToc = reloadResult.Data ?? [];
-                        }
-                        else
-                        {
-                            unitsForToc = units;
-                        }
-                        
-                        tocData = BuildTocData(unitsForToc, layout.Sections, section.ForSection);
-                    }
-                    else
-                    {
-                        tocData = BuildTocData(units, layout.Sections);
-                    }
-                    
-                    var tocModel = new Dictionary<string, object?>
-                    {
-                        { "section_title", section.SectionTitle },
-                        { "toc_by_section", tocData }
-                    };
-                    var tocHtml = template.Render(tocModel);
-                    output.AppendLine(tocHtml);  // Paged.js handles page numbering via CSS
-                }
-                else if (isStatic)
-                {
-                    // Render static template
-                    var staticModel = new Dictionary<string, object?>();
-                    var staticHtml = template.Render(staticModel);
-                    output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
-                }
-                else if (isDataDriven)
-                {
-                    // Add section anchor for TOC links
-                    output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
-                    
-                    // Reload units for this section
-                    var unitsForSection = new List<SchemaUnit>();
-                    if (_dataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
-                    {
-                        var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
-                        if (reloadResult.Success)
-                            unitsForSection = reloadResult.Data ?? [];
-                    }
-                    else
-                    {
-                        unitsForSection = units;
-                    }
-
-                    if (_debugMode)
-                        Console.WriteLine($"  - Section '{section.SectionId}' ({section.Type}): {unitsForSection.Count} units");
-
-                    // Render each unit
-                    if (unitsForSection.Count > 0)
-                    {
-                        Console.WriteLine($"      ✓ Rendering {unitsForSection.Count} units");
-                    }
-                    foreach (var unit in unitsForSection)
-                    {
-                        var anchorId = GenerateAnchorId(unit);
-                        var unitHtml = RenderUnitWithScriban(unit, template);
-                        output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
-                        output.Append(unitHtml);
-                        output.AppendLine("</div>");
-                        // Paged.js handles page breaks automatically via CSS
-                    }
-                }
+                // Get the appropriate renderer for this section type
+                var renderer = rendererFactory.CreateRenderer(section.Type);
+                await renderer.RenderAsync(section, sectionIndex, layout.Sections, masterTemplateKey, units, output);
             }
 
             output.AppendLine("<script>");
@@ -437,24 +443,26 @@ function injectTocPageNumbers() {
                 }
             }
             
-            if (pageNumber > 0 && !link.querySelector('span')) {
-                // Create and append page number span
-                const pageSpan = document.createElement('span');
-                pageSpan.className = 'toc-page-number';
-                pageSpan.textContent = pageNumber.toString();
-                pageSpan.style.display = 'inline-block';
-                pageSpan.style.marginLeft = '6pt';
-                pageSpan.style.minWidth = '30px';
-                pageSpan.style.textAlign = 'right';
-                pageSpan.style.color = '#000';
-                pageSpan.style.fontSize = '9pt';
-                link.appendChild(pageSpan);
-                injectedCount++;
-                console.log(`[injectTocPageNumbers] Link ${index}: Span created and appended with page ${pageNumber}`);
-            } else if (pageNumber === 0) {
-                console.log(`[injectTocPageNumbers] Link ${index}: Target element not found in any page`);
+            if (pageNumber > 0) {
+                // Find the row and the toc-page-number span in it
+                const row = link.closest('.toc-item');
+                if (row) {
+                    const pageSpan = row.querySelector('.toc-page-number');
+                    if (pageSpan && !pageSpan.textContent) {
+                        // Populate the existing span with page number
+                        pageSpan.textContent = pageNumber.toString();
+                        injectedCount++;
+                        console.log(`[injectTocPageNumbers] Link ${index}: Page number ${pageNumber} set in second column span`);
+                    } else if (!pageSpan) {
+                        console.log(`[injectTocPageNumbers] Link ${index}: No toc-page-number span found in row`);
+                    } else {
+                        console.log(`[injectTocPageNumbers] Link ${index}: Span already has content, skipping`);
+                    }
+                } else {
+                    console.log(`[injectTocPageNumbers] Link ${index}: Could not find parent row`);
+                }
             } else {
-                console.log(`[injectTocPageNumbers] Link ${index}: Span already exists, skipping`);
+                console.log(`[injectTocPageNumbers] Link ${index}: Target element not found in any page`);
             }
         }
     });
@@ -620,8 +628,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .Select(o => new Dictionary<string, object?>
                     {
                         { "name", CleanName(o.Name) },
-                        { "lastName", ExtractLastName(CleanName(o.Name)) },
-                        { "initials", ExtractInitials(CleanName(o.Name)) },
                         { "position", o.Position },
                         { "posNo", o.DisplayOrder ?? 0 }
                     })
@@ -632,8 +638,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .Select(pm => new Dictionary<string, object?>
                     {
                         { "name", CleanName(pm.Name) },
-                        { "lastName", ExtractLastName(CleanName(pm.Name)) },
-                        { "initials", ExtractInitials(CleanName(pm.Name)) },
                         { "installed", pm.YearInstalled },
                         { "provRank", CleanProvincialRank(pm.ProvincialRank) },
                         { "provRankIssued", CleanProvincialRank(pm.RankYear) }
@@ -645,8 +649,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .Select(jpm => new Dictionary<string, object?>
                     {
                         { "name", CleanName(jpm.Name) },
-                        { "lastName", ExtractLastName(CleanName(jpm.Name)) },
-                        { "initials", ExtractInitials(CleanName(jpm.Name)) },
                         { "provRank", CleanProvincialRank(jpm.ProvincialRank) },
                         { "provRankIssued", CleanProvincialRank(jpm.RankYear) }
                     })
@@ -657,8 +659,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .Select(m => new Dictionary<string, object?>
                     {
                         { "name", CleanName(m.Name) },
-                        { "lastName", ExtractLastName(CleanName(m.Name)) },
-                        { "initials", ExtractInitials(CleanName(m.Name)) },
                         { "joined", m.YearInitiated }
                     })
                     .ToList()
@@ -671,8 +671,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     .Select(hm => new Dictionary<string, object?>
                     {
                         { "name", CleanName(hm.Name) },
-                        { "lastName", ExtractLastName(CleanName(hm.Name)) },
-                        { "initials", ExtractInitials(CleanName(hm.Name)) },
                         { "grandRank", "" },
                         { "provRank", "" }
                     })
@@ -688,12 +686,13 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (string.IsNullOrWhiteSpace(name))
             return "";
         
-        // Remove corruption characters and any non-printable characters
-        // Keep only letters, numbers, spaces, hyphens, apostrophes, periods, and commas
-        var cleaned = System.Text.RegularExpressions.Regex.Replace(name, @"[^\w\s\-'\.,]", "");
-        cleaned = cleaned.Trim();
+        // Clean name by handling newlines from quoted CSV fields and corruption characters
+        // Remove newlines/carriage returns, trim, replace corruption chars (• and U+FFFD) with space
+        var cleaned = name.Replace("\r", "").Replace("\n", "").Trim();
+        cleaned = cleaned.Replace("•", " ");  // Replace bullet char with space
+        cleaned = cleaned.Replace("\ufffd", " ");  // Replace Unicode Replacement Character with space
         
-        // Remove extra spaces between words
+        // Remove extra spaces (collapse multiple spaces to single space)
         while (cleaned.Contains("  "))
             cleaned = cleaned.Replace("  ", " ");
         
@@ -716,37 +715,13 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return cleaned;
     }
 
-    private string ExtractLastName(string fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName))
-            return "";
-
-        // Assume last word is last name
-        var parts = fullName.Trim().Split(' ');
-        return parts.Length > 0 ? parts[^1] : fullName;
-    }
-
-    private string ExtractInitials(string fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName))
-            return "";
-
-        var parts = fullName.Trim().Split(' ');
-        if (parts.Length <= 1)
-            return "";
-
-        // All parts except the last one (which is last name)
-        return string.Join(" ", parts.Take(parts.Length - 1));
-    }
-
     private List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)
     {
         // Split members into 3 roughly equal columns
         var membersData = members
             .Select(m => new Dictionary<string, object?>
             {
-                { "lastName", ExtractLastName(CleanName(m.Name)) },
-                { "initials", ExtractInitials(CleanName(m.Name)) },
+                { "name", CleanName(m.Name) },
                 { "joined", m.YearInitiated }
             })
             .ToList();
@@ -849,6 +824,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 {
                     { "unit_number", u.Number },
                     { "unit_name", CleanName(u.Name) },
+                    { "short_name", CleanName(u.ShortName ?? u.Name) },
                     { "anchor_id", GenerateAnchorId(u) },
                     { "page_number", pageNumber }
                 });
@@ -914,6 +890,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             {
                 { "unit_number", u.Number },
                 { "unit_name", CleanName(u.Name) },
+                { "short_name", CleanName(u.ShortName ?? u.Name) },
                 { "anchor_id", GenerateAnchorId(u) },
                 { "page_number", pageNumber }
             });
@@ -933,22 +910,26 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     /// <summary>
     /// Builds TOC data for section titles only (for_section: "all").
     /// </summary>
-    private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig>? sections, Dictionary<string, int> sectionStartPages)
+    private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig>? sections, int tocSectionIndex, Dictionary<string, int> sectionStartPages)
     {
         var tocSections = new List<Dictionary<string, object?>>();
 
         if (sections == null)
             return tocSections;
 
-        // Process only data-driven sections (skip cover, toc, and static sections)
-        var dataDrivenSections = sections.Where(s => 
-            s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+        // Process data-driven and static sections that come AFTER this TOC section
+        var dataDrivenAndStaticSections = sections
+            .Skip(tocSectionIndex + 1)  // Only sections after this TOC section
+            .Where(s => 
+                (s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
 
-        int estimatedPageNumber = 2;  // Start after cover (1) and TOC (2)
+        int estimatedPageNumber = tocSectionIndex + 2;  // Estimate starting page after TOC
         
-        for (int i = 0; i < dataDrivenSections.Count; i++)
+        for (int i = 0; i < dataDrivenAndStaticSections.Count; i++)
         {
-            var section = dataDrivenSections[i];
+            var section = dataDrivenAndStaticSections[i];
             var sectionTitle = section.SectionTitle ?? section.Title ?? section.SectionName ?? section.SectionId ?? "Unknown";
             
             // Use tracked page numbers if available, otherwise estimate
@@ -1113,5 +1094,118 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             throw new Exception($"PDF conversion failed: {ex.GetType().Name}: {ex.Message}\nStack trace: {ex.StackTrace}", ex);
         }
     }
+
+    /// <summary>
+    /// Generate CSS @page rules from PageMargins configuration.
+    /// Includes the base @page size rule, margins, and footer styling.
+    /// Size is taken from page_margins.page_size or inferred from document.format.
+    /// </summary>
+    private string GeneratePageMarginsCss(string? format, PageMargins? margins, GlobalStyling? globalStyling)
+    {
+        if (margins == null)
+            return string.Empty;
+
+        var css = new StringBuilder();
+        var footerFont = globalStyling?.Fonts?.DefaultFamily ?? "Arial, sans-serif";
+        var footerSize = globalStyling?.Footer?.FontSize ?? "6pt";
+        var footerAlign = globalStyling?.Footer?.TextAlign ?? "center";
+        
+        // Specific footer font if defined, otherwise use default font
+        if (!string.IsNullOrEmpty(globalStyling?.Footer?.FontFamily))
+            footerFont = globalStyling.Footer.FontFamily;
+
+        // Generate @page base rule with size
+        var pageSize = margins.PageSize ?? GetPageSizeFromFormat(format);
+        if (!string.IsNullOrEmpty(pageSize))
+        {
+            css.AppendLine("@page {");
+            css.AppendLine($"  size: {pageSize};");
+            css.AppendLine("  marks: none;");
+            css.AppendLine("}");
+        }
+
+        // Right page (odd pages / Recto)
+        if (margins.RightPage != null)
+        {
+            css.AppendLine("@page :right {");
+            css.AppendLine($"  margin-top: {margins.RightPage.Top};");
+            css.AppendLine($"  margin-bottom: {margins.RightPage.Bottom};");
+            css.AppendLine($"  margin-left: {margins.RightPage.Left};");
+            css.AppendLine($"  margin-right: {margins.RightPage.Right};");
+            css.AppendLine("  @bottom-center {");
+            css.AppendLine("    content: counter(page);");
+            css.AppendLine($"    font-family: {footerFont};");
+            css.AppendLine($"    font-size: {footerSize};");
+            css.AppendLine($"    text-align: {footerAlign};");
+            css.AppendLine("  }");
+            css.AppendLine("}");
+        }
+
+        // Left page (even pages / Verso)
+        if (margins.LeftPage != null)
+        {
+            css.AppendLine("@page :left {");
+            css.AppendLine($"  margin-top: {margins.LeftPage.Top};");
+            css.AppendLine($"  margin-bottom: {margins.LeftPage.Bottom};");
+            css.AppendLine($"  margin-left: {margins.LeftPage.Left};");
+            css.AppendLine($"  margin-right: {margins.LeftPage.Right};");
+            css.AppendLine("  @bottom-center {");
+            css.AppendLine("    content: counter(page);");
+            css.AppendLine($"    font-family: {footerFont};");
+            css.AppendLine($"    font-size: {footerSize};");
+            css.AppendLine($"    text-align: {footerAlign};");
+            css.AppendLine("  }");
+            css.AppendLine("}");
+        }
+
+        // First page (cover - no page number)
+        if (margins.FirstPage != null)
+        {
+            css.AppendLine("@page :first {");
+            css.AppendLine($"  margin-top: {margins.FirstPage.Top};");
+            css.AppendLine($"  margin-bottom: {margins.FirstPage.Bottom};");
+            css.AppendLine($"  margin-left: {margins.FirstPage.Left};");
+            css.AppendLine($"  margin-right: {margins.FirstPage.Right};");
+            css.AppendLine("  @bottom-center {");
+            css.AppendLine("    content: \"\";");
+            css.AppendLine("  }");
+            css.AppendLine("}");
+        }
+
+        return css.ToString();
+    }
+
+    /// <summary>
+    /// Map document format to CSS page size rule.
+    /// </summary>
+    private string GetPageSizeFromFormat(string? format)
+    {
+        return format?.ToUpper() switch
+        {
+            "A4" => "210mm 297mm",
+            "A5" => "148mm 210mm",
+            "A6" => "105mm 148mm",
+            "LETTER" => "8.5in 11in",
+            "LEGAL" => "8.5in 14in",
+            _ => "105mm 148mm"  // Default to A6
+        };
+    }
+
+    /// <summary>
+    /// Generate CSS rules from global styling configuration.
+    /// </summary>
+    private string GenerateGlobalStylesCss(GlobalStyling? globalStyling)
+    {
+        if (globalStyling?.Fonts?.DefaultFamily == null)
+            return string.Empty;
+
+        var css = new StringBuilder();
+        css.AppendLine("html, body {");
+        css.AppendLine($"  font-family: {globalStyling.Fonts.DefaultFamily};");
+        css.AppendLine("}");
+
+        return css.ToString();
+    }
 }
+
 

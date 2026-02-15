@@ -70,6 +70,80 @@ data/
 
 ## 🚀 Quick Start
 
+### Template-Based Document Rendering (Current)
+
+The modern approach uses Scriban templates with master layouts:
+
+```powershell
+cd src/MasonicCalendar.Console
+
+# Render entire master document (all sections)
+dotnet run -- -template master_v1 -output PDF
+
+# Render specific section only
+dotnet run -- -template master_v1 -output HTML -section cover
+
+# With bleed visualization (for debugging layout)
+dotnet run -- -template master_v1 -output HTML -showbleeds
+
+# Debug mode with extra console output
+dotnet run -- -template master_v1 -output PDF -debug
+```
+
+#### Template Parameters
+
+| Parameter | Values | Example | Required |
+|-----------|--------|---------|----------|
+| `-template` | Template name (e.g., `master_v1`) | `-template master_v1` | Yes |
+| `-output` | `PDF` or `HTML` | `-output PDF` | Yes |
+| `-section` | Section ID or omit for all | `-section cover` | No (default: all) |
+| `-showbleeds` | Flag (no value) | `-showbleeds` | No |
+| `-debug` | Flag (no value) | `-debug` | No |
+
+#### Available Sections in master_v1
+- `cover` - Title/cover page
+- `master_toc` - Table of contents for all data sections
+- `master_foreword` - Foreword/introduction page
+- `craft_toc` - Table of contents for Craft units
+- `craft` - Individual Craft lodge pages
+- `royalarch_toc` - Table of contents for Royal Arch units
+- `royalarch` - Individual Royal Arch chapter pages
+
+#### `-showbleeds` Flag
+
+Visualizes page boundaries for debugging layout issues:
+
+```powershell
+# Generate HTML with visible page bleeds (red=sheet, blue=pagebox)
+dotnet run -- -template master_v1 -output HTML -showbleeds
+```
+
+When enabled, adds CSS borders to help you see:
+- **Red border** = `pagedjs_sheet` (full physical page, includes margins)
+- **Blue border** = `pagedjs_pagebox` (content area after margins applied)
+
+Useful for:
+- Debugging content overflow
+- Verifying margin specifications
+- Checking if content aligns properly within the page box
+- Testing different page size configurations
+
+#### Template-Based Examples
+
+| Command | Output |
+|---------|--------|
+| `dotnet run -- -template master_v1 -output PDF` | `master_v1-all-sections.pdf` (all sections) |
+| `dotnet run -- -template master_v1 -output HTML -section cover` | `master_v1-cover.html` (cover only) |
+| `dotnet run -- -template master_v1 -output HTML -section craft -showbleeds` | `master_v1-craft.html` (with page bleeds) |
+| `dotnet run -- -template master_v1 -output PDF -section craft_toc` | `master_v1-craft_toc.pdf` (craft TOC only) |
+| `dotnet run -- -template master_v1 -output HTML -debug` | `master_v1-all-sections.html` (+ debug output, HTML debug file) |
+
+---
+
+## 🚀 Legacy: Original Quick Start
+
+The original CLI command structure (still supported for historical reference):
+
 ```powershell
 cd e:\Development\repos\masonic-calendar
 # Using v1 schema (separate CSV files, default)
@@ -91,17 +165,44 @@ dotnet run --project src/MasonicCalendar.Console -- --meetings-calendar         
 
 ## 📋 Console Command-Line Switches
 
-### Data Source
+### Template-Based Rendering (Current Approach)
+
+#### Required Parameters
 ```
--source <schema>
-  v1      - Read from separate CSV files (DEFAULT)
-            Requires: sample-units.csv, sample-unit-officers.csv, sample-unit-pmo.csv, etc.
-  hermes  - Read from consolidated hermes-export.csv (v2 schema)
-            Requires: hermes-export.csv with Type column (Off, PMO, PMI, Mem, Hon)
-  
-  Example: -source hermes generates from single consolidated export file
-           -source v1 or omit flag to use separate CSV files (default)
+-template <name>
+  Master template name (e.g., master_v1)
+  Loads configuration from document/data_sources/<name>.yaml
+
+-output <format>
+  pdf   - Generate searchable PDF document
+  html  - Generate browser-viewable HTML with Paged.js
 ```
+
+#### Optional Parameters
+```
+-section <id>
+  Render specific section only (e.g., -section cover)
+  If omitted, renders all sections defined in template
+  Valid sections: cover, master_toc, master_foreword, craft_toc, craft, royalarch_toc, royalarch
+```
+
+```
+-showbleeds
+  Add CSS borders to visualize page boundaries (debugging)
+  - Red border = pagedjs_sheet (full page 105mm x 148mm)
+  - Blue border = pagedjs_pagebox (content area after margins)
+  Useful for debugging layout, margins, and content overflow
+  Example: -template master_v1 -output HTML -showbleeds
+```
+
+```
+-debug
+  Enable debug output to console and generate HTML debug file
+  Output: master_v1-<section>-debug.html in output/ directory
+  Helpful for inspecting rendered templates and page structure
+```
+
+### Legacy Parameters (Original Approach)
 
 ### Unit Pages (Default)
 Generate individual unit pages with officer and location information.
@@ -327,7 +428,11 @@ The document layout is controlled by Scriban HTML templates in `document/templat
 ### CSS & Print Media
 - **Paged.js @page Rules:** Define page size, margins, and margin boxes
 - **Page Numbers:** Automatic via CSS counter and margin boxes (centered in footer)
-- **Page Breaks:** CSS `break-before: always` controls unit pagination
+- **Page Structure:**
+  - `pagedjs_sheet` = Full physical page (e.g., 105mm × 148mm for A6)
+  - `pagedjs_pagebox` = Content area after margins are applied
+  - Use `-showbleeds` flag to add visible borders: red for sheet, blue for pagebox
+- **Page Breaks:** CSS `break-before: always` controls pagination
 - **Responsive Design:** CSS flexbox for layout, responsive font sizing
 
 See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template documentation.

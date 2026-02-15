@@ -1,4 +1,5 @@
 using MasonicCalendar.Core.Services;
+using MasonicCalendar.Core.Loaders;
 
 // Get the project root directory
 var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
@@ -35,6 +36,9 @@ if (sectionIndex != -1 && sectionIndex + 1 < args.Length)
 
 // Check for debug flag
 debugMode = Array.IndexOf(args, "-debug") != -1;
+
+// Check for showbleeds flag
+bool showBleeds = Array.IndexOf(args, "-showbleeds") != -1;
 
 // Document renderer mode
 if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(documentOutputFormat))
@@ -82,7 +86,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
         
         var targetSectionId = sectionId ?? null;  // null means render all sections
         
@@ -95,7 +99,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
-        var renderResult = await renderer.RenderUnitsAsync(schemaResult.Data, templateName, targetSectionId, documentOutputFormat);
+        var renderResult = await renderer.RenderAsync(schemaResult.Data, templateName, targetSectionId, documentOutputFormat);
         
         if (!renderResult.Success)
         {
@@ -132,11 +136,13 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("📄 Masonic Calendar - Document Renderer");
     Console.WriteLine("=" + new string('=', 50));
     Console.WriteLine("\nUsage:");
-    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>]");
+    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-showbleeds] [-debug]");
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
     Console.WriteLine("  -section    Section ID to render (optional, default: all sections)");
+    Console.WriteLine("  -showbleeds Show page bleeds with border (optional, for debugging layout)");
+    Console.WriteLine("  -debug      Enable debug output and HTML file generation (optional)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
     Console.WriteLine("  cover       Cover page");
     Console.WriteLine("  craft       Craft Freemasonry");
@@ -152,9 +158,9 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
 Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
-Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>]");
+Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-showbleeds] [-debug]");
 Console.WriteLine("\nExample (render all sections):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
-Console.WriteLine("\nExample (render specific section):");
-Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -section craft");
+Console.WriteLine("\nExample (render specific section with bleeds visible):");
+Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section craft -showbleeds");
 return 0;

@@ -1,4 +1,4 @@
-namespace MasonicCalendar.Core.Services;
+namespace MasonicCalendar.Core.Domain;
 
 /// <summary>
 /// Result pattern for operations that may fail.

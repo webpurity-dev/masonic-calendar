@@ -1,4 +1,4 @@
-<div style="text-align: center; padding: 2px; font-family: Helvetica; font-size: 8pt;">
+<div style="text-align: center; padding: 2px; font-size: 8pt;">
     <!-- Header Section -->
     <div style="margin-bottom: 8px;">
         <h1 style="font-size: 14pt; margin: 0; font-weight: bold; text-align: center;">
@@ -33,7 +33,7 @@
                     {{ for officer in officers }}
                         {{ if officer.posNo <= 11 }}
                     <tr style="height: 14px;">
-                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.lastName }}{{ if officer.initials }}, {{ officer.initials }}{{ end }}</td>
+                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
@@ -47,7 +47,7 @@
                     {{ for officer in officers }}
                         {{ if officer.posNo > 11 }}
                     <tr style="height: 14px;">
-                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.lastName }}{{ if officer.initials }}, {{ officer.initials }}{{ end }}</td>
+                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
@@ -67,18 +67,16 @@
                 <thead>
                     <tr>
                         <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
-                        <th style="padding: 2px; text-align: right; font-weight: 800;">Installed</th>
-                        <th style="padding: 2px; text-align: left; font-weight: 800;">Provincial Rank</th>
-                        <th style="padding: 2px; text-align: right; font-weight: 800;">Date</th>
+                        <th style="padding: 2px; text-align: right; font-weight: 800;">Year</th>
+                        <th style="padding: 2px; text-align: left; font-weight: 800;">Rank</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
                     <tr>
-                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.lastName }}{{ if master.initials }}, {{ master.initials }}{{ end }}</td>
+                        <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 40px;">{{ master.installed }}</td>
                         <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRank }}</td>
-                        <td style="padding: 2px; text-align: right; min-width: 50px;">{{ master.provRankIssued }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -95,16 +93,12 @@
             <thead>
                 <tr>
                     <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 2px; text-align: left; font-weight: 800;">Provincial Rank</th>
-                    <th style="padding: 2px; text-align: right; font-weight: 800;">Date</th>
                 </tr>
             </thead>
             <tbody>
                 {{ for joiningPastMaster in joiningPastMasters }}
                 <tr>
-                    <td style="padding: 4px; text-align: left; min-width: 150px;">{{ joiningPastMaster.lastName }}{{ if joiningPastMaster.initials }}, {{ joiningPastMaster.initials }}{{ end }}</td>
-                    <td style="padding: 4px; text-align: left; min-width: 80px;">{{ joiningPastMaster.provRank }}</td>
-                    <td style="padding: 4px; text-align: right; min-width: 60px;">{{ joiningPastMaster.provRankIssued }}</td>
+                    <td style="padding: 4px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
                 </tr>
                 {{ end }}
             </tbody>
@@ -128,7 +122,7 @@
                 <tbody>
                     {{ for member in memberColumns[0] }}
                     <tr style="height: 13px;">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.lastName }}{{ if member.initials }}, {{ member.initials }}{{ end }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
@@ -146,7 +140,7 @@
                 <tbody>
                     {{ for member in memberColumns[1] }}
                     <tr style="height: 13px;">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.lastName }}{{ if member.initials }}, {{ member.initials }}{{ end }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
@@ -164,7 +158,7 @@
                 <tbody>
                     {{ for member in memberColumns[2] }}
                     <tr style="height: 13px;">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.lastName }}{{ if member.initials }}, {{ member.initials }}{{ end }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
@@ -182,14 +176,12 @@
             <thead>
                 <tr>
                     <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 2px; text-align: left; font-weight: 800;">Rank</th>
                 </tr>
             </thead>
             <tbody>
                 {{ for honoraryMember in honoraryMembers }}
                 <tr style="height: 14px;">
-                    <td style="padding: 2px; text-align: left; min-width: 150px;">{{ honoraryMember.lastName }}{{ if honoraryMember.initials }}, {{ honoraryMember.initials }}{{ end }}</td>
-                    <td style="padding: 2px; text-align: left; min-width: 70px;">{{ honoraryMember.grandRank }} {{ honoraryMember.provRank }}</td>
+                    <td style="padding: 2px; text-align: left; min-width: 150px;">{{ honoraryMember.name }}</td>
                 </tr>
                 {{ end }}
             </tbody>

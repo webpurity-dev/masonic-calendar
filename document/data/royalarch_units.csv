@@ -1,4 +1,4 @@
-Number,Name,Location,Email,Established,LastInstallationDate
-5331,Kinson,Kinson,5331@dorsetfreemasonry.info,,1st January 1950,28/03/2025
-386,Chapter of Unity,Wareham,386@dorsetfreemasonry.info,,1st January 1887,28/03/2025
-170,All Souls,Weymouth,170@dorsetfreemasonry.info,,1st January 1807,28/03/2025
+Number,Name,ShortName,Location,Email,Established,LastInstallationDate
+5331,Kinson Chapter,Kinson,Kinson,5331@dorsetfreemasonry.info,,1st January 1950,28/03/2025
+386,Chapter of Unity,Chapter of Unity,Wareham,386@dorsetfreemasonry.info,,1st January 1887,28/03/2025
+170,All Souls Chapter,All Souls,Weymouth,170@dorsetfreemasonry.info,,1st January 1807,28/03/2025    

@@ -1,57 +1,15 @@
 /* ========================================
    PAGED.JS PRINT-READY CSS
-   A6 Book (105mm x 148mm) with Mirror Margins
+     - This file contains CSS rules specifically for print layout and styling when using Paged.js.
+     - It includes page break rules, TOC page number styling, and print-specific overrides.
+     - The rules here are designed to work in conjunction with the HTML templates and the document layout defined in master_v1.yaml.
    ======================================== */
 
-/* ========================================
-   PAGE SETUP & DIMENSIONS
-   ======================================== */
-
-@page {
-    size: 105mm 148mm;
-    marks: none;
+/* Reset default browser margins so page_margins configuration controls layout */
+html, body {
+    margin: 0;
+    padding: 0;
 }
-
-/* ODD PAGES (Right Side / Recto) */
-@page :right {
-    margin-top: 5mm;
-    margin-bottom: 12mm;    /* Space for page number in footer */
-    margin-left: 15mm;       /* Inner margin (gutter) */
-    margin-right: 5mm;      /* Outer margin */
-
-    @bottom-center {
-        content: counter(page);
-        font-size: 6pt;
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
-}
-
-/* EVEN PAGES (Left Side / Verso) */
-@page :left {
-    margin-top: 5mm;
-    margin-bottom: 12mm;    /* Space for page number in footer */
-    margin-right: 15mm;      /* Inner margin (gutter) */
-    margin-left: 5mm;       /* Outer margin */
-
-    @bottom-center {
-        content: counter(page);
-        font-size: 6pt;
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
-}
-
-/* FIRST PAGE (Cover) - No page number */
-@page :first {
-    @bottom-center {
-        content: "";
-    }
-}
-
-/* ========================================
-   PAGE BREAKS (PAGED.JS)
-   ======================================== */
 
 .unit-page {
     break-before: always;

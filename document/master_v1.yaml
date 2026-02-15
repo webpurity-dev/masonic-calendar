@@ -1,15 +1,31 @@
 document:
-  format: "A6"
+  format: "A6"              # Will infer 105mm 148mm
   orientation: "portrait"
-  page_number:
-    font_family: "Arial, sans-serif"
-    font_size: "6pt"
+  global_styling:
+    fonts:
+      default_family: "Helvetica, Arial, sans-serif"
+    footer:
+      font_family: "Arial, sans-serif"
+      font_size: "6pt"
+      text_align: "center"
 
-global_margins:
-  page_top: 5mm
-  page_bottom: 12mm
-  page_left: 5mm
-  page_right: 5mm
+# Paged.js CSS @page margins - used for actual PDF/print rendering
+# These are applied directly to the @page CSS rules
+# NOTE: Paged.js applies a 6mm bleed/margin by default around all pages.
+#       The margins specified here are ADDITIONAL to that default bleed.
+
+page_margins:
+  #page_size: "105mm 148mm" # A6 format - configurable, or omit to infer from document.format
+  right_page:               # Odd pages (Recto)
+    top: 0mm
+    bottom: 10mm            # Space for page number in footer
+    left: 10mm              # Inner margin (gutter)
+    right: 0mm              # Outer margin
+  left_page:                # Even pages (Verso)
+    top: 0mm
+    bottom: 10mm            # Space for page number in footer
+    left: 0mm               # Outer margin
+    right: 10mm             # Inner margin (gutter)
 
 sections:
   - section_id: "cover"
@@ -22,8 +38,13 @@ sections:
     for_section: "all"
     template: "toc-page.html"
 
+  - section_id: "master_foreword"
+    section_title: "Foreword"
+    type: "static"
+    template: "forward-page.html"
+
   - section_id: "craft_toc"
-    section_title: "Craft Freemasonry"
+    section_title: "Craft lodges in numerical order"
     type: "toc"
     for_section: "craft"
     template: "toc-page.html"
@@ -36,7 +57,7 @@ sections:
     pages_per_unit: 1
 
   - section_id: "royalarch_toc"
-    section_title: "Royal Arch Masonry"
+    section_title: "Royal Arch Chapters in numerical order"
     type: "toc"
     for_section: "royalarch"
     template: "toc-page.html"

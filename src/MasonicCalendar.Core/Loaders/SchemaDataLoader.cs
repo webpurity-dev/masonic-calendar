@@ -1,4 +1,4 @@
-namespace MasonicCalendar.Core.Services;
+namespace MasonicCalendar.Core.Loaders;
 
 using System.Globalization;
 using System.Text;
@@ -104,6 +104,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                 {
                     Number = ParseInt(GetFieldValue(csv, fieldMap, "Number")),
                     Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
+                    ShortName = GetFieldValue(csv, fieldMap, "ShortName"),
                     Email = GetFieldValue(csv, fieldMap, "Email"),
                     Established = ParseDate(GetFieldValue(csv, fieldMap, "Established")),
                     LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate"))
@@ -157,7 +158,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
-                            Name = csv.GetField("Name") ?? "",
+                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             Position = GetFieldValue(csv, fieldMap, "Position"),
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
@@ -173,7 +174,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
-                            Name = csv.GetField("Name") ?? "",
+                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
                             RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
@@ -190,7 +191,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
-                            Name = csv.GetField("Name") ?? "",
+                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
                             RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
@@ -207,7 +208,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.Members.Add(new SchemaMember
                         {
-                            Name = csv.GetField("Name") ?? "",
+                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated"),
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
@@ -222,7 +223,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
                     {
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
-                            Name = csv.GetField("Name") ?? "",
+                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
                             DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
                         });
                     });
@@ -272,7 +273,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
             while (await csv.ReadAsync())
             {
                 var unitNumber = ParseInt(csv.GetField("Unit"));
-                var name = csv.GetField("Name");
+                var rawName = csv.GetField("Name");
+                var name = CleanName(rawName);
 
                 // Check filter
                 if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
@@ -328,5 +330,22 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, ISerializer yam
             return result;
 
         return null;
+    }
+
+    private string? CleanName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return name;
+        
+        // Clean name: remove newlines from quoted CSV fields, trim, replace corruption chars with space
+        var cleaned = name.Replace("\r", "").Replace("\n", "").Trim();
+        cleaned = cleaned.Replace("•", " ");  // Replace bullet char with space
+        cleaned = cleaned.Replace("\ufffd", " ");  // Replace Unicode Replacement Character with space
+        
+        // Collapse multiple spaces to single space
+        while (cleaned.Contains("  "))
+            cleaned = cleaned.Replace("  ", " ");
+        
+        return cleaned;
     }
 }

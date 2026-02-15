@@ -69,7 +69,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
     }
 
     /// <summary>
-    /// Builds TOC data for all data-driven and static sections that come after this TOC.
+    /// Builds TOC data for all data-driven, static, and toc sections that come after this TOC.
     /// </summary>
     private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig> sections, int tocSectionIndex)
     {
@@ -78,15 +78,8 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         if (sections == null)
             return tocSections;
 
-        // Process data-driven, static, and TOC sections that come AFTER this TOC section
-        var dataDrivenAndStaticSections = sections
-            .Skip(tocSectionIndex + 1)
-            .Where(s => 
-                ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false)) &&
-                !s.HideFromParentToc)  // Exclude sections that should be hidden from parent TOC
-            .ToList();
+        // Filter sections for display in TOC
+        var dataDrivenAndStaticSections = FilterSectionsForToc(sections, tocSectionIndex);
 
         int estimatedPageNumber = tocSectionIndex + 2;
 

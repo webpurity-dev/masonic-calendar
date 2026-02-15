@@ -108,4 +108,20 @@ public abstract class SectionRenderer
             output.AppendLine("</div>");
         }
     }
+
+    /// <summary>
+    /// Filter sections for TOC display: includes data-driven, static, and toc sections,
+    /// but excludes those marked with HideFromParentToc.
+    /// </summary>
+    public static List<SectionConfig> FilterSectionsForToc(List<SectionConfig> sections, int skipAfterIndex)
+    {
+        return sections
+            .Skip(skipAfterIndex + 1)
+            .Where(s => 
+                ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                !s.HideFromParentToc)
+            .ToList();
+    }
 }

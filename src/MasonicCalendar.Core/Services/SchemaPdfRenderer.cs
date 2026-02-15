@@ -224,42 +224,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
             }
 
-            // Inject JavaScript to disable Paged.js bleed classes
-            output.AppendLine("<script>");
-            output.AppendLine(@"
-// Disable Paged.js bleed classes that are injected at runtime
-// This ensures page_margins configuration in YAML is the single source of truth
-function disablePagedJsBleeds() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .pagedjs_bleed,
-        .pagedjs_bleed_top, 
-        .pagedjs_bleed_bottom, 
-        .pagedjs_bleed_left, 
-        .pagedjs_bleed_right {
-            width: 0 !important;
-            height: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border: none !important;
-            box-sizing: border-box !important;
-        }
-    `;
-    document.head.appendChild(style);
-    console.log('[disablePagedJsBleeds] Paged.js bleed classes have been disabled');
-}
 
-// Run when Paged.js is ready
-if (typeof Paged !== 'undefined' && Paged.on) {
-    Paged.on('ready', disablePagedJsBleeds);
-} else {
-    // Fallback: run after DOM is ready
-    document.addEventListener('DOMContentLoaded', disablePagedJsBleeds);
-    // Also run after a short delay in case Paged.js loads async
-    setTimeout(disablePagedJsBleeds, 2000);
-}
-            ");
-            output.AppendLine("</script>");
             output.AppendLine("</body>");
             output.AppendLine("</html>");
 
@@ -917,15 +882,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (sections == null)
             return tocSections;
 
-        // Process data-driven, static, and TOC sections that come AFTER this TOC section
-        var dataDrivenAndStaticSections = sections
-            .Skip(tocSectionIndex + 1)  // Only sections after this TOC section
-            .Where(s => 
-                ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false)) &&
-                !s.HideFromParentToc)  // Exclude sections that should be hidden from parent TOC
-            .ToList();
+        // Filter sections for display in TOC
+        var dataDrivenAndStaticSections = SectionRenderer.FilterSectionsForToc(sections, tocSectionIndex);
 
         int estimatedPageNumber = tocSectionIndex + 2;  // Estimate starting page after TOC
         

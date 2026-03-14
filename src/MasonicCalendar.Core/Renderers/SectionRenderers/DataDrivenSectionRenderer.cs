@@ -94,7 +94,16 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                     { "lastInstallationDate", unit.LastInstallationDate?.ToString("d MMMM yyyy") ?? "" }
                 }
             },
-            { "location", null },
+            {
+                "location", unit.Location != null ? new Dictionary<string, object?>
+                {
+                    { "name", unit.Location.Name },
+                    { "addressLine1", unit.Location.AddressLine1 },
+                    { "town", unit.Location.Town },
+                    { "postcode", unit.Location.Postcode },
+                    { "what3words", unit.Location.What3Words }
+                } : null
+            },
             {
                 "officers", unit.Officers
                     .OrderBy(o => o.DisplayOrder ?? 999)

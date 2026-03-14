@@ -205,6 +205,7 @@ public class DataSourceMapping
     public DataSourceDefinition? JoiningPastMasters { get; set; }
     public DataSourceDefinition? Members { get; set; }
     public DataSourceDefinition? HonoraryMembers { get; set; }
+    public DataSourceDefinition? Locations { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
 }
 

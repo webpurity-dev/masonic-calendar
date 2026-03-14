@@ -66,6 +66,22 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             if (!hermesResult.Success)
                 return Result<List<SchemaUnit>>.Fail(hermesResult.Error ?? "Failed to load hermes export");
 
+            // Load locations and attach to units
+            var locationsResult = await LoadLocationsAsync(mapping!);
+            if (locationsResult.Success && locationsResult.Data != null)
+            {
+                var locationsByID = locationsResult.Data.ToDictionary(l => l.ID ?? "", l => l);
+                foreach (var unit in units)
+                {
+                    // Match location by LocationId from CSV (e.g., "Weymouth")
+                    if (!string.IsNullOrWhiteSpace(unit.LocationId) && 
+                        locationsByID.TryGetValue(unit.LocationId, out var location))
+                    {
+                        unit.Location = location;
+                    }
+                }
+            }
+
             return Result<List<SchemaUnit>>.Ok(units);
         }
         catch (Exception ex)
@@ -105,7 +121,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     ShortName = GetFieldValue(csv, fieldMap, "ShortName"),
                     Email = GetFieldValue(csv, fieldMap, "Email"),
                     Established = ParseDate(GetFieldValue(csv, fieldMap, "Established")),
-                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate"))
+                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate")),
+                    LocationId = GetFieldValue(csv, fieldMap, "Location")  // Extract location reference from CSV
                 };
 
                 units.Add(unit);
@@ -247,6 +264,54 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         catch (Exception ex)
         {
             return Result<bool>.Fail($"Error loading hermes data: {ex.Message}");
+        }
+    }
+
+    private async Task<Result<List<SchemaLocation>>> LoadLocationsAsync(DataSourceMapping mapping)
+    {
+        try
+        {
+            var locations = new List<SchemaLocation>();
+
+            if (mapping.Locations?.Source == null)
+                return Result<List<SchemaLocation>>.Ok(locations);
+
+            var locationsFile = Path.Combine(_dataRoot, mapping.Locations.Source);
+
+            if (!File.Exists(locationsFile))
+                return Result<List<SchemaLocation>>.Ok(locations);
+
+            using var reader = new StreamReader(locationsFile, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            await csv.ReadAsync();
+            csv.ReadHeader();
+
+            var fieldMap = BuildFieldMap(mapping.Locations.Fields);
+
+            while (await csv.ReadAsync())
+            {
+                var location = new SchemaLocation
+                {
+                    ID = GetFieldValue(csv, fieldMap, "ID"),
+                    Name = GetFieldValue(csv, fieldMap, "Name"),
+                    AddressLine1 = GetFieldValue(csv, fieldMap, "AddressLine1"),
+                    Town = GetFieldValue(csv, fieldMap, "Town"),
+                    Postcode = GetFieldValue(csv, fieldMap, "Postcode"),
+                    What3Words = GetFieldValue(csv, fieldMap, "What3Words")
+                };
+
+                if (!string.IsNullOrWhiteSpace(location.ID))
+                {
+                    locations.Add(location);
+                }
+            }
+
+            return Result<List<SchemaLocation>>.Ok(locations);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<SchemaLocation>>.Fail($"Error loading locations: {ex.Message}");
         }
     }
 

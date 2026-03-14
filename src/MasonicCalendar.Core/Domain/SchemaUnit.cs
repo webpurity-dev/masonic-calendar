@@ -13,6 +13,8 @@ public class SchemaUnit
     public DateOnly? Established { get; set; }
     public DateOnly? LastInstallationDate { get; set; }
     public string? UnitType { get; set; }
+    public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
+    public SchemaLocation? Location { get; set; }
     
     // Related data, loaded based on section configuration
     public List<SchemaOfficer> Officers { get; set; } = [];
@@ -78,4 +80,17 @@ public class SchemaHonoraryMember
     public string? Reference { get; set; }
     public required string Name { get; set; }
     public int? DisplayOrder { get; set; } // PosNo
+}
+
+/// <summary>
+/// Location/venue information for a unit
+/// </summary>
+public class SchemaLocation
+{
+    public string? ID { get; set; }
+    public string? Name { get; set; }
+    public string? AddressLine1 { get; set; }
+    public string? Town { get; set; }
+    public string? Postcode { get; set; }
+    public string? What3Words { get; set; }
 }

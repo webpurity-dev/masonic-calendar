@@ -28,6 +28,7 @@ public class SectionRendererFactory
             "toc" => new TocSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "static" => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "data-driven" => new DataDrivenSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "meetings-calendar" => new MeetingsCalendarSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             _ => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode)
         };
     }

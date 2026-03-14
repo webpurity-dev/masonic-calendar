@@ -67,8 +67,9 @@
                 <thead>
                     <tr>
                         <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
-                        <th style="padding: 2px; text-align: right; font-weight: 800;">Year</th>
+                        <th style="padding: 2px; text-align: right; font-weight: 800;">Installed</th>
                         <th style="padding: 2px; text-align: left; font-weight: 800;">Rank</th>
+                        <th style="padding: 2px; text-align: left; font-weight: 800;">Issued</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,6 +78,7 @@
                         <td style="padding: 2px; text-align: left; min-width: 80px;">{{ master.name }}</td>
                         <td style="padding: 2px; text-align: right; min-width: 40px;">{{ master.installed }}</td>
                         <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRank }}</td>
+                        <td style="padding: 2px; text-align: left; min-width: 70px;">{{ master.provRankIssued }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -93,12 +95,16 @@
             <thead>
                 <tr>
                     <th style="padding: 2px; text-align: left; font-weight: 800;">Name</th>
+                    <th style="padding: 2px; text-align: left; font-weight: 800;">Rank</th>
+                    <th style="padding: 2px; text-align: left; font-weight: 800;">Issued</th>
                 </tr>
             </thead>
             <tbody>
                 {{ for joiningPastMaster in joiningPastMasters }}
                 <tr data-id="{{ joiningPastMaster.reference }}">
-                    <td style="padding: 4px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
+                    <td style="padding: 2px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
+                    <td style="padding: 2px; text-align: left; min-width: 70px;">{{ joiningPastMaster.provRank }}</td>  
+                    <td style="padding: 2px; text-align: left; min-width: 70px;">{{ joiningPastMaster.provRankIssued }}</td>
                 </tr>
                 {{ end }}
             </tbody>
@@ -110,56 +116,56 @@
     {{ if members && members.size > 0 }}
     <div style="margin-top: 12px; text-align: center;">
         <h2 style="font-size: 12pt; margin: 0 0 8px 0; font-weight: bold; text-align: center;">Members</h2>
-        <div style="display: flex; gap: 6px; justify-content: center;">
+        <div style="display: flex; gap: 6px; justify-content: center; width: 100%; flex-wrap: nowrap;">
             <!-- Column 1 -->
-            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 1 1 calc(33.33% - 4px); page-break-inside: avoid;">
                 <thead>
                     <tr>
-                        <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
-                        <th style="padding: 1px; text-align: right; font-weight: 800; font-size: 6pt;">Year</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[0] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
             </table>
             
             <!-- Column 2 -->
-            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 1 1 calc(33.33% - 4px); page-break-inside: avoid;">
                 <thead>
                     <tr>
-                        <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
-                        <th style="padding: 1px; text-align: right; font-weight: 800; font-size: 6pt;">Year</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[1] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
             </table>
             
             <!-- Column 3 -->
-            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto;">
+            <table style="border-collapse: collapse; font-size: 8pt; flex: 1 1 calc(33.33% - 4px); page-break-inside: avoid;">
                 <thead>
                     <tr>
-                        <th style="padding: 1px; text-align: left; font-weight: 800; font-size: 6pt;">Name</th>
-                        <th style="padding: 1px; text-align: right; font-weight: 800; font-size: 6pt;">Yr</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[2] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 6pt;">{{ member.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 6pt;">{{ member.joined }}</td>
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
                 </tbody>

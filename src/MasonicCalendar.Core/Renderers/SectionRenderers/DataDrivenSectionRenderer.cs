@@ -115,7 +115,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                         { "name", CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "provRank", CleanProvincialRank(pm.ProvincialRank) },
-                        { "provRankIssued", CleanProvincialRank(pm.RankYear) }
+                        { "provRankIssued", CleanDateIssued(pm.RankYear) }
                     })
                     .ToList()
             },
@@ -126,7 +126,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                         { "reference", CleanReference(jpm.Reference) },
                         { "name", CleanName(jpm.Name) },
                         { "provRank", CleanProvincialRank(jpm.ProvincialRank) },
-                        { "provRankIssued", CleanProvincialRank(jpm.RankYear) }
+                        { "provRankIssued", CleanDateIssued(jpm.RankYear) }
                     })
                     .ToList()
             },
@@ -180,7 +180,9 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         if (string.IsNullOrWhiteSpace(rank))
             return "";
 
-        return System.Text.RegularExpressions.Regex.Replace(rank, @"^(Past\s+)|(Provincial\s+)", "");
+        var cleaned = System.Text.RegularExpressions.Regex.Replace(rank, @"^(Past\s+)|(Provincial\s+)", "");
+
+        return cleaned.Trim(',').Trim();
     }
 
     private string CleanReference(string? reference)
@@ -195,6 +197,15 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         // Remove leading/trailing hyphens
         cleaned = cleaned.Trim('-');
         return cleaned.ToLower();
+    }
+
+    private string CleanDateIssued(string? dateStr)
+    {
+        if (string.IsNullOrWhiteSpace(dateStr))
+            return "";
+
+        // Remove parentheses if present
+        return dateStr.Replace("(", "").Replace(")", "").Trim();
     }
 
     private List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)

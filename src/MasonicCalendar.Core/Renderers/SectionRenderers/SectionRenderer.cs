@@ -120,7 +120,8 @@ public abstract class SectionRenderer
             .Where(s => 
                 ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("meetings-calendar", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();
     }

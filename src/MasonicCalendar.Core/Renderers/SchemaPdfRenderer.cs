@@ -1,12 +1,12 @@
-namespace MasonicCalendar.Core.Services;
+namespace MasonicCalendar.Core.Renderers;
 
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Loaders;
-using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 using Scriban;
 using System.Text;
 using PuppeteerSharp;
 using PuppeteerSharp.Media;
+using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 
 /// <summary>
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.

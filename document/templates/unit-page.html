@@ -123,11 +123,15 @@
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[0] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>
@@ -141,11 +145,15 @@
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[1] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>
@@ -159,11 +167,15 @@
                     <tr>
                         <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
+                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 1px; text-align: right; font-weight: 800;">Year</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for member in memberColumns[2] }}
                     <tr style="height: 13px;" data-id="{{ member.reference }}">
+                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
+                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                         <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
                         <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
                     </tr>

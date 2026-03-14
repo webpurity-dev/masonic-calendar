@@ -190,22 +190,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add section anchor for TOC links at the very start of section
                 output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
                 
-                // Reload units for this section using its data mapping
-                var unitsToRender = new List<SchemaUnit>();
-                if (_dataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
-                {
-                    // Reload units from this section's specific data mapping
-                    var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
-                    if (reloadResult.Success)
-                    {
-                        unitsToRender = reloadResult.Data ?? [];
-                    }
-                }
-                else
-                {
-                    // No data mapping, use all units
-                    unitsToRender = units;
-                }
+                // Use the filtered units passed in (respects -unit parameter from CLI)
+                // The units parameter is already filtered by the caller if needed
+                var unitsToRender = units;
 
                 var unitIndex = 0;
                 foreach (var unit in unitsToRender)

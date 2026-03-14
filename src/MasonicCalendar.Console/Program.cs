@@ -1,5 +1,6 @@
 using MasonicCalendar.Core.Renderers;
 using MasonicCalendar.Core.Loaders;
+using System.Linq;
 
 // Get the project root directory
 var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", ".."));
@@ -14,6 +15,7 @@ if (!Directory.Exists(outputDir))
 string? templateName = null;
 string? documentOutputFormat = null;
 string? sectionId = null;
+string? unitNumber = null;
 bool debugMode = false;
 
 var templateIndex = Array.IndexOf(args, "-template");
@@ -32,6 +34,12 @@ var sectionIndex = Array.IndexOf(args, "-section");
 if (sectionIndex != -1 && sectionIndex + 1 < args.Length)
 {
     sectionId = args[sectionIndex + 1];
+}
+
+var unitIndex = Array.IndexOf(args, "-unit");
+if (unitIndex != -1 && unitIndex + 1 < args.Length)
+{
+    unitNumber = args[unitIndex + 1];
 }
 
 // Check for debug flag
@@ -53,6 +61,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         {
             Console.WriteLine($"Section:  {sectionId}");
         }
+        if (!string.IsNullOrWhiteSpace(unitNumber))
+        {
+            Console.WriteLine($"Unit:     {unitNumber}");
+        }
         Console.WriteLine();
 
         // Load data using schema
@@ -66,6 +78,27 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
+        
+        // Filter by unit number if specified
+        var unitsToRender = schemaResult.Data;
+        if (!string.IsNullOrWhiteSpace(unitNumber))
+        {
+            if (int.TryParse(unitNumber, out int unitNumberInt))
+            {
+                unitsToRender = unitsToRender.Where(u => u.Number == unitNumberInt).ToList();
+                if (unitsToRender.Count == 0)
+                {
+                    Console.WriteLine($"❌ Error: Unit '{unitNumber}' not found in data");
+                    return 1;
+                }
+                Console.WriteLine($"✓ Filtered to {unitsToRender.Count} unit(s) matching '{unitNumber}'");
+            }
+            else
+            {
+                Console.WriteLine($"❌ Error: Unit number '{unitNumber}' is not a valid integer");
+                return 1;
+            }
+        }
         Console.WriteLine();
         
         // Load and display available sections and templates
@@ -88,9 +121,18 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Render using Scriban template
         var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
         
+        // When rendering a specific unit, automatically render only the unit's section
         var targetSectionId = sectionId ?? null;  // null means render all sections
         
-        if (targetSectionId != null)
+        if (!string.IsNullOrWhiteSpace(unitNumber) && string.IsNullOrWhiteSpace(sectionId))
+        {
+            // When unit is specified, render craft units by default
+            // (For Royal Arch units, the user can specify -section royalarch_units)
+            targetSectionId = "craft_units";
+            Console.WriteLine($"📄 Rendering unit {unitNumber} from craft section");
+            Console.WriteLine($"   (To render from royal arch section: add '-section royalarch_units')");
+        }
+        else if (targetSectionId != null)
         {
             Console.WriteLine($"📄 Rendering section: {targetSectionId}");
         }
@@ -99,7 +141,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
-        var renderResult = await renderer.RenderAsync(schemaResult.Data, templateName, targetSectionId, documentOutputFormat);
+        var renderResult = await renderer.RenderAsync(unitsToRender, templateName, targetSectionId, documentOutputFormat);
         
         if (!renderResult.Success)
         {
@@ -110,7 +152,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Save output file
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
         var sectionPart = targetSectionId ?? "all-sections";
-        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}.{fileExtension}");
+        var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
+        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}{unitPart}.{fileExtension}");
         
         File.WriteAllBytes(outputPath, renderResult.Data!);
 
@@ -136,11 +179,12 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("📄 Masonic Calendar - Document Renderer");
     Console.WriteLine("=" + new string('=', 50));
     Console.WriteLine("\nUsage:");
-    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-showbleeds] [-debug]");
+    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleeds] [-debug]");
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
     Console.WriteLine("  -section    Section ID to render (optional, default: all sections)");
+    Console.WriteLine("  -unit       Unit number to render (optional, default: all units)");
     Console.WriteLine("  -showbleeds Show page bleeds with border (optional, for debugging layout)");
     Console.WriteLine("  -debug      Enable debug output and HTML file generation (optional)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
@@ -148,9 +192,10 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("  craft       Craft Freemasonry");
     Console.WriteLine("  royalarch   Royal Arch Chapters");
     Console.WriteLine("\nExamples:");
-    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF                     (renders all sections)");
-    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -section craft      (renders only craft)");
-    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section cover     (renders only cover)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF                     (renders all units)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -unit 3366          (renders only unit 3366)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section craft     (renders only craft section)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -unit 3366 -debug  (renders unit 3366 with debug)");
     return 1;
 }
 
@@ -158,9 +203,11 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
 Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
-Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-showbleeds] [-debug]");
+Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleeds] [-debug]");
 Console.WriteLine("\nExample (render all sections):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
+Console.WriteLine("\nExample (render specific unit):");
+Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -unit 3366");
 Console.WriteLine("\nExample (render specific section with bleeds visible):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section craft -showbleeds");
 return 0;

@@ -195,10 +195,26 @@ public class SectionStyling
 }
 
 /// <summary>
+/// Unit mapping configuration for data sources with unit numbers embedded in rows.
+/// Tracks unit identifiers (e.g., S01 rows with FN03 containing unit number) and applies them 
+/// to subsequent rows until the next unit identifier is encountered.
+/// Data source agnostic - works with any CSV structure.
+/// </summary>
+public class UnitMapping
+{
+    public string? Source { get; set; }                      // CSV filename to map (e.g., "CraftData.csv")
+    public string? RowIdentifierField { get; set; }          // Column identifying unit definition rows (e.g., "SECTION_CODE")
+    public string? RowIdentifierValue { get; set; }          // Value that marks unit definition rows (e.g., "S01")
+    public string? UnitNumberField { get; set; }             // Column containing the unit number (e.g., "FN03")
+    public string? UnitIdField { get; set; } = "ORG_ID";     // Interim grouping field before S01 mapping applied
+}
+
+/// <summary>
 /// Data source mapping configuration loaded from YAML files like craft_data_source.yaml
 /// </summary>
 public class DataSourceMapping
 {
+    public UnitMapping? UnitMapping { get; set; }
     public DataSourceDefinition? Units { get; set; }
     public DataSourceDefinition? Officers { get; set; }
     public DataSourceDefinition? PastMasters { get; set; }
@@ -215,8 +231,10 @@ public class DataSourceMapping
 public class DataSourceDefinition
 {
     public string? Source { get; set; }
+    public string? UnitIdField { get; set; } = "Unit";  // Field name for unit ID (default: "Unit")
     public string? FilterField { get; set; }
     public string? FilterValue { get; set; }
+    public string? OverrideHeading { get; set; }        // Optional custom heading for this section (e.g., "Past First Principals")
     public List<FieldMapping>? Fields { get; set; }
 }
 

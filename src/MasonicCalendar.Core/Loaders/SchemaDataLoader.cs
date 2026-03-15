@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using CsvHelper;
 using MasonicCalendar.Core.Domain;
+using MasonicCalendar.Core.Renderers.Utilities;
 
 /// <summary>
 /// Schema-driven data loader that reads master_v1.yaml to dynamically load and parse CSV files.
@@ -61,8 +62,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
             units = unitsResult.Data ?? [];
 
+            // Build unit mapping from data source if configured (e.g., CraftData.csv S01 rows)
+            var unitMapping = await BuildUnitMappingAsync(mapping!);
+
             // Load hermes export data and attach to units
-            var hermesResult = await LoadHermesDataAsync(mapping!, units);
+            var hermesResult = await LoadHermesDataAsync(mapping!, units, unitMapping);
             if (!hermesResult.Success)
                 return Result<List<SchemaUnit>>.Fail(hermesResult.Error ?? "Failed to load hermes export");
 
@@ -81,6 +85,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     }
                 }
             }
+
+            // Assign column positions (posNo) for splitting officers and members across columns
+            AssignColumnPositions(units);
 
             return Result<List<SchemaUnit>>.Ok(units);
         }
@@ -160,23 +167,32 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         }
         // Fallback to property name if not in map
         return csv.GetField(propertyName);
-    }    private async Task<Result<bool>> LoadHermesDataAsync(DataSourceMapping mapping, List<SchemaUnit> units)
+    }    
+    
+    
+    private async Task<Result<bool>> LoadHermesDataAsync(DataSourceMapping mapping, List<SchemaUnit> units, Dictionary<int, int>? unitMapping = null)
     {
         try
         {
             // Load officers
             if (mapping.Officers != null)
             {
-                await LoadPersonTypeAsync(units, mapping.Officers, "officer", schemaUnit =>
+                await LoadPersonTypeAsync(units, mapping.Officers, "officer", unitMapping, schemaUnit =>
                 {
                     return (fieldMap, csv, unitNumber) =>
                     {
+                        var surname = GetFieldValue(csv, fieldMap, "Surname");
+                        var firstName = GetFieldValue(csv, fieldMap, "FirstName");
+                        var initials = GetFieldValue(csv, fieldMap, "Initials");
+                        var displayName = TextCleaner.CombineNameInitialsAndFirstName(surname, initials, firstName);
+                        
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
-                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
-                            Position = GetFieldValue(csv, fieldMap, "Position"),
-                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
+                            Surname = surname,
+                            Initials = initials,
+                            Name = displayName,
+                            Position = GetFieldValue(csv, fieldMap, "Position")
                         });
                     };
                 });
@@ -185,17 +201,29 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Load past masters
             if (mapping.PastMasters != null)
             {
-                await LoadPersonTypeAsync(units, mapping.PastMasters, "past master",
+                await LoadPersonTypeAsync(units, mapping.PastMasters, "past master", unitMapping,
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
+                        var surname = GetFieldValue(csv, fieldMap, "Surname");
+                        var initials = GetFieldValue(csv, fieldMap, "Initials");
+                        var displayName = TextCleaner.CombineNameInitialsAndFirstName(surname, initials, null);
+                        var pastRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
+                        var pastRankYear = GetFieldValue(csv, fieldMap, "RankYear");
+                        var activeRank = GetFieldValue(csv, fieldMap, "ActiveProvincialRank");
+                        var activeRankYear = GetFieldValue(csv, fieldMap, "ActiveRankYear");
+                        
+                        var displayRank = string.IsNullOrWhiteSpace(activeRank) ? pastRank : activeRank;
+                        var displayRankYear = string.IsNullOrWhiteSpace(activeRankYear) ? pastRankYear : activeRankYear;
+
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
-                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
+                            Surname = surname,
+                            Initials = initials,
+                            Name = displayName,
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
-                            ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
-                            RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
-                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
+                            ProvincialRank = displayRank,
+                            RankYear = displayRankYear
                         });
                     });
             }
@@ -203,17 +231,24 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Load joining past masters
             if (mapping.JoiningPastMasters != null)
             {
-                await LoadPersonTypeAsync(units, mapping.JoiningPastMasters, "joining past master",
+                await LoadPersonTypeAsync(units, mapping.JoiningPastMasters, "joining past master", unitMapping,
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
+                        var surname = GetFieldValue(csv, fieldMap, "Surname");
+                        var initials = GetFieldValue(csv, fieldMap, "Initials");
+                        var displayName = TextCleaner.CombineNameInitialsAndFirstName(surname, initials, null);
+                        var pastUnits = GetFieldValue(csv, fieldMap, "PastUnits");
+                        var displayPastUnits = TextCleaner.CleanPastUnits(pastUnits);
+                        
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
-                        {Reference = GetFieldValue(csv, fieldMap, "Reference"),
-                            
-                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
-                            YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
+                        {
+                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Surname = surname,
+                            Initials = initials,
+                            Name = displayName,
+                            PastUnits = displayPastUnits,
                             ProvincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank"),
-                            RankYear = GetFieldValue(csv, fieldMap, "RankYear"),
-                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
+                            RankYear = GetFieldValue(csv, fieldMap, "RankYear")
                         });
                     });
             }
@@ -221,15 +256,20 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Load members
             if (mapping.Members != null)
             {
-                await LoadPersonTypeAsync(units, mapping.Members, "member",
+                await LoadPersonTypeAsync(units, mapping.Members, "member", unitMapping,
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
+                        var surname = GetFieldValue(csv, fieldMap, "Surname");
+                        var initials = GetFieldValue(csv, fieldMap, "Initials");
+                        var displayName = TextCleaner.CombineNameInitialsAndFirstName(surname, null, initials);
+                        
                         schemaUnit.Members.Add(new SchemaMember
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
-                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
-                            YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated"),
-                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
+                            Surname = surname,
+                            Initials = initials,
+                            Name = displayName,
+                            YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated")
                         });
                     });
             }
@@ -237,27 +277,28 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Load honorary members
             if (mapping.HonoraryMembers != null)
             {
-                await LoadPersonTypeAsync(units, mapping.HonoraryMembers, "honorary member",
+                await LoadPersonTypeAsync(units, mapping.HonoraryMembers, "honorary member", unitMapping,
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
+                        var surname = GetFieldValue(csv, fieldMap, "Surname");
+                        var initials = GetFieldValue(csv, fieldMap, "Initials");
+                        var displayName = TextCleaner.CombineNameInitialsAndFirstName(surname, null, initials);
+                        var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
+                        var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
+                        var displayRank = TextCleaner.CombineRanks(grandRank, provincialRank);
+                        
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
-                            Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
-                            DisplayOrder = ParseInt(GetFieldValue(csv, fieldMap, "DisplayOrder"))
+                            Surname = surname,
+                            Initials = initials,
+                            Name = displayName,
+                            Rank = displayRank
                         });
                     });
             }
 
-            // Sort all collections by DisplayOrder
-            foreach (var unit in units)
-            {
-                unit.Officers = [..unit.Officers.OrderBy(o => o.DisplayOrder ?? 0)];
-                unit.PastMasters = [..unit.PastMasters.OrderBy(o => o.DisplayOrder ?? 0)];
-                unit.JoinPastMasters = [..unit.JoinPastMasters.OrderBy(o => o.DisplayOrder ?? 0)];
-                unit.Members = [..unit.Members.OrderBy(o => o.DisplayOrder ?? 0)];
-                unit.HonoraryMembers = [..unit.HonoraryMembers.OrderBy(o => o.DisplayOrder ?? 0)];
-            }
+            // Data is kept in the order it appears in the CSV file
 
             return Result<bool>.Ok(true);
         }
@@ -319,6 +360,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         List<SchemaUnit> units,
         DataSourceDefinition dataSource,
         string personTypeName,
+        Dictionary<int, int>? unitMapping,
         Func<SchemaUnit, Action<Dictionary<string, string>, CsvReader, int>> addPersonDelegate)
     {
         try
@@ -337,12 +379,24 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             csv.ReadHeader();
 
             var fieldMap = BuildFieldMap(dataSource.Fields);
+            int rowIndex = 1;  // Start at 1 (header is row 0)
 
             while (await csv.ReadAsync())
             {
-                var unitNumber = ParseInt(csv.GetField("Unit"));
-                var rawName = csv.GetField("Name");
-                var name = CleanName(rawName);
+                // Determine unit number: use mapping if available, otherwise use UnitIdField
+                int unitNumber = 0;
+                
+                if (unitMapping != null && unitMapping.TryGetValue(rowIndex, out var mappedUnitNumber))
+                {
+                    // Use row-based unit mapping
+                    unitNumber = mappedUnitNumber;
+                }
+                else
+                {
+                    // Fall back to UnitIdField from CSV
+                    var unitIdField = dataSource.UnitIdField ?? "Unit";
+                    unitNumber = ParseInt(csv.GetField(unitIdField));
+                }
 
                 // Check filter
                 if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
@@ -350,19 +404,30 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 {
                     var filterValue = csv.GetField(dataSource.FilterField);
                     if (filterValue != dataSource.FilterValue)
+                    {
+                        rowIndex++;
                         continue;
+                    }
                 }
 
                 // Skip invalid records
-                if (unitNumber == 0 || string.IsNullOrWhiteSpace(name))
+                if (unitNumber == 0)
+                {
+                    rowIndex++;
                     continue;
+                }
 
                 var unit = units.FirstOrDefault(u => u.Number == unitNumber);
                 if (unit == null)
+                {
+                    rowIndex++;
                     continue;
+                }
 
                 var addPerson = addPersonDelegate(unit);
                 addPerson(fieldMap, csv, unitNumber);
+                
+                rowIndex++;
             }
         }
         catch (Exception ex)
@@ -416,4 +481,92 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         
         return cleaned;
     }
+
+    /// <summary>
+    /// Assign posNo (position number) to officers and members for column splitting in templates.
+    /// Officers and members with posNo <= 11 go in left column, > 11 go in right column.
+    /// </summary>
+    private void AssignColumnPositions(List<SchemaUnit> units)
+    {
+        foreach (var unit in units)
+        {
+            // Assign posNo to officers for left/right column splitting
+            for (int i = 0; i < unit.Officers.Count; i++)
+            {
+                unit.Officers[i].PosNo = i;
+            }
+
+            // Assign posNo to members for column splitting
+            for (int i = 0; i < unit.Members.Count; i++)
+            {
+                unit.Members[i].PosNo = i;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Builds a unit mapping from a CSV file by reading sequentially and tracking unit identifiers.
+    /// When a unit definition row (e.g., S01) is encountered, extracts the unit number and applies 
+    /// it to all subsequent rows until the next unit definition row.
+    /// Returns Dictionary<int, int> mapping row index to unit number.
+    /// </summary>
+    private async Task<Dictionary<int, int>?> BuildUnitMappingAsync(DataSourceMapping mapping)
+    {
+        if (mapping.UnitMapping == null)
+            return null;
+
+        try
+        {
+            var unitMappingConfig = mapping.UnitMapping;
+            if (string.IsNullOrWhiteSpace(unitMappingConfig.Source) ||
+                string.IsNullOrWhiteSpace(unitMappingConfig.RowIdentifierField) ||
+                string.IsNullOrWhiteSpace(unitMappingConfig.RowIdentifierValue) ||
+                string.IsNullOrWhiteSpace(unitMappingConfig.UnitNumberField))
+                return null;
+
+            var file = Path.Combine(_dataRoot, unitMappingConfig.Source);
+            if (!File.Exists(file))
+                return null;
+
+            var unitMapping = new Dictionary<int, int>();
+            int rowIndex = 0;
+            int currentUnitNumber = 0;
+
+            using (var reader = new StreamReader(file, Encoding.UTF8))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                await csv.ReadAsync();
+                csv.ReadHeader();
+                rowIndex++;  // Header row
+
+                while (await csv.ReadAsync())
+                {
+                    var rowIdentifier = csv.GetField(unitMappingConfig.RowIdentifierField);
+
+                    // When we see a unit definition row, extract and update the current unit number
+                    if (rowIdentifier == unitMappingConfig.RowIdentifierValue)
+                    {
+                        var unitNumberStr = csv.GetField(unitMappingConfig.UnitNumberField);
+                        currentUnitNumber = ParseInt(unitNumberStr);
+                    }
+
+                    // Map this row index to the current unit number
+                    if (currentUnitNumber > 0)
+                    {
+                        unitMapping[rowIndex] = currentUnitNumber;
+                    }
+
+                    rowIndex++;
+                }
+            }
+
+            return unitMapping.Count > 0 ? unitMapping : null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error building unit mapping: {ex.Message}");
+            return null;
+        }
+    }
 }
+

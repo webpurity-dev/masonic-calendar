@@ -1,5 +1,6 @@
 using MasonicCalendar.Core.Renderers;
 using MasonicCalendar.Core.Loaders;
+using MasonicCalendar.Core.Domain;
 using System.Linq;
 
 // Get the project root directory
@@ -67,9 +68,24 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
         Console.WriteLine();
 
-        // Load data using schema
+        // Determine target section early (before loading units)
+        string? targetSectionId = sectionId ?? null;
+        
+        // Load data using schema - load from specific section if requested
         var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
-        var schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
+        Result<List<SchemaUnit>> schemaResult;
+        
+        if (!string.IsNullOrWhiteSpace(targetSectionId))
+        {
+            // Load units for the specific section
+            schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, targetSectionId);
+            Console.WriteLine($"Loading data for section: {targetSectionId}");
+        }
+        else
+        {
+            // Load default units (craft)
+            schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
+        }
         
         if (!schemaResult.Success)
         {
@@ -121,12 +137,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Render using Scriban template
         var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
         
-        // When rendering a specific unit, automatically render only the unit's section
-        var targetSectionId = sectionId ?? null;  // null means render all sections
-        
-        if (!string.IsNullOrWhiteSpace(unitNumber) && string.IsNullOrWhiteSpace(sectionId))
+        // When rendering a specific unit, auto-select section if not already specified
+        if (!string.IsNullOrWhiteSpace(unitNumber) && targetSectionId == null)
         {
-            // When unit is specified, render craft units by default
+            // When unit is specified without section, render from craft units by default
             // (For Royal Arch units, the user can specify -section royalarch_units)
             targetSectionId = "craft_units";
             Console.WriteLine($"📄 Rendering unit {unitNumber} from craft section");
@@ -153,7 +167,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
         var sectionPart = targetSectionId ?? "all-sections";
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
-        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}{unitPart}.{fileExtension}");
+        var bleedsPart = showBleeds ? "-showBleeds" : "";
+        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}{unitPart}{bleedsPart}.{fileExtension}");
         
         File.WriteAllBytes(outputPath, renderResult.Data!);
 

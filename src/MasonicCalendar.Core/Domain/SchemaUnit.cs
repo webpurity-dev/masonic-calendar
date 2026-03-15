@@ -25,61 +25,69 @@ public class SchemaUnit
 }
 
 /// <summary>
-/// Current officer of a unit (Type='Off' in hermes-export.csv)
+/// Current officer of a unit (SECTION_CODE='S39t' in CraftData.csv)
 /// </summary>
 public class SchemaOfficer
 {
     public string? Reference { get; set; }
-    public required string Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Initials { get; set; }
+    public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? Position { get; set; }  // FN01
-    public int? DisplayOrder { get; set; } // PosNo
+    public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
 }
 
 /// <summary>
-/// Past Master of a unit (Type='PMO' in hermes-export.csv)
+/// Past Master of a unit (SECTION_CODE='S15t' in CraftData.csv)
 /// </summary>
 public class SchemaPastMaster
 {
     public string? Reference { get; set; }
-    public required string Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Initials { get; set; }
+    public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInstalled { get; set; }  // FN01
     public string? ProvincialRank { get; set; } // FN13
     public string? RankYear { get; set; }       // FN14
-    public int? DisplayOrder { get; set; }      // PosNo
 }
 
 /// <summary>
-/// Joining Past Master of a unit (Type='PMI' in hermes-export.csv)
+/// Joining Past Master of a unit (SECTION_CODE='S17t' in CraftData.csv)
 /// </summary>
 public class SchemaJoinPastMaster
 {
     public string? Reference { get; set; }
-    public required string Name { get; set; }
-    public string? YearInstalled { get; set; }  // FN01
+    public string? Surname { get; set; }
+    public string? Initials { get; set; }
+    public required string Name { get; set; }  // Combined display name (Surname, Initials)
+    public string? PastUnits { get; set; }     // FN30 - Previous units
     public string? ProvincialRank { get; set; } // FN12
     public string? RankYear { get; set; }       // FN13
-    public int? DisplayOrder { get; set; }      // PosNo
 }
 
 /// <summary>
-/// Member of a unit (Type='Mem' in hermes-export.csv)
+/// Member of a unit (SECTION_CODE='S18t' in CraftData.csv)
 /// </summary>
 public class SchemaMember
 {
     public string? Reference { get; set; }
-    public required string Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Initials { get; set; }
+    public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInitiated { get; set; } // FN01
-    public int? DisplayOrder { get; set; }     // PosNo
+    public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
 }
 
 /// <summary>
-/// Honorary Member of a unit (Type='Hon' in hermes-export.csv)
+/// Honorary Member of a unit (SECTION_CODE='S41t' in CraftData.csv)
 /// </summary>
 public class SchemaHonoraryMember
 {
     public string? Reference { get; set; }
-    public required string Name { get; set; }
-    public int? DisplayOrder { get; set; } // PosNo
+    public string? Surname { get; set; }
+    public string? Initials { get; set; }
+    public required string Name { get; set; }  // Combined display name (Surname, Initials)
+    public string? Rank { get; set; }     // Combined rank (GrandRank + ProvincialRank)
 }
 
 /// <summary>

@@ -2,6 +2,7 @@ namespace MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Loaders;
+using MasonicCalendar.Core.Renderers.Utilities;
 using Scriban;
 using System.Text;
 
@@ -43,18 +44,8 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             output.AppendLine($"<div class='section-divider'>");
         }
 
-        // Reload units for this section
-        var unitsForSection = new List<SchemaUnit>();
-        if (DataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
-        {
-            var reloadResult = await DataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
-            if (reloadResult.Success)
-                unitsForSection = reloadResult.Data ?? [];
-        }
-        else
-        {
-            unitsForSection = units;
-        }
+        // Use the filtered units passed in (respects -unit parameter and has posNo assigned)
+        var unitsForSection = units;
 
         if (DebugMode)
             Console.WriteLine($"  - Section '{section.SectionId}' ({section.Type}): {unitsForSection.Count} units");
@@ -64,10 +55,14 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         {
             Console.WriteLine($"      ✓ Rendering {unitsForSection.Count} units");
         }
+
+        // Load section heading overrides from data source mapping
+        var sectionHeadings = await LoadSectionHeadingsAsync(section);
+
         foreach (var unit in unitsForSection)
         {
             var anchorId = GenerateAnchorId(unit);
-            var unitHtml = RenderUnitWithScriban(unit, template);
+            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings);
             output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
             output.Append(unitHtml);
             output.AppendLine("</div>");
@@ -80,163 +75,72 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null)
     {
-        var model = new Dictionary<string, object?>
-        {
-            {
-                "unit", new Dictionary<string, object?>
-                {
-                    { "name", CleanName(unit.Name) },
-                    { "number", unit.Number },
-                    { "email", unit.Email },
-                    { "established", unit.Established?.ToString("d MMMM yyyy") ?? "" },
-                    { "lastInstallationDate", unit.LastInstallationDate?.ToString("d MMMM yyyy") ?? "" }
-                }
-            },
-            {
-                "location", unit.Location != null ? new Dictionary<string, object?>
-                {
-                    { "name", unit.Location.Name },
-                    { "addressLine1", unit.Location.AddressLine1 },
-                    { "town", unit.Location.Town },
-                    { "postcode", unit.Location.Postcode },
-                    { "what3words", unit.Location.What3Words }
-                } : null
-            },
-            {
-                "officers", unit.Officers
-                    .OrderBy(o => o.DisplayOrder ?? 999)
-                    .Select(o => new Dictionary<string, object?>
-                    {
-                        { "reference", CleanReference(o.Reference) },
-                        { "name", CleanName(o.Name) },
-                        { "position", o.Position },
-                        { "posNo", o.DisplayOrder ?? 0 }
-                    })
-                    .ToList()
-            },
-            {
-                "pastMasters", unit.PastMasters
-                    .Select(pm => new Dictionary<string, object?>
-                    {
-                        { "reference", CleanReference(pm.Reference) },
-                        { "name", CleanName(pm.Name) },
-                        { "installed", pm.YearInstalled },
-                        { "provRank", CleanProvincialRank(pm.ProvincialRank) },
-                        { "provRankIssued", CleanDateIssued(pm.RankYear) }
-                    })
-                    .ToList()
-            },
-            {
-                "joiningPastMasters", unit.JoinPastMasters
-                    .Select(jpm => new Dictionary<string, object?>
-                    {
-                        { "reference", CleanReference(jpm.Reference) },
-                        { "name", CleanName(jpm.Name) },
-                        { "provRank", CleanProvincialRank(jpm.ProvincialRank) },
-                        { "provRankIssued", CleanDateIssued(jpm.RankYear) }
-                    })
-                    .ToList()
-            },
-            {
-                "members", unit.Members
-                    .Select(m => new Dictionary<string, object?>
-                    {
-                        { "reference", CleanReference(m.Reference) },
-                        { "name", CleanName(m.Name) },
-                        { "joined", m.YearInitiated }
-                    })
-                    .ToList()
-            },
-            {
-                "memberColumns", SplitMembersIntoColumns(unit.Members)
-            },
-            {
-                "honoraryMembers", unit.HonoraryMembers
-                    .Select(hm => new Dictionary<string, object?>
-                    {
-                        { "reference", CleanReference(hm.Reference) },
-                        { "name", CleanName(hm.Name) },
-                        { "grandRank", "" },
-                        { "provRank", "" }
-                    })
-                    .ToList()
-            }
-        };
-
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings);
         return template.Render(model);
     }
 
-    private string CleanName(string? name)
+    private async Task<Dictionary<string, string>?> LoadSectionHeadingsAsync(SectionConfig section)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return "";
+        if (DataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadSectionHeadingsAsync] Skipping: DataLoader={DataLoader != null}, DataMapping={section.DataMapping}");
+            return null;
+        }
 
-        var cleaned = System.Text.RegularExpressions.Regex.Replace(name, @"^(The|A)\s+", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        cleaned = cleaned.Replace("•", " ");  // Replace bullet char with space
-        cleaned = cleaned.Replace("\ufffd", " ");  // Replace Unicode Replacement Character with space
-        
-        // Collapse multiple spaces to single space
-        while (cleaned.Contains("  "))
-            cleaned = cleaned.Replace("  ", " ");
-        
-        return cleaned;
-    }
-
-    private string CleanProvincialRank(string? rank)
-    {
-        if (string.IsNullOrWhiteSpace(rank))
-            return "";
-
-        var cleaned = System.Text.RegularExpressions.Regex.Replace(rank, @"^(Past\s+)|(Provincial\s+)", "");
-
-        return cleaned.Trim(',').Trim();
-    }
-
-    private string CleanReference(string? reference)
-    {
-        if (string.IsNullOrWhiteSpace(reference))
-            return "";
-
-        // Replace spaces with hyphens, remove/replace other special characters
-        var cleaned = System.Text.RegularExpressions.Regex.Replace(reference, @"[^\w\-]", "-");
-        // Remove consecutive hyphens
-        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"-+", "-");
-        // Remove leading/trailing hyphens
-        cleaned = cleaned.Trim('-');
-        return cleaned.ToLower();
-    }
-
-    private string CleanDateIssued(string? dateStr)
-    {
-        if (string.IsNullOrWhiteSpace(dateStr))
-            return "";
-
-        // Remove parentheses if present
-        return dateStr.Replace("(", "").Replace(")", "").Trim();
-    }
-
-    private List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)
-    {
-        // Split members into 3 roughly equal columns
-        var membersData = members
-            .Select(m => new Dictionary<string, object?>
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(TemplateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? TemplateRoot;
+            
+            // Load data source mapping to extract heading overrides
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
             {
-                { "reference", CleanReference(m.Reference) },
-                { "name", CleanName(m.Name) },
-                { "joined", m.YearInitiated }
-            })
-            .ToList();
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadingsAsync] Failed to load mapping: {mappingResult.Error}");
+                return null;
+            }
 
-        if (membersData.Count == 0)
-            return new List<List<Dictionary<string, object?>>> { new(), new(), new() };
+            var mapping = mappingResult.Data;
+            var headings = new Dictionary<string, string>();
 
-        var itemsPerColumn = (int)Math.Ceiling(membersData.Count / 3.0);
-        var col1 = membersData.Take(itemsPerColumn).ToList();
-        var col2 = membersData.Skip(itemsPerColumn).Take(itemsPerColumn).ToList();
-        var col3 = membersData.Skip(itemsPerColumn * 2).ToList();
+            // Extract override_heading from each person type section
+            if (!string.IsNullOrWhiteSpace(mapping?.PastMasters?.OverrideHeading))
+            {
+                headings["pastMasters"] = mapping.PastMasters.OverrideHeading;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] pastMasters: {mapping.PastMasters.OverrideHeading}");
+            }
 
-        return new List<List<Dictionary<string, object?>>> { col1, col2, col3 };
+            if (!string.IsNullOrWhiteSpace(mapping?.JoiningPastMasters?.OverrideHeading))
+            {
+                headings["joiningPastMasters"] = mapping.JoiningPastMasters.OverrideHeading;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {mapping.JoiningPastMasters.OverrideHeading}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(mapping?.HonoraryMembers?.OverrideHeading))
+            {
+                headings["honoraryMembers"] = mapping.HonoraryMembers.OverrideHeading;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {mapping.HonoraryMembers.OverrideHeading}");
+            }
+
+            if (DebugMode && headings.Count == 0)
+                Console.WriteLine($"    [LoadSectionHeadings] No headings found in {section.DataMapping}");
+
+            return headings.Count > 0 ? headings : null;
+        }
+        catch (Exception ex)
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadSectionHeadings] Exception: {ex.Message}");
+            return null;
+        }
     }
 }

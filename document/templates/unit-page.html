@@ -10,20 +10,20 @@
     <div style="margin-bottom: 2px; text-align: left;">
         {{ if location }}
             <p style="font-size: 7pt; margin: 1px 0;">
-                Constituted on {{ unit.established }}. Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
+                Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
             </p>
         {{ end }}
         <p style="font-size: 6.5pt; margin: 1px 0; padding-top: 1px;">
-            <strong>Secretary</strong>: 3 Portwey Close, Weymouth DT4 8RF. Tel: 01305 779781. Email: <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
+            Email: <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
         </p>
     </div>
     
     <!-- Officers Table -->
     {{ if officers && officers.size > 0 }}
-    <div style="margin-top: 3px; text-align: center; break-inside: avoid;">
+    <div style="margin-top: 6px; text-align: center; break-inside: avoid;">
         <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Installation {{ unit.lastInstallationDate }}</h2>
         <div style="display: flex; gap: 6px; justify-content: center; align-items: flex-start; break-inside: auto;">
-            <!-- Left Column: Orders 1-10 -->
+            <!-- Left Column: Officers 0-11 (12 officers) -->
             <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
@@ -37,7 +37,7 @@
                 </tbody>
             </table>
             
-            <!-- Right Column: Orders 11+ -->
+            <!-- Right Column: Officers 12+ -->
             <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
@@ -57,7 +57,7 @@
     <!-- Past Masters Table -->
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Past Masters ({{ unit.number }})</h2>
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.pastMasters }} ({{ unit.number }})</h2>
         <div style="display: flex; gap: 4px; justify-content: center; align-items: flex-start; break-inside: auto;">
             <table style="border-collapse: collapse; font-size: 6.5pt; margin-left: auto; margin-right: auto;">
                 <thead>
@@ -85,12 +85,13 @@
 
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
-    <div style="margin-top: 3px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Joining Past Masters ({{ unit.number }}) </h2>
+    <div style="margin-top: 3px; text-align: center; break-inside: avoid;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.joiningPastMasters }} ({{ unit.number }}) </h2>
         <table style="border-collapse: collapse; font-size: 6.5pt; margin-left: auto; margin-right: auto; break-inside: auto;">
             <thead>
                 <tr>
                     <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
+                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Lodges</th>
                     <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
                     <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
                 </tr>
@@ -98,7 +99,8 @@
             <tbody>
                 {{ for joiningPastMaster in joiningPastMasters }}
                 <tr style="height: 6px;" data-id="{{ joiningPastMaster.reference }}">
-                    <td style="padding: 0.5px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
+                    <td style="padding: 0.5px; text-align: left; min-width: 90px;">{{ joiningPastMaster.name }}</td>
+                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.pastUnits }}</td>
                     <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRank }}</td>  
                     <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRankIssued }}</td>
                 </tr>
@@ -131,10 +133,10 @@
     <!-- Honorary Members Table -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Honorary Members ({{ unit.number }})</h2>
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.honoraryMembers }} ({{ unit.number }})</h2>
         {{ for honoraryMember in honoraryMembers }}
         <p style="margin: 1px 0; text-align: center; font-size: 6.5pt;" data-id="{{ honoraryMember.reference }}">
-            {{ honoraryMember.name }} {{ honoraryMember.provRank }}
+            {{ honoraryMember.name }} {{ honoraryMember.rank }}
         {{ end }}
     </div>
     {{ end }}

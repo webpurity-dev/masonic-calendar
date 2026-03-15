@@ -23,12 +23,6 @@ units:
     - name: "Email"
       csv_column: "Email"
       type: "string"
-    - name: "Established"
-      csv_column: "Established"
-      type: "date"
-    - name: "LastInstallationDate"
-      csv_column: "LastInstallationDate"
-      type: "date"
 
 locations:
   source: "unit-locations.csv"
@@ -142,4 +136,19 @@ honorary_members:
     - name: "ProvincialRank"
       csv_column: "FN11"
       type: "string"
+
+installation_dates:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S12"
+  fields:
+    - name: "LastInstallationDate"
+      is_composite: true
+      composite_format: "{FN02} {FN03} {FN04}"
+      composite_fields:
+        - "FN02"
+        - "FN03"
+        - "FN04"
+      date_format: "d MMMM yyyy"
+      type: "date"
 

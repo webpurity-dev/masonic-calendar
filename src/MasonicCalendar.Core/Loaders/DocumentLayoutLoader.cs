@@ -223,6 +223,7 @@ public class DataSourceMapping
     public DataSourceDefinition? HonoraryMembers { get; set; }
     public DataSourceDefinition? Locations { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
+    public DataSourceDefinition? InstallationDates { get; set; }  // Load installation dates from data CSV (S12 rows)
 }
 
 /// <summary>
@@ -239,11 +240,17 @@ public class DataSourceDefinition
 }
 
 /// <summary>
-/// Maps a domain model property to a CSV column
+/// Maps a domain model property to a CSV column (or composite of multiple columns)
 /// </summary>
 public class FieldMapping
 {
-    public string? Name { get; set; }           // Domain property name (e.g., "Position")
-    public string? CsvColumn { get; set; }      // CSV column name (e.g., "FN01")
-    public string? Type { get; set; }           // Data type: string, int, date
+    public string? Name { get; set; }                      // Domain property name (e.g., "Position")
+    public string? CsvColumn { get; set; }                 // CSV column name (e.g., "FN01")
+    public string? Type { get; set; }                      // Data type: string, int, date
+    
+    // Composite field support - combine multiple columns with format string
+    public bool IsComposite { get; set; } = false;         // Whether this field combines multiple columns
+    public string? CompositeFormat { get; set; }           // Format string with placeholders (e.g., "{FN02} {FN03} {FN04}")
+    public List<string>? CompositeFields { get; set; }     // List of column names to extract for composite
+    public string? DateFormat { get; set; }                // Optional date format for parsing result (e.g., "d MMMM yyyy")
 }

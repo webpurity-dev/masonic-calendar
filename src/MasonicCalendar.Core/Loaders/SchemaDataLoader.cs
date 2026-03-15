@@ -70,6 +70,14 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             if (!hermesResult.Success)
                 return Result<List<SchemaUnit>>.Fail(hermesResult.Error ?? "Failed to load hermes export");
 
+            // Load composite properties from data source and attach to units
+            if (mapping!.InstallationDates != null)
+            {
+                var compositeResult = await LoadCompositePropertyAsync(units, mapping.InstallationDates, "LastInstallationDate", unitMapping);
+                if (!compositeResult.Success)
+                    return Result<List<SchemaUnit>>.Fail(compositeResult.Error ?? "Failed to load composite properties");
+            }
+
             // Load locations and attach to units
             var locationsResult = await LoadLocationsAsync(mapping!);
             if (locationsResult.Success && locationsResult.Data != null)
@@ -117,19 +125,18 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             await csv.ReadAsync();
             csv.ReadHeader();
 
-            var fieldMap = BuildFieldMap(mapping.Units.Fields);
+            var fieldMap = BuildFieldMapWithMetadata(mapping.Units.Fields);
 
             while (await csv.ReadAsync())
             {
                 var unit = new SchemaUnit
                 {
-                    Number = ParseInt(GetFieldValue(csv, fieldMap, "Number")),
-                    Name = GetFieldValue(csv, fieldMap, "Name") ?? "",
-                    ShortName = GetFieldValue(csv, fieldMap, "ShortName"),
-                    Email = GetFieldValue(csv, fieldMap, "Email"),
-                    Established = ParseDate(GetFieldValue(csv, fieldMap, "Established")),
-                    LastInstallationDate = ParseDate(GetFieldValue(csv, fieldMap, "LastInstallationDate")),
-                    LocationId = GetFieldValue(csv, fieldMap, "Location")  // Extract location reference from CSV
+                    Number = ParseInt(GetFieldValueWithComposite(csv, fieldMap, "Number")),
+                    Name = GetFieldValueWithComposite(csv, fieldMap, "Name") ?? "",
+                    ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
+                    Email = GetFieldValueWithComposite(csv, fieldMap, "Email"),
+                    LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location")  // Extract location reference from CSV
+                    // Note: LastInstallationDate will be loaded separately by LoadCompositePropertyAsync
                 };
 
                 units.Add(unit);
@@ -141,6 +148,22 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         {
             return Result<List<SchemaUnit>>.Fail($"Error loading units CSV: {ex.Message}");
         }
+    }
+
+    private Dictionary<string, FieldMapping> BuildFieldMapWithMetadata(List<FieldMapping>? fieldMappings)
+    {
+        var map = new Dictionary<string, FieldMapping>();
+        if (fieldMappings == null)
+            return map;
+
+        foreach (var field in fieldMappings)
+        {
+            if (!string.IsNullOrWhiteSpace(field.Name))
+            {
+                map[field.Name] = field;
+            }
+        }
+        return map;
     }
 
     private Dictionary<string, string> BuildFieldMap(List<FieldMapping>? fieldMappings)
@@ -157,6 +180,47 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
         }
         return map;
+    }
+
+    private string? GetFieldValueWithComposite(CsvReader csv, Dictionary<string, FieldMapping> fieldMap, string propertyName)
+    {
+        if (!fieldMap.TryGetValue(propertyName, out var fieldMapping))
+        {
+            // Fallback to property name as column name
+            return csv.GetField(propertyName);
+        }
+
+        // Handle composite fields (combine multiple columns)
+        if (fieldMapping.IsComposite && !string.IsNullOrWhiteSpace(fieldMapping.CompositeFormat) && 
+            fieldMapping.CompositeFields?.Count > 0)
+        {
+            try
+            {
+                var compositeValue = fieldMapping.CompositeFormat;
+                
+                // Replace placeholders with actual column values (trim each field)
+                foreach (var columnName in fieldMapping.CompositeFields)
+                {
+                    var columnValue = (csv.GetField(columnName) ?? "").Trim();
+                    compositeValue = compositeValue.Replace($"{{{columnName}}}", columnValue);
+                }
+
+                return compositeValue.Trim();
+            }
+            catch
+            {
+                // If composite fails, fall back to primary CsvColumn
+                return !string.IsNullOrWhiteSpace(fieldMapping.CsvColumn) ? csv.GetField(fieldMapping.CsvColumn) : null;
+            }
+        }
+
+        // Handle regular single-column fields
+        if (!string.IsNullOrWhiteSpace(fieldMapping.CsvColumn))
+        {
+            return csv.GetField(fieldMapping.CsvColumn);
+        }
+
+        return null;
     }
 
     private string? GetFieldValue(CsvReader csv, Dictionary<string, string> fieldMap, string propertyName)
@@ -305,6 +369,100 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         catch (Exception ex)
         {
             return Result<bool>.Fail($"Error loading hermes data: {ex.Message}");
+        }
+    }
+
+    private async Task<Result<bool>> LoadCompositePropertyAsync(
+        List<SchemaUnit> units,
+        DataSourceDefinition dataSource,
+        string propertyName,
+        Dictionary<int, int>? unitMapping = null)
+    {
+        try
+        {
+            // If no data source configured, skip
+            if (string.IsNullOrWhiteSpace(dataSource.Source))
+                return Result<bool>.Ok(true);
+
+            var file = Path.Combine(_dataRoot, dataSource.Source);
+            if (!File.Exists(file))
+                return Result<bool>.Ok(true);
+
+            Console.WriteLine($"  Loading composite property '{propertyName}' from {dataSource.Source}");
+
+            using var reader = new StreamReader(file, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            await csv.ReadAsync();
+            csv.ReadHeader();
+
+            var fieldMapWithMetadata = BuildFieldMapWithMetadata(dataSource.Fields);
+            int rowIndex = 1;
+            int matchedRows = 0;
+            int updatedUnits = 0;
+
+            while (await csv.ReadAsync())
+            {
+                // Determine unit number: use mapping if available, otherwise use UnitIdField
+                int unitNumber = 0;
+                
+                if (unitMapping != null && unitMapping.TryGetValue(rowIndex, out var mappedUnitNumber))
+                {
+                    unitNumber = mappedUnitNumber;
+                }
+                else
+                {
+                    var unitIdField = dataSource.UnitIdField ?? "Unit";
+                    unitNumber = ParseInt(csv.GetField(unitIdField));
+                }
+
+                // Check filter
+                if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
+                    !string.IsNullOrWhiteSpace(dataSource.FilterValue))
+                {
+                    var filterValue = csv.GetField(dataSource.FilterField);
+                    if (filterValue != dataSource.FilterValue)
+                    {
+                        rowIndex++;
+                        continue;
+                    }
+                    matchedRows++;
+                }
+
+                // Skip invalid records
+                if (unitNumber == 0)
+                {
+                    rowIndex++;
+                    continue;
+                }
+
+                // Find the unit and update its property
+                var unit = units.FirstOrDefault(u => u.Number == unitNumber);
+                if (unit != null)
+                {
+                    var valueString = GetFieldValueWithComposite(csv, fieldMapWithMetadata, propertyName);
+                    if (!string.IsNullOrWhiteSpace(valueString))
+                    {
+                        // Handle property assignment based on property name
+                        if (propertyName == "LastInstallationDate")
+                        {
+                            unit.LastInstallationDate = ParseDate(valueString);
+                            updatedUnits++;
+                            Console.WriteLine($"    Unit {unitNumber}: {propertyName} = {valueString}");
+                        }
+                        // Add other properties here as needed
+                    }
+                }
+
+                rowIndex++;
+            }
+
+            Console.WriteLine($"  Composite property '{propertyName}': {matchedRows} filter matches, {updatedUnits} units updated");
+            return Result<bool>.Ok(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Fail($"Error loading composite property {propertyName}: {ex.Message}");
         }
     }
 

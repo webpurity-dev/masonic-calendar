@@ -11,6 +11,22 @@ using System.Linq;
 public static class UnitModelBuilder
 {
     /// <summary>
+    /// Format a DateOnly with ordinal day suffix (e.g., "21st January 2026")
+    /// </summary>
+    private static string FormatDateWithOrdinal(DateOnly date)
+    {
+        var day = date.Day;
+        var ordinalSuffix = day switch
+        {
+            1 or 21 or 31 => "st",
+            2 or 22 => "nd",
+            3 or 23 => "rd",
+            _ => "th"
+        };
+        return date.ToString($"d'{ordinalSuffix}' MMMM yyyy");
+    }
+
+    /// <summary>
     /// Build a complete Scriban model dictionary for a unit.
     /// </summary>
     public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null)
@@ -23,8 +39,8 @@ public static class UnitModelBuilder
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
                     { "email", unit.Email },
-                    { "established", unit.Established?.ToString("d MMMM yyyy") ?? "" },
-                    { "lastInstallationDate", unit.LastInstallationDate?.ToString("d MMMM yyyy") ?? "" }
+                    { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
+                    { "lastInstallationDate", unit.LastInstallationDate.HasValue ? FormatDateWithOrdinal(unit.LastInstallationDate.Value) : "" }
                 }
             },
             {

@@ -1,36 +1,36 @@
-<div style="text-align: center; padding: 2px; font-size: 8pt;">
+<div style="text-align: center; padding: 1px; font-size: 7.5pt;">
     <!-- Header Section -->
-    <div style="margin-bottom: 4px;">
-        <h1 style="font-size: 14pt; margin: 0; font-weight: bold; text-align: center;">
+    <div style="margin-bottom: 2px;">
+        <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">
             {{ unit.name }} {{ unit.number }}
         </h1>
     </div>
     
     <!-- Summary Section -->
-    <div style="margin-bottom: 4px; text-align: left;">
+    <div style="margin-bottom: 2px; text-align: left;">
         {{ if location }}
-            <p style="font-size: 8pt; margin: 3px 0;">
+            <p style="font-size: 7pt; margin: 1px 0;">
                 Constituted on {{ unit.established }}. Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
             </p>
         {{ end }}
-        <p style="font-size: 8pt; margin: 3px 0; padding-top: 2px;">
+        <p style="font-size: 6.5pt; margin: 1px 0; padding-top: 1px;">
             <strong>Secretary</strong>: 3 Portwey Close, Weymouth DT4 8RF. Tel: 01305 779781. Email: <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
         </p>
     </div>
     
     <!-- Officers Table -->
     {{ if officers && officers.size > 0 }}
-    <div style="margin-top: 8px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Installation {{ unit.lastInstallationDate }}</h2>
+    <div style="margin-top: 3px; text-align: center; break-inside: avoid;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Installation {{ unit.lastInstallationDate }}</h2>
         <div style="display: flex; gap: 6px; justify-content: center; align-items: flex-start; break-inside: auto;">
             <!-- Left Column: Orders 1-10 -->
             <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo <= 11 }}
-                    <tr style="height: 8px;" data-id="{{ officer.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
+                    <tr style="height: 6px;" data-id="{{ officer.reference }}">
+                        <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
                     {{ end }}
@@ -42,9 +42,9 @@
                 <tbody>
                     {{ for officer in officers }}
                         {{ if officer.posNo > 11 }}
-                    <tr style="height: 8px;" data-id="{{ officer.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
+                    <tr style="height: 6px;" data-id="{{ officer.reference }}">
+                        <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                         {{ end }}
                     {{ end }}
@@ -56,25 +56,25 @@
 
     <!-- Past Masters Table -->
     {{ if pastMasters && pastMasters.size > 0 }}
-    <div style="margin-top: 8px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Past Masters ({{ unit.number }})</h2>
-        <div style="display: flex; gap: 6px; justify-content: center; align-items: flex-start; break-inside: auto;">
-            <table style="border-collapse: collapse; font-size: 8pt; margin-left: auto; margin-right: auto;">
+    <div style="margin-top: 3px; text-align: center; break-inside: auto;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Past Masters ({{ unit.number }})</h2>
+        <div style="display: flex; gap: 4px; justify-content: center; align-items: flex-start; break-inside: auto;">
+            <table style="border-collapse: collapse; font-size: 6.5pt; margin-left: auto; margin-right: auto;">
                 <thead>
                     <tr>
-                        <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
-                        <th style="padding: 1px; text-align: right; font-weight: 800;">Installed</th>
-                        <th style="padding: 1px; text-align: left; font-weight: 800;">Rank</th>
-                        <th style="padding: 1px; text-align: left; font-weight: 800;">Accorded</th>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Installed</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
-                    <tr data-id="{{ master.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 80px; font-size: 7pt;">{{ master.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 40px; font-size: 7pt;">{{ master.installed }}</td>
-                        <td style="padding: 1px; text-align: left; min-width: 70px; font-size: 7pt;">{{ master.provRank }}</td>
-                        <td style="padding: 1px; text-align: left; min-width: 70px; font-size: 7pt;">{{ master.provRankIssued }}</td>
+                    <tr style="height: 6px;" data-id="{{ master.reference }}">
+                        <td style="padding: 0.5px; text-align: left; min-width: 90px;">{{ master.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ master.installed }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ master.provRank }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ master.provRankIssued }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -85,22 +85,22 @@
 
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
-    <div style="margin-top: 8px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Joining Past Masters ({{ unit.number }}) </h2>
-        <table style="border-collapse: collapse; font-size: 8pt; margin-left: auto; margin-right: auto; break-inside: auto;">
+    <div style="margin-top: 3px; text-align: center; break-inside: auto;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Joining Past Masters ({{ unit.number }}) </h2>
+        <table style="border-collapse: collapse; font-size: 6.5pt; margin-left: auto; margin-right: auto; break-inside: auto;">
             <thead>
                 <tr>
-                    <th style="padding: 1px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 1px; text-align: left; font-weight: 800;">Rank</th>
-                    <th style="padding: 1px; text-align: left; font-weight: 800;">Accorded</th>
+                    <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
+                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
+                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
                 </tr>
             </thead>
             <tbody>
                 {{ for joiningPastMaster in joiningPastMasters }}
-                <tr data-id="{{ joiningPastMaster.reference }}">
-                    <td style="padding: 1px; text-align: left; min-width: 150px; font-size: 7pt">{{ joiningPastMaster.name }}</td>
-                    <td style="padding: 1px; text-align: left; min-width: 70px; font-size: 7pt">{{ joiningPastMaster.provRank }}</td>  
-                    <td style="padding: 1px; text-align: left; min-width: 70px; font-size: 7pt">{{ joiningPastMaster.provRankIssued }}</td>
+                <tr style="height: 6px;" data-id="{{ joiningPastMaster.reference }}">
+                    <td style="padding: 0.5px; text-align: left; min-width: 150px;">{{ joiningPastMaster.name }}</td>
+                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRank }}</td>  
+                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRankIssued }}</td>
                 </tr>
                 {{ end }}
             </tbody>
@@ -110,16 +110,16 @@
 
     <!-- Members Table (CSS Columns for Page Break Reliability) -->
     {{ if members && members.size > 0 }}
-    <div style="margin-top: 8px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Members ({{ unit.number }})</h2>
+    <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Members ({{ unit.number }})</h2>
         <!-- CSS Columns layout: automatically distributes members across 3 columns and properly handles page breaks -->
-        <div style="column-count: 3; column-gap: 6px; column-rule: none; width: 100%; break-inside: auto; orphans: 2; widows: 2;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
+        <div style="column-count: 3; column-gap: 4px; column-rule: none; width: 100%; break-inside: auto; orphans: 2; widows: 2;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 6.5pt;">
                 <tbody>
                     {{ for member in members }}
-                    <tr style="height: 8px;" data-id="{{ member.reference }}">
-                        <td style="padding: 1px; text-align: left; min-width: 50px; font-size: 7pt;">{{ member.name }}</td>
-                        <td style="padding: 1px; text-align: right; min-width: 30px; font-size: 7pt;">{{ member.joined }}</td>
+                    <tr style="height: 6px;" data-id="{{ member.reference }}">
+                        <td style="padding: 0.5px; text-align: left; min-width: 50px;" >{{ member.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 30px;" >{{ member.joined }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -130,10 +130,10 @@
 
     <!-- Honorary Members Table -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
-    <div style="margin-top: 8px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Honorary Members ({{ unit.number }})</h2>
+    <div style="margin-top: 5px; text-align: center; break-inside: auto;">
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Honorary Members ({{ unit.number }})</h2>
         {{ for honoraryMember in honoraryMembers }}
-        <p style="margin: 2px 0; text-align: center; font-size: 7pt;" data-id="{{ honoraryMember.reference }}">
+        <p style="margin: 1px 0; text-align: center; font-size: 6.5pt;" data-id="{{ honoraryMember.reference }}">
             {{ honoraryMember.name }} {{ honoraryMember.provRank }}
         {{ end }}
     </div>

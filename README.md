@@ -509,3 +509,6 @@ See [UNIT_PAGE_LAYOUT.md](data/UNIT_PAGE_LAYOUT.md) for detailed template docume
 - Read [IMPLEMENTATION.md](IMPLEMENTATION.md) for technical architecture
 - Review [CSV_SCHEMA.md](data/CSV_SCHEMA.md) for data format details
 - Check [.github/copilot-instructions.md](.github/copilot-instructions.md) for development patterns
+
+### Sharepoint publishing
+https://dorsetmasons.sharepoint.com/:f:/s/Administration/IgAvWrRSHjP0Rbm15qQgCT4AAfNerluTMEg37zCdvNgz5Is

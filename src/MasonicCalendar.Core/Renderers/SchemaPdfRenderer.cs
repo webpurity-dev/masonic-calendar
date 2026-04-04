@@ -116,9 +116,11 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine("/* Bleed visualization - shows page boundaries */");
-                    output.AppendLine(".pagedjs_sheet { border: 1px solid red; }");
-                    output.AppendLine(".pagedjs_pagebox { border: 1px solid blue; }");
+                    output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
+                    output.AppendLine(".pagedjs_sheet { position: relative; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                 }
                 
                 output.AppendLine("</style>");
@@ -194,7 +196,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // For data-driven sections with a data_mapping, reload units for that specific section
                 // UNLESS units were already pre-filtered (e.g., by -unit parameter)
                 var unitsToRender = units;
-                if ((section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                if (_dataLoader != null &&
+                    (section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) &&
                     !string.IsNullOrWhiteSpace(section.DataMapping) &&
                     units.Count > 1)  // Only reload if not pre-filtered by -unit parameter
                 {
@@ -246,8 +249,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     Format = paperFormat,
                     Landscape = isLandscape,
                     PrintBackground = true,
-                    DisplayHeaderFooter = false
-                    // Don't set Width/Height/MarginOptions - let Paged.js CSS @page rules handle all sizing and margins
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,  // Use CSS @page size, not Chromium's own calculation
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }  // Paged.js handles all margins via @page rules
                 };
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
                 return Result<byte[]>.Ok(pdfBytes);
@@ -317,9 +321,11 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine("/* Bleed visualization - shows page boundaries */");
-                    output.AppendLine(".pagedjs_sheet { border: 1px solid red; }");
-                    output.AppendLine(".pagedjs_pagebox { border: 1px solid blue; }");
+                    output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
+                    output.AppendLine(".pagedjs_sheet { position: relative; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                 }
                 
                 output.AppendLine("</style>");
@@ -369,7 +375,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 
                 // For data-driven sections with a data_mapping, reload units for that specific section
                 var unitsForSection = units;
-                if ((section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                if (_dataLoader != null &&
+                    (section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) &&
                     !string.IsNullOrWhiteSpace(section.DataMapping))
                 {
                     var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
@@ -493,8 +500,9 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                     Format = paperFormat,
                     Landscape = isLandscape,
                     PrintBackground = true,
-                    DisplayHeaderFooter = false
-                    // Don't set Width/Height/MarginOptions - let Paged.js CSS @page rules handle all sizing and margins
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,  // Use CSS @page size, not Chromium's own calculation
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }  // Paged.js handles all margins via @page rules
                 };
                 
                 var pdfBytes = await ConvertHtmlToPdf(htmlContent, pdfOptions);
@@ -532,10 +540,10 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         };
     }
 
-    private async Task<Dictionary<string, string>?> LoadSectionHeadingsAsync(SectionConfig section, string masterTemplateKey)
+    private Task<Dictionary<string, string>?> LoadSectionHeadingsAsync(SectionConfig section, string masterTemplateKey)
     {
         if (_dataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
-            return null;
+            return Task.FromResult<Dictionary<string, string>?>(null);
 
         try
         {
@@ -547,7 +555,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             var layoutLoader = new DocumentLayoutLoader(documentRoot);
             var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
             if (!mappingResult.Success)
-                return null;
+                return Task.FromResult<Dictionary<string, string>?>(null);
 
             var mapping = mappingResult.Data;
             var headings = new Dictionary<string, string>();
@@ -562,11 +570,11 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             if (!string.IsNullOrWhiteSpace(mapping?.HonoraryMembers?.OverrideHeading))
                 headings["honoraryMembers"] = mapping.HonoraryMembers.OverrideHeading;
 
-            return headings.Count > 0 ? headings : null;
+            return Task.FromResult<Dictionary<string, string>?>(headings.Count > 0 ? headings : null);
         }
         catch
         {
-            return null;
+            return Task.FromResult<Dictionary<string, string>?>(null);
         }
     }
 
@@ -802,11 +810,33 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             await using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 Headless = true,
-                Args = new[] { "--no-sandbox" }
+                Args = new[]
+                {
+                    "--no-sandbox",
+                    "--force-device-scale-factor=1",   // Prevent HiDPI scaling affecting DOM measurements
+                    "--disable-lcd-text",               // Disable LCD subpixel rendering (matches PDF rasteriser)
+                    "--disable-font-subpixel-positioning" // Consistent font placement between screen and print
+                }
             });
 
             Console.WriteLine("  - Creating new page...");
             await using var page = await browser.NewPageAsync();
+
+            // Set viewport to A6 width at 96dpi with DeviceScaleFactor=1 so Paged.js
+            // DOM measurements and Chromium PDF rendering use identical pixel metrics.
+            // A6 = 105mm × 148mm → 396 × 559 px at 96dpi
+            await page.SetViewportAsync(new ViewPortOptions
+            {
+                Width = 800,
+                Height = 1000,
+                DeviceScaleFactor = 1
+            });
+            
+            // Force print media BEFORE loading content so Paged.js paginates in the same
+            // media context that Chromium uses when generating the PDF. Without this,
+            // Paged.js paginates under 'screen' media, then Chromium switches to 'print'
+            // causing sub-pixel measurement differences that clip rows at page boundaries.
+            await page.EmulateMediaTypeAsync(PuppeteerSharp.Media.MediaType.Print);
             
             // Capture console messages from the page
             page.Console += (sender, args) => {
@@ -1004,6 +1034,12 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine("    content: \"\";");
             css.AppendLine("  }");
             css.AppendLine("}");
+
+            // Emit binding gutter as a CSS variable so cover templates don't need manual offsets.
+            // Images on the first page automatically shift their focal point away from the spine.
+            var gutter = margins.RightPage?.Left ?? "0mm";
+            css.AppendLine(":root { --binding-gutter: " + gutter + "; }");
+            css.AppendLine(".pagedjs_first_page img { object-position: calc(50% + calc(var(--binding-gutter) / 2)) center; }");
         }
 
         return css.ToString();

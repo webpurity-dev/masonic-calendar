@@ -185,6 +185,7 @@ public class SectionConfig
     public string? ForSection { get; set; }
     public int? PagesPerUnit { get; set; }
     public bool HideFromParentToc { get; set; } = false;
+    public bool ResetPageCounter { get; set; } = false;  // Resets CSS page counter to 1 at this section
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
 }

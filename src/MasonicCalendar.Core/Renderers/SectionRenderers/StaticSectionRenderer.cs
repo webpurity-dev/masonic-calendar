@@ -32,7 +32,7 @@ public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLo
         var staticModel = new Dictionary<string, object?>();
         var staticHtml = template.Render(staticModel);
 
-        WrapWithPageBreakAndAnchor(output, anchorId, staticHtml, sectionIndex);
+        WrapWithPageBreakAndAnchor(output, anchorId, staticHtml, sectionIndex, section.ResetPageCounter);
 
         return Task.CompletedTask;
     }

@@ -37,7 +37,8 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         var startPageBreak = sectionIndex > 0 && !precededbytargetedtoc;
         
         // Place anchor at the very start of the section, before any wrappers
-        output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
+        var anchorStyle = section.ResetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
+        output.AppendLine($"<div id=\"section_{section.SectionId}\"{anchorStyle}></div>");
         
         if (startPageBreak)
         {
@@ -81,13 +82,13 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         return template.Render(model);
     }
 
-    private async Task<Dictionary<string, string>?> LoadSectionHeadingsAsync(SectionConfig section)
+    private Task<Dictionary<string, string>?> LoadSectionHeadingsAsync(SectionConfig section)
     {
         if (DataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
         {
             if (DebugMode)
                 Console.WriteLine($"    [LoadSectionHeadingsAsync] Skipping: DataLoader={DataLoader != null}, DataMapping={section.DataMapping}");
-            return null;
+            return Task.FromResult<Dictionary<string, string>?>(null);
         }
 
         try
@@ -103,7 +104,7 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             {
                 if (DebugMode)
                     Console.WriteLine($"    [LoadSectionHeadingsAsync] Failed to load mapping: {mappingResult.Error}");
-                return null;
+                return Task.FromResult<Dictionary<string, string>?>(null);
             }
 
             var mapping = mappingResult.Data;
@@ -134,13 +135,13 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             if (DebugMode && headings.Count == 0)
                 Console.WriteLine($"    [LoadSectionHeadings] No headings found in {section.DataMapping}");
 
-            return headings.Count > 0 ? headings : null;
+            return Task.FromResult<Dictionary<string, string>?>(headings.Count > 0 ? headings : null);
         }
         catch (Exception ex)
         {
             if (DebugMode)
                 Console.WriteLine($"    [LoadSectionHeadings] Exception: {ex.Message}");
-            return null;
+            return Task.FromResult<Dictionary<string, string>?>(null);
         }
     }
 }

@@ -98,7 +98,7 @@ public static class TextCleaner
         if (string.IsNullOrWhiteSpace(surname))
             return "";
 
-        var cleanedSurname = CleanName(surname);
+        var cleanedSurname = ShortenSurname(CleanName(surname));
 
         // Determine which initials to use
         string? initialsToUse = null;
@@ -128,7 +128,7 @@ public static class TextCleaner
         if (string.IsNullOrWhiteSpace(surname))
             return "";
         
-        var cleaned = CleanName(surname);
+        var cleaned = ShortenSurname(CleanName(surname));
         
         if (string.IsNullOrWhiteSpace(initials))
             return cleaned ?? "";
@@ -157,9 +157,25 @@ public static class TextCleaner
 
     public static string CleanPastUnits(string? pastUnits)
     {
-         if(string.IsNullOrWhiteSpace(pastUnits))
+        if (string.IsNullOrWhiteSpace(pastUnits))
             return "";
 
-        return pastUnits.TrimStart(',').TrimEnd(',').Trim();  // Remove leading or trailing commas
+        // Split on commas, trim each token, then rejoin without spaces
+        var parts = pastUnits.Split(',', System.StringSplitOptions.RemoveEmptyEntries)
+                             .Select(p => p.Trim())
+                             .Where(p => p.Length > 0);
+        return string.Join(",", parts);
+    }
+
+    /// <summary>
+    /// Shorten a surname that has more than three words by keeping only the last two words.
+    /// E.g. "Andrade De Azeredo Coutinho" (4 words) → "Azeredo Coutinho".
+    /// </summary>
+    private static string ShortenSurname(string surname)
+    {
+        var words = surname.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length > 3)
+            return string.Join(" ", words[^2..]);  // Last 2 words
+        return surname;
     }
 }

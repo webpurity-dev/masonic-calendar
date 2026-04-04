@@ -65,7 +65,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         var tocHtml = template.Render(tocModel);
 
         var anchorId = $"section_{section.SectionId}";
-        WrapWithPageBreakAndAnchor(output, anchorId, tocHtml, sectionIndex);
+        WrapWithPageBreakAndAnchor(output, anchorId, tocHtml, sectionIndex, section.ResetPageCounter);
     }
 
     /// <summary>

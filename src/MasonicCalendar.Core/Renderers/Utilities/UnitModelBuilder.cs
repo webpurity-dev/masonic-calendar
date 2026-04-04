@@ -135,31 +135,38 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Split members into columns for layout purposes (3 columns per row).
+    /// Split members into 3 vertical column lists for side-by-side table rendering.
+    /// Avoids CSS column-count which recalculates breaks differently in PDF vs screen.
+    /// E.g. 7 members → col0=[0,1,2,3], col1=[4,5], col2=[6]  (ceiling split)
     /// </summary>
     private static List<List<Dictionary<string, object?>>> SplitMembersIntoColumns(List<SchemaMember> members)
     {
-        const int columnsPerRow = 3;
-        var result = new List<List<Dictionary<string, object?>>>();
+        const int numColumns = 3;
+        var col0 = new List<Dictionary<string, object?>>();
+        var col1 = new List<Dictionary<string, object?>>();
+        var col2 = new List<Dictionary<string, object?>>();
 
         if (members.Count == 0)
-            return result;
+            return [col0, col1, col2];
 
-        var memberDicts = members
-            .Select(m => new Dictionary<string, object?>
+        var colSize = (int)Math.Ceiling(members.Count / (double)numColumns);
+
+        for (int i = 0; i < members.Count; i++)
+        {
+            var m = members[i];
+            var dict = new Dictionary<string, object?>
             {
                 { "reference", TextCleaner.CleanReference(m.Reference) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
                 { "posNo", m.PosNo }
-            })
-            .ToList();
+            };
 
-        for (int i = 0; i < memberDicts.Count; i += columnsPerRow)
-        {
-            result.Add(memberDicts.Skip(i).Take(columnsPerRow).ToList());
+            if (i < colSize) col0.Add(dict);
+            else if (i < colSize * 2) col1.Add(dict);
+            else col2.Add(dict);
         }
 
-        return result;
+        return [col0, col1, col2];
     }
 }

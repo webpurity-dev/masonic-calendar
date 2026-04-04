@@ -81,18 +81,20 @@ public abstract class SectionRenderer
 
     /// <summary>
     /// Wrap content with page break CSS class, appending additional lines before and after (unless it's the first section).
+    /// When resetPageCounter is true, emits counter-reset: page 0 so this section displays as page 1.
     /// </summary>
-    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex)
+    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex, bool resetPageCounter = false)
     {
+        var anchorStyle = resetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
         if (sectionIndex == 0)
         {
-            output.AppendLine($"<a id=\"{anchorId}\"></a>");
+            output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
             output.AppendLine(content);
         }
         else
         {
             output.AppendLine("<div class='section-divider'>");
-            output.AppendLine($"<a id=\"{anchorId}\"></a>");
+            output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
             output.AppendLine(content);
             output.AppendLine("</div>");
         }

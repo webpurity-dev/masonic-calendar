@@ -116,6 +116,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     Warrant = GetFieldValueWithComposite(csv, fieldMap, "Warrant"),
                     MeetingDates = GetFieldValueWithComposite(csv, fieldMap, "MeetingDates"),
                     Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),
+                    UnitType = mapping.Units.FilterField != null ? csv.GetField(mapping.Units.FilterField) : null,
                 };
 
                 units.Add(unit);
@@ -225,12 +226,17 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 {
                     return (fieldMap, csv, unitNumber) =>
                     {
+                        var reference = GetFieldValue(csv, fieldMap, "Reference");
+                        if (!string.IsNullOrWhiteSpace(reference) && schemaUnit.Officers.Any(o => o.Reference == reference))
+                            return; // skip duplicate
+
                         var name = GetFieldValue(csv, fieldMap, "Name");
-                        var positionNo = int.TryParse(GetFieldValue(csv, fieldMap, "PositionNo"), out var pn) ? pn : 0;
-                        
+                        var rawPos = GetFieldValue(csv, fieldMap, "PositionNo");
+                        var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
+
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
-                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Reference = reference,
                             Name = TextCleaner.CleanName(name),
                             Position = GetFieldValue(csv, fieldMap, "Position"),
                             PosNo = positionNo
@@ -311,6 +317,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, mapping.HonoraryMembers, "honorary member",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
+                        var reference = GetFieldValue(csv, fieldMap, "Reference");
+                        if (!string.IsNullOrWhiteSpace(reference) && schemaUnit.HonoraryMembers.Any(h => h.Reference == reference))
+                            return; // skip duplicate
+
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
@@ -318,7 +328,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
-                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Reference = reference,
                             Name = TextCleaner.CleanName(name),
                             Rank = displayRank
                         });
@@ -427,6 +437,14 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     {
         foreach (var unit in units)
         {
+            // Sort by OffPos-derived PosNo before reindexing; nulls (no OffPos) go last
+            unit.Officers.Sort((a, b) =>
+            {
+                if (a.PosNo == null && b.PosNo == null) return 0;
+                if (a.PosNo == null) return 1;
+                if (b.PosNo == null) return -1;
+                return a.PosNo.Value.CompareTo(b.PosNo.Value);
+            });
             for (int i = 0; i < unit.Officers.Count; i++)
                 unit.Officers[i].PosNo = i;
 

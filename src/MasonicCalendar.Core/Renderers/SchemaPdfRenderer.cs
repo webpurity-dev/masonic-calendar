@@ -623,9 +623,10 @@ if (window.Paged && typeof window.Paged.on === 'function') {
 
     private string GenerateAnchorId(SchemaUnit unit)
     {
-        // Create a clean anchor ID from unit number and name
+        // Create a clean anchor ID from unit type, number and name
         var cleanName = System.Text.RegularExpressions.Regex.Replace(unit.Name ?? "", @"[^a-zA-Z0-9]", "_");
-        return $"unit_{unit.Number}_{cleanName}".ToLower();
+        var cleanType = System.Text.RegularExpressions.Regex.Replace(unit.UnitType ?? "", @"[^a-zA-Z0-9]", "_");
+        return $"unit_{cleanType}_{unit.Number}_{cleanName}".ToLower();
     }
 
     private List<Dictionary<string, object?>> BuildTocData(List<SchemaUnit> units, List<SectionConfig>? sections)

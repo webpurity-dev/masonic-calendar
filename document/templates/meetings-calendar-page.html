@@ -19,7 +19,7 @@
                     <div style="font-weight: bold; font-size: 8pt; background: #fafafa;">{{ day.day_number }}</div>
                     {{ for meeting in day.meetings }}
                         <div style="font-size: 8pt; word-wrap: break-word; color: #000;">
-                            <a href="mailto:{{ meeting.unit_id }}@dorsetfreemasonry.info" style="text-decoration: none; color: #000;">{{ meeting.unit_id }}-{{ meeting.title }}</a>
+                            <a href="mailto:{{ meeting.unit_id }}@dorsetfreemasonry.info" style="text-decoration: none; color: #000;">{{ meeting.unit_id }}</a>
                         </div>
                     {{ end }}
                 {{ end }}

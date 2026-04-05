@@ -9,7 +9,7 @@ public class SchemaUnit
     public required int Number { get; set; }
     public required string Name { get; set; }
     public string? ShortName { get; set; }
-    public string? Email { get; set; }
+    public string? Contact { get; set; }
     public DateOnly? Established { get; set; }
     public string? LastInstallationDate { get; set; }  // Display string read directly from CSV (e.g., "21st January 2026")
     public string? Warrant { get; set; }              // Warrant / founding history text

@@ -36,6 +36,26 @@ public static class TextCleaner
     }
 
     /// <summary>
+    /// Clean free-text fields (meeting dates, warrant text, etc.) — strips newlines and
+    /// collapses whitespace but does NOT apply surname-shortening logic.
+    /// Use <see cref="CleanName"/> only for person name fields.
+    /// </summary>
+    public static string CleanText(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return "";
+
+        var cleaned = text.Replace("\r", "").Replace("\n", "").Trim();
+        cleaned = cleaned.Replace("•", " ");
+        cleaned = cleaned.Replace("\ufffd", " ");
+
+        while (cleaned.Contains("  "))
+            cleaned = cleaned.Replace("  ", " ");
+
+        return cleaned;
+    }
+
+    /// <summary>
     /// Clean provincial rank by removing special characters and excess whitespace.
     /// </summary>
     public static string CleanProvincialRank(string? rank)

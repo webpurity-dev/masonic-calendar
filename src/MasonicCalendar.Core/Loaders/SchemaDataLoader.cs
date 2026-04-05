@@ -110,7 +110,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     Number = ParseInt(GetFieldValueWithComposite(csv, fieldMap, "Number")),
                     Name = GetFieldValueWithComposite(csv, fieldMap, "Name") ?? "",
                     ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
-                    Email = GetFieldValueWithComposite(csv, fieldMap, "Email"),
+                    Contact = GetFieldValueWithComposite(csv, fieldMap, "Contact"),
                     LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location"),
                     LastInstallationDate = GetFieldValueWithComposite(csv, fieldMap, "LastInstallationDate"),
                     Warrant = GetFieldValueWithComposite(csv, fieldMap, "Warrant"),
@@ -227,12 +227,17 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     return (fieldMap, csv, unitNumber) =>
                     {
                         var reference = GetFieldValue(csv, fieldMap, "Reference");
-                        if (!string.IsNullOrWhiteSpace(reference) && schemaUnit.Officers.Any(o => o.Reference == reference))
-                            return; // skip duplicate
-
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var rawPos = GetFieldValue(csv, fieldMap, "PositionNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
+
+                        // Deduplicate only on exact (Reference + PositionNo) match — a person
+                        // can legitimately hold multiple offices, so Reference alone is not enough.
+                        // Vacant rows share the unit-number as a placeholder ref — never skip those.
+                        if (!string.IsNullOrWhiteSpace(reference) && !string.IsNullOrWhiteSpace(name)
+                            && positionNo.HasValue
+                            && schemaUnit.Officers.Any(o => o.Reference == reference && o.PosNo == positionNo))
+                            return; // skip exact duplicate
 
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {

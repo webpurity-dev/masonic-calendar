@@ -38,11 +38,11 @@ public static class UnitModelBuilder
                 {
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
-                    { "email", unit.Email },
+                    { "contact", unit.Contact },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
                     { "lastInstallationDate", unit.LastInstallationDate ?? "" },
-                    { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanName(unit.Warrant)) },
-                    { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanName(unit.MeetingDates)) },
+                    { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.Warrant)) },
+                    { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.MeetingDates)) },
                     { "hall", unit.Hall },
                     { "location", TextCleaner.EnsureTrailingPeriod(unit.LocationId) }
                 }
@@ -67,6 +67,9 @@ public static class UnitModelBuilder
                         { "posNo", o.PosNo }
                     })
                     .ToList()
+            },
+            {
+                "officerColumns", SplitOfficersIntoColumns(unit.Officers)
             },
             {
                 "pastMasters", unit.PastMasters
@@ -136,6 +139,39 @@ public static class UnitModelBuilder
             { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" }
         };
         return headings;
+    }
+
+    /// <summary>
+    /// Split officers into 2 vertical column lists with an even ceiling split.
+    /// E.g. 7 officers → left=[0..3], right=[4..6]
+    /// Avoids the hardcoded posNo<=11 threshold so columns balance regardless of unit size.
+    /// </summary>
+    private static List<List<Dictionary<string, object?>>> SplitOfficersIntoColumns(List<SchemaOfficer> officers)
+    {
+        var left = new List<Dictionary<string, object?>>();
+        var right = new List<Dictionary<string, object?>>();
+
+        if (officers.Count == 0)
+            return [left, right];
+
+        var splitAt = (int)Math.Ceiling(officers.Count / 2.0);
+
+        for (int i = 0; i < officers.Count; i++)
+        {
+            var o = officers[i];
+            var dict = new Dictionary<string, object?>
+            {
+                { "reference", TextCleaner.CleanReference(o.Reference) },
+                { "name", TextCleaner.CleanName(o.Name) },
+                { "position", o.Position },
+                { "posNo", o.PosNo }
+            };
+
+            if (i < splitAt) left.Add(dict);
+            else right.Add(dict);
+        }
+
+        return [left, right];
     }
 
     /// <summary>

@@ -17,7 +17,10 @@
             {{ end }}
             {{ if unit.meetingDates }}
                 {{ unit.meetingDates }}
-            {{ end }}     
+            {{ end }}
+            {{ if unit.contact }}
+                Contact:<a href="mailto:{{ unit.contact }}">{{ unit.contact }}</a>
+            {{ end }}
         </p>
     </div>
 
@@ -29,33 +32,29 @@
     </div>
     
     <!-- Officers Table -->
-    {{ if officers && officers.size > 0 }}
-    <div style="margin-top: 4px; text-align: center; break-inside: avoid;">
+    {{ if officerColumns && (officerColumns[0].size > 0 || officerColumns[1].size > 0) }}
+    <div style="margin-top: 2px; text-align: center; break-inside: avoid;">
         <div style="display: flex; gap: 6px; justify-content: center; align-items: flex-start; break-inside: auto;">
-            <!-- Left Column: Officers 0-11 (12 officers) -->
-            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
+            <!-- Left Column -->
+            <table style="border-collapse: collapse; font-size: 7.5pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
-                    {{ for officer in officers }}
-                        {{ if officer.posNo <= 11 }}
+                    {{ for officer in officerColumns[0] }}
                     <tr data-id="{{ officer.reference }}">
-                        <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
-                        {{ end }}
                     {{ end }}
                 </tbody>
             </table>
             
-            <!-- Right Column: Officers 12+ -->
-            <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">
+            <!-- Right Column -->
+            <table style="border-collapse: collapse; font-size: 7.5pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
-                    {{ for officer in officers }}
-                        {{ if officer.posNo > 11 }}
+                    {{ for officer in officerColumns[1] }}
                     <tr data-id="{{ officer.reference }}">
-                        <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
-                        {{ end }}
                     {{ end }}
                 </tbody>
             </table>

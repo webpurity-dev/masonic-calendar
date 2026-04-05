@@ -126,7 +126,21 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("</style>");
             }
             
-            // Load Paged.js from CDN (or local if offline)
+            // Register a Paged.js handler BEFORE the polyfill loads.
+            // After Paged.js paginates, it sets overflow:hidden as inline styles on .pagedjs_area
+            // and .pagedjs_page_content. CSS rules cannot override inline styles, so we use
+            // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
+            // the last row on a page is invisibly cut off (mm→px conversion is not exact).
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("</head>");
             output.AppendLine("<body>");
@@ -137,7 +151,6 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
 
             if (isToc)
             {
-                // Render table of contents
                 List<Dictionary<string, object?>> tocData;
                 if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
@@ -330,6 +343,22 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 
                 output.AppendLine("</style>");
             }
+            
+            // Register a Paged.js handler BEFORE the polyfill loads.
+            // After Paged.js paginates, it sets overflow:hidden as inline styles on .pagedjs_area
+            // and .pagedjs_page_content. CSS rules cannot override inline styles, so we use
+            // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
+            // the last row on a page is invisibly cut off (mm→px conversion is not exact).
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
             
             // Load Paged.js from CDN
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");

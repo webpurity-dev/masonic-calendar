@@ -90,22 +90,9 @@ html, body {
      - Tighter page break control to fit units on 2 pages with flexible 3-page overflow
    ======================================== */
 
-/* Officers and Past Masters: Keep sections together for clean breaks */
+/* Officers and Past Masters: Keep heading with first row (break-after: avoid on h2 handles this) */
 .unit-page > div[style*="margin-top: 3px"] {
-    break-inside: avoid;
     margin-bottom: 3px;
-}
-
-/* Members container: Allow natural breaks with minimum lines */
-.members-container div[style*="column-count"] {
-    break-inside: auto;
-    orphans: 2;
-    widows: 2;
-}
-
-/* Ensure member rows don't break mid-content */
-.members-container tr {
-    break-inside: avoid;
 }
 
 /* Section headers: Prevent orphaning */

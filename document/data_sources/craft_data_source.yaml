@@ -31,6 +31,9 @@ units:
     - name: "Location"
       csv_column: "Location"
       type: "string"
+    - name: "Contact"
+      csv_column: "Email"
+      type: "string"
 
 officers:
   source: "membership_v1.3.csv"

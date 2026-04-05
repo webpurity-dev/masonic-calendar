@@ -8,20 +8,30 @@
     
     <!-- Summary Section -->
     <div style="margin-bottom: 2px; text-align: left;">
-        {{ if location }}
-            <p style="font-size: 7pt; margin: 1px 0;">
-                Meets at {{ location.name }}, {{ location.addressLine1 }}, {{ location.town }}, {{ location.postcode }}.
-            </p>
-        {{ end }}
-        <p style="font-size: 6.5pt; margin: 1px 0; padding-top: 1px;">
-            Email: <a href="mailto:{{ unit.email }}">{{ unit.email }}</a>
+        <p style="font-size: 7pt; margin: 1px 0;">
+            {{ if unit.warrant }}
+                {{ unit.warrant }}     
+            {{ end }}
+            {{ if unit.location }}
+                Based at {{ unit.location }}
+            {{ end }}
+            {{ if unit.meetingDates }}
+                {{ unit.meetingDates }}
+            {{ end }}     
         </p>
+    </div>
+
+    <!-- Last Installation Section -->
+    <div style="margin-bottom: 4px; text-align: center;">            
+        {{ if unit.lastInstallationDate }}
+            <p style="font-size: 9pt; margin: 1px 0;font-weight: 600;">Last Installation: {{ unit.lastInstallationDate }}</p>
+        {{ end }}   
     </div>
     
     <!-- Officers Table -->
     {{ if officers && officers.size > 0 }}
     <div style="margin-top: 6px; text-align: center; break-inside: avoid;">
-        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Installation {{ unit.lastInstallationDate }}</h2>
+        <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Officers</h2>
         <div style="display: flex; gap: 6px; justify-content: center; align-items: flex-start; break-inside: auto;">
             <!-- Left Column: Officers 0-11 (12 officers) -->
             <table style="border-collapse: collapse; font-size: 8pt; flex: 0 0 auto; table-layout: fixed;">

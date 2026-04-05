@@ -155,6 +155,17 @@ public static class TextCleaner
         return $"{cleanGrandRank}, {cleanProvRank}";
     }
 
+    /// <summary>
+    /// Ensures the string ends with a period. Returns empty string for null/whitespace.
+    /// </summary>
+    public static string EnsureTrailingPeriod(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "";
+        var trimmed = value.TrimEnd();
+        return trimmed.EndsWith('.') ? trimmed : trimmed + ".";
+    }
+
     public static string CleanPastUnits(string? pastUnits)
     {
         if (string.IsNullOrWhiteSpace(pastUnits))

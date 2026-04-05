@@ -1,23 +1,12 @@
-# Data source mappings for Craft Freemasonry section
+﻿# Data source mappings for Craft Freemasonry section
 # CSV files and column mappings that support craft-related data
-
-# Unit number mapping for CraftData.csv
-# Extracts unit numbers by tracking S01 rows (unit definition rows)
-# When S01 is encountered, FN03 contains the unit number (e.g., "137", "170")
-# This unit number is applied to all subsequent rows until the next S01
-# Row tracking: uses document order (line-by-line position)
-unit_mapping:
-  source: "CraftData.csv"
-  row_identifier_field: "SECTION_CODE"  # Column that identifies tracking rows
-  row_identifier_value: "S01"            # Value that indicates a unit definition row
-  unit_number_field: "FN03"              # Column containing the unit number to extract
-  unit_id_field: "ORG_ID"                # Column for interim grouping (before S01 mapping applied)
+# v1.3 format: units_v1.3.csv + membership_v1.3.csv
 
 units:
   source: "units_v1.3.csv"
   filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:    
+  filter_value: "Craft"
+  fields:
     - name: "Number"
       csv_column: "Unit No"
       type: "int"
@@ -25,7 +14,7 @@ units:
       csv_column: "Unit Name"
       type: "string"
     - name: "ShortName"
-      csv_column: "ShortName"
+      csv_column: "Short Name"
       type: "string"
     - name: "Warrant"
       csv_column: "Warrant"
@@ -36,123 +25,9 @@ units:
     - name: "LastInstallationDate"
       csv_column: "Last Installation"
       type: "string"
+    - name: "Hall"
+      csv_column: "Hall"
+      type: "string"
     - name: "Location"
       csv_column: "Location"
-      type: "string"
-    - name: "Email"
-      csv_column: "Email"
-      type: "string"
-
-officers:
-  source: "membership_v1.3.csv"
-  filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:
-    - name: "Reference"
-      csv_column: "GPYB_LC_DETS_ID"
-      type: "string"
-    - name: "Surname"
-      csv_column: "FN07"
-      type: "string"
-    - name: "FirstName"
-      csv_column: "FN06"
-      type: "string"
-    - name: "Initials"
-      csv_column: "FN05"
-      type: "string"
-    - name: "Position"
-      csv_column: "FN01"
-      type: "string"
-
-past_masters:
-  source: "membership_v1.3.csv"
-  filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:
-    - name: "Reference"
-      csv_column: "GPYB_LC_DETS_ID"
-      type: "string"
-    - name: "Surname"
-      csv_column: "FN07"
-      type: "string"
-    - name: "Initials"
-      csv_column: "FN05"
-      type: "string"
-    - name: "YearInstalled"
-      csv_column: "FN01"
-      type: "string"
-    - name: "ProvincialRank"
-      csv_column: "FN13"
-      type: "string"
-    - name: "RankYear"
-      csv_column: "FN14"
-      type: "string"
-    - name: "ActiveProvincialRank"
-      csv_column: "FN15"
-      type: "string"
-    - name: "ActiveRankYear"
-      csv_column: "FN16"
-      type: "string"
-
-joining_past_masters:
-  source: "membership_v1.3.csv"
-  filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:
-    - name: "Reference"
-      csv_column: "GPYB_LC_DETS_ID"
-      type: "string"
-    - name: "Surname"
-      csv_column: "FN06"
-      type: "string"
-    - name: "Initials"
-      csv_column: "FN04"
-      type: "string"
-    - name: "PastUnits"
-      csv_column: "FN30"
-      type: "string"
-    - name: "ProvincialRank"
-      csv_column: "FN12"
-      type: "string"
-    - name: "RankYear"
-      csv_column: "FN13"
-      type: "string"
-
-members:
-  source: "membership_v1.3.csv"
-  filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:
-    - name: "Reference"
-      csv_column: "GPYB_LC_DETS_ID"
-      type: "string"
-    - name: "Surname"
-      csv_column: "FN08"
-      type: "string"
-    - name: "Initials"
-      csv_column: "FN07"
-      type: "string"
-    - name: "YearInitiated"
-      csv_column: "FN01"
-      type: "string"
-
-honorary_members:
-  source: "membership_v1.3.csv"
-  filter_field: "Unit Type"
-  filter_value: "Craft
-  fields:
-    - name: "Reference"
-      csv_column: "GPYB_LC_DETS_ID"
-      type: "string"
-    - name: "Surname"
-      csv_column: "FN06"
-      type: "string"
-    - name: "Initials"
-      csv_column: "FN05"
-      type: "string"
-    - name: "GrandRank"
-      csv_column: "FN10"
-      type: "string"
-    - name: "ProvincialRank"
-      csv_column: "FN11"
       type: "string"

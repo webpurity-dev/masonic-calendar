@@ -234,10 +234,21 @@ public class DataSourceDefinition
 {
     public string? Source { get; set; }
     public string? UnitIdField { get; set; } = "Unit";  // Field name for unit ID (default: "Unit")
-    public string? FilterField { get; set; }
-    public string? FilterValue { get; set; }
+    public string? FilterField { get; set; }             // Legacy single filter field (kept for backward compat)
+    public string? FilterValue { get; set; }             // Legacy single filter value (kept for backward compat)
+    public List<DataSourceFilter>? Filters { get; set; } // Multi-filter list (AND logic); takes precedence over single filter
     public string? OverrideHeading { get; set; }        // Optional custom heading for this section (e.g., "Past First Principals")
     public List<FieldMapping>? Fields { get; set; }
+}
+
+/// <summary>
+/// A single filter condition used in a <see cref="DataSourceDefinition"/> filters list.
+/// All filters in the list must match for a row to be included (AND logic).
+/// </summary>
+public class DataSourceFilter
+{
+    public string? FilterField { get; set; }
+    public string? FilterValue { get; set; }
 }
 
 /// <summary>

@@ -40,7 +40,11 @@ public static class UnitModelBuilder
                     { "number", unit.Number },
                     { "email", unit.Email },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
-                    { "lastInstallationDate", unit.LastInstallationDate.HasValue ? FormatDateWithOrdinal(unit.LastInstallationDate.Value) : "" }
+                    { "lastInstallationDate", unit.LastInstallationDate ?? "" },
+                    { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanName(unit.Warrant)) },
+                    { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanName(unit.MeetingDates)) },
+                    { "hall", unit.Hall },
+                    { "location", TextCleaner.EnsureTrailingPeriod(unit.LocationId) }
                 }
             },
             {

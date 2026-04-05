@@ -11,7 +11,10 @@ public class SchemaUnit
     public string? ShortName { get; set; }
     public string? Email { get; set; }
     public DateOnly? Established { get; set; }
-    public DateOnly? LastInstallationDate { get; set; }
+    public string? LastInstallationDate { get; set; }  // Display string read directly from CSV (e.g., "21st January 2026")
+    public string? Warrant { get; set; }              // Warrant / founding history text
+    public string? MeetingDates { get; set; }         // Meeting schedule description
+    public string? Hall { get; set; }                 // Hall / venue name
     public string? UnitType { get; set; }
     public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
     public SchemaLocation? Location { get; set; }

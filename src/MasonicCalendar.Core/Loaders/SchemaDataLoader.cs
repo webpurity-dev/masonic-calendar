@@ -129,14 +129,20 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
             while (await csv.ReadAsync())
             {
+                if (!RowPassesFilters(csv, mapping.Units))
+                    continue;
+
                 var unit = new SchemaUnit
                 {
                     Number = ParseInt(GetFieldValueWithComposite(csv, fieldMap, "Number")),
                     Name = GetFieldValueWithComposite(csv, fieldMap, "Name") ?? "",
                     ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
                     Email = GetFieldValueWithComposite(csv, fieldMap, "Email"),
-                    LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location")  // Extract location reference from CSV
-                    // Note: LastInstallationDate will be loaded separately by LoadCompositePropertyAsync
+                    LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location"),
+                    LastInstallationDate = GetFieldValueWithComposite(csv, fieldMap, "LastInstallationDate"),
+                    Warrant = GetFieldValueWithComposite(csv, fieldMap, "Warrant"),
+                    MeetingDates = GetFieldValueWithComposite(csv, fieldMap, "MeetingDates"),
+                    Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),
                 };
 
                 units.Add(unit);
@@ -186,8 +192,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     {
         if (!fieldMap.TryGetValue(propertyName, out var fieldMapping))
         {
-            // Fallback to property name as column name
-            return csv.GetField(propertyName);
+            // Field not declared in YAML mapping — return null rather than attempting a column lookup
+            // that may throw if the column doesn't exist in the CSV.
+            return null;
         }
 
         // Handle composite fields (combine multiple columns)
@@ -417,17 +424,12 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 }
 
                 // Check filter
-                if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
-                    !string.IsNullOrWhiteSpace(dataSource.FilterValue))
+                if (!RowPassesFilters(csv, dataSource))
                 {
-                    var filterValue = csv.GetField(dataSource.FilterField);
-                    if (filterValue != dataSource.FilterValue)
-                    {
-                        rowIndex++;
-                        continue;
-                    }
-                    matchedRows++;
+                    rowIndex++;
+                    continue;
                 }
+                matchedRows++;
 
                 // Skip invalid records
                 if (unitNumber == 0)
@@ -446,7 +448,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // Handle property assignment based on property name
                         if (propertyName == "LastInstallationDate")
                         {
-                            unit.LastInstallationDate = ParseDate(valueString);
+                            unit.LastInstallationDate = valueString;
                             updatedUnits++;
                             Console.WriteLine($"    Unit {unitNumber}: {propertyName} = {valueString}");
                         }
@@ -557,15 +559,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 }
 
                 // Check filter
-                if (!string.IsNullOrWhiteSpace(dataSource.FilterField) &&
-                    !string.IsNullOrWhiteSpace(dataSource.FilterValue))
+                if (!RowPassesFilters(csv, dataSource))
                 {
-                    var filterValue = csv.GetField(dataSource.FilterField);
-                    if (filterValue != dataSource.FilterValue)
-                    {
-                        rowIndex++;
-                        continue;
-                    }
+                    rowIndex++;
+                    continue;
                 }
 
                 // Skip invalid records
@@ -593,6 +590,38 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Log but don't fail - missing person types are not fatal
             System.Diagnostics.Debug.WriteLine($"Error loading {personTypeName}: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Returns true if the current CSV row passes all filters defined on the data source.
+    /// Supports both the legacy single FilterField/FilterValue and the new Filters list (AND logic).
+    /// If neither is configured the row is always accepted.
+    /// </summary>
+    private static bool RowPassesFilters(CsvReader csv, DataSourceDefinition dataSource)
+    {
+        // New multi-filter list takes precedence when present
+        if (dataSource.Filters is { Count: > 0 })
+        {
+            foreach (var filter in dataSource.Filters)
+            {
+                if (string.IsNullOrWhiteSpace(filter.FilterField) || string.IsNullOrWhiteSpace(filter.FilterValue))
+                    continue;
+                var value = csv.GetField(filter.FilterField);
+                if (value != filter.FilterValue)
+                    return false;
+            }
+            return true;
+        }
+
+        // Legacy single filter
+        if (!string.IsNullOrWhiteSpace(dataSource.FilterField) && !string.IsNullOrWhiteSpace(dataSource.FilterValue))
+        {
+            var value = csv.GetField(dataSource.FilterField);
+            return value == dataSource.FilterValue;
+        }
+
+        // No filter configured — accept all rows
+        return true;
     }
 
     private int ParseInt(string? value)

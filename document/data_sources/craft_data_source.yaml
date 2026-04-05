@@ -14,16 +14,27 @@ unit_mapping:
   unit_id_field: "ORG_ID"                # Column for interim grouping (before S01 mapping applied)
 
 units:
-  source: "craft-units.csv"
-  fields:
+  source: "units_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
+  fields:    
     - name: "Number"
-      csv_column: "Number"
+      csv_column: "Unit No"
       type: "int"
     - name: "Name"
-      csv_column: "Name"
+      csv_column: "Unit Name"
       type: "string"
     - name: "ShortName"
       csv_column: "ShortName"
+      type: "string"
+    - name: "Warrant"
+      csv_column: "Warrant"
+      type: "string"
+    - name: "MeetingDates"
+      csv_column: "Meeting Dates"
+      type: "string"
+    - name: "LastInstallationDate"
+      csv_column: "Last Installation"
       type: "string"
     - name: "Location"
       csv_column: "Location"
@@ -32,32 +43,10 @@ units:
       csv_column: "Email"
       type: "string"
 
-locations:
-  source: "unit-locations.csv"
-  fields:
-    - name: "ID"
-      csv_column: "ID"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "AddressLine1"
-      csv_column: "AddressLine1"
-      type: "string"
-    - name: "Town"
-      csv_column: "Town"
-      type: "string"
-    - name: "Postcode"
-      csv_column: "Postcode"
-      type: "string"
-    - name: "What3Words"
-      csv_column: "What3Words"
-      type: "string"
-
 officers:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S39t"
+  source: "membership_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
   fields:
     - name: "Reference"
       csv_column: "GPYB_LC_DETS_ID"
@@ -76,9 +65,9 @@ officers:
       type: "string"
 
 past_masters:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S15t"
+  source: "membership_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
   fields:
     - name: "Reference"
       csv_column: "GPYB_LC_DETS_ID"
@@ -106,9 +95,9 @@ past_masters:
       type: "string"
 
 joining_past_masters:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S17t"
+  source: "membership_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
   fields:
     - name: "Reference"
       csv_column: "GPYB_LC_DETS_ID"
@@ -130,9 +119,9 @@ joining_past_masters:
       type: "string"
 
 members:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S18t"
+  source: "membership_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
   fields:
     - name: "Reference"
       csv_column: "GPYB_LC_DETS_ID"
@@ -148,9 +137,9 @@ members:
       type: "string"
 
 honorary_members:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S41t"
+  source: "membership_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Craft
   fields:
     - name: "Reference"
       csv_column: "GPYB_LC_DETS_ID"
@@ -167,18 +156,3 @@ honorary_members:
     - name: "ProvincialRank"
       csv_column: "FN11"
       type: "string"
-
-installation_dates:
-  source: "CraftData.csv"
-  filter_field: "SECTION_CODE"
-  filter_value: "S12"
-  fields:
-    - name: "LastInstallationDate"
-      is_composite: true
-      composite_format: "{FN02} {FN03} {FN04}"
-      composite_fields:
-        - "FN02"
-        - "FN03"
-        - "FN04"
-      date_format: "d MMMM yyyy"
-      type: "date"

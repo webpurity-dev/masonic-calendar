@@ -1,0 +1,32 @@
+﻿# Data source mappings for Mark Masonry section
+# v1.3 format: units_v1.3.csv + membership_v1.3.csv
+
+units:
+  source: "units_v1.3.csv"
+  filter_field: "Unit Type"
+  filter_value: "Mark"
+  fields:
+    - name: "Number"
+      csv_column: "Unit No"
+      type: "int"
+    - name: "Name"
+      csv_column: "Unit Name"
+      type: "string"
+    - name: "ShortName"
+      csv_column: "Short Name"
+      type: "string"
+    - name: "Warrant"
+      csv_column: "Warrant"
+      type: "string"
+    - name: "MeetingDates"
+      csv_column: "Meeting Dates"
+      type: "string"
+    - name: "LastInstallationDate"
+      csv_column: "Last Installation"
+      type: "string"
+    - name: "Hall"
+      csv_column: "Hall"
+      type: "string"
+    - name: "Location"
+      csv_column: "Location"
+      type: "string"

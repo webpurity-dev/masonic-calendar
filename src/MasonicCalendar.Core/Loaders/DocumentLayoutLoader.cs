@@ -197,34 +197,18 @@ public class SectionStyling
 
 /// <summary>
 /// Unit mapping configuration for data sources with unit numbers embedded in rows.
-/// Tracks unit identifiers (e.g., S01 rows with FN03 containing unit number) and applies them 
-/// to subsequent rows until the next unit identifier is encountered.
-/// Data source agnostic - works with any CSV structure.
-/// </summary>
-public class UnitMapping
-{
-    public string? Source { get; set; }                      // CSV filename to map (e.g., "CraftData.csv")
-    public string? RowIdentifierField { get; set; }          // Column identifying unit definition rows (e.g., "SECTION_CODE")
-    public string? RowIdentifierValue { get; set; }          // Value that marks unit definition rows (e.g., "S01")
-    public string? UnitNumberField { get; set; }             // Column containing the unit number (e.g., "FN03")
-    public string? UnitIdField { get; set; } = "ORG_ID";     // Interim grouping field before S01 mapping applied
-}
-
 /// <summary>
 /// Data source mapping configuration loaded from YAML files like craft_data_source.yaml
 /// </summary>
 public class DataSourceMapping
 {
-    public UnitMapping? UnitMapping { get; set; }
     public DataSourceDefinition? Units { get; set; }
     public DataSourceDefinition? Officers { get; set; }
     public DataSourceDefinition? PastMasters { get; set; }
     public DataSourceDefinition? JoiningPastMasters { get; set; }
     public DataSourceDefinition? Members { get; set; }
     public DataSourceDefinition? HonoraryMembers { get; set; }
-    public DataSourceDefinition? Locations { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
-    public DataSourceDefinition? InstallationDates { get; set; }  // Load installation dates from data CSV (S12 rows)
 }
 
 /// <summary>

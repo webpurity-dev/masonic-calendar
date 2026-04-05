@@ -1,0 +1,115 @@
+/* ========================================
+   PAGED.JS PRINT-READY CSS
+     - This file contains CSS rules specifically for print layout and styling when using Paged.js.
+     - It includes page break rules, TOC page number styling, and print-specific overrides.
+     - The rules here are designed to work in conjunction with the HTML templates and the document layout defined in master_v1.yaml.
+   ======================================== */
+
+/* Reset default browser margins so page_margins configuration controls layout */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.unit-page {
+    break-before: always;
+}
+
+.toc-page {
+    break-before: always;
+}
+
+.section-divider {
+    break-before: always;
+}
+
+.page-break-before {
+    page-break-before: always;
+}
+
+.page-break-after {
+    page-break-after: always;
+}
+
+.page-break-avoid {
+    page-break-inside: avoid;
+}
+
+/* ========================================
+   TOC PAGE NUMBER SPANS (JAVASCRIPT INJECTED)
+   ======================================== */
+
+.toc-item .toc-page-number {
+    display: inline-block;
+    margin-left: 6pt;
+    min-width: 30px;
+    text-align: right;
+    color: #000;
+    font-size: 8pt;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   PAGED.JS CONTAINER
+   ======================================== */
+
+.pagedjs_page {
+    background: white;
+    box-shadow: 0 0 0 1px #ddd;
+}
+
+@media print {
+    .pagedjs_page {
+        box-shadow: none;
+        page-break-after: always;
+    }
+}
+
+/* ========================================
+   PRINT OVERRIDES
+   ======================================== */
+
+@media print {
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+    
+    a[href]:after {
+        content: "";
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   UNIT PAGE OPTIMIZATION FOR 2-PAGE FIT
+     - Tighter page break control to fit units on 2 pages with flexible 3-page overflow
+   ======================================== */
+
+/* Officers and Past Masters: Keep sections together for clean breaks */
+.unit-page > div[style*="margin-top: 3px"] {
+    break-inside: avoid;
+    margin-bottom: 3px;
+}
+
+/* Members container: Allow natural breaks with minimum lines */
+.members-container div[style*="column-count"] {
+    break-inside: auto;
+    orphans: 2;
+    widows: 2;
+}
+
+/* Ensure member rows don't break mid-content */
+.members-container tr {
+    break-inside: avoid;
+}
+
+/* Section headers: Prevent orphaning */
+.unit-page h2 {
+    break-after: avoid;
+    margin-bottom: 2px;
+}

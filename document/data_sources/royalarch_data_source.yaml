@@ -1,0 +1,154 @@
+# Data source mappings for Royal Arch section
+# CSV files and column mappings that support royal arch related data
+
+# Unit number mapping for RAData.csv
+# Extracts unit numbers by tracking S01 rows (unit definition rows)
+# When S01 is encountered, FN03 contains the unit number
+# This unit number is applied to all subsequent rows until the next S01
+unit_mapping:
+  source: "RAData.csv"
+  row_identifier_field: "SECTION_CODE"  # Column that identifies tracking rows
+  row_identifier_value: "S01"            # Value that indicates a unit definition row
+  unit_number_field: "FN03"              # Column containing the unit number to extract
+
+units:
+  source: "royalarch_units.csv"
+  fields:
+    - name: "Number"
+      csv_column: "Number"
+      type: "int"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Email"
+      csv_column: "Email"
+      type: "string"
+
+locations:
+  source: "unit-locations.csv"
+  fields:
+    - name: "ID"
+      csv_column: "ID"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "AddressLine1"
+      csv_column: "AddressLine1"
+      type: "string"
+    - name: "Town"
+      csv_column: "Town"
+      type: "string"
+    - name: "Postcode"
+      csv_column: "Postcode"
+      type: "string"
+    - name: "What3Words"
+      csv_column: "What3Words"
+      type: "string"
+
+officers:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S39t"
+  fields:
+    - name: "Reference"
+      csv_column: "GPYB_LC_DETS_ID"
+      type: "string"
+    - name: "Surname"
+      csv_column: "FN07"
+      type: "string"
+    - name: "FirstName"
+      csv_column: "FN06"
+      type: "string"
+    - name: "Initials"
+      csv_column: "FN05"
+      type: "string"
+    - name: "Position"
+      csv_column: "FN01"
+      type: "string"
+
+past_masters:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S15t"
+  override_heading: "Past First Principals"
+  fields:
+    - name: "Reference"
+      csv_column: "GPYB_LC_DETS_ID"
+      type: "string"
+    - name: "Surname"
+      csv_column: "FN07"
+      type: "string"
+    - name: "Initials"
+      csv_column: "FN05"
+      type: "string"
+    - name: "YearInstalled"
+      csv_column: "FN01"
+      type: "string"
+    - name: "ProvincialRank"
+      csv_column: "FN13"
+      type: "string"
+    - name: "RankYear"
+      csv_column: "FN14"
+      type: "string"
+    - name: "ActiveProvincialRank"
+      csv_column: "FN15"
+      type: "string"
+    - name: "ActiveRankYear"
+      csv_column: "FN16"
+      type: "string"
+
+members:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S18t"
+  fields:
+    - name: "Reference"
+      csv_column: "GPYB_LC_DETS_ID"
+      type: "string"
+    - name: "Surname"
+      csv_column: "FN08"
+      type: "string"
+    - name: "Initials"
+      csv_column: "FN07"
+      type: "string"
+    - name: "YearInitiated"
+      csv_column: "FN01"
+      type: "string"
+
+honorary_members:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S41t"
+  fields:
+    - name: "Reference"
+      csv_column: "GPYB_LC_DETS_ID"
+      type: "string"
+    - name: "Surname"
+      csv_column: "FN06"
+      type: "string"
+    - name: "Initials"
+      csv_column: "FN05"
+      type: "string"
+    - name: "GrandRank"
+      csv_column: "FN10"
+      type: "string"
+    - name: "ProvincialRank"
+      csv_column: "FN11"
+      type: "string"
+
+installation_dates:
+  source: "RAData.csv"
+  filter_field: "SECTION_CODE"
+  filter_value: "S12"
+  fields:
+    - name: "LastInstallationDate"
+      is_composite: true
+      composite_format: "{FN02} {FN03} {FN04}"
+      composite_fields:
+        - "FN02"
+        - "FN03"
+        - "FN04"
+      date_format: "d MMMM yyyy"
+      type: "date"
+

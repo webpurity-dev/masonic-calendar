@@ -16,8 +16,8 @@ public class RecurrenceService
     {
         var instances = new List<EventInstance>();
 
-        // Determine active months from Months field
-        var activeMonths = ParseActiveMonths(evt.Months);
+        // Determine active months from Months field (or StartMonth/EndMonth fallback)
+        var activeMonths = ParseActiveMonths(evt);
 
         var currentDate = new DateOnly(startYear, startMonth, 1);
         var endDate = new DateOnly(endYear, endMonth, DateTime.DaysInMonth(endYear, endMonth));
@@ -37,12 +37,18 @@ public class RecurrenceService
                 var eventDate = CalculateEventDate(evt, currentDate.Year, currentDate.Month);
                 if (eventDate.HasValue && eventDate >= currentDate && eventDate <= endDate)
                 {
+                    var isInstallation =
+                        evt.Title.Equals("Installation", StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrWhiteSpace(evt.InstallationMonth) && ParseMonthToken(evt.InstallationMonth) == eventDate.Value.Month);
+
                     instances.Add(new EventInstance
                     {
                         EventId = evt.Id,
                         UnitId = evt.UnitId,
+                        UnitType = evt.UnitType,
                         Title = evt.Title,
-                        Date = eventDate.Value
+                        Date = eventDate.Value,
+                        IsInstallation = isInstallation
                     });
                 }
 
@@ -203,26 +209,80 @@ public class RecurrenceService
     }
 
     /// <summary>
-    /// Parse the Months field (pipe-separated list of month numbers: "01|03|05").
-    /// Returns a list of active month numbers (1-12). If "All", returns all months.
+    /// Parse active months from a CalendarEvent.
+    /// Priority: 1) Months field (pipe-separated numbers "01|03|05" or colon-separated names "Jan:Mar:Sep:Nov")
+    ///           2) StartMonth/EndMonth range (e.g., "Feb"–"Feb" or "Sep"–"Jun")
+    ///           3) All 12 months (legacy fallback)
     /// </summary>
-    private List<int> ParseActiveMonths(string? monthsField)
+    private List<int> ParseActiveMonths(CalendarEvent evt)
     {
-        if (string.IsNullOrWhiteSpace(monthsField))
-            return Enumerable.Range(1, 12).ToList();  // Default to all months
-
-        if (monthsField.Equals("All", StringComparison.OrdinalIgnoreCase))
-            return Enumerable.Range(1, 12).ToList();
-
-        var months = new List<int>();
-        var parts = monthsField.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        foreach (var part in parts)
+        if (!string.IsNullOrWhiteSpace(evt.Months) &&
+            !evt.Months.Equals("All", StringComparison.OrdinalIgnoreCase))
         {
-            if (int.TryParse(part, out var monthNum) && monthNum >= 1 && monthNum <= 12)
-                months.Add(monthNum);
+            // Detect separator: pipe (|) for numbers, colon (:) for names
+            char sep = evt.Months.Contains(':') ? ':' : '|';
+            var parts = evt.Months.Split(sep, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var months = new List<int>();
+            foreach (var part in parts)
+            {
+                var m = ParseMonthToken(part);
+                if (m.HasValue) months.Add(m.Value);
+            }
+            if (months.Count > 0) return months;
         }
 
-        return months.Count > 0 ? months : Enumerable.Range(1, 12).ToList();  // Default to all months if parsing failed
+        // Fallback: use StartMonth/EndMonth range
+        if (!string.IsNullOrWhiteSpace(evt.StartMonth))
+        {
+            var start = ParseMonthToken(evt.StartMonth);
+            var end = !string.IsNullOrWhiteSpace(evt.EndMonth)
+                ? ParseMonthToken(evt.EndMonth)
+                : start;
+
+            if (start.HasValue && end.HasValue)
+                return BuildMonthRange(start.Value, end.Value);
+        }
+
+        return Enumerable.Range(1, 12).ToList();
+    }
+
+    /// <summary>
+    /// Parse a single month token: integer ("2"), zero-padded ("02"),
+    /// abbreviated name ("Feb"), or full name ("February").
+    /// </summary>
+    private static int? ParseMonthToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return null;
+
+        if (int.TryParse(token, out var num) && num >= 1 && num <= 12)
+            return num;
+
+        var dtf = CultureInfo.InvariantCulture.DateTimeFormat;
+        for (int i = 1; i <= 12; i++)
+        {
+            if (dtf.AbbreviatedMonthNames[i - 1].Equals(token, StringComparison.OrdinalIgnoreCase) ||
+                dtf.MonthNames[i - 1].Equals(token, StringComparison.OrdinalIgnoreCase))
+                return i;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Build an inclusive month range, wrapping around year-end if start &gt; end
+    /// (e.g., Sep(9) → Jun(6) = 9,10,11,12,1,2,3,4,5,6).
+    /// </summary>
+    private static List<int> BuildMonthRange(int start, int end)
+    {
+        var months = new List<int>();
+        var current = start;
+        while (true)
+        {
+            months.Add(current);
+            if (current == end) break;
+            current = current % 12 + 1;
+            if (months.Count > 12) break; // Safety valve
+        }
+        return months;
     }
 }

@@ -70,33 +70,51 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Determine target section early (before loading units)
         string? targetSectionId = sectionId ?? null;
-        
+
+        // Peek at the layout to determine the target section's type
+        var peekLoader = new DocumentLayoutLoader(documentRoot);
+        var peekLayout = peekLoader.LoadMasterLayout(templateName);
+        var targetSectionType = peekLayout.Data?.Sections?
+            .FirstOrDefault(s => s.SectionId == targetSectionId)?.Type;
+
+        // Non-data-driven section types manage their own data loading — skip SchemaDataLoader
+        bool needsUnitLoad = targetSectionId == null ||
+            (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true);
+
         // Load data using schema - load from specific section if requested
         var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
         Result<List<SchemaUnit>> schemaResult;
-        
-        if (!string.IsNullOrWhiteSpace(targetSectionId))
+
+        if (needsUnitLoad)
         {
-            // Load units for the specific section
-            schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, targetSectionId);
-            Console.WriteLine($"Loading data for section: {targetSectionId}");
+            if (!string.IsNullOrWhiteSpace(targetSectionId))
+            {
+                // Load units for the specific section
+                Console.WriteLine($"Loading data for section: {targetSectionId}");
+                schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, targetSectionId);
+            }
+            else
+            {
+                // Load default units (craft)
+                schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
+            }
+
+            if (!schemaResult.Success)
+            {
+                Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
+                return 1;
+            }
+
+            Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
         }
         else
         {
-            // Load default units (craft)
-            schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
+            Console.WriteLine($"⏭️  Skipping unit load for '{targetSectionType}' section '{targetSectionId}'");
+            schemaResult = Result<List<SchemaUnit>>.Ok([]);
         }
-        
-        if (!schemaResult.Success)
-        {
-            Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
-            return 1;
-        }
-
-        Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
         
         // Filter by unit number if specified
-        var unitsToRender = schemaResult.Data;
+        var unitsToRender = schemaResult.Data ?? [];
         if (!string.IsNullOrWhiteSpace(unitNumber))
         {
             if (int.TryParse(unitNumber, out int unitNumberInt))
@@ -155,7 +173,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
-        var renderResult = await renderer.RenderAsync(unitsToRender, templateName, targetSectionId, documentOutputFormat);
+        var renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
         
         if (!renderResult.Success)
         {

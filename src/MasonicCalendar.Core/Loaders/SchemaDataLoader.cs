@@ -230,6 +230,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var rawPos = GetFieldValue(csv, fieldMap, "PositionNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
+                        var memType = csv.GetField("MemType")?.Trim() ?? "";
+                        var office  = csv.GetField("Office")?.Trim()  ?? "";
 
                         // Deduplicate only on exact (Reference + PositionNo) match — a person
                         // can legitimately hold multiple offices, so Reference alone is not enough.
@@ -242,6 +244,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
                             Reference = reference,
+                            MemType = memType,
+                            Office = office,
                             Name = TextCleaner.CleanName(name),
                             Position = GetFieldValue(csv, fieldMap, "Position"),
                             PosNo = positionNo
@@ -268,6 +272,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             ProvincialRank = TextCleaner.CleanProvincialRank(displayRank),
@@ -291,6 +296,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             PastUnits = pastUnits,
                             ProvincialRank = TextCleaner.CleanProvincialRank(displayRank),
@@ -310,6 +316,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.Members.Add(new SchemaMember
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated")
                         });
@@ -334,6 +341,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
                             Reference = reference,
+                            MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             Rank = displayRank
                         });

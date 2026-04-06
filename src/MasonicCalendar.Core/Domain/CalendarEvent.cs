@@ -7,6 +7,7 @@ public class CalendarEvent
 {
     public required string Id { get; set; }
     public required string UnitId { get; set; }
+    public required string UnitType { get; set; }  // Craft, RoyalArch, Mark, RAM, etc.
     public required string Title { get; set; }
     public required string RecurrenceType { get; set; }  // Monthly, Yearly, Weekly, Once
     public string? RecurrenceStrategy { get; set; }  // Default, LunarSeason, Custom
@@ -27,8 +28,10 @@ public class EventInstance
 {
     public required string EventId { get; set; }
     public required string UnitId { get; set; }
+    public required string UnitType { get; set; }
     public required string Title { get; set; }
     public required DateOnly Date { get; set; }
+    public bool IsInstallation { get; set; }
     public int Month => Date.Month;
     public int Year => Date.Year;
     public string MonthYear => Date.ToString("MMMM yyyy");

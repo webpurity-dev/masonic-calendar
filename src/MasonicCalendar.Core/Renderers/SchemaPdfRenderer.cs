@@ -148,6 +148,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Check section type
             var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
             var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
+            var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (isToc)
             {
@@ -200,6 +201,16 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var staticModel = new Dictionary<string, object?>();
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
+            }
+            else if (!isDataDriven)
+            {
+                // Non-data-driven, non-toc, non-static sections (e.g. meetings-calendar) — delegate to SectionRendererFactory
+                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode);
+                var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
+                var sectionIndex = layout?.Sections?.IndexOf(section) ?? 0;
+                var sectionOutput = new StringBuilder();
+                await sectionRenderer.RenderAsync(section, sectionIndex, layout?.Sections ?? [], masterTemplateKey, units, sectionOutput);
+                output.Append(sectionOutput);
             }
             else
             {

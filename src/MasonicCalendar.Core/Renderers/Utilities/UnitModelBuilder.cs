@@ -62,6 +62,7 @@ public static class UnitModelBuilder
                     .Select(o => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(o.Reference) },
+                        { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                         { "name", TextCleaner.CleanName(o.Name) },
                         { "position", o.Position },
                         { "posNo", o.PosNo }
@@ -76,6 +77,7 @@ public static class UnitModelBuilder
                     .Select(pm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(pm.Reference) },
+                        { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "provRank", TextCleaner.CleanProvincialRank(pm.ProvincialRank) },
@@ -88,6 +90,7 @@ public static class UnitModelBuilder
                     .Select(jpm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(jpm.Reference) },
+                        { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "pastUnits", jpm.PastUnits },
                         { "provRank", TextCleaner.CleanProvincialRank(jpm.ProvincialRank) },
@@ -100,6 +103,7 @@ public static class UnitModelBuilder
                     .Select(m => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(m.Reference) },
+                        { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                         { "name", TextCleaner.CleanName(m.Name) },
                         { "joined", m.YearInitiated },
                         { "posNo", m.PosNo }
@@ -114,6 +118,7 @@ public static class UnitModelBuilder
                     .Select(hm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
+                        { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
                         { "rank", hm.Rank }
                     })
@@ -162,6 +167,7 @@ public static class UnitModelBuilder
             var dict = new Dictionary<string, object?>
             {
                 { "reference", TextCleaner.CleanReference(o.Reference) },
+                { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                 { "name", TextCleaner.CleanName(o.Name) },
                 { "position", o.Position },
                 { "posNo", o.PosNo }
@@ -197,6 +203,7 @@ public static class UnitModelBuilder
             var dict = new Dictionary<string, object?>
             {
                 { "reference", TextCleaner.CleanReference(m.Reference) },
+                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
                 { "posNo", m.PosNo }
@@ -208,5 +215,21 @@ public static class UnitModelBuilder
         }
 
         return [col0, col1, col2];
+    }
+
+    /// <summary>
+    /// Build a composite data-id string: Reference-MemType[-Office]
+    /// Uniquely identifies every row including multi-office holders and vacant positions.
+    /// Office is only appended when non-empty (officers section only).
+    /// </summary>
+    private static string BuildDataId(string? reference, string? memType, string? office)
+    {
+        var parts = new System.Text.StringBuilder();
+        parts.Append(TextCleaner.CleanReference(reference) ?? "");
+        if (!string.IsNullOrWhiteSpace(memType))
+            parts.Append('-').Append(memType.Trim());
+        if (!string.IsNullOrWhiteSpace(office))
+            parts.Append('-').Append(office.Trim());
+        return parts.ToString();
     }
 }

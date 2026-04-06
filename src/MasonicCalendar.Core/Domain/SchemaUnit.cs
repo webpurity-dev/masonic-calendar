@@ -33,6 +33,8 @@ public class SchemaUnit
 public class SchemaOfficer
 {
     public string? Reference { get; set; }
+    public string? MemType { get; set; }   // e.g. "Off"
+    public string? Office { get; set; }    // e.g. "WM", "SW", "Tyler" — same as Position abbreviation
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
@@ -46,6 +48,7 @@ public class SchemaOfficer
 public class SchemaPastMaster
 {
     public string? Reference { get; set; }
+    public string? MemType { get; set; }   // e.g. "PMO", "PMEZ", "PCO"
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
@@ -60,6 +63,7 @@ public class SchemaPastMaster
 public class SchemaJoinPastMaster
 {
     public string? Reference { get; set; }
+    public string? MemType { get; set; }   // e.g. "JPM", "JPMEZ"
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
@@ -74,6 +78,7 @@ public class SchemaJoinPastMaster
 public class SchemaMember
 {
     public string? Reference { get; set; }
+    public string? MemType { get; set; }   // e.g. "Mem"
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
@@ -87,6 +92,7 @@ public class SchemaMember
 public class SchemaHonoraryMember
 {
     public string? Reference { get; set; }
+    public string? MemType { get; set; }   // e.g. "Hon"
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)

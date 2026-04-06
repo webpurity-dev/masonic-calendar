@@ -49,6 +49,12 @@ sections:
     type: "static"
     template: "foreword-page.html"
 
+  - section_id: "meetings_calendar"
+    section_title: "Craft & Royal Arch Meeting Dates"
+    type: "meetings-calendar"
+    template: "meetings-calendar-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+
   - section_id: "craft_toc"
     section_title: "Craft Lodges in numerical order"
     type: "toc"
@@ -115,9 +121,3 @@ sections:
     template: "unit-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
     hide_from_parent_toc: true
-
-  - section_id: "meetings_calendar"
-    section_title: "Meetings Calendar"
-    type: "meetings-calendar"
-    template: "meetings-calendar-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"

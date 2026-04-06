@@ -222,6 +222,7 @@ public class DataSourceDefinition
     public string? FilterValue { get; set; }             // Legacy single filter value (kept for backward compat)
     public List<DataSourceFilter>? Filters { get; set; } // Multi-filter list (AND logic); takes precedence over single filter
     public string? OverrideHeading { get; set; }        // Optional custom heading for this section (e.g., "Past First Principals")
+    public int? CalendarStartMonth { get; set; }         // Meetings calendar: first month to render (1=Jan … 12=Dec); runs 12 months from this point
     public List<FieldMapping>? Fields { get; set; }
 }
 

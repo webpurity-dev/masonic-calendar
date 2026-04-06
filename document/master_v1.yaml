@@ -1,5 +1,6 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
+  version: "1.3"
   orientation: "portrait"
   global_styling:
     fonts:
@@ -43,33 +44,33 @@ sections:
     for_section: "all"
     template: "toc-page.html"
     reset_page_counter: true
-
-  # GRAND LODGE & PROVINCIAL GRAND LODGE- BEGIN
+  
   - section_id: "master_foreword"
     section_title: "Foreword"
     type: "static"
     template: "foreword-page.html"
 
-  - section_id: "grand_executive_officers"
-    section_title: "Executive Officers"
+  # GRAND LODGE
+  - section_id: "ugle_officers"
+    section_title: "The United Grand Lodge of England"
     type: "static"
-    template: "_placeholder.html"
+    template: "ugle/ugle-officers.html"
 
   - section_id: "grand_officers"
     section_title: "Grand Officers"
     type: "static"
-    template: "_placeholder.html"
+    template: "ugle/grand-officers.html"
 
-  # CRAFT & ROYAL ARCH
+  # PROVINCIAL GRAND LODGE
   - section_id: "craft"
-    section_title: "Craft & Royal Arch Freemasonry"
+    section_title: "Craft Freemasonry"
     type: "static"
-    template: "_placeholder.html"
+    template: "craft/introduction.html"
 
   - section_id: "craft_executive_officers"
-    section_title: "Provincial Executive (Craft)"
+    section_title: "Provincial Executive"
     type: "static"
-    template: "_placeholder.html"
+    template: "craft/executive-officers.html"
     is_child: true
 
   - section_id: "craft_toc"
@@ -86,10 +87,24 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     hide_from_parent_toc: true
 
-  - section_id: "ra_executive_officers"
-    section_title: "Provincial Executive (Royal Arch)"
+  - section_id: "craft_meetings_table"
+    section_title: "Craft Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Craft"]
+    is_child: true
+
+  # ROYAL ARCH
+  - section_id: "royalarch"
+    section_title: "Royal Arch Freemasonry"
     type: "static"
-    template: "_placeholder.html"
+    template: "royalarch/introduction.html"
+
+  - section_id: "ra_executive_officers"
+    section_title: "Provincial Executive"
+    type: "static"
+    template: "royalarch/executive-officers.html"
     is_child: true
 
   - section_id: "royalarch_toc"
@@ -106,6 +121,15 @@ sections:
     data_mapping: "data_sources/royalarch_data_source.yaml"
     hide_from_parent_toc: true
 
+  - section_id: "ra_meetings_table"
+    section_title: "Chapter Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RoyalArch"]
+    is_child: true
+    
+  # TRIAL MEETINGS CALENDAR
   - section_id: "meetings_calendar"
     section_title: "Craft & Royal Arch Meeting Dates (Calendar)"
     type: "meetings-calendar"
@@ -114,27 +138,11 @@ sections:
     unit_types: ["Craft", "RoyalArch"]
     is_child: true
 
-  - section_id: "meetings_table"
-    section_title: "Craft Meeting Dates (Table)"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["Craft"]
-    is_child: true
-
-  - section_id: "meetings_table"
-    section_title: "Chapter Meeting Dates (Table)"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RoyalArch"]
-    is_child: true
-
   # MARK
   - section_id: "mark_intro"
     section_title: "Mark Masonry"
     type: "static"
-    template: "mark-foreword-page.html"
+    template: "companion/mark-introduction.html"
 
   - section_id: "mark_toc"
     section_title: "Mark Lodges in Numerical Order"
@@ -154,17 +162,17 @@ sections:
   - section_id: "ram_intro"
     section_title: "Royal Ark Mariners"
     type: "static"
-    template: "ram-foreword-page.html"
+    template: "companion/ram-introduction.html"
 
   - section_id: "ram_toc"
-    section_title: "Royal Ark Mariners"
+    section_title: "R.A.M. Lodges in Numerical Order"
     type: "toc"
     for_section: "ram_units"
     template: "toc-page.html"
     hide_from_parent_toc: true
 
   - section_id: "ram_units"
-    section_title: "Royal Ark Mariners"
+    section_title: "R.A.M. Lodges in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
@@ -174,85 +182,85 @@ sections:
   - section_id: "aar_foreword"
     section_title: "Ancient and Accepted Rite"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # KT
   - section_id: "kt_foreword"
     section_title: "Knights Templar"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # KTP
   - section_id: "ktp_foreword"
     section_title: "Knight Templar Priests"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Red Cross
   - section_id: "rcc"
     section_title: "Red Cross of Constantine"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Royal and Select
   - section_id: "rsm_foreword"
     section_title: "Royal and Select Masters"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Allied
   - section_id: "amd_foreword"
     section_title: "Allied Masonic Degrees"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Secret Monitor
   - section_id: "osm_foreword"
     section_title: "Order of the Secret Monitor"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Scarlet Cord
   - section_id: "osc_foreword"
     section_title: "Order of the Scarlet Cord"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Worshipful Society
   - section_id: "sfm_foreword"
     section_title: "The Worshipful Society of Free Masons"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Royal Order of Scotland
   - section_id: "ros_foreword"
     section_title: "Royal Order of Scotland"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Knights Beneficent
   - section_id: "kbhc_foreword"
     section_title: "Knights Beneficent of the Holy City"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Societas Rosicruciana
   - section_id: "sra_foreword"
     section_title: "Societas Rosicruciana in Anglia"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # St Thomas of Acon
   - section_id: "cos_foreword"
     section_title: "Commemorative Order of St Thomas of Acon"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # Athelstan
   - section_id: "toa_foreword"
     section_title: "The Masonic Order of Athelstan"
     type: "static"
-    template: "_placeholder.html"
+    template: "companion/_placeholder.html"
 
   # INDEX PAGES
   - section_id: "all_units_index"
@@ -260,3 +268,10 @@ sections:
     type: "toc"
     for_section: "all_units"
     template: "unit-index-page.html"
+
+  # COPYRIGHT
+  - section_id: "copyright"
+    section_title: "Copyright"
+    type: "static"
+    template: "copyright.html"
+    hide_from_parent_toc: true

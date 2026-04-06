@@ -198,14 +198,20 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             else if (isStatic)
             {
                 // Render static template (template handles all content)
-                var staticModel = new Dictionary<string, object?>();
+                var now = DateTime.Now;
+                var staticModel = new Dictionary<string, object?>
+                {
+                    { "current_year", now.Year },
+                    { "current_date", now.ToString("d MMMM yyyy") },
+                    { "build_version", layout?.Document?.Version ?? "" }
+                };
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
             }
             else if (!isDataDriven)
             {
                 // Non-data-driven, non-toc, non-static sections (e.g. meetings-calendar) — delegate to SectionRendererFactory
-                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode);
+                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
                 var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
                 var sectionIndex = layout?.Sections?.IndexOf(section) ?? 0;
                 var sectionOutput = new StringBuilder();
@@ -386,9 +392,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             if (layout?.Sections == null || layout.Sections.Count == 0)
                 return Result<byte[]>.Fail("No sections found in layout");
 
-            Console.WriteLine($"  - Processing {layout.Sections.Count} sections...");
+            Console.WriteLine($"  - Processing {layout!.Sections.Count} sections...");
             
-            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode);
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
             
             for (int sectionIndex = 0; sectionIndex < layout.Sections.Count; sectionIndex++)
             {

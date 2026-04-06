@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// Renders static template sections (cover, foreword, etc.).
 /// </summary>
-public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode)
+public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode, DocumentInfo? documentInfo = null)
     : SectionRenderer(templateRoot, dataLoader, debugMode)
 {
     public override Task RenderAsync(
@@ -29,7 +29,13 @@ public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLo
         var anchorId = $"section_{section.SectionId}";
         
         // Render static template with page break wrapper (except for first section)
-        var staticModel = new Dictionary<string, object?>();
+        var now = DateTime.Now;
+        var staticModel = new Dictionary<string, object?>
+        {            
+            { "current_year", now.Year },
+            { "current_date", now.ToString("d MMMM yyyy") },
+            { "publish_version", documentInfo?.Version ?? "" }
+        };
         var staticHtml = template.Render(staticModel);
 
         WrapWithPageBreakAndAnchor(output, anchorId, staticHtml, sectionIndex, section.ResetPageCounter);

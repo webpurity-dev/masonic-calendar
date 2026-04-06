@@ -15,6 +15,8 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Craft and Royal Arch** — separate data sources and TOC sections
 - ✅ **Bleed visualisation** — `-showbleeds` flag for debugging page boundaries
 - ✅ **Unit filtering** — `-unit <number>` to render a single lodge/chapter for proofing
+- ✅ **CSV export** — `-output csv` produces `{template}-meetings.csv` and `{template}-members.csv`
+- ✅ **Lunar season meetings** — full moon date calculation with `LunarSeason` and `LunarSeasonBefore` strategies
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
 - ✅ **Lodge list normalisation** — joining past master lodge lists stripped of spaces (`1895,6194,9660`)
 
@@ -45,21 +47,25 @@ document/
 src/
 ├── MasonicCalendar.Console/    # CLI entry point
 │   └── Program.cs
-└── MasonicCalendar.Core/       # Rendering engine
-    ├── Domain/                 # Business entities (SchemaUnit, SchemaOfficer, etc.)
-    ├── Loaders/                # YAML layout loader, CSV data loader
-    ├── Renderers/
-    │   ├── SchemaPdfRenderer.cs          # Main renderer (HTML + Puppeteer PDF)
-    │   ├── SectionRenderers/             # Per-section renderers
-    │   │   ├── DataDrivenSectionRenderer.cs
-    │   │   ├── StaticSectionRenderer.cs
-    │   │   ├── TocSectionRenderer.cs
-    │   │   └── MeetingsCalendarSectionRenderer.cs
-    │   └── Utilities/
-    │       ├── UnitModelBuilder.cs       # Builds Scriban model from SchemaUnit
-    │       └── TextCleaner.cs            # Name/rank/lodge-list normalisation
-    └── Services/
-        └── RecurrenceService.cs          # Meeting recurrence rule expansion
+├── MasonicCalendar.Core/       # Rendering engine
+│   ├── Domain/                 # Business entities (SchemaUnit, SchemaOfficer, etc.)
+│   ├── Loaders/                # YAML layout loader, CSV data loader
+│   ├── Renderers/
+│   │   ├── SchemaPdfRenderer.cs          # Main renderer (HTML + Puppeteer PDF)
+│   │   ├── SectionRenderers/             # Per-section renderers
+│   │   │   ├── DataDrivenSectionRenderer.cs
+│   │   │   ├── StaticSectionRenderer.cs
+│   │   │   ├── TocSectionRenderer.cs
+│   │   │   ├── MeetingsCalendarSectionRenderer.cs
+│   │   │   └── MeetingsTableSectionRenderer.cs
+│   │   └── Utilities/
+│   │       ├── UnitModelBuilder.cs       # Builds Scriban model from SchemaUnit
+│   │       └── TextCleaner.cs            # Name/rank/lodge-list normalisation
+│   └── Services/
+│       ├── RecurrenceService.cs          # Meeting recurrence rule expansion
+│       └── CsvExportService.cs           # CSV export (meetings + members)
+└── MasonicCalendar.Tests/      # xUnit test suite
+    └── RecurrenceServiceLunarTests.cs    # Lunar recurrence regression tests
 
 output/                         # Generated files (gitignored)
 ```
@@ -89,6 +95,9 @@ dotnet run -- -template master_v1 -output html -unit 3366 -section royalarch_uni
 
 # Debug mode (extra console output + HTML debug file)
 dotnet run -- -template master_v1 -output pdf -debug
+
+# Export all meeting dates and member lists to CSV
+dotnet run -- -template master_v1 -output csv
 ```
 
 ## 📋 CLI Parameters
@@ -101,6 +110,7 @@ dotnet run -- -template master_v1 -output pdf -debug
 | `-unit` | No | Lodge number | Render one unit only (e.g. `-unit 3366`) |
 | `-showbleeds` | No | flag | Overlay red/blue borders on page boundaries |
 | `-debug` | No | flag | Extra console output + debug HTML file |
+| `-output csv` | — | — | Exports `{template}-meetings.csv` (all expanded dates) and `{template}-members.csv` (all people per unit) to `output/` |
 
 ### Sections in `master_v1`
 
@@ -124,6 +134,36 @@ dotnet run -- -template master_v1 -output pdf -debug
 | `-template master_v1 -output html -section craft_units` | `output/master_v1-craft_units.html` |
 | `-template master_v1 -output html -unit 3366` | `output/master_v1-craft_units-unit3366.html` |
 | `-template master_v1 -output html -showbleeds` | `output/master_v1-all-sections-showBleeds.html` |
+
+## 🧪 Unit Tests
+
+Tests live in `src/MasonicCalendar.Tests/` and are run with:
+
+```powershell
+# From the repo root
+dotnet test src/MasonicCalendar.Tests/MasonicCalendar.Tests.csproj
+```
+
+### Recurrence Service — Lunar Season Tests
+
+The `RecurrenceServiceLunarTests` class guards the two lunar-based meeting strategies against regressions. Ground-truth dates are verified against actual lodge meeting schedules and the [Royal Observatory Greenwich full moon calendar](https://www.rmg.co.uk/stories/topics/full-moon-calendar) for 2026 (UK local time / BST).
+
+| Test class | Tests | What it covers |
+|------------|-------|---------------|
+| `Unit472_LunarSeason_Thursday_MatchesActual` | 8 | Lodge of Friendship & Sincerity — `LunarSeason` strategy, Apr–Nov 2026 |
+| `Unit1266_LunarSeasonBefore_Tuesday_MatchesActual` | 9 | Lodge of Honour & Friendship — `LunarSeasonBefore` strategy, Apr–Dec 2026 including installation month |
+| `LunarSeasonBefore_BlueMoonApril2026_UsesEndOfMonthMoon` | 1 | Edge case: April 2026 has two full moons (Apr 2 and Apr 30); the early Apr 2 moon must be ignored |
+| `LunarSeasonBefore_JuneMoon_CorrectlyUsesUtcDate` | 1 | Edge case: June full moon at 12:57am BST = 11:57pm Jun 29 UTC — must yield Jun 23, not Jun 30 |
+
+#### Recurrence Strategies
+
+| `RecurrenceStrategy` (CSV) | Behaviour |
+|---------------------------|-----------|
+| `Default` | Nth weekday of month (e.g. `2nd Friday`) |
+| `LunarSeason` | Nearest weekday to the full moon, from candidates **after** the 2nd occurrence of that weekday in the month. Handles blue-moon months where an early full moon would otherwise select a date too early in the month. |
+| `LunarSeasonBefore` | **Last** weekday on or before the end-of-month full moon (window: 15th of month → 14th of next). Installation month uses the 4th occurrence instead (pre-planned, independent of the moon). |
+
+The full moon calculation uses the mean synodic period (29.530588853 days) from the reference full moon of 21 January 2000 UTC, accurate to ±1 day for dates in the present era. All calculations use UTC to avoid BST offset errors (notably the June 2026 full moon at 12:57am BST = 29 June UTC).
 
 ## 🛠️ Technology Stack
 

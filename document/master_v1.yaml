@@ -107,10 +107,27 @@ sections:
     hide_from_parent_toc: true
 
   - section_id: "meetings_calendar"
-    section_title: "Craft & Royal Arch Meeting Dates"
+    section_title: "Craft & Royal Arch Meeting Dates (Calendar)"
     type: "meetings-calendar"
     template: "meetings-calendar-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Craft", "RoyalArch"]
+    is_child: true
+
+  - section_id: "meetings_table"
+    section_title: "Craft Meeting Dates (Table)"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Craft"]
+    is_child: true
+
+  - section_id: "meetings_table"
+    section_title: "Chapter Meeting Dates (Table)"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RoyalArch"]
     is_child: true
 
   # MARK

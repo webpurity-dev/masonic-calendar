@@ -69,6 +69,12 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
 
             var expandedEvents = ExpandMeetings(meetings, startYear, startMonth, endYear, endMonth);
 
+            // Filter by unit type(s) if specified on the section
+            if (section.UnitTypes?.Count > 0)
+                expandedEvents = expandedEvents
+                    .Where(e => section.UnitTypes.Any(t => t.Equals(e.UnitType, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
             // Add section anchor for TOC links, wrapped in section-divider for consistent page break behaviour
             output.AppendLine("<div class='section-divider'>");
             output.AppendLine($"<div id=\"section_{section.SectionId}\"></div>");

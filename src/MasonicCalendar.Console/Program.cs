@@ -1,6 +1,7 @@
 using MasonicCalendar.Core.Renderers;
 using MasonicCalendar.Core.Loaders;
 using MasonicCalendar.Core.Domain;
+using MasonicCalendar.Core.Services;
 using System.Linq;
 
 // Get the project root directory
@@ -67,6 +68,19 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"Unit:     {unitNumber}");
         }
         Console.WriteLine();
+
+        // --- CSV export path ---
+        if (documentOutputFormat.Equals("CSV", StringComparison.OrdinalIgnoreCase))
+        {
+            var csvExporter = new CsvExportService(
+                new DocumentLayoutLoader(documentRoot),
+                new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath),
+                documentRoot);
+            await csvExporter.ExportAsync(templateName!, outputDir);
+            Console.WriteLine();
+            Console.WriteLine("✨ CSV export completed successfully!");
+            return 0;
+        }
 
         // Determine target section early (before loading units)
         string? targetSectionId = sectionId ?? null;

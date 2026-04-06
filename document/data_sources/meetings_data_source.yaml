@@ -3,7 +3,7 @@
 
 meetings:
   source: "unit-meetings.csv"
-  calendar_start_month: 10   # Start the calendar from September (Masonic year Sep–Aug)
+  calendar_start_month: 10
   fields:
     - name: "UnitType"
       csv_column: "UnitType"

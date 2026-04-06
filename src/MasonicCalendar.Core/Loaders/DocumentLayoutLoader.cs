@@ -182,6 +182,7 @@ public class SectionConfig
     public string? DataSource { get; set; }
     public string? DataMapping { get; set; }
     public string? UnitType { get; set; }
+    public List<string>? UnitTypes { get; set; }  // Optional filter: one or more unit types (e.g. ["Craft", "RoyalArch"])
     public string? ForSection { get; set; }
     public int? PagesPerUnit { get; set; }
     public bool HideFromParentToc { get; set; } = false;

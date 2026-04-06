@@ -1,8 +1,10 @@
 <div style="break-before: always; break-inside: avoid;">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        {{ if is_first_month && section_title }}<h1 style="font-size: 14pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>{{ end }}
+        {{ if is_first_month && section_title }}
+            <h1 style="font-size: 12pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>
+        {{ end }}
         <h2 style="font-size: 8pt; margin: 4px 0 4px 0; font-weight: bold;">{{ month_name }}</h2>
-        <h3 style="font-size: 6pt; margin: 0 0 4px 0; font-weight: normal;">* denotes installaton</h3>
+        <h3 style="font-size: 6pt; margin: 0 0 4px 0; font-weight: normal;">* Installaton meeting</h3>
     </div>
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
         <tr>

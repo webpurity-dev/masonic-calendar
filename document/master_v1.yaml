@@ -44,80 +44,202 @@ sections:
     template: "toc-page.html"
     reset_page_counter: true
 
+  # GRAND LODGE & PROVINCIAL GRAND LODGE- BEGIN
   - section_id: "master_foreword"
     section_title: "Foreword"
     type: "static"
     template: "foreword-page.html"
+
+  - section_id: "grand_executive_officers"
+    section_title: "Executive Officers"
+    type: "static"
+    template: "_placeholder.html"
+
+  - section_id: "grand_officers"
+    section_title: "Grand Officers"
+    type: "static"
+    template: "_placeholder.html"
+
+  # CRAFT & ROYAL ARCH
+  - section_id: "craft"
+    section_title: "Craft & Royal Arch Freemasonry"
+    type: "static"
+    template: "_placeholder.html"
+
+  - section_id: "craft_executive_officers"
+    section_title: "Provincial Executive (Craft)"
+    type: "static"
+    template: "_placeholder.html"
+    is_child: true
+
+  - section_id: "craft_toc"
+    section_title: "Craft Lodges in Numerical Order"
+    type: "toc"
+    for_section: "craft_units"
+    template: "toc-page.html"
+    is_child: true
+  
+  - section_id: "craft_units"
+    section_title: "Craft Lodges in Numerical Order"
+    type: "data-driven"
+    template: "unit-page.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
+    hide_from_parent_toc: true
+
+  - section_id: "ra_executive_officers"
+    section_title: "Provincial Executive (Royal Arch)"
+    type: "static"
+    template: "_placeholder.html"
+    is_child: true
+
+  - section_id: "royalarch_toc"
+    section_title: "Chapters in Numerical Order"
+    type: "toc"
+    for_section: "royalarch_units"
+    template: "toc-page.html"
+    is_child: true
+
+  - section_id: "royalarch_units"
+    section_title: "Chapters in Numerical Order"
+    type: "data-driven"
+    template: "unit-page.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
+    hide_from_parent_toc: true
 
   - section_id: "meetings_calendar"
     section_title: "Craft & Royal Arch Meeting Dates"
     type: "meetings-calendar"
     template: "meetings-calendar-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
+    is_child: true
 
-  - section_id: "craft_toc"
-    section_title: "Craft Lodges in numerical order"
-    type: "toc"
-    for_section: "craft_units"
-    template: "toc-page.html"
-  
-  - section_id: "craft_units"
-    section_title: "Craft Lodges in numerical order"
-    type: "data-driven"
-    template: "unit-page.html"
-    data_mapping: "data_sources/craft_data_source.yaml"
-    hide_from_parent_toc: true
-
-  - section_id: "royalarch_foreword"
-    section_title: "Royal Arch Masonry Foreword"
-    type: "static"
-    template: "ra-foreword-page.html"
-
-  - section_id: "royalarch_toc"
-    section_title: "Royal Arch Chapters in numerical order"
-    type: "toc"
-    for_section: "royalarch_units"
-    template: "toc-page.html"
-
-  - section_id: "royalarch_units"
-    section_title: "Royal Arch Chapters in numerical order"
-    type: "data-driven"
-    template: "unit-page.html"
-    data_mapping: "data_sources/royalarch_data_source.yaml"
-    hide_from_parent_toc: true
-
-  - section_id: "mark_foreword"
-    section_title: "Mark Masonry Foreword"
+  # MARK
+  - section_id: "mark_intro"
+    section_title: "Mark Masonry"
     type: "static"
     template: "mark-foreword-page.html"
 
   - section_id: "mark_toc"
-    section_title: "Mark Lodges in numerical order"
+    section_title: "Mark Lodges in Numerical Order"
     type: "toc"
     for_section: "mark_units"
     template: "toc-page.html"
+    hide_from_parent_toc: true
 
   - section_id: "mark_units"
-    section_title: "Mark Lodges in numerical order"
+    section_title: "Mark Lodges in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/mark_data_source.yaml"
     hide_from_parent_toc: true
-    
-  - section_id: "ram_foreword"
-    section_title: "R.A.M Masonry Foreword"
+
+  # RAM
+  - section_id: "ram_intro"
+    section_title: "Royal Ark Mariners"
     type: "static"
     template: "ram-foreword-page.html"
 
   - section_id: "ram_toc"
-    section_title: "R.A.M Lodges in numerical order"
+    section_title: "Royal Ark Mariners"
     type: "toc"
     for_section: "ram_units"
     template: "toc-page.html"
+    hide_from_parent_toc: true
 
   - section_id: "ram_units"
-    section_title: "R.A.M Lodges in numerical order"
+    section_title: "Royal Ark Mariners"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
     hide_from_parent_toc: true
+
+  # Ancient and Accepted Rite
+  - section_id: "aar_foreword"
+    section_title: "Ancient and Accepted Rite"
+    type: "static"
+    template: "_placeholder.html"
+
+  # KT
+  - section_id: "kt_foreword"
+    section_title: "Knights Templar"
+    type: "static"
+    template: "_placeholder.html"
+
+  # KTP
+  - section_id: "ktp_foreword"
+    section_title: "Knight Templar Priests"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Red Cross
+  - section_id: "rcc"
+    section_title: "Red Cross of Constantine"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Royal and Select
+  - section_id: "rsm_foreword"
+    section_title: "Royal and Select Masters"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Allied
+  - section_id: "amd_foreword"
+    section_title: "Allied Masonic Degrees"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Secret Monitor
+  - section_id: "osm_foreword"
+    section_title: "Order of the Secret Monitor"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Scarlet Cord
+  - section_id: "osc_foreword"
+    section_title: "Order of the Scarlet Cord"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Worshipful Society
+  - section_id: "sfm_foreword"
+    section_title: "The Worshipful Society of Free Masons"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Royal Order of Scotland
+  - section_id: "ros_foreword"
+    section_title: "Royal Order of Scotland"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Knights Beneficent
+  - section_id: "kbhc_foreword"
+    section_title: "Knights Beneficent of the Holy City"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Societas Rosicruciana
+  - section_id: "sra_foreword"
+    section_title: "Societas Rosicruciana in Anglia"
+    type: "static"
+    template: "_placeholder.html"
+
+  # St Thomas of Acon
+  - section_id: "cos_foreword"
+    section_title: "Commemorative Order of St Thomas of Acon"
+    type: "static"
+    template: "_placeholder.html"
+
+  # Athelstan
+  - section_id: "toa_foreword"
+    section_title: "The Masonic Order of Athelstan"
+    type: "static"
+    template: "_placeholder.html"
+
+  # INDEX PAGES
+  - section_id: "all_units_index"
+    section_title: "Index of All Units"
+    type: "toc"
+    for_section: "all_units"
+    template: "unit-index-page.html"

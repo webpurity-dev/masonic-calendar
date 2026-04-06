@@ -9,16 +9,24 @@
             {{ for section in toc_by_section }}
                 {{ if section.items && section.items.size > 0 }}
                     {{ for item in section.items }}
-        <tr class="toc-item">
-            <td style="padding: 4px; font-size: 8pt;"><a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> - {{ item.short_name }}</a></td>
-            <td style="padding: 4px; text-align: right; font-size: 8pt;"><span class="toc-page-number"></span></td>
-        </tr>
+                        <tr class="toc-item">
+                            <td style="padding: 2px; font-size: 8pt;">
+                                <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> - {{ item.short_name }}</a>
+                            </td>
+                            <td style="padding: 2px; text-align: right; font-size: 8pt;">
+                                <span class="toc-page-number"></span>
+                            </td>
+                        </tr>
                     {{ end }}
                 {{ else }}
-        <tr class="toc-item">
-            <td style="padding: 4px; font-size: 8pt;"><a style="color: #000; text-decoration: none;" href="#section_{{ section.section_id }}">{{ section.section_title }}</a></td>
-            <td style="padding: 4px; text-align: right; font-size: 8pt;"><span class="toc-page-number"></span></td>
-        </tr>
+                    <tr class="toc-item">
+                        <td style="padding: 2px; {{ if section.is_child }}padding-left: 14px;{{ end }} font-size: 8pt;">
+                            <a style="color: #000; text-decoration: none;" href="#section_{{ section.section_id }}">{{ section.section_title }}</a>
+                        </td>
+                        <td style="padding: 2px; text-align: right; font-size: 8pt;">
+                            <span class="toc-page-number"></span>
+                        </td>
+                    </tr>
                 {{ end }}
             {{ end }}
         {{ end }}

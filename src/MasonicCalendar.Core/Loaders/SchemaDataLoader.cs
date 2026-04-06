@@ -110,6 +110,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     Number = ParseInt(GetFieldValueWithComposite(csv, fieldMap, "Number")),
                     Name = GetFieldValueWithComposite(csv, fieldMap, "Name") ?? "",
                     ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
+                    SuperShortName = GetFieldValueWithComposite(csv, fieldMap, "SuperShortName"),
                     Contact = GetFieldValueWithComposite(csv, fieldMap, "Contact"),
                     LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location"),
                     LastInstallationDate = GetFieldValueWithComposite(csv, fieldMap, "LastInstallationDate"),

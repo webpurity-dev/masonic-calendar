@@ -1,12 +1,19 @@
 # Data version 1.3
 
+** denotes issues high priority issues
+
 ## Craft
+- PMI rows are missing Date Accorded**
 - Carnarvon has no warrant data - tbc
 - Carnarvon has "Installation May/" - manually cleaned
 - Brownsea island tyles at ??? - tbc
 - Kinson Chapter 5331 Meeting Dates includes the address of Kinson Hall - not required
 - PMO Grand rank in wrong column: see row 139 "Abbiss, K", "PAGDC" - in prov rank column
 - PMO Date accorded appears wrong: see row 139 "Abbiss, K", "PAGDC", "2016" - accorded in 2025.  Is this the grank rank date or provincial rank date?
+
+## Royal Arch
+- PMEZ are showing grand ranks under provincial rank, provincal rank appears to be missing**
+- JPMEZ are missing date accorded**
 
 ## Mark
 - No data for Naval and Military 134 - manually changed from 634

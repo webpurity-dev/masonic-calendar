@@ -33,6 +33,21 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             // Build TOC with sections AFTER this TOC section
             tocData = BuildSectionsTocData(allSections, sectionIndex);
         }
+        else if (section.ForSection?.Equals("all_units", StringComparison.OrdinalIgnoreCase) ?? false)
+        {
+            // Build a grouped index of every unit across all data-driven sections
+            tocData = await BuildAllUnitsTocDataAsync(allSections, masterTemplateKey);
+
+            var indexModel = new Dictionary<string, object?>
+            {
+                { "section_title", section.SectionTitle },
+                { "toc_by_section", tocData }
+            };
+            var indexHtml = template.Render(indexModel);
+            var indexAnchorId = $"section_{section.SectionId}";
+            WrapWithPageBreakAndAnchor(output, indexAnchorId, indexHtml, sectionIndex, section.ResetPageCounter);
+            return;
+        }
         else if (!string.IsNullOrWhiteSpace(section.ForSection))
         {
             var unitsForToc = new List<SchemaUnit>();
@@ -69,6 +84,60 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
     }
 
     /// <summary>
+    /// Builds a grouped index of every unit from all data-driven sections that follow this TOC.
+    /// Groups are separated by a non-linked bold heading row (show_group_heading = true).
+    /// </summary>
+    private async Task<List<Dictionary<string, object?>>> BuildAllUnitsTocDataAsync(
+        List<SectionConfig> allSections,
+        string masterTemplateKey)
+    {
+        var tocData = new List<Dictionary<string, object?>>();
+
+        if (allSections == null || DataLoader == null)
+            return tocData;
+
+        var dataDrivenSections = allSections
+            .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) == true
+                        && !string.IsNullOrWhiteSpace(s.DataMapping))
+            .ToList();
+
+        foreach (var dataSection in dataDrivenSections)
+        {
+            var loadResult = await DataLoader.LoadUnitsWithDataAsync(masterTemplateKey, dataSection.SectionId);
+            if (!loadResult.Success || loadResult.Data == null || loadResult.Data.Count == 0)
+                continue;
+
+            var items = loadResult.Data
+                .Select(u => (object?)new Dictionary<string, object?>
+                {
+                    { "unit_number", u.Number },
+                    { "unit_name", CleanName(u.Name) },
+                    { "short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
+                    { "anchor_id", GenerateAnchorId(u) }
+                })
+                .ToList();
+
+            // Split into 2 vertical halves for 2-column layout
+            int half = (int)Math.Ceiling(items.Count / 2.0);
+            var col1 = items.Take(half).ToList();
+            var col2 = items.Skip(half).ToList();
+
+            var sectionTitle = dataSection.SectionTitle ?? dataSection.Title ?? dataSection.SectionId ?? "Unknown";
+
+            tocData.Add(new Dictionary<string, object?>
+            {
+                { "section_title", sectionTitle },
+                { "show_group_heading", true },
+                { "items", items },
+                { "col1", col1 },
+                { "col2", col2 }
+            });
+        }
+
+        return tocData;
+    }
+
+    /// <summary>
     /// Builds TOC data for all data-driven, static, and toc sections that come after this TOC.
     /// </summary>
     private List<Dictionary<string, object?>> BuildSectionsTocData(List<SectionConfig> sections, int tocSectionIndex)
@@ -93,6 +162,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 { "section_id", section.SectionId },
                 { "section_title", sectionTitle },
                 { "page_number", estimatedPageNumber },
+                { "is_child", section.IsChild },
                 { "items", new List<object?>() }
             });
 

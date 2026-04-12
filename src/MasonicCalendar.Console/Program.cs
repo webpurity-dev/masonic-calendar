@@ -165,6 +165,9 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             }
             Console.WriteLine();
         }
+        
+        // Extract version for output filename (will be embedded in template name in output)
+        var documentVersion = layoutResult.Data?.Document?.Version;
 
         // Render using Scriban template
         var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
@@ -195,12 +198,20 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             return 1;
         }
 
-        // Save output file
+        // Save output file with version embedded in template name if available
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
         var sectionPart = targetSectionId ?? "all-sections";
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedsPart = showBleeds ? "-showBleeds" : "";
-        var outputPath = Path.Combine(outputDir, $"{templateName}-{sectionPart}{unitPart}{bleedsPart}.{fileExtension}");
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}.{fileExtension}";
+        
+        // If version is available, embed it in the template name: master_v1- → master_v1.4-
+        if (!string.IsNullOrWhiteSpace(documentVersion))
+        {
+            outputFileName = outputFileName.Replace($"{templateName}-", $"{templateName}.{documentVersion}-", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        var outputPath = Path.Combine(outputDir, outputFileName);
         
         File.WriteAllBytes(outputPath, renderResult.Data!);
 

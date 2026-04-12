@@ -524,7 +524,13 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             // Save debug HTML if debug mode is enabled
             if (_debugMode)
             {
-                var debugFile = Path.Combine(_outputRoot, "master_v1-all-sections-debug.html");
+                // Use version in debug filename if available: master_v1- → master_v1.4-
+                var debugFileName = $"{masterTemplateKey}-all-sections-debug.html";
+                if (!string.IsNullOrWhiteSpace(layout?.Document?.Version))
+                {
+                    debugFileName = debugFileName.Replace($"{masterTemplateKey}-", $"{masterTemplateKey}.{layout.Document.Version}-", StringComparison.OrdinalIgnoreCase);
+                }
+                var debugFile = Path.Combine(_outputRoot, debugFileName);
                 File.WriteAllText(debugFile, htmlContent);
                 Console.WriteLine($"\n  - Debug HTML saved: {debugFile}");
             }

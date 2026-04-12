@@ -4,15 +4,18 @@
 # Usage (direct):
 #   .\render-units.ps1 -DataSourceYaml craft_data_source.yaml
 #   .\render-units.ps1 -DataSourceYaml royalarch_data_source.yaml -Limit 3
+#   .\render-units.ps1 -DataSourceYaml craft_data_source.yaml -Version 1.4
 
 param(
     [Parameter(Mandatory)][string]$DataSourceYaml,
-    [int]$Limit = 0
+    [int]$Limit = 0,
+    [string]$Version = ""  # Optional version suffix for output filenames (e.g. "1.4")
 )
 
 $rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataSourceDir = Join-Path $rootDir "document\data_sources"
 $dataDir       = Join-Path $rootDir "document\data"
+$outputDir     = Join-Path $rootDir "output"
 $consoleProject = Join-Path $rootDir "src\MasonicCalendar.Console\MasonicCalendar.Console.csproj"
 
 $yamlPath = Join-Path $dataSourceDir $DataSourceYaml
@@ -98,6 +101,18 @@ foreach ($unit in $units) {
         2>&1 | Out-Null
 
     if ($LASTEXITCODE -eq 0) {
+        # If version is specified, rename the output file to include version in template name
+        if (-not [string]::IsNullOrWhiteSpace($Version)) {
+            $basePattern = "master_v1-$sectionId-unit$($unit.Number).pdf"
+            $existingFile = Get-ChildItem $outputDir -Filter $basePattern -ErrorAction SilentlyContinue | Select-Object -First 1
+            
+            if ($existingFile) {
+                # Replace "master_v1-" with "master_v{Version}-" in the filename
+                $newName = $existingFile.Name -replace '^master_v1-', "master_v$Version-"
+                Rename-Item -Path $existingFile.FullName -NewName $newName -Force
+            }
+        }
+        
         Write-Host "  OK" -ForegroundColor Green
         $successCount++
     } else {

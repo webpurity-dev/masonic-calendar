@@ -234,14 +234,6 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var memType = csv.GetField("MemType")?.Trim() ?? "";
                         var office  = csv.GetField("Office")?.Trim()  ?? "";
 
-                        // Deduplicate only on exact (Reference + PositionNo) match — a person
-                        // can legitimately hold multiple offices, so Reference alone is not enough.
-                        // Vacant rows share the unit-number as a placeholder ref — never skip those.
-                        if (!string.IsNullOrWhiteSpace(reference) && !string.IsNullOrWhiteSpace(name)
-                            && positionNo.HasValue
-                            && schemaUnit.Officers.Any(o => o.Reference == reference && o.PosNo == positionNo))
-                            return; // skip exact duplicate
-
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
                             Reference = reference,
@@ -262,7 +254,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var name = GetFieldValue(csv, fieldMap, "Name");
-                        
+
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");                                             
                         // Prefer GrandRank, fallback to ProvincialRank
@@ -335,9 +327,6 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var reference = GetFieldValue(csv, fieldMap, "Reference");
-                        if (!string.IsNullOrWhiteSpace(reference) && schemaUnit.HonoraryMembers.Any(h => h.Reference == reference))
-                            return; // skip duplicate
-
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");                        
@@ -354,7 +343,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     });
             }
 
-            // Data is kept in the order it appears in the CSV file
+            // Deduplicate all member lists, keeping the last occurrence of each Reference
+            foreach (var unit in units)
+            {
+                DeduplicateMemberLists(unit);
+            }
 
             return Result<bool>.Ok(true);
         }
@@ -447,6 +440,46 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     private int ParseInt(string? value)
     {
         return int.TryParse(value?.Trim(), out var result) ? result : 0;
+    }
+
+    /// <summary>
+    /// Removes duplicate entries from all member lists, keeping only the LAST occurrence of each Reference within the same role type.
+    /// This ensures that if the same person appears multiple times with the same MemType, only their most recent entry is retained.
+    /// However, a person can legitimately appear in multiple roles (e.g., as both Officer and Member), so those are preserved.
+    /// </summary>
+    private void DeduplicateMemberLists(SchemaUnit unit)
+    {
+        // For Officers: deduplicate by Reference + Office (a person can't hold the same office twice)
+        unit.Officers = unit.Officers
+            .GroupBy(o => (o.Reference, o.Office))
+            .SelectMany(g => g.Skip(g.Count() - 1))
+            .ToList();
+
+        // For Past Masters: deduplicate by Reference (keep last occurrence)
+        // A person appears as PMO, PMEZ, PCO etc - same person different abbreviations are different entries
+        // But if the exact same reference appears twice, keep only last
+        unit.PastMasters = unit.PastMasters
+            .GroupBy(p => p.Reference)
+            .SelectMany(g => g.Skip(g.Count() - 1))
+            .ToList();
+
+        // For Joining Past Masters: deduplicate by Reference (keep last occurrence)
+        unit.JoinPastMasters = unit.JoinPastMasters
+            .GroupBy(j => j.Reference)
+            .SelectMany(g => g.Skip(g.Count() - 1))
+            .ToList();
+
+        // For Members: deduplicate by Reference (keep last occurrence)
+        unit.Members = unit.Members
+            .GroupBy(m => m.Reference)
+            .SelectMany(g => g.Skip(g.Count() - 1))
+            .ToList();
+
+        // For Honorary Members: deduplicate by Reference (keep last occurrence)
+        unit.HonoraryMembers = unit.HonoraryMembers
+            .GroupBy(h => h.Reference)
+            .SelectMany(g => g.Skip(g.Count() - 1))
+            .ToList();
     }
 
     /// <summary>

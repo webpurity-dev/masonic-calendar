@@ -43,10 +43,10 @@ $rootDir = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataDir = Join-Path $rootDir "document\data"
 
 if ([string]::IsNullOrWhiteSpace($InputFile)) {
-    $InputFile = Join-Path $dataDir "units_v$Version.csv"
+    $InputFile = Join-Path $dataDir "units_raw_v$Version.csv"
 }
 if ([string]::IsNullOrWhiteSpace($OutputFile)) {
-    $OutputFile = Join-Path $dataDir "units_v$Version-converted.csv"
+    $OutputFile = Join-Path $dataDir "units_v$Version.csv"
 }
 
 function Get-SpecialCaseNames {
@@ -207,6 +207,37 @@ function Get-Location {
     return $address
 }
 
+function Clean-MeetingDates {
+    <#
+    .SYNOPSIS
+    Normalizes spacing in Meeting Dates field
+    
+    .DESCRIPTION
+    Rules:
+    1. Collapse all multiple spaces (2+) to single space
+    2. Ensure DOUBLE space after periods (sentence separation)
+    3. Trim leading/trailing whitespace
+    Examples:
+    - "6.00 pm  on Friday.  Installation" → "6.00 pm on Friday.  Installation"
+    - "Jan-Nov. third Wednesday" → "Jan-Nov.  third Wednesday"
+    #>
+    param([string]$MeetingDates)
+    
+    if ([string]::IsNullOrWhiteSpace($MeetingDates)) {
+        return ""
+    }
+    
+    # Step 1: First, collapse ALL multiple spaces (2 or more) to single space
+    $cleaned = [System.Text.RegularExpressions.Regex]::Replace($MeetingDates, '\s{2,}', ' ')
+    
+    # Step 2: Ensure double space after ALL periods
+    # Match period followed by single space and any character (except end of string)
+    $cleaned = [System.Text.RegularExpressions.Regex]::Replace($cleaned, '(\. )([^ ])', '.  $2')
+    
+    # Step 3: Trim and return
+    return $cleaned.Trim()
+}
+
 # Validate input file exists
 if (-not (Test-Path $InputFile)) {
     Write-Error "Input file not found: $InputFile"
@@ -218,39 +249,63 @@ Write-Host "Input:  $InputFile"
 Write-Host "Output: $OutputFile"
 Write-Host ""
 
-# Read v1.4 data, handling the malformed header row
+# Read entire file as single string to handle multi-line quoted fields
+$fileContent = [System.IO.File]::ReadAllText($InputFile)
 $data = @()
-$first = $true
-$lineNumber = 0
 
-Get-Content $InputFile | ForEach-Object {
-    $lineNumber++
-    
-    if ($first) {
-        # Skip header and potential junk lines
-        $first = $false
-        return
+# Split by newline to get individual lines, but handle quoted fields properly
+$lines = @()
+$current = ""
+$inQuotes = $false
+
+foreach ($char in $fileContent.ToCharArray()) {
+    if ($char -eq '"') {
+        if ($current.Length -gt 0 -and $current[-1] -eq '"') {
+            $current = $current.Substring(0, $current.Length - 1) + '""'
+        } else {
+            $inQuotes = -not $inQuotes
+        }
+        $current += $char
     }
+    elseif ($char -eq "`n" -and -not $inQuotes) {
+        if ($current.Length -gt 0) {
+            $lines += $current.TrimEnd("`r")
+        }
+        $current = ""
+    }
+    else {
+        $current += $char
+    }
+}
+
+if ($current.Length -gt 0) {
+    $lines += $current.TrimEnd("`r")
+}
+
+# Process lines starting from line 1 (skip header at line 0)
+for ($lineNum = 1; $lineNum -lt $lines.Count; $lineNum++) {
+    $line = $lines[$lineNum]
     
-    # Parse CSV manually to handle quoted fields
+    # Parse CSV fields manually
     $fields = @()
     $current = ""
     $inQuotes = $false
-    $chars = $_.ToCharArray()
     
-    for ($i = 0; $i -lt $chars.Count; $i++) {
-        $char = $chars[$i]
+    for ($i = 0; $i -lt $line.Length; $i++) {
+        $char = $line[$i]
         
         if ($char -eq '"') {
-            # Check if it's an escaped quote
-            if ($i + 1 -lt $chars.Count -and $chars[$i + 1] -eq '"') {
+            if ($i + 1 -lt $line.Length -and $line[$i + 1] -eq '"') {
+                # Escaped quote
                 $current += '"'
                 $i++
             } else {
+                # Toggle quote state
                 $inQuotes = -not $inQuotes
             }
         }
         elseif ($char -eq ',' -and -not $inQuotes) {
+            # Field separator found
             $fields += $current.Trim()
             $current = ""
         }
@@ -258,26 +313,28 @@ Get-Content $InputFile | ForEach-Object {
             $current += $char
         }
     }
+    
+    # Add remaining content as last field
     $fields += $current.Trim()
     
-    # Skip lines with insufficient columns
-    if ($fields.Count -lt 8) {
-        return
+    # Skip lines with insufficient columns or empty unit type
+    if ($fields.Count -lt 8 -or [string]::IsNullOrWhiteSpace($fields[0])) {
+        continue
     }
     
-    # Extract relevant v1.4 fields (indices 0-7)
+    # Extract relevant v1.4 fields
     $unitType = $fields[0]
     $unitNo = $fields[1]
     $unitName = $fields[2]
     $warrant = $fields[3]
-    $meetingDates = $fields[4]
+    $meetingDates = Clean-MeetingDates $fields[4]  # Clean spacing in meeting dates
     $lastInstallation = $fields[5]
     $hall = $fields[6]
-    $hallAddress = $fields[7]  # "Add No Postcode" field
+    $hallAddress = $fields[7]
     
     # Skip if core fields are empty
     if ([string]::IsNullOrWhiteSpace($unitType) -or [string]::IsNullOrWhiteSpace($unitNo)) {
-        return
+        continue
     }
     
     # Check for special case names first
@@ -293,9 +350,6 @@ Get-Content $InputFile | ForEach-Object {
         $superShortName = Get-SuperShortName $unitNo $unitType $unitName $shortName
     }
     
-    # Extract Location from Hall Address (usually first word/phrase)
-    $location = Get-Location $hallAddress
-    
     # Generate Email based on Unit Type
     $email = Get-EmailAddress $unitType $unitNo
     
@@ -310,7 +364,7 @@ Get-Content $InputFile | ForEach-Object {
         'Meeting Dates' = $meetingDates
         'Last Installation' = $lastInstallation
         'Hall' = $hall
-        'Location' = "$location,$hallAddress"  # Construct full location
+        'Location' = $hallAddress  # Use full address directly (no duplication)
         'Email' = $email
     }
     

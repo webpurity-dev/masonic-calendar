@@ -2,6 +2,11 @@
 
 ** denotes issues high priority issues
 
+## Units
+- "Tyles at at" for a number of units - manually cleaned
+- Kinson chapter includes "Kinson hall" in the meeting dates - manually cleaned
+- Unity chapter includes "Tyles at 6.00 pm.  on " - manually cleaned
+
 ## Craft
 - PMI rows are missing Date Accorded** - **RESOLVED**
 - Carnarvon has no warrant data - tbc - **RESOLVED**

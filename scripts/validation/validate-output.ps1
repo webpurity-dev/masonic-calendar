@@ -177,7 +177,18 @@ if ($Render) {
 # Locate HTML file
 # ============================================================
 if (-not $HtmlFile) {
-    $HtmlFile = Join-Path $rootDir "output\master_v1-all-sections.html"
+    # Auto-detect latest master_v1.X-all-sections.html file
+    $outputDir = Join-Path $rootDir "output"
+    $latestFile = Get-ChildItem -Path $outputDir -Filter "master_v1.*-all-sections.html" -ErrorAction SilentlyContinue |
+                  Sort-Object -Property LastWriteTime -Descending |
+                  Select-Object -First 1
+    
+    if ($latestFile) {
+        $HtmlFile = $latestFile.FullName
+        Write-Host "Auto-detected latest HTML: $($latestFile.Name)" -ForegroundColor Cyan
+    } else {
+        $HtmlFile = Join-Path $outputDir "master_v1-all-sections.html"
+    }
 }
 if (-not (Test-Path $HtmlFile)) {
     Write-Host "ERROR: HTML file not found: $HtmlFile" -ForegroundColor Red
@@ -272,6 +283,54 @@ foreach ($cfg in $targetConfigs) {
     # Show section row counts (proves YAML filters are loading the right rows)
     foreach ($sec in $cfg.MemSections) {
         Write-Host "    $($sec.Name): $($secData[$sec.Name].Count) rows" -ForegroundColor DarkGray
+    }
+
+    # Check for duplicate UniqueRef values within each section
+    foreach ($sec in $cfg.MemSections) {
+        # Skip duplicate check for Officers section - officers can legitimately appear multiple times
+        # with different Office values (same person in multiple positions)
+        if ($sec.Name -eq "officers") {
+            continue
+        }
+
+        $refGroups = @{}
+        foreach ($row in $secData[$sec.Name]) {
+            $ref = $row.($sec.RefColumn).Trim()
+            if (-not [string]::IsNullOrWhiteSpace($ref)) {
+                if (-not $refGroups.ContainsKey($ref)) {
+                    $refGroups[$ref] = @()
+                }
+                $refGroups[$ref] += $row
+            }
+        }
+
+        # Report any duplicates
+        foreach ($ref in $refGroups.Keys) {
+            if ($refGroups[$ref].Count -gt 1) {
+                $typeFail++
+                Write-Host "  DUPLICATE $ref in [$($sec.Name)]" -ForegroundColor Yellow
+                foreach ($row in $refGroups[$ref]) {
+                    $name   = $row.($sec.NameColumn).Trim()
+                    $unitNo = $row.($sec.UnitIdField).Trim()
+                    $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }
+                    $label = if ($name) { $name } else { '(vacant)' }
+                    Write-Host "          $unitNo $unitName - $label" -ForegroundColor Red
+                    [void]$issues.Add([PSCustomObject]@{
+                        Timestamp  = $timestamp
+                        HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                        UnitType   = $cfg.UnitType
+                        UnitNo     = $unitNo
+                        UnitName   = $unitName
+                        IssueType  = "DuplicateRef"
+                        Section    = $sec.Name
+                        MemType    = if ($row.PSObject.Properties['MemType']) { $row.MemType.Trim() } else { $sec.Name }
+                        MemberName = $name
+                        DataId     = $ref
+                    })
+                }
+                Write-Host ""
+            }
+        }
     }
 
     # a) Unit anchor check (from units CSV)

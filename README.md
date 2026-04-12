@@ -11,10 +11,12 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Table of Contents** — master TOC and per-section TOCs with JavaScript-injected page numbers
 - ✅ **Page numbering** — CSS counter in footer, starts at the TOC section (cover has no number)
 - ✅ **Unit pages** — officers, past masters, joining past masters, members (3-column), honorary members
-- ✅ **Meetings calendar** — 12-month grid with recurrence-rule expansion
-- ✅ **Craft and Royal Arch** — separate data sources and TOC sections
-- ✅ **Bleed visualisation** — `-showbleeds` flag for debugging page boundaries
+- ✅ **Meeting dates** — 12-month calendar grid plus section-specific meeting tables, with recurrence-rule expansion
+- ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners (+ companion degrees)
+- ✅ **Grand Lodge sections** — UGLE officers, provincial executive officers per degree
 - ✅ **Unit filtering** — `-unit <number>` to render a single lodge/chapter for proofing
+- ✅ **Section filtering** — `-section <id>` to render one section only
+- ✅ **Bleed visualisation** — `-showbleeds` flag for debugging page boundaries
 - ✅ **CSV export** — `-output csv` produces `{template}-meetings.csv` and `{template}-members.csv`
 - ✅ **Lunar season meetings** — full moon date calculation with `LunarSeason` and `LunarSeasonBefore` strategies
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
@@ -28,21 +30,41 @@ document/
 ├── templates/
 │   ├── print.css               # Paged.js @page rules, TOC styling, page breaks
 │   ├── cover-page.html         # Full-bleed cover page
-│   ├── forward-page.html       # Foreword/introduction page
+│   ├── foreword-page.html      # Foreword/introduction page
+│   ├── copyright.html          # Copyright page
 │   ├── toc-page.html           # Table of contents Scriban template
 │   ├── unit-page.html          # Unit page Scriban template
-│   └── meetings-calendar-page.html  # Meetings calendar template
+│   ├── unit-index-page.html    # Unit index page
+│   ├── meetings-calendar-page.html  # 12-month meetings calendar template
+│   ├── meetings-table-page.html     # Section-specific meetings table template
+│   ├── craft/                  # Craft-specific templates
+│   │   ├── introduction.html
+│   │   └── executive-officers.html
+│   ├── royalarch/              # Royal Arch-specific templates
+│   │   ├── introduction.html
+│   │   ├── executive-officers.html
+│   │   └── _placeholder.html
+│   ├── ugle/                   # UGLE/Grand Lodge templates
+│   │   ├── ugle-officers.html
+│   │   ├── grand-officers.html
+│   │   └── _placeholder.html
+│   └── companion/              # Companion degrees (Mark, RAM, etc.)
+│       ├── mark-introduction.html
+│       ├── ram-introduction.html
+│       └── _placeholder.html
 ├── data/
-│   ├── CraftData.csv           # Craft lodge data (consolidated)
-│   ├── RAData.csv              # Royal Arch chapter data (consolidated)
-│   ├── unit-locations.csv      # Meeting locations
-│   └── sample-unit-meetings.csv # Meeting recurrence rules
+│   ├── units_v1.3.csv         # Unit data (Craft, RA, Mark, RAM; v1.3 schema)
+│   ├── membership_v1.3.csv    # Member data (v1.3 schema)
+│   ├── unit-meetings.csv      # Meeting recurrence rules and dates
+│   └── _archive/              # Previous schema versions
 ├── data_sources/
-│   ├── craft_data_source.yaml      # Column mappings for Craft CSV
-│   ├── royalarch_data_source.yaml  # Column mappings for Royal Arch CSV
-│   └── meetings_data_source.yaml   # Column mappings for meetings CSV
+│   ├── craft_data_source.yaml      # Column mappings for Craft data
+│   ├── royalarch_data_source.yaml  # Column mappings for Royal Arch data
+│   ├── mark_data_source.yaml       # Column mappings for Mark data
+│   ├── ram_data_source.yaml        # Column mappings for RAM data
+│   └── meetings_data_source.yaml   # Column mappings for meetings data
 └── images/
-    └── cover-img-yellow.jpg    # Cover page image
+    └── (cover and decorative images)
 
 src/
 ├── MasonicCalendar.Console/    # CLI entry point
@@ -52,12 +74,14 @@ src/
 │   ├── Loaders/                # YAML layout loader, CSV data loader
 │   ├── Renderers/
 │   │   ├── SchemaPdfRenderer.cs          # Main renderer (HTML + Puppeteer PDF)
-│   │   ├── SectionRenderers/             # Per-section renderers
-│   │   │   ├── DataDrivenSectionRenderer.cs
-│   │   │   ├── StaticSectionRenderer.cs
-│   │   │   ├── TocSectionRenderer.cs
-│   │   │   ├── MeetingsCalendarSectionRenderer.cs
-│   │   │   └── MeetingsTableSectionRenderer.cs
+│   │   ├── SectionRenderers/             # Per-section renderer implementations
+│   │   │   ├── SectionRenderer.cs                        # Abstract base class
+│   │   │   ├── SectionRendererFactory.cs                 # Routes sections to correct renderer
+│   │   │   ├── StaticSectionRenderer.cs                  # Static pages (intro, officers)
+│   │   │   ├── DataDrivenSectionRenderer.cs              # Unit pages from CSV
+│   │   │   ├── TocSectionRenderer.cs                     # TOC generation
+│   │   │   ├── MeetingsTableSectionRenderer.cs           # Section-specific meeting tables
+│   │   │   └── MeetingsCalendarSectionRenderer.cs        # 12-month calendar grid
 │   │   └── Utilities/
 │   │       ├── UnitModelBuilder.cs       # Builds Scriban model from SchemaUnit
 │   │       └── TextCleaner.cs            # Name/rank/lodge-list normalisation
@@ -84,8 +108,14 @@ dotnet run -- -template master_v1 -output html
 # Render with page boundary visualisation
 dotnet run -- -template master_v1 -output html -showbleeds
 
-# Render a single section
+# Render a single section of one degree type
 dotnet run -- -template master_v1 -output html -section craft_units
+
+# Render Mark Masonry units only
+dotnet run -- -template master_v1 -output html -section mark_units
+
+# Render Royal Arch meeting dates table
+dotnet run -- -template master_v1 -output html -section ra_meetings_table
 
 # Render a single unit for quick proofing
 dotnet run -- -template master_v1 -output html -unit 3366
@@ -119,11 +149,36 @@ dotnet run -- -template master_v1 -output csv
 | `cover` | static | Full-bleed cover page |
 | `master_toc` | toc | Master table of contents (all sections) |
 | `master_foreword` | static | Foreword/introduction |
+| `ugle_officers` | static | Grand Lodge officers |
+| `grand_officers` | static | Grand Lodge officer details |
+| `craft` | static | Craft Freemasonry introduction |
+| `craft_executive_officers` | static | Provincial Craft Executive officers |
 | `craft_toc` | toc | Craft lodges table of contents |
 | `craft_units` | data-driven | All Craft lodge unit pages |
+| `craft_meetings_table` | meetings-table | Craft meeting dates table |
+| `royalarch` | static | Royal Arch Freemasonry introduction |
+| `ra_executive_officers` | static | Provincial Royal Arch Executive officers |
 | `royalarch_toc` | toc | Royal Arch chapters table of contents |
 | `royalarch_units` | data-driven | All Royal Arch chapter unit pages |
-| `meetings_calendar` | meetings-calendar | 12-month meetings grid |
+| `ra_meetings_table` | meetings-table | Royal Arch meeting dates table |
+| `meetings_calendar` | meetings-calendar | 12-month meetings grid (Craft & RA) |
+| `mark_intro` | static | Mark Masonry introduction |
+| `mark_toc` | toc | Mark lodges table of contents |
+| `mark_units` | data-driven | All Mark lodge unit pages |
+| `ram_intro` | static | Royal Ark Mariners introduction |
+| `ram_toc` | toc | RAM lodges table of contents |
+| `ram_units` | data-driven | All RAM lodge unit pages |
+| (+ 10+ additional companion degree sections) | static | Ancient and Accepted Rite, Knights Templar, etc. |
+
+### Section Types
+
+| Type | Purpose | Renderer |
+|------|---------|----------|
+| `static` | Pre-rendered HTML pages (UGLE, Foreword, Introductions, etc.) | `StaticSectionRenderer` |
+| `toc` | Auto-generated table of contents for a section or all sections | `TocSectionRenderer` |
+| `data-driven` | Unit pages rendered from CSV data via Scriban template | `DataDrivenSectionRenderer` |
+| `meetings-table` | Section-specific meeting dates table (per degree type) | `MeetingsTableSectionRenderer` |
+| `meetings-calendar` | Full 12-month calendar grid (supports multiple degree types) | `MeetingsCalendarSectionRenderer` |
 
 ### Output File Naming
 
@@ -132,7 +187,10 @@ dotnet run -- -template master_v1 -output csv
 | `-template master_v1 -output pdf` | `output/master_v1-all-sections.pdf` |
 | `-template master_v1 -output html` | `output/master_v1-all-sections.html` |
 | `-template master_v1 -output html -section craft_units` | `output/master_v1-craft_units.html` |
+| `-template master_v1 -output html -section royalarch_units` | `output/master_v1-royalarch_units.html` |
+| `-template master_v1 -output html -section mark_units` | `output/master_v1-mark_units.html` |
 | `-template master_v1 -output html -unit 3366` | `output/master_v1-craft_units-unit3366.html` |
+| `-template master_v1 -output html -unit 3366 -section royalarch_units` | `output/master_v1-royalarch_units-unit3366.html` |
 | `-template master_v1 -output html -showbleeds` | `output/master_v1-all-sections-showBleeds.html` |
 
 ## 🧪 Unit Tests
@@ -188,20 +246,28 @@ Page numbering starts at the `master_toc` section (`reset_page_counter: true` in
 
 ## 📋 Data Format
 
-Data is loaded from CSV files via YAML data source mappings in `document/data_sources/`. Each mapping file specifies:
-- Which CSV file to read
+The project uses a **consolidated v1.3 CSV schema** with two main files:
+
+- **`units_v1.3.csv`** — All units (Craft, Royal Arch, Mark, RAM) with a `Unit Type` column for filtering
+- **`membership_v1.3.csv`** — All members with `Unit No` and `Unit Type` columns to link to units
+
+Each YAML data source (e.g. `craft_data_source.yaml`, `royalarch_data_source.yaml`) specifies:
+- Which CSV files to read
+- Filter criteria (`Unit Type` = "Craft", "RA", "Mark", "RAM")
 - Column name mappings for each person type (Officers, PastMasters, JoiningPastMasters, Members, HonoraryMembers)
 - Optional heading overrides (e.g. "Excellent Kings" instead of "Past Masters" for Royal Arch)
+
+The consolidated approach simplifies data maintenance — a single pair of CSV files serves all degree types, with degree-specific filtering handled in the YAML data sources.
 
 ### Unit Page Sections
 
 Each unit page renders (where data exists):
-1. **Header** — lodge name, number, installation date
-2. **Location** — meeting address and email
-3. **Officers** — two-column table split at position 12
+1. **Header** — lodge/chapter name, number, warrant date, installation date
+2. **Location** — meeting address, email, meeting dates
+3. **Officers** — two-column table split at position 12, ordered by `OffPos`
 4. **Past Masters** — name, year installed, provincial rank, rank year
 5. **Joining Past Masters** — name, lodge list (comma-separated, no spaces), provincial rank
-6. **Members** — 3 pre-split inline-block tables (deterministic, no CSS column reflow)
+6. **Members** — 3 pre-split inline-block tables ordered by `PosNo` (deterministic, no CSS column reflow)
 7. **Honorary Members** — name and rank
 
 ## 🔧 PDF Rendering Notes

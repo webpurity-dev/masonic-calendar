@@ -262,13 +262,16 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var name = GetFieldValue(csv, fieldMap, "Name");
-                        var pastRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var pastRankYear = GetFieldValue(csv, fieldMap, "RankYear");
-                        var activeRank = GetFieldValue(csv, fieldMap, "ActiveProvincialRank");
-                        var activeRankYear = GetFieldValue(csv, fieldMap, "ActiveRankYear");
-
-                        var displayRank = string.IsNullOrWhiteSpace(activeRank) ? pastRank : activeRank;
-                        var displayRankYear = string.IsNullOrWhiteSpace(activeRankYear) ? pastRankYear : activeRankYear;
+                        
+                        var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
+                        var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");                                             
+                        // Prefer GrandRank, fallback to ProvincialRank
+                        var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
+                        
+                        var grandRankYear = GetFieldValue(csv, fieldMap, "GrandRankYear");
+                        var provRankYear = GetFieldValue(csv, fieldMap, "ProvincialRankYear");
+                        // Prefer GrandRank, fallback to ProvincialRank
+                        var displayRankYear = string.IsNullOrWhiteSpace(grandRank) ? provRankYear : grandRankYear;
 
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
@@ -276,7 +279,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
-                            ProvincialRank = TextCleaner.CleanProvincialRank(displayRank),
+                            Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(displayRankYear)
                         });
                     });
@@ -292,6 +295,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var pastUnits = TextCleaner.CleanPastUnits(GetFieldValue(csv, fieldMap, "PastUnits"));
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
+                        // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
 
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
@@ -300,7 +304,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             PastUnits = pastUnits,
-                            ProvincialRank = TextCleaner.CleanProvincialRank(displayRank),
+                            Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "RankYear"))
                         });
                     });
@@ -336,15 +340,16 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var displayRank = TextCleaner.CombineRanks(grandRank, provincialRank);
+                        var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");                        
+                        // Prefer GrandRank, fallback to ProvincialRank
+                        var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provincialRank : grandRank;
 
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
                             Reference = reference,
                             MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            Rank = displayRank
+                            Rank = TextCleaner.CleanProvincialRank(displayRank)
                         });
                     });
             }

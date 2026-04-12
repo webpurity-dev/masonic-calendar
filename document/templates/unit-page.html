@@ -71,18 +71,18 @@
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Installed</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Year</th>
+                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
+                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
                     <tr data-id="{{ master.dataId }}">
                         <td style="padding: 0.5px; text-align: left; min-width: 90px;">{{ master.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ master.installed }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ master.provRank }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ master.provRankIssued }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 50px;">{{ master.installed }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ master.rank }}</td>  
+                        <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ master.rankYear }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -109,8 +109,8 @@
                 <tr data-id="{{ joiningPastMaster.dataId }}">
                     <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ joiningPastMaster.name }}</td>
                     <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.pastUnits }}</td>
-                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRank }}</td>  
-                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.provRankIssued }}</td>
+                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.rank }}</td>  
+                    <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ joiningPastMaster.rankYear }}</td>
                 </tr>
                 {{ end }}
             </tbody>

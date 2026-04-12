@@ -1,9 +1,9 @@
 ﻿# Data source mappings for Royal Arch section
 # CSV files and column mappings that support royal arch related data
-# v1.3 format: units_v1.3.csv + membership_v1.3.csv
+# v1.4 format: units_v1.4.csv + membership_v1.4.csv
 
 units:
-  source: "units_v1.3.csv"
+  source: "units_v1.4.csv"
   filter_field: "Unit Type"
   filter_value: "RA"
   fields:
@@ -39,7 +39,7 @@ units:
       type: "string"
 
 officers:
-  source: "membership_v1.3.csv"
+  source: "membership_v1.4.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -60,7 +60,7 @@ officers:
       type: "int"
 
 past_masters:
-  source: "membership_v1.3.csv"
+  source: "membership_v1.4.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -80,21 +80,18 @@ past_masters:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
+    - name: "ProvincialRankYear"
+      csv_column: "Date Accorded"
+      type: "string"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "RankYear"
-      csv_column: "Date Accorded"
-      type: "string"
-    - name: "ActiveProvincialRank"
-      csv_column: "Active Provincial Rank"
-      type: "string"
-    - name: "ActiveRankYear"
-      csv_column: "Active Accorded"
+    - name: "GrandRankYear"
+      csv_column: "GR Date Accorded"
       type: "string"
 
 joining_past_masters:
-  source: "membership_v1.3.csv"
+  source: "membership_v1.4.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -122,7 +119,7 @@ joining_past_masters:
       type: "string"
 
 members:
-  source: "membership_v1.3.csv"
+  source: "membership_v1.4.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -140,7 +137,7 @@ members:
       type: "string"
 
 honorary_members:
-  source: "membership_v1.3.csv"
+  source: "membership_v1.4.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"

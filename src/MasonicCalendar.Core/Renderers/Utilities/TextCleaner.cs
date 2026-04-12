@@ -56,20 +56,30 @@ public static class TextCleaner
     }
 
     /// <summary>
-    /// Clean provincial rank by removing special characters and excess whitespace.
+    /// Clean provincial rank by removing commas and excess whitespace.
+    /// If rank has two words, wraps the second word in brackets (unless already bracketed).
+    /// Examples: "ProvGM Dorset" → "ProvGM (Dorset)", "ProvGM (Dorset)" → "ProvGM (Dorset)"
     /// </summary>
     public static string CleanProvincialRank(string? rank)
     {
         if (string.IsNullOrWhiteSpace(rank))
             return "";
         
-        // Remove commas, brackets, and extra whitespace
-        var cleaned = System.Text.RegularExpressions.Regex.Replace(rank, @"[,\(\)\[\]\{\}]", "");
-        cleaned = cleaned.Trim();
+        // Remove commas but preserve existing brackets
+        var cleaned = rank.Replace(",", "").Trim();
         
         // Remove extra spaces between words
         while (cleaned.Contains("  "))
             cleaned = cleaned.Replace("  ", " ");
+        
+        // Split by spaces to count words
+        var parts = cleaned.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+        
+        // If we have exactly 2 space-separated parts and the second doesn't start with (
+        if (parts.Length == 2 && !parts[1].StartsWith("("))
+        {
+            return $"{parts[0]} ({parts[1]})";
+        }
         
         return cleaned;
     }

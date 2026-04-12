@@ -177,10 +177,10 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
                 writer.WriteLine($"{t},{num},{name},Officer,{Q(o.Name)},{Q(o.Position ?? o.Office ?? "")},,");
 
             foreach (var pm in unit.PastMasters)
-                writer.WriteLine($"{t},{num},{name},PastMaster,{Q(pm.Name)},,{Q(pm.YearInstalled ?? "")},{Q(pm.ProvincialRank ?? "")}");
+                writer.WriteLine($"{t},{num},{name},PastMaster,{Q(pm.Name)},,{Q(pm.YearInstalled ?? "")},{Q(pm.Rank ?? "")},{Q(pm.RankYear ?? "")}");
 
             foreach (var jp in unit.JoinPastMasters)
-                writer.WriteLine($"{t},{num},{name},JoinPastMaster,{Q(jp.Name)},{Q(jp.PastUnits ?? "")},,{Q(jp.ProvincialRank ?? "")}");
+                writer.WriteLine($"{t},{num},{name},JoinPastMaster,{Q(jp.Name)},{Q(jp.PastUnits ?? "")},,{Q(jp.Rank ?? "")},{Q(jp.RankYear ?? "")}");
 
             foreach (var m in unit.Members)
                 writer.WriteLine($"{t},{num},{name},Member,{Q(m.Name)},,{Q(m.YearInitiated ?? "")},");

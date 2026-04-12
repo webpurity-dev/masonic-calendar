@@ -54,8 +54,8 @@ public class SchemaPastMaster
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInstalled { get; set; }  // FN01
-    public string? ProvincialRank { get; set; } // FN13
-    public string? RankYear { get; set; }       // FN14
+    public string? Rank { get; set; } 
+    public string? RankYear { get; set; }
 }
 
 /// <summary>
@@ -68,9 +68,9 @@ public class SchemaJoinPastMaster
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
-    public string? PastUnits { get; set; }     // FN30 - Previous units
-    public string? ProvincialRank { get; set; } // FN12
-    public string? RankYear { get; set; }       // FN13
+    public string? PastUnits { get; set; } 
+    public string? Rank { get; set; } 
+    public string? RankYear { get; set; }
 }
 
 /// <summary>
@@ -97,7 +97,9 @@ public class SchemaHonoraryMember
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
-    public string? Rank { get; set; }     // Combined rank (GrandRank + ProvincialRank)
+    public string? GrandRank { get; set; }     // Grand rank (preferred if exists)
+    public string? ProvincialRank { get; set; } // Provincial rank (fallback if no grand rank)
+    public string? Rank { get; set; }     // Display rank (GrandRank or ProvincialRank)
 }
 
 /// <summary>

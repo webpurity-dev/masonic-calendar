@@ -80,8 +80,8 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
-                        { "provRank", TextCleaner.CleanProvincialRank(pm.ProvincialRank) },
-                        { "provRankIssued", TextCleaner.CleanDateIssued(pm.RankYear) }
+                        { "rank", pm.Rank },
+                        { "rankYear", pm.RankYear }
                     })
                     .ToList()
             },
@@ -93,8 +93,8 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "pastUnits", jpm.PastUnits },
-                        { "provRank", TextCleaner.CleanProvincialRank(jpm.ProvincialRank) },
-                        { "provRankIssued", TextCleaner.CleanDateIssued(jpm.RankYear) }
+                        { "rank", TextCleaner.CleanProvincialRank(jpm.Rank) },
+                        { "rankYear", TextCleaner.CleanDateIssued(jpm.RankYear) }
                     })
                     .ToList()
             },

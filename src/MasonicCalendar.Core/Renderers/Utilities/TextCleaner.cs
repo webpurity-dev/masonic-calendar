@@ -22,7 +22,36 @@ public static class TextCleaner
         // Collapse multiple spaces to single space
         while (cleaned.Contains("  "))
             cleaned = cleaned.Replace("  ", " ");
+
+        // For "Surname Parts, Initials" format: shorten surnames longer than 3 words
+        var commaIndex = cleaned.IndexOf(',');
+        if (commaIndex > 0)
+        {
+            var surname = cleaned[..commaIndex];
+            var rest = cleaned[commaIndex..]; // includes the comma
+            cleaned = ShortenSurname(surname) + rest;
+        }
         
+        return cleaned;
+    }
+
+    /// <summary>
+    /// Clean free-text fields (meeting dates, warrant text, etc.) — strips newlines and
+    /// collapses whitespace but does NOT apply surname-shortening logic.
+    /// Use <see cref="CleanName"/> only for person name fields.
+    /// </summary>
+    public static string CleanText(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return "";
+
+        var cleaned = text.Replace("\r", "").Replace("\n", "").Trim();
+        cleaned = cleaned.Replace("•", " ");
+        cleaned = cleaned.Replace("\ufffd", " ");
+
+        while (cleaned.Contains("  "))
+            cleaned = cleaned.Replace("  ", " ");
+
         return cleaned;
     }
 
@@ -69,78 +98,6 @@ public static class TextCleaner
         return cleaned;
     }
 
-    /// <summary>
-    /// Extract initials from a full name (e.g., "Neil Jeffrey" -> "N.J.").
-    /// </summary>
-    public static string ExtractInitialsFromName(string? fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName))
-            return "";
-
-        var cleaned = CleanName(fullName);
-        var words = cleaned.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-
-        if (words.Length == 0)
-            return "";
-
-        var initials = string.Join(".", words.Select(w => w[0])) + ".";
-        return initials;
-    }
-
-    /// <summary>
-    /// Combine surname, initials, and first name for display.
-    /// Prefers initials if provided; otherwise extracts from first name.
-    /// Example: "White", "", "Neil Jeffrey" -> "White N.J."
-    /// Example: "Brookes", "G.L.", "" -> "Brookes G.L."
-    /// </summary>
-    public static string CombineNameInitialsAndFirstName(string? surname, string? initials, string? firstName)
-    {
-        if (string.IsNullOrWhiteSpace(surname))
-            return "";
-
-        var cleanedSurname = ShortenSurname(CleanName(surname));
-
-        // Determine which initials to use
-        string? initialsToUse = null;
-
-        if (!string.IsNullOrWhiteSpace(initials))
-        {
-            // Use provided initials
-            initialsToUse = CleanName(initials)?.Replace(" ", "");
-        }
-        else if (!string.IsNullOrWhiteSpace(firstName))
-        {
-            // Extract initials from first name
-            initialsToUse = ExtractInitialsFromName(firstName);
-        }
-
-        // Combine surname with initials
-        if (string.IsNullOrWhiteSpace(initialsToUse))
-            return cleanedSurname;
-
-        return $"{cleanedSurname} {initialsToUse}";
-    }
-
-    public static string CombineNameAndInitials(string? surname, string? initials)
-    {
-        // Combine surname and initials for display
-        // Format: "Surname I." or just "Surname" if no initials
-        if (string.IsNullOrWhiteSpace(surname))
-            return "";
-        
-        var cleaned = ShortenSurname(CleanName(surname));
-        
-        if (string.IsNullOrWhiteSpace(initials))
-            return cleaned ?? "";
-        
-        var cleanedInitials = CleanName(initials)?.Replace(" ", "");  // Remove spaces from initials
-        
-        if (string.IsNullOrWhiteSpace(cleanedInitials))
-            return cleaned ?? "";
-        
-        return $"{cleaned} {cleanedInitials}";
-    }
-
     public static string CombineRanks(string? grandRank, string? provRank)
     {
         var cleanGrandRank = string.IsNullOrWhiteSpace(grandRank) ? "" : grandRank.Replace(",","").Trim();
@@ -153,6 +110,17 @@ public static class TextCleaner
             return cleanGrandRank ?? "";
 
         return $"{cleanGrandRank}, {cleanProvRank}";
+    }
+
+    /// <summary>
+    /// Ensures the string ends with a period. Returns empty string for null/whitespace.
+    /// </summary>
+    public static string EnsureTrailingPeriod(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "";
+        var trimmed = value.TrimEnd();
+        return trimmed.EndsWith('.') ? trimmed : trimmed + ".";
     }
 
     public static string CleanPastUnits(string? pastUnits)

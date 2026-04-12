@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31919.166
@@ -6,6 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasonicCalendar.Core", "src\MasonicCalendar.Core\MasonicCalendar.Core.csproj", "{A1B2C3D4-E5F6-7890-1234-567890ABCDEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MasonicCalendar.Console", "src\MasonicCalendar.Console\MasonicCalendar.Console.csproj", "{C3D4E5F6-A7B8-9012-3456-7890ABCDEF12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9F238E72-3238-4771-A633-49BBFD51E937}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasonicCalendar.Tests", "src\MasonicCalendar.Tests\MasonicCalendar.Tests.csproj", "{7378AC94-757D-4604-B310-50521A0FDF53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,12 @@ Global
 		{C3D4E5F6-A7B8-9012-3456-7890ABCDEF12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3D4E5F6-A7B8-9012-3456-7890ABCDEF12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3D4E5F6-A7B8-9012-3456-7890ABCDEF12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7378AC94-757D-4604-B310-50521A0FDF53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7378AC94-757D-4604-B310-50521A0FDF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7378AC94-757D-4604-B310-50521A0FDF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7378AC94-757D-4604-B310-50521A0FDF53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7378AC94-757D-4604-B310-50521A0FDF53} = {9F238E72-3238-4771-A633-49BBFD51E937}
 	EndGlobalSection
 EndGlobal
-

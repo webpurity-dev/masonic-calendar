@@ -47,13 +47,37 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                 return;
             }
 
-            // Expand recurrence rules for current year
+            // Determine calendar range: honour calendar_start_month from the data source YAML
             var currentYear = DateTime.Now.Year;
-            var expandedEvents = ExpandMeetings(meetings, currentYear);
+            int startMonth = 1, startYear = currentYear;
+            int endMonth = 12, endYear = currentYear;
 
-            // Add section anchor for TOC links
-            output.AppendLine($"<a id=\"section_{section.SectionId}\"></a>");
-            output.AppendLine($"<div style=\"page-break-before: always;\">");
+            var calLayoutLoader = new DocumentLayoutLoader(Path.Combine(TemplateRoot, ".."));
+            var calMappingResult = section.DataMapping is not null
+                ? calLayoutLoader.LoadDataSourceMapping(section.DataMapping)
+                : null;
+            if (calMappingResult?.Success == true && calMappingResult.Data?.Meetings?.CalendarStartMonth is int cfgStart
+                && cfgStart >= 1 && cfgStart <= 12)
+            {
+                startMonth = cfgStart;
+                startYear = currentYear;
+                // Run for exactly 12 months; if start > Jan the window crosses into the next year
+                var endDate = new DateTime(currentYear, startMonth, 1).AddMonths(12).AddMonths(-1);
+                endYear = endDate.Year;
+                endMonth = endDate.Month;
+            }
+
+            var expandedEvents = ExpandMeetings(meetings, startYear, startMonth, endYear, endMonth);
+
+            // Filter by unit type(s) if specified on the section
+            if (section.UnitTypes?.Count > 0)
+                expandedEvents = expandedEvents
+                    .Where(e => section.UnitTypes.Any(t => t.Equals(e.UnitType, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+
+            // Add section anchor for TOC links, wrapped in section-divider for consistent page break behaviour
+            output.AppendLine("<div class='section-divider'>");
+            output.AppendLine($"<div id=\"section_{section.SectionId}\"></div>");
 
             // Build unit lookup for determining unit type
             var unitMap = units.ToDictionary(u => u.Number.ToString());
@@ -66,20 +90,26 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                 .ToList();
 
             // Render each month using the template
+            var isFirstMonth = true;
             foreach (var monthGroup in eventsByMonth)
             {
                 var monthDate = new DateOnly(monthGroup.Key.Year, monthGroup.Key.Month, 1);
                 var monthName = monthDate.ToString("MMMM yyyy");
 
-                // Build calendar weeks for this month
-                var weeks = BuildCalendarWeeks(monthDate, monthGroup.ToList(), unitMap);
+                // Build calendar weeks for this month, stripping padding weeks that fall entirely outside the month
+                var weeks = BuildCalendarWeeks(monthDate, monthGroup.ToList(), unitMap)
+                    .Where(w => w.Any(d => (int)(d["day_number"] ?? 0) > 0))
+                    .ToList();
 
                 // Create model for template
                 var model = new Dictionary<string, object?>
                 {
                     { "month_name", monthName },
-                    { "weeks", weeks }
+                    { "weeks", weeks },
+                    { "section_title", section.SectionTitle },
+                    { "is_first_month", isFirstMonth }
                 };
+                isFirstMonth = false;
 
                 // Render month using template
                 var monthHtml = template.Render(model);
@@ -137,7 +167,10 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                         dayMeetings.Add(new Dictionary<string, object?>
                         {
                             { "unit_id", meeting.UnitId },
-                            { "title", meeting.Title }
+                            { "title", meeting.Title },
+                            { "is_installation", meeting.IsInstallation },
+                            { "is_royal_arch", meeting.UnitType.Equals("RoyalArch", StringComparison.OrdinalIgnoreCase) },
+                            { "display_unit_id", meeting.UnitType.Equals("RoyalArch", StringComparison.OrdinalIgnoreCase) ? $"RA{meeting.UnitId}" : meeting.UnitId }
                         });
                     }
                 }
@@ -152,6 +185,9 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                 week.Add(day);
                 currentDate = currentDate.AddDays(1);
             }
+
+            // After Sat (6 days), currentDate is now Sunday — skip it to land on Monday for the next week
+            currentDate = currentDate.AddDays(1);
 
             weeks.Add(week);
         }
@@ -208,6 +244,7 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                 Id = Guid.NewGuid().ToString(),
                 UnitId = unitId,
                 Title = title,
+                UnitType = GetFieldValue(csv, fieldMap, "UnitType") ?? "",
                 RecurrenceType = GetFieldValue(csv, fieldMap, "RecurrenceType") ?? "Once",
                 RecurrenceStrategy = GetFieldValue(csv, fieldMap, "RecurrenceStrategy"),
                 DayOfWeek = GetFieldValue(csv, fieldMap, "DayOfWeek"),
@@ -229,13 +266,13 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
     /// <summary>
     /// Expand calendar events into concrete instances for the current year.
     /// </summary>
-    private List<EventInstance> ExpandMeetings(List<CalendarEvent> meetings, int year)
+    private List<EventInstance> ExpandMeetings(List<CalendarEvent> meetings, int startYear, int startMonth, int endYear, int endMonth)
     {
         var expanded = new List<EventInstance>();
 
         foreach (var meeting in meetings)
         {
-            var instances = _recurrenceService.ExpandEvent(meeting, year, 1, year, 12);
+            var instances = _recurrenceService.ExpandEvent(meeting, startYear, startMonth, endYear, endMonth);
             expanded.AddRange(instances);
         }
 

@@ -182,10 +182,12 @@ public class SectionConfig
     public string? DataSource { get; set; }
     public string? DataMapping { get; set; }
     public string? UnitType { get; set; }
+    public List<string>? UnitTypes { get; set; }  // Optional filter: one or more unit types (e.g. ["Craft", "RoyalArch"])
     public string? ForSection { get; set; }
     public int? PagesPerUnit { get; set; }
     public bool HideFromParentToc { get; set; } = false;
     public bool ResetPageCounter { get; set; } = false;  // Resets CSS page counter to 1 at this section
+    public bool IsChild { get; set; } = false;  // Indent this entry in the master TOC
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
 }
@@ -197,34 +199,18 @@ public class SectionStyling
 
 /// <summary>
 /// Unit mapping configuration for data sources with unit numbers embedded in rows.
-/// Tracks unit identifiers (e.g., S01 rows with FN03 containing unit number) and applies them 
-/// to subsequent rows until the next unit identifier is encountered.
-/// Data source agnostic - works with any CSV structure.
-/// </summary>
-public class UnitMapping
-{
-    public string? Source { get; set; }                      // CSV filename to map (e.g., "CraftData.csv")
-    public string? RowIdentifierField { get; set; }          // Column identifying unit definition rows (e.g., "SECTION_CODE")
-    public string? RowIdentifierValue { get; set; }          // Value that marks unit definition rows (e.g., "S01")
-    public string? UnitNumberField { get; set; }             // Column containing the unit number (e.g., "FN03")
-    public string? UnitIdField { get; set; } = "ORG_ID";     // Interim grouping field before S01 mapping applied
-}
-
 /// <summary>
 /// Data source mapping configuration loaded from YAML files like craft_data_source.yaml
 /// </summary>
 public class DataSourceMapping
 {
-    public UnitMapping? UnitMapping { get; set; }
     public DataSourceDefinition? Units { get; set; }
     public DataSourceDefinition? Officers { get; set; }
     public DataSourceDefinition? PastMasters { get; set; }
     public DataSourceDefinition? JoiningPastMasters { get; set; }
     public DataSourceDefinition? Members { get; set; }
     public DataSourceDefinition? HonoraryMembers { get; set; }
-    public DataSourceDefinition? Locations { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
-    public DataSourceDefinition? InstallationDates { get; set; }  // Load installation dates from data CSV (S12 rows)
 }
 
 /// <summary>
@@ -234,10 +220,22 @@ public class DataSourceDefinition
 {
     public string? Source { get; set; }
     public string? UnitIdField { get; set; } = "Unit";  // Field name for unit ID (default: "Unit")
+    public string? FilterField { get; set; }             // Legacy single filter field (kept for backward compat)
+    public string? FilterValue { get; set; }             // Legacy single filter value (kept for backward compat)
+    public List<DataSourceFilter>? Filters { get; set; } // Multi-filter list (AND logic); takes precedence over single filter
+    public string? OverrideHeading { get; set; }        // Optional custom heading for this section (e.g., "Past First Principals")
+    public int? CalendarStartMonth { get; set; }         // Meetings calendar: first month to render (1=Jan … 12=Dec); runs 12 months from this point
+    public List<FieldMapping>? Fields { get; set; }
+}
+
+/// <summary>
+/// A single filter condition used in a <see cref="DataSourceDefinition"/> filters list.
+/// All filters in the list must match for a row to be included (AND logic).
+/// </summary>
+public class DataSourceFilter
+{
     public string? FilterField { get; set; }
     public string? FilterValue { get; set; }
-    public string? OverrideHeading { get; set; }        // Optional custom heading for this section (e.g., "Past First Principals")
-    public List<FieldMapping>? Fields { get; set; }
 }
 
 /// <summary>

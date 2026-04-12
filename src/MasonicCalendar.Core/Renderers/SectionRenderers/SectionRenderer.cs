@@ -59,7 +59,8 @@ public abstract class SectionRenderer
     protected string GenerateAnchorId(SchemaUnit unit)
     {
         var cleanName = System.Text.RegularExpressions.Regex.Replace(unit.Name ?? "", @"[^a-zA-Z0-9]", "_");
-        return $"unit_{unit.Number}_{cleanName}".ToLower();
+        var cleanType = System.Text.RegularExpressions.Regex.Replace(unit.UnitType ?? "", @"[^a-zA-Z0-9]", "_");
+        return $"unit_{cleanType}_{unit.Number}_{cleanName}".ToLower();
     }
 
     /// <summary>
@@ -123,7 +124,8 @@ public abstract class SectionRenderer
                 ((s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("meetings-calendar", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                (s.Type?.Equals("meetings-calendar", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("meetings-table", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();
     }

@@ -126,7 +126,21 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("</style>");
             }
             
-            // Load Paged.js from CDN (or local if offline)
+            // Register a Paged.js handler BEFORE the polyfill loads.
+            // After Paged.js paginates, it sets overflow:hidden as inline styles on .pagedjs_area
+            // and .pagedjs_page_content. CSS rules cannot override inline styles, so we use
+            // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
+            // the last row on a page is invisibly cut off (mm→px conversion is not exact).
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("</head>");
             output.AppendLine("<body>");
@@ -134,10 +148,10 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // Check section type
             var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
             var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
+            var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
 
             if (isToc)
             {
-                // Render table of contents
                 List<Dictionary<string, object?>> tocData;
                 if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
@@ -184,9 +198,25 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             else if (isStatic)
             {
                 // Render static template (template handles all content)
-                var staticModel = new Dictionary<string, object?>();
+                var now = DateTime.Now;
+                var staticModel = new Dictionary<string, object?>
+                {
+                    { "current_year", now.Year },
+                    { "current_date", now.ToString("d MMMM yyyy") },
+                    { "build_version", layout?.Document?.Version ?? "" }
+                };
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
+            }
+            else if (!isDataDriven)
+            {
+                // Non-data-driven, non-toc, non-static sections (e.g. meetings-calendar) — delegate to SectionRendererFactory
+                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+                var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
+                var sectionIndex = layout?.Sections?.IndexOf(section) ?? 0;
+                var sectionOutput = new StringBuilder();
+                await sectionRenderer.RenderAsync(section, sectionIndex, layout?.Sections ?? [], masterTemplateKey, units, sectionOutput);
+                output.Append(sectionOutput);
             }
             else
             {
@@ -331,6 +361,22 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("</style>");
             }
             
+            // Register a Paged.js handler BEFORE the polyfill loads.
+            // After Paged.js paginates, it sets overflow:hidden as inline styles on .pagedjs_area
+            // and .pagedjs_page_content. CSS rules cannot override inline styles, so we use
+            // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
+            // the last row on a page is invisibly cut off (mm→px conversion is not exact).
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
+            
             // Load Paged.js from CDN
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("<script>");
@@ -346,9 +392,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             if (layout?.Sections == null || layout.Sections.Count == 0)
                 return Result<byte[]>.Fail("No sections found in layout");
 
-            Console.WriteLine($"  - Processing {layout.Sections.Count} sections...");
+            Console.WriteLine($"  - Processing {layout!.Sections.Count} sections...");
             
-            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode);
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
             
             for (int sectionIndex = 0; sectionIndex < layout.Sections.Count; sectionIndex++)
             {
@@ -623,9 +669,10 @@ if (window.Paged && typeof window.Paged.on === 'function') {
 
     private string GenerateAnchorId(SchemaUnit unit)
     {
-        // Create a clean anchor ID from unit number and name
+        // Create a clean anchor ID from unit type, number and name
         var cleanName = System.Text.RegularExpressions.Regex.Replace(unit.Name ?? "", @"[^a-zA-Z0-9]", "_");
-        return $"unit_{unit.Number}_{cleanName}".ToLower();
+        var cleanType = System.Text.RegularExpressions.Regex.Replace(unit.UnitType ?? "", @"[^a-zA-Z0-9]", "_");
+        return $"unit_{cleanType}_{unit.Number}_{cleanName}".ToLower();
     }
 
     private List<Dictionary<string, object?>> BuildTocData(List<SchemaUnit> units, List<SectionConfig>? sections)

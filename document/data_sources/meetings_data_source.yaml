@@ -2,8 +2,12 @@
 # CSV file and field mappings for meeting events with recurrence rules
 
 meetings:
-  source: "sample-unit-meetings.csv"
+  source: "unit-meetings.csv"
+  calendar_start_month: 10
   fields:
+    - name: "UnitType"
+      csv_column: "UnitType"
+      type: "string"
     - name: "Number"
       csv_column: "Number"
       type: "string"

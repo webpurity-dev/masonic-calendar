@@ -1,27 +1,33 @@
-<div>
+<div style="break-before: always; break-inside: avoid;">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h2 style="font-size: 10pt; margin: 0; font-weight: bold;">{{ month_name }}</h2>
+        {{ if is_first_month && section_title }}
+            <h1 style="font-size: 12pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>
+        {{ end }}
+        <h2 style="font-size: 8pt; margin: 4px 0 4px 0; font-weight: bold;">{{ month_name }}</h2>
+        <h3 style="font-size: 6pt; margin: 0 0 4px 0; font-weight: normal;">* Installaton meeting</h3>
     </div>
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
         <tr>
-            <th stysle="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Mon</th>
-            <th style="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Tue</th>
-            <th style="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Wed</th>
-            <th style="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Thu</th>
-            <th style="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Fri</th>
-            <th style="background: #f0f0f0; padding: 2px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Sat</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Mon</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Tue</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Wed</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Thu</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Fri</th>
+            <th style="background: #f0f0f0; padding: 1px; text-align: center; border: 1px solid #ddd; font-size: 8pt; font-weight: bold;">Sat</th>
         </tr>
         {{ for week in weeks }}
         <tr>
             {{ for day in week }}
-            <td style="padding: 2px; border: 1px solid #e0e0e0; height: 80px; vertical-align: top; word-wrap: break-word;">
+            <td style="padding: 1px; border: 1px solid #e0e0e0; height: 80px; vertical-align: top; word-wrap: break-word; {{ if day.day_number == 0 }}background: #e8e8e8;{{ end }}">
                 {{ if day.day_number > 0 }}
                     <div style="font-weight: bold; font-size: 8pt; background: #fafafa;">{{ day.day_number }}</div>
+                    <ul style="list-style: none; margin: 0; padding: 0;">
                     {{ for meeting in day.meetings }}
-                        <div style="font-size: 8pt; word-wrap: break-word; color: #000;">
-                            <a href="mailto:{{ meeting.unit_id }}@dorsetfreemasonry.info" style="text-decoration: none; color: #000;">{{ meeting.unit_id }}-{{ meeting.title }}</a>
-                        </div>
+                        <li style="font-size: 7pt; word-wrap: break-word; color: {{ if meeting.is_royal_arch }}#cc0000{{ else }}#000{{ end }}; {{ if meeting.is_installation }}font-weight: bold;{{ end }}">
+                            {{ meeting.display_unit_id }}{{ if meeting.is_installation }}*{{ end }}
+                        </li>
                     {{ end }}
+                    </ul>
                 {{ end }}
             </td>
             {{ end }}

@@ -38,9 +38,13 @@ public static class UnitModelBuilder
                 {
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
-                    { "email", unit.Email },
+                    { "contact", unit.Contact },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
-                    { "lastInstallationDate", unit.LastInstallationDate.HasValue ? FormatDateWithOrdinal(unit.LastInstallationDate.Value) : "" }
+                    { "lastInstallationDate", unit.LastInstallationDate ?? "" },
+                    { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.Warrant)) },
+                    { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.MeetingDates)) },
+                    { "hall", unit.Hall },
+                    { "location", TextCleaner.EnsureTrailingPeriod(unit.LocationId) }
                 }
             },
             {
@@ -58,6 +62,7 @@ public static class UnitModelBuilder
                     .Select(o => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(o.Reference) },
+                        { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                         { "name", TextCleaner.CleanName(o.Name) },
                         { "position", o.Position },
                         { "posNo", o.PosNo }
@@ -65,10 +70,14 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
+                "officerColumns", SplitOfficersIntoColumns(unit.Officers)
+            },
+            {
                 "pastMasters", unit.PastMasters
                     .Select(pm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(pm.Reference) },
+                        { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "provRank", TextCleaner.CleanProvincialRank(pm.ProvincialRank) },
@@ -81,6 +90,7 @@ public static class UnitModelBuilder
                     .Select(jpm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(jpm.Reference) },
+                        { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "pastUnits", jpm.PastUnits },
                         { "provRank", TextCleaner.CleanProvincialRank(jpm.ProvincialRank) },
@@ -93,6 +103,7 @@ public static class UnitModelBuilder
                     .Select(m => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(m.Reference) },
+                        { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                         { "name", TextCleaner.CleanName(m.Name) },
                         { "joined", m.YearInitiated },
                         { "posNo", m.PosNo }
@@ -107,6 +118,7 @@ public static class UnitModelBuilder
                     .Select(hm => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
+                        { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
                         { "rank", hm.Rank }
                     })
@@ -135,6 +147,40 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
+    /// Split officers into 2 vertical column lists with an even ceiling split.
+    /// E.g. 7 officers → left=[0..3], right=[4..6]
+    /// Avoids the hardcoded posNo<=11 threshold so columns balance regardless of unit size.
+    /// </summary>
+    private static List<List<Dictionary<string, object?>>> SplitOfficersIntoColumns(List<SchemaOfficer> officers)
+    {
+        var left = new List<Dictionary<string, object?>>();
+        var right = new List<Dictionary<string, object?>>();
+
+        if (officers.Count == 0)
+            return [left, right];
+
+        var splitAt = (int)Math.Ceiling(officers.Count / 2.0);
+
+        for (int i = 0; i < officers.Count; i++)
+        {
+            var o = officers[i];
+            var dict = new Dictionary<string, object?>
+            {
+                { "reference", TextCleaner.CleanReference(o.Reference) },
+                { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
+                { "name", TextCleaner.CleanName(o.Name) },
+                { "position", o.Position },
+                { "posNo", o.PosNo }
+            };
+
+            if (i < splitAt) left.Add(dict);
+            else right.Add(dict);
+        }
+
+        return [left, right];
+    }
+
+    /// <summary>
     /// Split members into 3 vertical column lists for side-by-side table rendering.
     /// Avoids CSS column-count which recalculates breaks differently in PDF vs screen.
     /// E.g. 7 members → col0=[0,1,2,3], col1=[4,5], col2=[6]  (ceiling split)
@@ -157,6 +203,7 @@ public static class UnitModelBuilder
             var dict = new Dictionary<string, object?>
             {
                 { "reference", TextCleaner.CleanReference(m.Reference) },
+                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
                 { "posNo", m.PosNo }
@@ -168,5 +215,21 @@ public static class UnitModelBuilder
         }
 
         return [col0, col1, col2];
+    }
+
+    /// <summary>
+    /// Build a composite data-id string: Reference-MemType[-Office]
+    /// Uniquely identifies every row including multi-office holders and vacant positions.
+    /// Office is only appended when non-empty (officers section only).
+    /// </summary>
+    private static string BuildDataId(string? reference, string? memType, string? office)
+    {
+        var parts = new System.Text.StringBuilder();
+        parts.Append(TextCleaner.CleanReference(reference) ?? "");
+        if (!string.IsNullOrWhiteSpace(memType))
+            parts.Append('-').Append(memType.Trim());
+        if (!string.IsNullOrWhiteSpace(office))
+            parts.Append('-').Append(office.Trim());
+        return parts.ToString();
     }
 }

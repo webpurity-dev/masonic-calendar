@@ -1,0 +1,41 @@
+<h1 style="font-size: 12pt; font-weight: bold; text-align: center; margin: 0 0 6px 0;">
+    {{ section_title }}
+</h1>
+{{ if toc_by_section }}
+    {{ for group in toc_by_section }}
+<!-- Group heading -->
+<div style="font-size: 8pt; font-weight: bold; border-bottom: 0.5pt solid #000; padding: 2px; margin-top: 4px; break-after: avoid;">
+    {{ group.section_title }}
+</div>
+<!-- 2 explicit inline-block tables - avoids CSS column-count screen/print reflow -->
+<div style="font-size: 0; width: 100%;">    
+    <table style="display: inline-block; vertical-align: top; width: 50%; border-collapse: collapse; font-size: 7pt; box-sizing: border-box;">
+        <tbody>
+            {{ for item in group.col1 }}
+            <tr class="toc-item">
+                <td style="padding: 2px; text-align: left; font-size: 6pt;">
+                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> {{ item.short_name }}</a>
+                </td>
+                <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
+                    <span class="toc-page-number"></span>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table><table style="display: inline-block; vertical-align: top; width: 50%; border-collapse: collapse; font-size: 7pt; box-sizing: border-box;">
+        <tbody>
+            {{ for item in group.col2 }}
+            <tr class="toc-item">
+                <td style="padding: 2px; text-align: left; font-size: 6pt;">
+                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> {{ item.short_name }}</a>
+                </td>
+                <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
+                    <span class="toc-page-number"></span>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+    {{ end }}
+{{ end }}

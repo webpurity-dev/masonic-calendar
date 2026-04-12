@@ -1,328 +1,270 @@
-# Masonic Calendar - AI Coding Instructions
+﻿# Masonic Calendar - AI Coding Instructions
 
-# Project Context: Non-Profit Document & Calendar Generation System
-You are an expert C# .NET developer with extensive experience in document generation, PDF rendering, and console application development. You are assisting in the development of a calendar system for a non-profit organization that generates searchable, professionally formatted PDF documents and HTML from CSV data.
+## Project Context
+A C# .NET 8.0 console application for a non-profit Masonic organisation. Reads lodge/chapter data from CSV files and generates print-ready A6 booklet PDFs and proofing HTML via Scriban templating and Puppeteer/Paged.js rendering. All libraries must be open-source (MIT/Apache 2.0) or free for non-profits.
 
-This project is a **console application** that reads CSV data and generates print-ready documents using Scriban templating and Puppeteer-based PDF rendering. All libraries must be open-source (MIT/Apache 2.0) or have a free tier for non-profits.
+---
 
-## 🏗️ Technical Stack (CURRENT IMPLEMENTATION)
-- **Framework:** .NET 8.0 (C#) Console Application
-- **PDF Generation:** PuppeteerSharp 15.0.0 + Paged.js 1.0+ W3C Paged Media polyfill
-- **HTML Rendering:** Chromium browser via Puppeteer (headless mode)
-- **Templating:** Scriban 5.4.6 (HTML templates with Scriban expressions)
-- **CSV Parsing:** CsvHelper 30.0.0
-- **Page Layout:** CSS @page rules with Paged.js for pagination and margin boxes
-- **Page Numbering:** CSS counters in margin boxes + JavaScript page number injection for TOC
-- **Data Format:** CSV files (v1 schema with separate files, v2 schema with consolidated hermes export)
+## Technical Stack
 
-## � Key Architecture Components
+| Component | Library | Version |
+|-----------|---------|---------|
+| Framework | .NET | 8.0 |
+| PDF rendering | PuppeteerSharp + Chromium | 15.0.0 |
+| Print pagination | Paged.js (CDN) | 1.0+ |
+| Templating | Scriban | 5.4.6 |
+| CSV parsing | CsvHelper | 30.0.0 |
+| YAML config | YamlDotNet (UnderscoredNamingConvention) | latest |
 
-### 1. Paged.js Integration
-- **Purpose:** W3C-compliant print media rendering in Chromium
-- **Loading:** CDN: `https://unpkg.com/pagedjs/dist/paged.polyfill.js`
-- **Features:**
-  - CSS @page rules for page sizing and margins
-  - Automatic page break handling
-  - Page dimension specifications (A4, A5, A6 support via CSS)
-  - Margin boxes for headers, footers, page numbers
-  - Support for left/right page styling
+---
 
-### 2. Page Numbering System
-**Document Page Numbers (Margins):**
-- Uses Paged.js CSS @page rules with @bottom-center margin box
-- Content: `counter(page)` CSS counter
-- Styling: 6pt centered in footer
-- Applied via CSS in print.css
+## Project Structure
 
-**TOC Page Numbers (Via JavaScript):**
-- JavaScript function `injectTocPageNumbers()` runs after Paged.js pagination
-- Process:
-  1. Queries all `.toc-item a` links with href anchors
-  2. Gets all `.pagedjs_page` elements created by Paged.js
-  3. For each link, finds which page contains the target element
-  4. Creates `<span class="toc-page-number">` with calculated page number
-  5. Appends span to TOC link (right-aligned via flexbox)
-- Styling: 9pt, right-aligned, proper spacing via CSS class
-- Timing: Executes after Paged.js completes pagination via Puppeteer's `EvaluateFunctionAsync()`
-
-### 3. Document Structure (master_v1 Template)
-Documents are multi-section with:
-- **Section 1: Cover Page** - Static HTML template
-- **Section 2-N: Table of Contents Pages** - Generated per unit type (Craft, Royal Arch, Master)
-  - Each TOC has links to units with automatic page numbers
-- **Section N+: Unit Pages** - Individual unit pages, one per page
-  - CSS `break-before: always` ensures each unit starts on new page
-  - Contains officer lists, member tables, location info, meeting calendar
-
-### 4. Scriban Templating
-- **Template Files:** Located in `document/templates/` (unit-page.html, toc-page.html, cover-page.html)
-- **Scriban Expressions:**
-  - Variable access: `{{ unit.name }}`
-  - Conditionals: `{% if unit.officerCount > 0 %} ... {% endif %}`
-  - Loops: `{% for officer in unit.officers %} ... {% endfor %}`
-  - Filters: `{{ text | upcase }}`
-- **Models:** Pass unit, location, officer, member, meeting data to templates
-- **Output:** HTML that Paged.js will paginate
-
-### 5. Puppeteer PDF Generation
-**Workflow:**
-1. Build complete HTML document with all sections
-2. Convert relative image paths to data URLs (for PDF portability)
-3. Launch Chromium browser in headless mode
-4. Load HTML content via `SetContentAsync()` (triggers Paged.js rendering)
-5. Wait for Paged.js pagination to stabilize via polling:
-   - Check for `.pagedjs_pages` container existence
-   - Poll page count until it stabilizes (3 consecutive identical counts)
-   - Max wait time: 60 seconds
-6. Call page number injection JavaScript function
-7. Generate PDF via `PrintToPdfAsync()` with PdfOptions:
-   - Format: A4/A5/A6 (via paper format mapping)
-   - Landscape: true/false
-   - PrintBackground: true (for colors)
-   - DisplayHeaderFooter: false (Paged.js @page rules handle margins)
-
-**Console Logging:**
-- Logs progress at each stage (pages found, pagination complete, injection status)
-- Browser console messages containing "[injectTocPageNumbers]" are captured and displayed
-- Useful for debugging page number injection issues
-
-## 💾 Data Processing
-
-### CSV Schema Support
-**v1 Schema (Default):**
-- Multiple separate CSV files
-- Files: sample-units.csv, sample-unit-officers.csv, sample-unit-pmo.csv, sample-unit-pmi.csv, sample-unit-members.csv, sample-unit-honorary.csv, sample-unit-locations.csv, sample-unit-meetings.csv
-
-**v2 Schema:**
-- Single consolidated CSV: hermes-export.csv
-- Type column indicates row category: Off, PMO, PMI, Mem, Hon
-- Parsed by conditional logic based on Type
-
-### Recurrence Rule Expansion
-- **RecurrenceType Values:**
-  - WEEKLY: Repeats on specified DayOfWeek
-  - MONTHLY: Repeats on DayNumber each month
-  - NTH_WEEKDAY: Repeats on WeekNumber (1-5), DayOfWeek each month
-  - Custom: Uses CustomStrategyKey for special rules
-  
-- **Date Calculation for NTH_WEEKDAY:**
-  - Formula: $FirstOfMonth + ((TargetDay - FirstOfMonthDayOfWeek + 7) \bmod 7) + (7 \times (WeekNumber - 1))$
-  - Example: 4th Tuesday = Week 4, Tuesday
-
-- **Months Field:**
-  - Pipe-separated list: "01|02|03|..." (1-12) or "All" for all months
-  - Allows meetings to run only during specific months
-  - Example: "04|05|06" = April-June only
-
-### Output File Organization
-- PDF/HTML files saved to `output/` directory
-- Filenames include template name and section info: `master_v1-all-sections.pdf`
-- Debug HTML also generated: `master_v1-all-sections-debug.html`
-
-## �️ Project Structure
 ```
-MasonicCalendar.sln
-├── MasonicCalendar.Core/
-│   ├── Domain/
-│   │   ├── EventSeries.cs          # Event recurrence rules & metadata
-│   │   ├── EventInstance.cs        # Expanded concrete dates
-│   │   ├── RecurrenceStrategy.cs   # Abstract base for custom rules
-│   │   └── Entities/               # Other domain objects
-│   ├── Services/
-│   │   ├── RecurrenceService.cs    # Generate EventInstances from EventSeries
-│   │   ├── AstronomicalService.cs  # Moon phase calculations
-│   │   └── IDataIngestorService.cs # Abstract for CSV/Sheets ingestion
-│   └── Utilities/
-│       └── DateCalculationHelpers.cs
-├── MasonicCalendar.Data/
-│   ├── ApplicationDbContext.cs     # EF Core DbContext
-│   ├── Migrations/                 # EF Core migrations
-│   └── Repositories/               # Data access patterns (if needed)
-├── MasonicCalendar.Api/
-│   ├── Controllers/                # REST endpoints
-│   ├── Middlewares/
-│   └── Program.cs                  # Dependency injection & configuration
-├── MasonicCalendar.Ingestion/
-│   ├── Csv/                        # CsvHelper integration
-│   └── GoogleSheets/               # Google Sheets API integration
-├── MasonicCalendar.Export/
-│   └── PdfExporter.cs              # QuestPDF grid-based calendar layout
-├── MasonicCalendar.Tests/
-│   ├── RecurrenceServiceTests.cs   # Unit tests for date calculations
-│   └── AstronomicalServiceTests.cs
-└── MasonicCalendar.Web/
-    ├── wwwroot/                    # FullCalendar.io & Bootstrap assets
-    └── Pages/                      # Razor pages or SPA entry
+document/
++-- master_v1.yaml                    # Master document layout (sections, margins, format)
++-- templates/
+|   +-- print.css                     # Paged.js @page rules, TOC styling, page breaks
+|   +-- cover-page.html               # Full-bleed cover page (no margins, background colour)
+|   +-- forward-page.html             # Foreword/introduction
+|   +-- toc-page.html                 # TOC Scriban template
+|   +-- unit-page.html                # Unit page Scriban template
+|   +-- meetings-calendar-page.html   # Meetings calendar template
++-- data/
+|   +-- CraftData.csv                 # Craft lodge data
+|   +-- RAData.csv                    # Royal Arch chapter data
+|   +-- unit-locations.csv            # Meeting locations
+|   +-- sample-unit-meetings.csv      # Meeting recurrence rules
++-- data_sources/
+|   +-- craft_data_source.yaml        # Column mappings for Craft CSV
+|   +-- royalarch_data_source.yaml    # Column mappings for Royal Arch CSV
+|   +-- meetings_data_source.yaml     # Column mappings for meetings CSV
++-- images/
+    +-- cover-img-yellow.jpg          # Cover page image
+
+src/
++-- MasonicCalendar.Console/
+|   +-- Program.cs                    # CLI entry point
++-- MasonicCalendar.Core/
+    +-- Domain/                       # SchemaUnit, SchemaOfficer, SchemaMember, etc.
+    +-- Loaders/
+    |   +-- DocumentLayoutLoader.cs   # YAML->DocumentLayout, SectionConfig, PageMargins
+    |   +-- SchemaDataLoader.cs       # CSV->SchemaUnit (via data source YAML mappings)
+    +-- Renderers/
+    |   +-- SchemaPdfRenderer.cs      # Orchestrates HTML build + Puppeteer PDF
+    |   +-- SectionRenderers/
+    |   |   +-- SectionRenderer.cs              # Abstract base; WrapWithPageBreakAndAnchor
+    |   |   +-- DataDrivenSectionRenderer.cs    # Renders unit pages via Scriban
+    |   |   +-- StaticSectionRenderer.cs        # Renders static HTML templates
+    |   |   +-- TocSectionRenderer.cs           # Builds and renders TOC sections
+    |   |   +-- MeetingsCalendarSectionRenderer.cs
+    |   |   +-- SectionRendererFactory.cs
+    |   +-- Utilities/
+    |       +-- UnitModelBuilder.cs   # Builds Scriban model dict from SchemaUnit
+    |       +-- TextCleaner.cs        # Name/rank/lodge-list normalisation
+    +-- Services/
+        +-- RecurrenceService.cs      # Meeting recurrence rule expansion
+
+output/                               # Generated files (gitignored)
 ```
 
-### Key Module Responsibilities
-- **Core:** Date calculation logic, business rules (no EF Core dependencies)
-- **Data:** SQLite schema, migrations, DbContext
-- **Api:** HTTP endpoints, request/response contracts
-- **Ingestion:** CSV parsing, Google Sheets authentication, data mapping
-- **Export:** PDF generation with QuestPDF
-- **Web:** Frontend with FullCalendar.io and search UI
+---
 
-## 📄 File Structure & Naming
+## CLI Usage
 
-### Template Files (document/templates/)
-```
-print.css          # Paged.js @page rules, margins, TOC styling
-unit-page.html     # Scriban template for individual unit pages
-toc-page.html      # Scriban template for TOC generation
-cover-page.html    # Static cover page HTML
+```powershell
+cd src/MasonicCalendar.Console
+
+dotnet run -- -template master_v1 -output pdf
+dotnet run -- -template master_v1 -output html
+dotnet run -- -template master_v1 -output html -showbleeds
+dotnet run -- -template master_v1 -output html -section craft_units
+dotnet run -- -template master_v1 -output html -unit 3366
+dotnet run -- -template master_v1 -output html -unit 3366 -section royalarch_units
+dotnet run -- -template master_v1 -output pdf -debug
 ```
 
-### Configuration Files (document/data_sources/)
-```
-craft_data_source.yaml      # YAML config specifying which CSV files contain Craft units
-royalarch_data_source.yaml  # YAML config specifying which CSV files contain Royal Arch units
-master_v1.yaml              # Master template config listing all sections
-```
+### Parameters
 
-### Data Files (document/data/)
-```
-*.csv files                 # Unit, location, officer, member, meeting data
-```
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `-template` | Yes | Master layout name (e.g. `master_v1`) |
+| `-output` | Yes | `pdf` or `html` |
+| `-section` | No | Render one section only |
+| `-unit` | No | Render one unit only (integer lodge number) |
+| `-showbleeds` | No | Overlay red/blue borders on page boundaries |
+| `-debug` | No | Extra console output + debug HTML file |
 
-## 🔑 Key Implementation Details
+### Sections in master_v1
 
-### CSS Pagination
-```css
-.unit-page {
-    break-before: always;  /* Each unit starts on new page */
-    page-break-inside: avoid;
-}
+| Section ID | Type | Description |
+|------------|------|-------------|
+| `cover` | static | Full-bleed cover page |
+| `master_toc` | toc | Master TOC (all sections); resets page counter to 1 |
+| `master_foreword` | static | Foreword/introduction |
+| `craft_toc` | toc | Craft lodges TOC |
+| `craft_units` | data-driven | All Craft lodge unit pages |
+| `royalarch_toc` | toc | Royal Arch chapters TOC |
+| `royalarch_units` | data-driven | All Royal Arch chapter unit pages |
+| `meetings_calendar` | meetings-calendar | 12-month meetings grid |
 
-/* TOC Page Spacing */
-.toc-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
+---
 
-.toc-item a {
-    flex: 1;
-}
+## Document Layout (master_v1.yaml)
 
-.toc-item .toc-page-number {
-    display: inline-block;
-    margin-left: 6pt;
-    min-width: 30px;
-    text-align: right;
-}
-```
+- **Format:** A6 portrait (105 x 148 mm)
+- **Gutter (inner/binding edge):** 10 mm on recto pages (`right_page.left`)
+- **Footer:** 10 mm (space for page number)
+- **Outer/top margins:** 0 mm
+- **Cover (`first_page`):** all margins 0 mm; `@page :first` emits empty `@bottom-center` (no page number)
+- **Bleed:** 6 mm (Paged.js default), cover extends to `-6mm` on all sides in HTML
+- **Page numbering:** starts at `master_toc` via `reset_page_counter: true` -- emits `counter-reset: page 0` on the section anchor div
+- **Binding-edge compensation:** renderer auto-emits `.pagedjs_first_page img { object-position: calc(50% + calc(var(--binding-gutter) / 2)) center; }` -- no manual offset needed in templates
 
-### JavaScript Page Number Injection
-```javascript
-function injectTocPageNumbers() {
-    const tocLinks = document.querySelectorAll('.toc-item a');
-    const pages = document.querySelectorAll('.pagedjs_page');
-    
-    let injectedCount = 0;
-    tocLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        const anchorId = href.substring(1);
-        const targetElement = document.getElementById(anchorId);
-        
-        if (targetElement) {
-            // Find page containing target
-            for (let i = 0; i < pages.length; i++) {
-                if (pages[i].contains(targetElement)) {
-                    // Create and append page number span
-                    const span = document.createElement('span');
-                    span.className = 'toc-page-number';
-                    span.textContent = (i + 1).toString();
-                    link.appendChild(span);
-                    injectedCount++;
-                    break;
-                }
-            }
-        }
-    });
-    return injectedCount > 0;
-}
+### YAML Key Properties (UnderscoredNamingConvention)
+
+```yaml
+page_margins:
+  right_page: { top, bottom, left, right }   # Odd/recto pages
+  left_page:  { top, bottom, left, right }   # Even/verso pages
+  first_page: { top, bottom, left, right }   # Cover -- triggers @page :first
+
+sections:
+  - section_id: "master_toc"
+    reset_page_counter: true   # SectionConfig.ResetPageCounter -> counter-reset: page 0
+    hide_from_parent_toc: false
 ```
 
-### Main Service: SchemaPdfRenderer
-**Key Methods:**
-- `RenderAllSectionsAsync()` - Generate complete multi-section document (most common)
-- `RenderSectionAsync()` - Generate single section (rarely used)
-- `ConvertHtmlToPdf()` - Puppeteer HTML→PDF conversion with Paged.js integration
+---
 
-**Typical Flow:**
+## PDF Rendering Pipeline (SchemaPdfRenderer.ConvertHtmlToPdf)
+
+Critical settings that ensure HTML and PDF output are pixel-identical:
+
 ```csharp
-// Load layout configuration (YAML)
-var layout = layoutLoader.LoadMasterLayout("master_v1");
+// Chromium launch flags
+Args = new[]
+{
+    "--no-sandbox",
+    "--force-device-scale-factor=1",          // No HiDPI scaling skewing DOM measurements
+    "--disable-lcd-text",                      // Match font rendering to PDF rasteriser
+    "--disable-font-subpixel-positioning"      // Eliminate sub-pixel font height differences
+}
 
-// Load data from CSVs
-var units = dataLoader.LoadUnitsWithDataAsync("master_v1", "craft");
+// Viewport
+await page.SetViewportAsync(new ViewPortOptions { Width = 800, Height = 1000, DeviceScaleFactor = 1 });
 
-// Render all sections to HTML
-var htmlContent = await renderer.RenderAllSectionsAsync(units, "master_v1", "PDF");
+// Force print media BEFORE SetContentAsync so Paged.js paginates under the same
+// media context Chromium uses when generating the PDF.
+await page.EmulateMediaTypeAsync(MediaType.Print);
 
-// Puppeteer converts to PDF (Paged.js + page number injection happens here)
-var pdfBytes = await renderer.ConvertHtmlToPdf(htmlContent, pdfOptions);
+// PdfOptions
+new PdfOptions
+{
+    Format = PaperFormat.A6,
+    PrintBackground = true,
+    DisplayHeaderFooter = false,
+    PreferCSSPageSize = true,      // CSS @page size controls dimensions
+    MarginOptions = new MarginOptions { Top="0px", Bottom="0px", Left="0px", Right="0px" }
+}
 ```
 
-## 📝 Coding Preferences & Patterns
+**Why EmulateMediaTypeAsync matters:** Without it, Paged.js paginates under `screen` media, then Chromium switches to `print` for PDF generation -- causing sub-pixel measurement differences that clip rows at page boundaries.
 
-- **File-Scoped Namespaces:** Use `namespace MasonicCalendar.Core.Services;` style
-- **Primary Constructors:** Prefer `public class Service(IDependency dep) { }` style
-- **Result Pattern:** Use `Result<T>` for operations that can fail (loading, parsing)
-- **Await Pattern:** Always use async/await, avoid blocking calls
-- **CSS-First Layout:** Prefer CSS flexbox/grid over programmatic layout
-- **Logging:** Use `Console.WriteLine()` for user-facing messages
-- **Error Handling:** Catch specific exceptions, log with context, return meaningful errors
-- **Null Safety:** Check for null before accessing, provide default values
+**Why no CSS column-count:** `column-count: 3` distributes rows differently in screen vs print contexts. Members are pre-split into 3 vertical lists in `UnitModelBuilder.SplitMembersIntoColumns()` and rendered as 3 explicit `inline-block` tables in the template -- deterministic, zero browser discretion.
 
-## ⚠️ Important Notes
+---
 
-### Paged.js Behavior in Different Contexts
-- **Puppeteer:** Paged.js has access to `.pagedjs_page` elements, full rendering works
-- **Browser (local HTML):** Paged.js loads from CDN, may have timeout/rendering delays
-- **HTML Output (static):** Paged.js loads from CDN when opened in browser, executes page number injection
+## Unit Page Template (unit-page.html)
 
-### Debugging Page Number Injection Issues
-- **Check Console Logs:** Browser or Puppeteer console shows `[injectTocPageNumbers]` debug messages
-- **Verify Page Count:** Ensure Paged.js pagination completed before JavaScript runs
-- **Test Selectors:** Confirm `.toc-item a` and `.pagedjs_page` selectors match actual HTML
-- **Review Timing:** Page number injection must run after Paged.js pagination stabilizes
+Sections rendered in order (all conditional on data existing):
 
-### Performance Considerations
-- Large documents (200+ pages): Expect 60-90 second Puppeteer rendering time
-- Image Conversion: Converting images to data URLs adds processing time
-- Chromium Download: First run downloads ~150MB Chromium binary
-- Memory Usage: Multiple units × large images may require more heap (-Xmx settings)
+1. **Header** -- unit name + number, installation date
+2. **Location** -- meeting address, email
+3. **Officers** -- two flex-column tables split at `posNo <= 11` / `posNo > 11`
+4. **Past Masters** -- name, year installed, provincial rank, rank year
+5. **Joining Past Masters** -- name, lodge list (comma-separated no spaces), provincial rank
+6. **Members** -- 3 `inline-block` tables from `memberColumns` (pre-split vertically in C#)
+7. **Honorary Members** -- name and rank
 
-## 🎯 Common Tasks
+**Key CSS rules:**
+- No `height` on `<tr>` elements -- let browser size from content, so Paged.js measures true height
+- `break-before: always` on `.unit-page` in print.css
+- `break-inside: avoid` on officer/past-master sections to keep heading with table
 
-### Add a New Section to master_v1
-1. Update `document/data_sources/master_v1.yaml` - Add section entry
+---
+
+## TextCleaner Utility
+
+Key methods in `MasonicCalendar.Core.Renderers.Utilities.TextCleaner`:
+
+| Method | Purpose |
+|--------|---------|
+| `CleanName(string?)` | Strips newlines, bullet chars, collapses whitespace |
+| `CleanProvincialRank(string?)` | Removes commas, brackets, excess whitespace |
+| `CleanPastUnits(string?)` | Splits on `,`, trims tokens, rejoins with no spaces: `"1895,6194,9660"` |
+| `CombineNameInitialsAndFirstName(...)` | Builds `"Surname I.N."` display name; applies `ShortenSurname` |
+| `CombineNameAndInitials(...)` | Builds `"Surname I."` display name; applies `ShortenSurname` |
+| `ShortenSurname(string)` | If >3 words, keeps last 2: `"Andrade De Azeredo Coutinho"` -> `"Azeredo Coutinho"` |
+
+---
+
+## Data Loading
+
+- `SchemaDataLoader.LoadUnitsWithDataAsync(templateKey, sectionId?)` -- loads CSV per data source YAML mapping
+- When `-unit <N>` is specified, `Program.cs` filters the list *before* passing to renderer
+- `DataDrivenSectionRenderer` uses the `units` parameter directly -- it does **not** reload from disk, preserving the filter
+- `SchemaPdfRenderer.RenderSectionAsync` reloads only when `units.Count > 1` and a DataMapping exists (i.e. not pre-filtered)
+
+---
+
+## Coding Patterns
+
+- **File-scoped namespaces:** `namespace MasonicCalendar.Core.Services;`
+- **Primary constructors:** `public class Renderer(IDep dep, bool debug) { }`
+- **Result<T> pattern:** for all operations that can fail (loading, parsing)
+- **No `async` without `await`:** use `Task.FromResult(...)` instead of `async` on sync methods
+- **Nullable guards:** always check `_dataLoader != null` before calling its methods (it is optional in the constructor)
+- **CSS-first layout:** prefer CSS over programmatic positioning
+- **Logging:** `Console.WriteLine()` only -- no logging framework
+
+---
+
+## Known Gotchas
+
+| Issue | Cause | Fix Applied |
+|-------|-------|-------------|
+| Rows clipped in PDF | `height: Npx` on `<tr>` smaller than content; Paged.js uses declared height | Remove all `height` from `<tr>` elements |
+| Screen/print pagination mismatch | Paged.js paginates in screen media, Chromium generates PDF in print media | `EmulateMediaTypeAsync(Print)` before `SetContentAsync` |
+| HiDPI font height difference | OS scale factor changes DOM pixel measurements vs PDF rasteriser | `--force-device-scale-factor=1` + `DeviceScaleFactor=1` |
+| CSS column reflow in PDF | `column-count` distributes rows differently in print context | Pre-split members in C# -> 3 explicit `inline-block` tables |
+| Cover bleed hidden by image | `position:absolute` div creates stacking context above bleed overlays | Bleed visualisation uses `::after` pseudo-elements with `z-index:99999` |
+| Long surname overflow | 4-word surnames (e.g. "Andrade De Azeredo Coutinho") overflow officer cell | `ShortenSurname` keeps last 2 words when >3 words |
+| Lodge list with spaces | CSV may contain `"1895, 6194, 9660"` with spaces | `CleanPastUnits` splits, trims, rejoins with no spaces |
+
+---
+
+## Common Tasks
+
+### Add a new section to master_v1
+1. Add entry to `document/master_v1.yaml`
 2. Create Scriban template in `document/templates/` if needed
-3. Update `RenderAllSectionsAsync()` - Add conditional block for new section
-4. Test with `dotnet run -- -template master_v1 -output HTML`
+3. Add renderer case to `SectionRendererFactory` if new type
+4. Test: `dotnet run -- -template master_v1 -output html`
 
-### Change Page Sizing or Margins
-1. Edit `document/templates/print.css` - Modify `@page` rules
-2. Adjust margin box sizes, page size, or padding
-3. Rebuild HTML: `dotnet run -- -template master_v1 -output HTML`
-4. Test visual appearance
+### Change page margins
+1. Edit `page_margins` block in `document/master_v1.yaml`
+2. `GeneratePageMarginsCss()` in `SchemaPdfRenderer` picks these up automatically
+3. Test: `dotnet run -- -template master_v1 -output html -showbleeds`
 
-### Modify TOC Styling
-1. Edit `document/templates/print.css` - Update `.toc-item`, `.toc-item a`, `.toc-item .toc-page-number` classes
-2. Adjust font sizes, spacing, alignment
-3. Review CSS flexbox properties for spacing logic
-4. Rebuild and verify in HTML
+### Debug missing rows in PDF
+1. Check for `height` attributes on `<tr>` elements in template
+2. Verify `EmulateMediaTypeAsync(Print)` is called before `SetContentAsync`
+3. Check `--force-device-scale-factor=1` is in Chromium args
+4. Check `column-count` is not used for multi-column layouts -- use pre-split tables instead
 
-### Debug Page Number Status
-1. Check console output from PDF generation for `[injectTocPageNumbers]` messages
-2. Generate HTML: `dotnet run -- -template master_v1 -output HTML`
-3. Open HTML in browser (Paged.js loads from CDN, page numbers should appear after 3 seconds)
-4. Check browser console for JavaScript errors
-
-## 📚 Further Documentation
-- README.md - Project overview and CLI usage
-- IMPLEMENTATION.md - Technical implementation details
-- CSV_SCHEMA.md - CSV file format specifications
-- UNIT_PAGE_LAYOUT.md - Template customization guide
+### Render a single unit for rapid iteration
+```powershell
+dotnet run -- -template master_v1 -output html -unit 3366
+dotnet run -- -template master_v1 -output html -unit 3366 -section royalarch_units
+```

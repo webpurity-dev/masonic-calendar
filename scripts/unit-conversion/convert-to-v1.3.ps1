@@ -39,11 +39,14 @@ param(
 )
 
 # Set defaults based on version if not explicitly provided
+$rootDir = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$dataDir = Join-Path $rootDir "document\data"
+
 if ([string]::IsNullOrWhiteSpace($InputFile)) {
-    $InputFile = "e:\Development\repos\masonic-calendar\document\data\units_v$Version.csv"
+    $InputFile = Join-Path $dataDir "units_v$Version.csv"
 }
 if ([string]::IsNullOrWhiteSpace($OutputFile)) {
-    $OutputFile = "e:\Development\repos\masonic-calendar\document\data\units_v$Version-converted.csv"
+    $OutputFile = Join-Path $dataDir "units_v$Version-converted.csv"
 }
 
 function Get-SpecialCaseNames {

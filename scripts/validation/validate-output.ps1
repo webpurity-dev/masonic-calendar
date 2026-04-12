@@ -15,7 +15,7 @@ param(
     [string]$UnitType = "All"
 )
 
-$rootDir       = Split-Path $PSScriptRoot -Parent
+$rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataDir       = Join-Path $rootDir "document\data"
 $dataSourceDir = Join-Path $rootDir "document\data_sources"
 $consoleDir    = Join-Path $rootDir "src\MasonicCalendar.Console"

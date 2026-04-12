@@ -10,7 +10,7 @@ param(
     [int]$Limit = 0
 )
 
-$rootDir       = Split-Path $PSScriptRoot -Parent
+$rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataSourceDir = Join-Path $rootDir "document\data_sources"
 $dataDir       = Join-Path $rootDir "document\data"
 $consoleProject = Join-Path $rootDir "src\MasonicCalendar.Console\MasonicCalendar.Console.csproj"

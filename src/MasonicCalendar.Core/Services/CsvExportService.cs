@@ -165,7 +165,7 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
 
         // Header
-        writer.WriteLine("Unit Type,Unit Number,Unit Name,Category,Name,Office / Role,Year,Provincial Rank");
+        writer.WriteLine("Unit Type,Unit Number,Unit Name,Category,Name,Office,Year,Rank,Rank Year");
 
         foreach (var unit in units.OrderBy(u => u.UnitType).ThenBy(u => u.Number))
         {

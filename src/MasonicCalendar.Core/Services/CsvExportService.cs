@@ -23,7 +23,12 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         if (!layoutResult.Success)
             throw new Exception($"Failed to load layout: {layoutResult.Error}");
 
-        var sections = layoutResult.Data!.Sections ?? [];
+        var layout = layoutResult.Data!;
+        var version = layout.Document?.Version;
+        var templateWithVersion = $"{templateName}.{version}";
+        var outputTemplateName = !string.IsNullOrWhiteSpace(version) ? templateWithVersion : templateName;
+
+        var sections = layout.Sections ?? [];
         var dataDrivenSections = sections
             .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) == true)
             .ToList();
@@ -56,12 +61,12 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         Console.WriteLine($"  ✓ Expanded {expandedEvents.Count} meeting instances");
 
         // --- Write meetings CSV ---
-        var meetingsPath = Path.Combine(outputDir, $"{templateName}-meetings.csv");
+        var meetingsPath = Path.Combine(outputDir, $"{outputTemplateName}-meetings.csv");
         WriteMeetingsCsv(meetingsPath, expandedEvents, unitNameLookup);
         Console.WriteLine($"  ✓ Meetings: {meetingsPath}");
 
         // --- Write members CSV ---
-        var membersPath = Path.Combine(outputDir, $"{templateName}-members.csv");
+        var membersPath = Path.Combine(outputDir, $"{outputTemplateName}-members.csv");
         WriteMembersCsv(membersPath, allUnits);
         Console.WriteLine($"  ✓ Members:  {membersPath}");
     }

@@ -32,6 +32,7 @@ public class SectionRendererFactory
             "data-driven" => new DataDrivenSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "meetings-calendar" => new MeetingsCalendarSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "meetings-table" => new MeetingsTableSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "membership-summary" => new MembershipSummarySectionRenderer(_templateRoot, _dataLoader, _debugMode),
             _ => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode, _documentInfo)
         };
     }

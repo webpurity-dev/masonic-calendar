@@ -188,8 +188,10 @@ public class SectionConfig
     public bool HideFromParentToc { get; set; } = false;
     public bool ResetPageCounter { get; set; } = false;  // Resets CSS page counter to 1 at this section
     public bool IsChild { get; set; } = false;  // Indent this entry in the master TOC
+    public bool? OverrideBreakBefore { get; set; } = null;  // Override default page break behavior (true = skip page break, false/null = use default)
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
+    public Dictionary<string, string>? ColumnHeadings { get; set; }  // For membership summary: override column heading labels
 }
 
 public class SectionStyling

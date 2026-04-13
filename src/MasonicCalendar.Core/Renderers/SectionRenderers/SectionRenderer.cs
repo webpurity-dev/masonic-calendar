@@ -83,21 +83,27 @@ public abstract class SectionRenderer
     /// <summary>
     /// Wrap content with page break CSS class, appending additional lines before and after (unless it's the first section).
     /// When resetPageCounter is true, emits counter-reset: page 0 so this section displays as page 1.
+    /// When overrideBreakBefore is true, disables the page break, letting content flow naturally.
     /// </summary>
-    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex, bool resetPageCounter = false)
+    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex, bool resetPageCounter = false, bool? overrideBreakBefore = null)
     {
         var anchorStyle = resetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
-        if (sectionIndex == 0)
-        {
-            output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
-            output.AppendLine(content);
-        }
-        else
+        
+        // Default: break before all sections except the first
+        // If overrideBreakBefore is true, skip the page break (flow naturally)
+        var shouldBreakBefore = (overrideBreakBefore != true) && (sectionIndex != 0);
+        
+        if (shouldBreakBefore)
         {
             output.AppendLine("<div class='section-divider'>");
             output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
             output.AppendLine(content);
             output.AppendLine("</div>");
+        }
+        else
+        {
+            output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
+            output.AppendLine(content);
         }
     }
 
@@ -113,7 +119,7 @@ public abstract class SectionRenderer
     }
 
     /// <summary>
-    /// Filter sections for TOC display: includes data-driven, static, and toc sections,
+    /// Filter sections for TOC display: includes data-driven, static, toc, meetings-table, meetings-calendar, and membership-summary sections,
     /// but excludes those marked with HideFromParentToc.
     /// </summary>
     public static List<SectionConfig> FilterSectionsForToc(List<SectionConfig> sections, int skipAfterIndex)
@@ -125,7 +131,8 @@ public abstract class SectionRenderer
                 (s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("meetings-calendar", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("meetings-table", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                (s.Type?.Equals("meetings-table", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();
     }

@@ -75,10 +75,6 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                     .Where(e => section.UnitTypes.Any(t => t.Equals(e.UnitType, StringComparison.OrdinalIgnoreCase)))
                     .ToList();
 
-            // Add section anchor for TOC links, wrapped in section-divider for consistent page break behaviour
-            output.AppendLine("<div class='section-divider'>");
-            output.AppendLine($"<div id=\"section_{section.SectionId}\"></div>");
-
             // Build unit lookup for determining unit type
             var unitMap = units.ToDictionary(u => u.Number.ToString());
 
@@ -90,6 +86,7 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
                 .ToList();
 
             // Render each month using the template
+            var monthsHtml = new StringBuilder();
             var isFirstMonth = true;
             foreach (var monthGroup in eventsByMonth)
             {
@@ -113,10 +110,10 @@ public class MeetingsCalendarSectionRenderer(string templateRoot, SchemaDataLoad
 
                 // Render month using template
                 var monthHtml = template.Render(model);
-                output.Append(monthHtml);
+                monthsHtml.Append(monthHtml);
             }
 
-            output.AppendLine("</div>");
+            WrapWithPageBreakAndAnchor(output, $"section_{section.SectionId}", monthsHtml.ToString(), sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
 
             if (DebugMode)
                 Console.WriteLine($"  ✓ Generated calendar with {expandedEvents.Count} total events");

@@ -160,11 +160,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             };
 
             var html = template.Render(model);
-
-            output.AppendLine("<div class='section-divider'>");
-            output.AppendLine($"<div id=\"section_{section.SectionId}\"></div>");
-            output.Append(html);
-            output.AppendLine("</div>");
+            WrapWithPageBreakAndAnchor(output, $"section_{section.SectionId}", html, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
 
             if (DebugMode)
                 Console.WriteLine($"  ✓ Generated meetings table with {rows.Count} unit rows");

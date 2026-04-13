@@ -419,11 +419,14 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Get the appropriate renderer for this section type
                 var renderer = rendererFactory.CreateRenderer(section.Type);
                 
-                // For data-driven sections with a data_mapping, reload units for that specific section
+                // For data-driven and membership-summary sections with a data_mapping, reload units for that specific section
                 var unitsForSection = units;
+                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isMembershipSummary = section.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false;
+                
                 if (_dataLoader != null &&
-                    (section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) &&
-                    !string.IsNullOrWhiteSpace(section.DataMapping))
+                    !string.IsNullOrWhiteSpace(section.DataMapping) &&
+                    (isDataDriven || isMembershipSummary))
                 {
                     var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
                     if (reloadResult.Success)

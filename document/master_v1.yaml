@@ -73,6 +73,23 @@ sections:
     template: "craft/executive-officers.html"
     is_child: true
 
+  - section_id: "craft_membership_summary"
+    section_title: "Craft Membership Summary"
+    type: "membership-summary"
+    template: "membership-summary-page.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
+    column_headings:
+      past_masters: "Past Masters"
+    is_child: true
+
+  - section_id: "craft_meetings_table"
+    section_title: "Craft Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Craft"]
+    is_child: true
+
   - section_id: "craft_toc"
     section_title: "Craft Lodges in Numerical Order"
     type: "toc"
@@ -87,14 +104,6 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     hide_from_parent_toc: true
 
-  - section_id: "craft_meetings_table"
-    section_title: "Craft Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["Craft"]
-    is_child: true
-
   # ROYAL ARCH
   - section_id: "royalarch"
     section_title: "Royal Arch Freemasonry"
@@ -105,6 +114,24 @@ sections:
     section_title: "Provincial Executive"
     type: "static"
     template: "royalarch/executive-officers.html"
+    is_child: true
+
+  - section_id: "ra_membership_summary"
+    section_title: "Chapter Membership Summary"
+    type: "membership-summary"
+    template: "membership-summary-page.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
+    column_headings:
+      past_masters: "Past Principals"
+    is_child: true
+
+  - section_id: "ra_meetings_table"
+    section_title: "Chapter Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RoyalArch"]
+    override_break_before: true
     is_child: true
 
   - section_id: "royalarch_toc"
@@ -120,14 +147,6 @@ sections:
     template: "unit-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     hide_from_parent_toc: true
-
-  - section_id: "ra_meetings_table"
-    section_title: "Chapter Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RoyalArch"]
-    is_child: true
     
   # TRIAL MEETINGS CALENDAR
   - section_id: "meetings_calendar"
@@ -136,7 +155,6 @@ sections:
     template: "meetings-calendar-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Craft", "RoyalArch"]
-    is_child: true
 
   # MARK
   - section_id: "mark_intro"

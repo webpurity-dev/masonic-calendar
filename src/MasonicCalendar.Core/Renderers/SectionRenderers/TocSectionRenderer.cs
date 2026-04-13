@@ -45,7 +45,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             };
             var indexHtml = template.Render(indexModel);
             var indexAnchorId = $"section_{section.SectionId}";
-            WrapWithPageBreakAndAnchor(output, indexAnchorId, indexHtml, sectionIndex, section.ResetPageCounter);
+            WrapWithPageBreakAndAnchor(output, indexAnchorId, indexHtml, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
             return;
         }
         else if (!string.IsNullOrWhiteSpace(section.ForSection))
@@ -80,7 +80,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         var tocHtml = template.Render(tocModel);
 
         var anchorId = $"section_{section.SectionId}";
-        WrapWithPageBreakAndAnchor(output, anchorId, tocHtml, sectionIndex, section.ResetPageCounter);
+        WrapWithPageBreakAndAnchor(output, anchorId, tocHtml, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
     }
 
     /// <summary>

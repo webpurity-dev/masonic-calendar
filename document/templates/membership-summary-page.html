@@ -1,0 +1,52 @@
+<div style="break-before: always; break-inside: avoid; padding: 2px;">
+    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h1 style="font-size: 12pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 5pt; border: 0.5px solid #ccc;">
+        <thead>
+            <tr style="background: #f0f0f0;">
+                <th style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; font-weight: bold;">
+                    2026-27
+                </th>
+                <th style="width: 40px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                    &nbsp;
+                </th>
+                <th style="width: 60px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                    {{ columnHeadings.pastMasters }}
+                </th>
+                <th style="width: 50px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                    Members
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for unit in units }}
+            <tr>
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
+                    {{ unit.superShortName ?? unit.shortName ?? unit.name }}
+                </td>
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                    {{ unit.number }}
+                </td>
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                    {{ unit.pastMastersCount }}
+                </td>
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                    {{ unit.membersCount }}
+                </td>
+            </tr>
+            {{ end }}
+            <tr style="font-weight: 600;">
+                <td colspan="2" style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
+                    Average
+                </td>                
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                    {{ averagePastMasters }}
+                </td>
+                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                    {{ averageMembers }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

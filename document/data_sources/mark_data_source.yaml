@@ -1,8 +1,8 @@
 ﻿# Data source mappings for Mark Masonry section
-# v1.4 format: units_v1.4.csv + membership_v1.4.csv
+# v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
 units:
-  source: "units_v1.4.csv"
+  source: "units_v1.5.csv"
   filter_field: "Unit Type"
   filter_value: "Mark"
   fields:
@@ -38,7 +38,7 @@ units:
       type: "string"
 
 officers:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -59,7 +59,7 @@ officers:
       type: "int"
 
 past_masters:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -90,7 +90,7 @@ past_masters:
       type: "string"
 
 members:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -108,7 +108,7 @@ members:
       type: "string"
 
 honorary_members:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"

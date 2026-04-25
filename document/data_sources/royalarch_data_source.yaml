@@ -1,9 +1,9 @@
 ﻿# Data source mappings for Royal Arch section
 # CSV files and column mappings that support royal arch related data
-# v1.4 format: units_v1.4.csv + membership_v1.4.csv
+# v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
 units:
-  source: "units_v1.4.csv"
+  source: "units_v1.5.csv"
   filter_field: "Unit Type"
   filter_value: "RA"
   fields:
@@ -39,7 +39,7 @@ units:
       type: "string"
 
 officers:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -60,7 +60,7 @@ officers:
       type: "int"
 
 past_masters:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -91,7 +91,7 @@ past_masters:
       type: "string"
 
 joining_past_masters:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -119,7 +119,7 @@ joining_past_masters:
       type: "string"
 
 members:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -137,7 +137,7 @@ members:
       type: "string"
 
 honorary_members:
-  source: "membership_v1.4.csv"
+  source: "membership_v1.5.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"

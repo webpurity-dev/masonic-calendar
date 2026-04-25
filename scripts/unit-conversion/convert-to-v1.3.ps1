@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-Transforms units_v1.4.csv to match units_v1.3.csv structure
+Transforms units_v1.5.csv to match units_v1.3.csv structure
 
 .DESCRIPTION
 Converts units v1.4 data format to v1.3 by:
@@ -244,7 +244,7 @@ if (-not (Test-Path $InputFile)) {
     exit 1
 }
 
-Write-Host "Converting units_v1.4.csv to v1.3 format..."
+Write-Host "Converting units_v1.5.csv to v1.3 format..."
 Write-Host "Input:  $InputFile"
 Write-Host "Output: $OutputFile"
 Write-Host ""

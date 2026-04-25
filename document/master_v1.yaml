@@ -80,6 +80,7 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     column_headings:
       past_masters: "Past Masters"
+    include_officers_as_members: false
     is_child: true
 
   - section_id: "craft_meetings_table"
@@ -123,6 +124,7 @@ sections:
     data_mapping: "data_sources/royalarch_data_source.yaml"
     column_headings:
       past_masters: "Past Principals"
+    include_officers_as_members: false
     is_child: true
 
   - section_id: "ra_meetings_table"
@@ -162,12 +164,22 @@ sections:
     type: "static"
     template: "companion/mark-introduction.html"
 
+  - section_id: "mark_membership_summary"
+    section_title: "Mark Membership Summary"
+    type: "membership-summary"
+    template: "membership-summary-page.html"
+    data_mapping: "data_sources/mark_data_source.yaml"
+    column_headings:
+      past_masters: "Past Mark Masters"
+    include_officers_as_members: true
+    is_child: true
+
   - section_id: "mark_toc"
     section_title: "Mark Lodges in Numerical Order"
     type: "toc"
     for_section: "mark_units"
     template: "toc-page.html"
-    hide_from_parent_toc: true
+    is_child: true
 
   - section_id: "mark_units"
     section_title: "Mark Lodges in Numerical Order"
@@ -182,12 +194,22 @@ sections:
     type: "static"
     template: "companion/ram-introduction.html"
 
+  - section_id: "ram_membership_summary"
+    section_title: "R.A.M. Membership Summary"
+    type: "membership-summary"
+    template: "membership-summary-page.html"
+    data_mapping: "data_sources/ram_data_source.yaml"
+    column_headings:
+      past_masters: "Past Commanders"
+    include_officers_as_members: true
+    is_child: true
+
   - section_id: "ram_toc"
     section_title: "R.A.M. Lodges in Numerical Order"
     type: "toc"
     for_section: "ram_units"
     template: "toc-page.html"
-    hide_from_parent_toc: true
+    is_child: true
 
   - section_id: "ram_units"
     section_title: "R.A.M. Lodges in Numerical Order"

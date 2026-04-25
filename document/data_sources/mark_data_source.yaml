@@ -46,7 +46,7 @@ officers:
       filter_value: "Off"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "BroJoin"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -55,7 +55,7 @@ officers:
       csv_column: "Office"
       type: "string"
     - name: "PositionNo"
-      csv_column: "OffPos"
+      csv_column: "PosNo"
       type: "int"
 
 past_masters:
@@ -64,11 +64,11 @@ past_masters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
     - filter_field: "MemType"
-      filter_value: "PCO"
+      filter_value: "PMO"
   override_heading: "Past Mark Masters"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "BroJoin"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -98,7 +98,7 @@ members:
       filter_value: "Mem"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "BroJoin"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -116,7 +116,7 @@ honorary_members:
       filter_value: "Hon"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "BroJoin"
       type: "string"
     - name: "Name"
       csv_column: "Name"

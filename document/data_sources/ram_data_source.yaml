@@ -55,7 +55,7 @@ officers:
       csv_column: "Office"
       type: "string"
     - name: "PositionNo"
-      csv_column: "OffPos"
+      csv_column: "PosNo"
       type: "int"
 
 past_masters:
@@ -68,7 +68,7 @@ past_masters:
   override_heading: "Past Commanders"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "BroJoin"
       type: "string"
     - name: "Name"
       csv_column: "Name"

@@ -461,6 +461,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.PastMasters = unit.PastMasters
             .GroupBy(p => p.Reference)
             .SelectMany(g => g.Skip(g.Count() - 1))
+            .OrderBy(p => ExtractFirstDate(p.YearInstalled))
             .ToList();
 
         // For Joining Past Masters: deduplicate by Reference (keep last occurrence)
@@ -473,6 +474,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.Members = unit.Members
             .GroupBy(m => m.Reference)
             .SelectMany(g => g.Skip(g.Count() - 1))
+            .OrderBy(m => ExtractFirstDate(m.YearInitiated))
             .ToList();
 
         // For Honorary Members: deduplicate by Reference (keep last occurrence)
@@ -480,6 +482,20 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             .GroupBy(h => h.Reference)
             .SelectMany(g => g.Skip(g.Count() - 1))
             .ToList();
+    }
+
+    /// <summary>
+    /// Extract the first date from a potentially comma-separated date string.
+    /// Examples: "2021" -> "2021", "2021, 2022, 2023" -> "2021"
+    /// </summary>
+    private static string? ExtractFirstDate(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return null;
+
+        // Split on comma and take the first part, trimmed
+        var firstDate = dateString.Split(',')[0].Trim();
+        return string.IsNullOrWhiteSpace(firstDate) ? null : firstDate;
     }
 
     /// <summary>

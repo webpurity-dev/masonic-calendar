@@ -48,9 +48,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
         // Extract column heading overrides from section config
         var pastMastersHeading = section.ColumnHeadings?.TryGetValue("past_masters", out var heading) == true ? heading : "Past Masters";
         var joiningPmHeading = section.ColumnHeadings?.TryGetValue("joining_pm", out var joiningHeading) == true ? joiningHeading : "Joining P.M.";
+        var includeOfficersAsMembers = section.IncludeOfficersAsMembers;
         
-        // Calculate average members count
-        var totalMembers = unitsForSection.Sum(u => u.Members.Count);
+        // Calculate total and average members count (optionally including officers)
+        var totalMembers = unitsForSection.Sum(u => u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0));
         var averageMembers = unitsForSection.Count > 0 ? Math.Round((double)totalMembers / unitsForSection.Count, 0) : 0;
         
         // Calculate average past masters count
@@ -76,7 +77,7 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
                     { "number", u.Number },
                     { "pastMastersCount", u.PastMasters.Count },
                     { "joiningPastMastersCount", u.JoinPastMasters.Count },
-                    { "membersCount", u.Members.Count }
+                    { "membersCount", u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0) }
                 })
                 .ToList()
             }

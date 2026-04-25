@@ -189,6 +189,7 @@ public class SectionConfig
     public bool ResetPageCounter { get; set; } = false;  // Resets CSS page counter to 1 at this section
     public bool IsChild { get; set; } = false;  // Indent this entry in the master TOC
     public bool? OverrideBreakBefore { get; set; } = null;  // Override default page break behavior (true = skip page break, false/null = use default)
+    public bool IncludeOfficersAsMembers { get; set; } = false;  // For membership summary: whether to include officers in the members count
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
     public Dictionary<string, string>? ColumnHeadings { get; set; }  // For membership summary: override column heading labels

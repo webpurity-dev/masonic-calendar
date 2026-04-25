@@ -1,18 +1,18 @@
 <div style="break-before: always; break-inside: avoid; padding: 2px;">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>
+        <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
     </div>
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 5pt; border: 0.5px solid #ccc;">
         <thead>
             <tr style="background: #f0f0f0;">
-                <th style="padding: 0.5px; margin-left: 2px; border: 0.5px solid #ccc; text-align: left; font-weight: bold;">
+                <th style="padding: 0px; margin-left: 2px; border: 0.5px solid #ccc; text-align: left; font-weight: bold;">
                     {{ year_label }}
                 </th>
-                <th style="width: 20px; padding: 0.5px; margin: 0; border: 0.5px solid #ccc; text-align: center; font-weight: bold; white-space: nowrap;">
+                <th style="width: 20px; padding: 0px; margin: 0; border: 0.5px solid #ccc; text-align: center; font-weight: bold; white-space: nowrap;">
                     &nbsp;
                 </th>                
                 {{ for month in months }}
-                    <th style="width: 6%; padding: 0.5px; margin: 0; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                    <th style="width: 6%; padding: 0px; margin: 0; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
                         {{ month.label }}
                     </th>
                 {{ end }}
@@ -22,15 +22,15 @@
             {{ for row in rows }}
             <tr>
                 {{ if row.row_span > 0 }}
-                <td rowspan="{{ row.row_span }}" style="width: 25%; padding: 0.5px; margin-left: 2px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap; vertical-align: middle;">
+                <td rowspan="{{ row.row_span }}" style="width: 25%; padding: 0px; margin-left: 2px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap; vertical-align: middle;">
                     {{ row.unit_name }}
                 </td>
-                <td rowspan="{{ row.row_span }}" style="width: 3%; padding: 0.5px; margin: 0; border: 0.5px solid #ccc; text-align: center; vertical-align: middle;">
+                <td rowspan="{{ row.row_span }}" style="width: 3%; padding: 0px; margin: 0; border: 0.5px solid #ccc; text-align: center; vertical-align: middle;">
                     {{ row.unit_number }}
                 </td>
                 {{ end }}
                 {{ for cell in row.cells }}
-                    <td style="width: 6%; padding: 0.5px; margin: 0; border: 0.5px solid #ccc; text-align: center; {{ if cell.is_installation }} background-color: #ddd; {{ end }}">
+                    <td style="width: 6%; padding: 0px; margin: 0; border: 0.5px solid #ccc; text-align: center; {{ if cell.is_installation }} background-color: #ddd; {{ end }}">
                         {{ if cell.has_meeting }}
                             {{ if cell.is_installation }}
                                 <strong>{{ cell.day }}</strong>

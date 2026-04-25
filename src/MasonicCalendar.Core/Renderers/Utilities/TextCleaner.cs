@@ -32,6 +32,11 @@ public static class TextCleaner
             cleaned = ShortenSurname(surname) + rest;
         }
         
+        // Remove any names that consist only of punctuation/whitespace (e.g., ",", "  , ", etc.)
+        var withoutPunctuation = System.Text.RegularExpressions.Regex.Replace(cleaned, @"[^\w\s]", "").Trim();
+        if (string.IsNullOrWhiteSpace(withoutPunctuation))
+            return "";
+        
         return cleaned;
     }
 

@@ -1,23 +1,30 @@
-<div style="break-before: always; break-inside: avoid; padding: 2px;">
+<div style="break-before: always; break-inside: avoid; padding: 0px; margin: 0;">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: bold;">{{ section_title }}</h1>
+        <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
     </div>
-    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 5pt; border: 0.5px solid #ccc;">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 4.5pt; border: 0.5px solid #ccc; line-height: 1;">
+        <colgroup>
+            <col style="min-width: 50px;">
+            <col style="width: 30px;">
+            <col style="width: 45px;">
+            <col style="width: 45px;">
+            <col style="width: 40px;">
+        </colgroup>
         <thead>
             <tr style="background: #f0f0f0;">
-                <th style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; font-weight: bold;">
+                <th style="padding: 0px; border: 0.5px solid #ccc; text-align: left; font-weight: bold;">
                     2026-27
                 </th>
-                <th style="width: 40px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                <th style="padding: 0px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
                     &nbsp;
                 </th>
-                <th style="width: 60px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                <th style="padding: 0px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
                     {{ columnHeadings.pastMasters }}
                 </th>
-                <th style="width: 60px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                <th style="padding: 0px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
                     Honorary
                 </th>
-                <th style="width: 50px; padding: 0.5px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
+                <th style="padding: 0px; border: 0.5px solid #ccc; text-align: center; font-weight: bold;">
                     Members
                 </th>
             </tr>
@@ -25,48 +32,48 @@
         <tbody>
             {{ for unit in units }}
             <tr>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
                     {{ unit.superShortName ?? unit.shortName ?? unit.name }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ unit.number }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ unit.pastMastersCount }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ unit.honoraryMembersCount }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ unit.membersCount }}
                 </td>
             </tr>
             {{ end }}
             <tr style="font-weight: 600; background: #f9f9f9;">
-                <td colspan="2" style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
+                <td colspan="2" style="padding: 0px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
                     Average
                 </td>                
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ averagePastMasters }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ averageHonoraryMembers }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ averageMembers }}
                 </td>
             </tr>
             <tr style="font-weight: 600; background: #efefef;">
-                <td colspan="2" style="padding: 0.5px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
+                <td colspan="2" style="padding: 0px; border: 0.5px solid #ccc; text-align: left; overflow: hidden; white-space: nowrap;">
                     Totals
                 </td>                
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ totalPastMasters }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ totalHonoraryMembers }}
                 </td>
-                <td style="padding: 0.5px; border: 0.5px solid #ccc; text-align: center;">
+                <td style="padding: 0px; border: 0.5px solid #ccc; text-align: center;">
                     {{ totalMembers }}
                 </td>
             </tr>

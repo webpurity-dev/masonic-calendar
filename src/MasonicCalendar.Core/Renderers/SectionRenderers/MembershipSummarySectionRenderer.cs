@@ -58,6 +58,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
         var totalPastMasters = unitsForSection.Sum(u => u.PastMasters.Count);
         var averagePastMasters = unitsForSection.Count > 0 ? Math.Round((double)totalPastMasters / unitsForSection.Count, 0) : 0;
         
+        // Calculate total and average honorary members count
+        var totalHonoraryMembers = unitsForSection.Sum(u => u.HonoraryMembers.Count);
+        var averageHonoraryMembers = unitsForSection.Count > 0 ? Math.Round((double)totalHonoraryMembers / unitsForSection.Count, 0) : 0;
+        
         var summaryModel = new Dictionary<string, object?>
         {
             { "section_title", section.SectionTitle },
@@ -68,6 +72,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
             }},
             { "averageMembers", averageMembers },
             { "averagePastMasters", averagePastMasters },
+            { "averageHonoraryMembers", averageHonoraryMembers },
+            { "totalPastMasters", totalPastMasters },
+            { "totalMembers", totalMembers },
+            { "totalHonoraryMembers", totalHonoraryMembers },
             { "units", unitsForSection
                 .Select(u => new Dictionary<string, object?>
                 {
@@ -77,7 +85,8 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
                     { "number", u.Number },
                     { "pastMastersCount", u.PastMasters.Count },
                     { "joiningPastMastersCount", u.JoinPastMasters.Count },
-                    { "membersCount", u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0) }
+                    { "membersCount", u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0) },
+                    { "honoraryMembersCount", u.HonoraryMembers.Count }
                 })
                 .ToList()
             }

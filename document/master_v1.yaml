@@ -4,9 +4,9 @@ document:
   orientation: "portrait"
   global_styling:
     fonts:
-      default_family: "Helvetica, Arial, sans-serif"
+      default_family: "Tahoma, Arial, sans-serif"
     footer:
-      font_family: "Arial, sans-serif"
+      font_family: "Tahoma, Arial, sans-serif"
       font_size: "6pt"
       text_align: "center"
 
@@ -174,6 +174,15 @@ sections:
     include_officers_as_members: true
     is_child: true
 
+  - section_id: "mark_meetings_table"
+    section_title: "Mark Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Mark"]
+    override_break_before: true
+    is_child: true
+
   - section_id: "mark_toc"
     section_title: "Mark Lodges in Numerical Order"
     type: "toc"
@@ -202,6 +211,15 @@ sections:
     column_headings:
       past_masters: "Past Commanders"
     include_officers_as_members: true
+    is_child: true
+
+  - section_id: "ram_meetings_table"
+    section_title: "R.A.M. Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RAM"]
+    override_break_before: true
     is_child: true
 
   - section_id: "ram_toc"

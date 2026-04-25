@@ -17,7 +17,7 @@
 - Amity 137 missing from units**  - manually added - **RESOLVED**
 
 ## Mark
-- No data for Naval and Military 134 - manually changed from 634 - **RESOLVED**
+- No data for Naval and Military 134 - manually changed from 634 - manually changed
 - 1925	Dorset Mark Stewards shows as RAM in units - manually changed
 - No Joining Past Mark Masters
 - Missing/Incorrect PCOs: See Unit 1163 only has 8 PCOs, some of which are joining members - **RESOLVED**

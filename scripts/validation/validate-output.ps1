@@ -48,15 +48,17 @@ function Read-DataSourceConfig([string]$yamlPath) {
 
     function Save-MemSection {
         if ($topSection -and $topSection -ne "units" -and $memSrc) {
-            $refCol  = if ($memFields -and $memFields.ContainsKey("Reference")) { $memFields["Reference"] } else { "UniqueRef" }
-            $nameCol = if ($memFields -and $memFields.ContainsKey("Name"))      { $memFields["Name"]      } else { "Name"      }
-            $uidFld  = "Unit"
+            $refCol      = if ($memFields -and $memFields.ContainsKey("Reference")) { $memFields["Reference"] } else { "UniqueRef" }
+            $nameCol     = if ($memFields -and $memFields.ContainsKey("Name"))      { $memFields["Name"]      } else { "Name"      }
+            $positionCol = if ($memFields -and $memFields.ContainsKey("Position")) { $memFields["Position"] } else { $null }
+            $uidFld      = "Unit"
             [void]$cfg.MemSections.Add(@{
                 Name        = $topSection
                 Source      = $memSrc
                 Filters     = $memFilters
                 RefColumn   = $refCol
                 NameColumn  = $nameCol
+                PositionColumn = $positionCol
                 UnitIdField = $uidFld
             })
         }
@@ -363,8 +365,10 @@ foreach ($cfg in $targetConfigs) {
     foreach ($sec in $cfg.MemSections) {
         foreach ($row in $secData[$sec.Name]) {
             $ref     = $row.($sec.RefColumn).Trim()
-            $memType = if ($row.PSObject.Properties['MemType']) { $row.MemType.Trim() } else { $sec.Name }
-            $office  = if ($row.PSObject.Properties['Office'])  { $row.Office.Trim()  } else { '' }
+            # Always use MemType from CSV - matches C# BuildDataId() which uses the CSV MemType value
+            $memType = if ([string]::IsNullOrWhiteSpace($row.MemType)) { "" } else { $row.MemType.Trim() }
+            # Only include office if this section maps Position/Office in the data source
+            $office  = if ($sec.PositionColumn -and $row.PSObject.Properties[$sec.PositionColumn]) { $row.($sec.PositionColumn).Trim() } else { '' }
             $dataId  = $ref + '-' + $memType
             if ($office) { $dataId += '-' + $office }
 

@@ -145,7 +145,7 @@ sections:
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RoyalArch"]
+    unit_types: ["RA"]
     override_break_before: true
     is_child: true
 
@@ -212,6 +212,8 @@ sections:
     type: "toc"
     for_section: "mark_units"
     template: "toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"  
     is_child: true
 
   - section_id: "mark_units"
@@ -251,6 +253,8 @@ sections:
     type: "toc"
     for_section: "ram_units"
     template: "toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"
     is_child: true
 
   - section_id: "ram_units"

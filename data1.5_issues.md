@@ -2,6 +2,8 @@
 
 ** denotes issues high priority issues
 
+- ** No unique reference for members. This make de-duplication and validate difficult.
+
 ## Units
 - "Tyles at at" for a number of units - manually cleaned - **RESOLVED**
 - Kinson chapter includes "Kinson hall" in the meeting dates - **RESOLVED**
@@ -11,10 +13,12 @@
 - Carnarvon tyles at ??? - manually cleaned 11:00am
 - Kinson Chapter 5331 Meeting Dates includes the address of Kinson Hall - manually cleaned - **RESOLVED**
 - Purbeck 4355 missing from units**  - manually added - **RESOLVED**
+- 170 meets at Weymouth Masonic Hall - manually corrected
 
 
 ## Royal Arch
 - Amity 137 missing from units**  - manually added - **RESOLVED**
+- 1266 installation date should be April
 
 ## Mark
 - No data for Naval and Military 134 - manually changed from 634 - manually changed

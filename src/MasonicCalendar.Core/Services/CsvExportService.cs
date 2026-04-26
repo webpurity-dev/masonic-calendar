@@ -170,7 +170,7 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
 
         // Header
-        writer.WriteLine("Unit Type,Unit Number,Unit Name,Category,Name,Office,Year,Rank,Rank Year");
+        writer.WriteLine("Unit Type,Unit Number,Unit Name,Category,Reference,Name,Office,Year,Rank,Rank Year");
 
         foreach (var unit in units.OrderBy(u => u.UnitType).ThenBy(u => u.Number))
         {
@@ -179,19 +179,19 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
             var name = Q(unit.Name);
 
             foreach (var o in unit.Officers)
-                writer.WriteLine($"{t},{num},{name},Officer,{Q(o.Name)},{Q(o.Position ?? o.Office ?? "")},,");
+                writer.WriteLine($"{t},{num},{name},Officer,{Q(o.Reference ?? "")},{Q(o.Name)},{Q(o.Position ?? o.Office ?? "")},,");
 
             foreach (var pm in unit.PastMasters)
-                writer.WriteLine($"{t},{num},{name},PastMaster,{Q(pm.Name)},,{Q(pm.YearInstalled ?? "")},{Q(pm.Rank ?? "")},{Q(pm.RankYear ?? "")}");
+                writer.WriteLine($"{t},{num},{name},PastMaster,{Q(pm.Reference ?? "")},{Q(pm.Name)},,{Q(pm.YearInstalled ?? "")},{Q(pm.Rank ?? "")},{Q(pm.RankYear ?? "")}");
 
             foreach (var jp in unit.JoinPastMasters)
-                writer.WriteLine($"{t},{num},{name},JoinPastMaster,{Q(jp.Name)},{Q(jp.PastUnits ?? "")},,{Q(jp.Rank ?? "")},{Q(jp.RankYear ?? "")}");
+                writer.WriteLine($"{t},{num},{name},JoinPastMaster,{Q(jp.Reference ?? "")},{Q(jp.Name)},{Q(jp.PastUnits ?? "")},,{Q(jp.Rank ?? "")},{Q(jp.RankYear ?? "")}");
 
             foreach (var m in unit.Members)
-                writer.WriteLine($"{t},{num},{name},Member,{Q(m.Name)},,{Q(m.YearInitiated ?? "")},");
+                writer.WriteLine($"{t},{num},{name},Member,{Q(m.Reference ?? "")},{Q(m.Name)},,{Q(m.YearInitiated ?? "")},{Q(m.ProvincialRank ?? "")},{Q(m.ProvincialRankYear ?? "")}");
 
             foreach (var h in unit.HonoraryMembers)
-                writer.WriteLine($"{t},{num},{name},HonoraryMember,{Q(h.Name)},,,{Q(h.Rank ?? "")}");
+                writer.WriteLine($"{t},{num},{name},HonoraryMember,{Q(h.Reference ?? "")},{Q(h.Name)},,,{Q(h.Rank ?? "")}");
         }
     }
 

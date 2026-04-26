@@ -290,6 +290,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
 
+                        var grandRankYear = GetFieldValue(csv, fieldMap, "GrandRankYear");
+                        var provRankYear = GetFieldValue(csv, fieldMap, "ProvincialRankYear");
+                        // Prefer GrandRank, fallback to ProvincialRank
+                        var displayRankYear = string.IsNullOrWhiteSpace(grandRank) ? provRankYear : grandRankYear;
+
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
@@ -297,7 +302,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Name = TextCleaner.CleanName(name),
                             PastUnits = pastUnits,
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
-                            RankYear = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "RankYear"))
+                            RankYear = TextCleaner.CleanDateIssued(displayRankYear)
                         });
                     });
             }

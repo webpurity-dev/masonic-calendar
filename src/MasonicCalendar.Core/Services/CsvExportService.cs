@@ -188,7 +188,7 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
                 writer.WriteLine($"{t},{num},{name},JoinPastMaster,{Q(jp.Reference ?? "")},{Q(jp.Name)},{Q(jp.PastUnits ?? "")},,{Q(jp.Rank ?? "")},{Q(jp.RankYear ?? "")}");
 
             foreach (var m in unit.Members)
-                writer.WriteLine($"{t},{num},{name},Member,{Q(m.Reference ?? "")},{Q(m.Name)},,{Q(m.YearInitiated ?? "")},{Q(m.ProvincialRank ?? "")},{Q(m.ProvincialRankYear ?? "")}");
+                writer.WriteLine($"{t},{num},{name},Member,{Q(m.Reference ?? "")},{Q(m.Name)},,{Q(m.YearInitiated ?? "")},,");
 
             foreach (var h in unit.HonoraryMembers)
                 writer.WriteLine($"{t},{num},{name},HonoraryMember,{Q(h.Reference ?? "")},{Q(h.Name)},,,{Q(h.Rank ?? "")}");

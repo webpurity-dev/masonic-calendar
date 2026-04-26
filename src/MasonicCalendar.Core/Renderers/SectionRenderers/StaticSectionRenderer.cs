@@ -34,7 +34,8 @@ public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLo
         {            
             { "current_year", now.Year },
             { "current_date", now.ToString("d MMMM yyyy") },
-            { "publish_version", documentInfo?.Version ?? "" }
+            { "publish_version", documentInfo?.Version ?? "" },
+            { "section_title", section.SectionTitle ?? "" }
         };
         var staticHtml = template.Render(staticModel);
 

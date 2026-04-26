@@ -151,12 +151,12 @@ sections:
     hide_from_parent_toc: true
     
   # TRIAL MEETINGS CALENDAR
-  - section_id: "meetings_calendar"
-    section_title: "Craft & Royal Arch Meeting Dates (Calendar)"
-    type: "meetings-calendar"
-    template: "meetings-calendar-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["Craft", "RoyalArch"]
+  # - section_id: "meetings_calendar"
+  #   section_title: "Craft & Royal Arch Meeting Dates (Calendar)"
+  #   type: "meetings-calendar"
+  #   template: "meetings-calendar-page.html"
+  #   data_mapping: "data_sources/meetings_data_source.yaml"
+  #   unit_types: ["Craft", "RoyalArch"]
 
   # MARK
   - section_id: "mark_intro"

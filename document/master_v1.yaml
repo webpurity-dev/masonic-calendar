@@ -96,7 +96,20 @@ sections:
     type: "toc"
     for_section: "craft_units"
     template: "toc-page.html"
+    # "number", "name", "short_name", or "super_short_name"
+    toc_sort_field: "number"
+    # "name", "short_name", or "super_short_name"
+    toc_display_field: "name"  
     is_child: true
+
+  # - section_id: "craft_toc_alpha"
+  #   section_title: "Craft Lodges in Alphabetical Order"
+  #   type: "toc"
+  #   for_section: "craft_units"
+  #   template: "toc-page.html"
+  #   toc_sort_field: "super_short_name"
+  #   toc_display_field: "super_short_name" 
+  #   is_child: true
   
   - section_id: "craft_units"
     section_title: "Craft Lodges in Numerical Order"
@@ -141,7 +154,18 @@ sections:
     type: "toc"
     for_section: "royalarch_units"
     template: "toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"  
     is_child: true
+
+  # - section_id: "royalarch_toc"
+  #   section_title: "Chapters in Alphabetical Order"
+  #   type: "toc"
+  #   for_section: "royalarch_units"
+  #   template: "toc-page.html"
+  #   toc_sort_field: "super_short_name"
+  #   toc_display_field: "super_short_name"  
+  #   is_child: true
 
   - section_id: "royalarch_units"
     section_title: "Chapters in Numerical Order"

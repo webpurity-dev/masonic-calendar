@@ -65,7 +65,8 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 unitsForToc = units;
             }
 
-            tocData = BuildTocData(unitsForToc, allSections, section.ForSection);
+            // Pass the TOC section (not the target section) to use its sort/display settings
+            tocData = BuildTocDataForSpecificSection(unitsForToc, section);
         }
         else
         {
@@ -198,9 +199,13 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 unitsForSection = units.Where(u => u.UnitType == section.UnitType).ToList();
             }
 
+            // Apply TOC sorting
+            unitsForSection = SortUnits(unitsForSection, section.TocSortField ?? section.TocSortBy ?? "number");
+
             var items = new List<object?>();
             unitIndexPerSection = 0;
             int pagesPerUnit = section.PagesPerUnit ?? 1;
+            string? displayField = section.TocDisplayField ?? "short_name";
 
             foreach (var u in unitsForSection)
             {
@@ -211,6 +216,8 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                     { "unit_number", u.Number },
                     { "unit_name", CleanName(u.Name) },
                     { "short_name", CleanName(u.ShortName ?? u.Name) },
+                    { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
+                    { "display_name", GetDisplayField(u, displayField) },
                     { "anchor_id", GenerateAnchorId(u) },
                     { "page_number", pageNumber }
                 });
@@ -257,9 +264,13 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             unitsForSection = units.Where(u => u.UnitType == targetSection.UnitType).ToList();
         }
 
+        // Apply TOC sorting
+        unitsForSection = SortUnits(unitsForSection, targetSection.TocSortField ?? targetSection.TocSortBy ?? "number");
+
         var items = new List<object?>();
         unitIndexPerSection = 0;
         int pagesPerUnit = targetSection.PagesPerUnit ?? 1;
+        string? displayField = targetSection.TocDisplayField ?? "short_name";
 
         foreach (var u in unitsForSection)
         {
@@ -270,6 +281,8 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 { "unit_number", u.Number },
                 { "unit_name", CleanName(u.Name) },
                 { "short_name", CleanName(u.ShortName ?? u.Name) },
+                { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
+                { "display_name", GetDisplayField(u, displayField) },
                 { "anchor_id", GenerateAnchorId(u) },
                 { "page_number", pageNumber }
             });
@@ -284,6 +297,113 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         });
 
         return tocSections;
+    }
+
+    /// <summary>
+    /// Builds TOC data using the TOC section's own sort/display settings (not the target section's).
+    /// This allows craft_toc and craft_toc_alpha to have different ordering/display.
+    /// </summary>
+    private List<Dictionary<string, object?>> BuildTocDataForSpecificSection(
+        List<SchemaUnit> units, 
+        SectionConfig tocSection)
+    {
+        var tocSections = new List<Dictionary<string, object?>>();
+
+        if (tocSection == null || units == null)
+            return tocSections;
+
+        var sectionTitle = tocSection.SectionTitle ?? tocSection.Title ?? tocSection.SectionName ?? tocSection.SectionId ?? "Unknown";
+
+        var unitsForSection = units;
+        if (!string.IsNullOrWhiteSpace(tocSection.UnitType))
+        {
+            unitsForSection = units.Where(u => u.UnitType == tocSection.UnitType).ToList();
+        }
+
+        // Apply TOC sorting using the TOC section's settings (not the target section's)
+        unitsForSection = SortUnits(unitsForSection, tocSection.TocSortField ?? tocSection.TocSortBy ?? "number");
+
+        var items = new List<object?>();
+        int currentPageNumber = 3;
+        int unitIndexPerSection = 0;
+        int pagesPerUnit = tocSection.PagesPerUnit ?? 1;
+        string? displayField = tocSection.TocDisplayField ?? "short_name";
+
+        foreach (var u in unitsForSection)
+        {
+            int pageNumber = currentPageNumber + (unitIndexPerSection * pagesPerUnit);
+
+            items.Add(new Dictionary<string, object?>
+            {
+                { "unit_number", u.Number },
+                { "unit_name", CleanName(u.Name) },
+                { "short_name", CleanName(u.ShortName ?? u.Name) },
+                { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
+                { "display_name", GetDisplayField(u, displayField) },
+                { "anchor_id", GenerateAnchorId(u) },
+                { "page_number", pageNumber }
+            });
+
+            unitIndexPerSection++;
+        }
+
+        tocSections.Add(new Dictionary<string, object?>
+        {
+            { "section_title", sectionTitle },
+            { "items", items }
+        });
+
+        return tocSections;
+    }
+
+    /// <summary>
+    /// Sorts units based on the specified field: "number", "name", "short_name", or "super_short_name"
+    /// </summary>
+    private List<SchemaUnit> SortUnits(List<SchemaUnit> units, string? sortField)
+    {
+        if (string.IsNullOrWhiteSpace(sortField) || sortField.Equals("number", StringComparison.OrdinalIgnoreCase))
+        {
+            // Sort by unit number (default)
+            return units.OrderBy(u => u.Number).ToList();
+        }
+        else if (sortField.Equals("name", StringComparison.OrdinalIgnoreCase))
+        {
+            // Sort alphabetically by full name
+            return units.OrderBy(u => CleanName(u.Name)).ToList();
+        }
+        else if (sortField.Equals("short_name", StringComparison.OrdinalIgnoreCase))
+        {
+            // Sort alphabetically by short name
+            return units.OrderBy(u => CleanName(u.ShortName ?? u.Name)).ToList();
+        }
+        else if (sortField.Equals("super_short_name", StringComparison.OrdinalIgnoreCase))
+        {
+            // Sort alphabetically by super short name
+            return units.OrderBy(u => CleanName(u.SuperShortName ?? u.ShortName ?? u.Name)).ToList();
+        }
+
+        return units;
+    }
+
+    /// <summary>
+    /// Gets the display name for a unit based on the specified field.
+    /// </summary>
+    private string GetDisplayField(SchemaUnit unit, string? displayField)
+    {
+        if (string.IsNullOrWhiteSpace(displayField) || displayField.Equals("short_name", StringComparison.OrdinalIgnoreCase))
+        {
+            return CleanName(unit.ShortName ?? unit.Name);
+        }
+        else if (displayField.Equals("name", StringComparison.OrdinalIgnoreCase))
+        {
+            return CleanName(unit.Name);
+        }
+        else if (displayField.Equals("super_short_name", StringComparison.OrdinalIgnoreCase))
+        {
+            return CleanName(unit.SuperShortName ?? unit.ShortName ?? unit.Name);
+        }
+
+        return CleanName(unit.ShortName ?? unit.Name);
     }
 
     private string CleanName(string? name)

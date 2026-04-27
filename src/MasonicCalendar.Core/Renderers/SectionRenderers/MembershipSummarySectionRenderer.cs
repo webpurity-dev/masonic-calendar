@@ -73,9 +73,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
             { "averageMembers", averageMembers },
             { "averagePastMasters", averagePastMasters },
             { "averageHonoraryMembers", averageHonoraryMembers },
-            { "totalPastMasters", totalPastMasters },
             { "totalMembers", totalMembers },
+            { "totalPastMasters", totalPastMasters },
             { "totalHonoraryMembers", totalHonoraryMembers },
+            { "totalUnits", unitsForSection.Count },
             { "units", unitsForSection
                 .Select(u => new Dictionary<string, object?>
                 {

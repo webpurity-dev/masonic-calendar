@@ -92,7 +92,9 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             foreach (var group in unitGroups)
             {
                 var unitId = group.Key.UnitId;
-                unitNameLookup.TryGetValue(unitId, out var unitName);
+                var unitType = group.Key.UnitType;
+                var lookupKey = $"{unitType}:{unitId}";
+                unitNameLookup.TryGetValue(lookupKey, out var unitName);
                 unitName ??= unitId;
 
                 var byMonthYear = group
@@ -156,7 +158,8 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 { "section_title", section.SectionTitle },
                 { "year_label", yearLabel },
                 { "months", monthsModel },
-                { "rows", rows }
+                { "rows", rows },
+                { "override_break_before", section.OverrideBreakBefore }
             };
 
             var html = template.Render(model);
@@ -193,7 +196,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 continue;
             foreach (var unit in result.Data)
             {
-                var key = unit.Number.ToString();
+                var key = $"{unit.UnitType}:{unit.Number}";
                 if (!lookup.ContainsKey(key))
                     lookup[key] = unit.SuperShortName ?? unit.ShortName ?? unit.Name;
             }

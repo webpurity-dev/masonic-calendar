@@ -2,18 +2,22 @@
 
 A .NET console application for generating professionally formatted, print-ready PDF and HTML documents for non-profit Masonic organisations. Reads lodge and chapter data from CSV files and produces A6 booklet-style documents via Scriban templating and Puppeteer/Paged.js rendering.
 
+**Latest Release:** v1.5 (April 2026) — Includes complete Mark Masonry and Royal Ark Mariners sections with membership summaries and meeting tables for all degree types.
+
 ## 🎯 Features
 
 - ✅ **A6 booklet format** — print-ready PDF with correct gutter/outer margins for binding
 - ✅ **Template-driven rendering** — Scriban HTML templates with Paged.js W3C print media
 - ✅ **PDF and HTML output** — HTML for proofing, PDF for print
 - ✅ **Cover page** — full-bleed image with automatic binding-edge compensation
-- ✅ **Table of Contents** — master TOC and per-section TOCs with JavaScript-injected page numbers
+- ✅ **Table of Contents** — master TOC and per-section TOCs with JavaScript-injected page numbers (alphabetical order)
 - ✅ **Page numbering** — CSS counter in footer, starts at the TOC section (cover has no number)
 - ✅ **Unit pages** — officers, past masters, joining past masters, members (3-column), honorary members
-- ✅ **Meeting dates** — 12-month calendar grid plus section-specific meeting tables, with recurrence-rule expansion
-- ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners (+ companion degrees)
-- ✅ **Grand Lodge sections** — UGLE officers, provincial executive officers per degree
+- ✅ **Meeting dates** — 12-month calendar grid plus section-specific meeting tables for all degrees, with recurrence-rule expansion
+- ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners
+- ✅ **Membership summaries** — statistical summaries for Craft, Royal Arch, Mark, and RAM with disclaimers
+- ✅ **Executive officer pages** — extended formatting for Grand Lodge sections with provincial officers per degree
+- ✅ **Section placeholders** — title pages for each degree section
 - ✅ **Unit filtering** — `-unit <number>` to render a single lodge/chapter for proofing
 - ✅ **Section filtering** — `-section <id>` to render one section only
 - ✅ **Bleed visualisation** — `-showbleeds` flag for debugging page boundaries
@@ -21,6 +25,7 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Lunar season meetings** — full moon date calculation with `LunarSeason` and `LunarSeasonBefore` strategies
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
 - ✅ **Lodge list normalisation** — joining past master lodge lists stripped of spaces (`1895,6194,9660`)
+- ✅ **Data validation** — comprehensive validation scripts and output reporting
 
 ## 🏗️ Project Structure
 
@@ -123,6 +128,15 @@ dotnet run -- -template master_v1 -output html -unit 3366
 # Render a single Royal Arch unit
 dotnet run -- -template master_v1 -output html -unit 3366 -section royalarch_units
 
+# Render RAM (Royal Ark Mariners) units only
+dotnet run -- -template master_v1 -output html -section ram_units
+
+# Render membership summary for a specific degree
+dotnet run -- -template master_v1 -output html -section craft_membership_summary
+
+# Render meeting dates for all Mark lodges
+dotnet run -- -template master_v1 -output html -section mark_meetings_table
+
 # Debug mode (extra console output + HTML debug file)
 dotnet run -- -template master_v1 -output pdf -debug
 
@@ -147,36 +161,45 @@ dotnet run -- -template master_v1 -output csv
 | Section ID | Type | Description |
 |------------|------|-------------|
 | `cover` | static | Full-bleed cover page |
-| `master_toc` | toc | Master table of contents (all sections) |
+| `master_toc` | toc | Master table of contents (all sections, alphabetical order) |
 | `master_foreword` | static | Foreword/introduction |
-| `ugle_officers` | static | Grand Lodge officers |
-| `grand_officers` | static | Grand Lodge officer details |
+| `ugle_officers` | static | United Grand Lodge of England officers |
+| `grand_officers` | static | Provincial Grand Officers |
+| **Craft Freemasonry** | — | — |
 | `craft` | static | Craft Freemasonry introduction |
 | `craft_executive_officers` | static | Provincial Craft Executive officers |
+| `craft_membership_summary` | membership-summary | Craft membership statistics with disclaimers |
+| `craft_meetings_table` | meetings-table | Craft meeting dates table |
 | `craft_toc` | toc | Craft lodges table of contents |
 | `craft_units` | data-driven | All Craft lodge unit pages |
-| `craft_meetings_table` | meetings-table | Craft meeting dates table |
+| **Royal Arch** | — | — |
 | `royalarch` | static | Royal Arch Freemasonry introduction |
 | `ra_executive_officers` | static | Provincial Royal Arch Executive officers |
+| `ra_membership_summary` | membership-summary | Chapter membership statistics with disclaimers |
+| `ra_meetings_table` | meetings-table | Royal Arch meeting dates table |
 | `royalarch_toc` | toc | Royal Arch chapters table of contents |
 | `royalarch_units` | data-driven | All Royal Arch chapter unit pages |
-| `ra_meetings_table` | meetings-table | Royal Arch meeting dates table |
-| `meetings_calendar` | meetings-calendar | 12-month meetings grid (Craft & RA) |
+| **Mark Masonry** | — | — |
 | `mark_intro` | static | Mark Masonry introduction |
+| `mark_membership_summary` | membership-summary | Mark membership statistics with disclaimers |
+| `mark_meetings_table` | meetings-table | Mark meeting dates table |
 | `mark_toc` | toc | Mark lodges table of contents |
 | `mark_units` | data-driven | All Mark lodge unit pages |
+| **Royal Ark Mariners** | — | — |
 | `ram_intro` | static | Royal Ark Mariners introduction |
+| `ram_membership_summary` | membership-summary | RAM membership statistics with disclaimers |
+| `ram_meetings_table` | meetings-table | RAM meeting dates table |
 | `ram_toc` | toc | RAM lodges table of contents |
 | `ram_units` | data-driven | All RAM lodge unit pages |
-| (+ 10+ additional companion degree sections) | static | Ancient and Accepted Rite, Knights Templar, etc. |
 
 ### Section Types
 
 | Type | Purpose | Renderer |
 |------|---------|----------|
-| `static` | Pre-rendered HTML pages (UGLE, Foreword, Introductions, etc.) | `StaticSectionRenderer` |
-| `toc` | Auto-generated table of contents for a section or all sections | `TocSectionRenderer` |
+| `static` | Pre-rendered HTML pages (UGLE, Foreword, Introductions, Executive Officers, etc.) | `StaticSectionRenderer` |
+| `toc` | Auto-generated table of contents for a section (alphabetical order in v1.5) | `TocSectionRenderer` |
 | `data-driven` | Unit pages rendered from CSV data via Scriban template | `DataDrivenSectionRenderer` |
+| `membership-summary` | Statistical summaries per degree type (Craft, Royal Arch, Mark, RAM) with disclaimers | `MembershipSummarySectionRenderer` |
 | `meetings-table` | Section-specific meeting dates table (per degree type) | `MeetingsTableSectionRenderer` |
 | `meetings-calendar` | Full 12-month calendar grid (supports multiple degree types) | `MeetingsCalendarSectionRenderer` |
 
@@ -234,6 +257,24 @@ The full moon calculation uses the mean synodic period (29.530588853 days) from 
 | CSV parsing | CsvHelper | 30.0.0 |
 | YAML config | YamlDotNet | latest |
 
+## 📝 Version History
+
+### v1.5 (April 2026)
+- **New:** Membership summary pages for all degree types (Craft, Royal Arch, Mark, RAM) with statistics and disclaimers
+- **New:** Meeting date tables for Mark Masonry and Royal Ark Mariners (added to Craft and Royal Arch)
+- **Enhanced:** Executive officer pages with extended formatting and styling
+- **Enhanced:** Section placeholder pages with degree titles
+- **Enhanced:** Table of Contents now in alphabetical order per section
+- **Improved:** Data validation with comprehensive output reporting
+- **Removed:** Meridian section (no longer included)
+- **Updated:** Mark and RAM data now fully integrated with all rendering features
+- **Fixed:** Various data quality issues in unit data and membership records
+
+### Earlier versions
+- v1.4: Initial multi-degree support (Craft, Royal Arch, Mark, RAM)
+- v1.3: Added Royal Arch sections and Mark Masonry support
+- v1.0-v1.2: Core functionality with Craft lodges only
+
 ## 📄 Document Layout
 
 The document is A6 portrait (105 × 148 mm) with:
@@ -246,18 +287,18 @@ Page numbering starts at the `master_toc` section (`reset_page_counter: true` in
 
 ## 📋 Data Format
 
-The project uses a **consolidated v1.3 CSV schema** with two main files:
+The project uses a **consolidated v1.3+ CSV schema** (v1.5 with validation improvements) with two main files:
 
-- **`units_v1.3.csv`** — All units (Craft, Royal Arch, Mark, RAM) with a `Unit Type` column for filtering
-- **`membership_v1.3.csv`** — All members with `Unit No` and `Unit Type` columns to link to units
+- **`units_v1.5.csv`** — All units (Craft, Royal Arch, Mark, RAM) with a `Unit Type` column for filtering
+- **`membership_v1.5.csv`** — All members with `Unit No` and `Unit Type` columns to link to units
 
-Each YAML data source (e.g. `craft_data_source.yaml`, `royalarch_data_source.yaml`) specifies:
+Each YAML data source (e.g. `craft_data_source.yaml`, `royalarch_data_source.yaml`, `mark_data_source.yaml`, `ram_data_source.yaml`) specifies:
 - Which CSV files to read
 - Filter criteria (`Unit Type` = "Craft", "RA", "Mark", "RAM")
 - Column name mappings for each person type (Officers, PastMasters, JoiningPastMasters, Members, HonoraryMembers)
-- Optional heading overrides (e.g. "Excellent Kings" instead of "Past Masters" for Royal Arch)
+- Optional heading overrides (e.g. "Excellent Kings" instead of "Past Masters" for Royal Arch; "Past Mark Masters" for Mark; "Past Commanders" for RAM)
 
-The consolidated approach simplifies data maintenance — a single pair of CSV files serves all degree types, with degree-specific filtering handled in the YAML data sources.
+The consolidated approach simplifies data maintenance — a single pair of CSV files serves all degree types, with degree-specific filtering handled in the YAML data sources. The v1.5 release includes comprehensive data validation and quality improvements across all degree types.
 
 ### Unit Page Sections
 

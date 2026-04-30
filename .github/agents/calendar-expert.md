@@ -1,34 +1,54 @@
 # Masonic Calendar - Copilot Agent Instructions
 
-**Date Updated:** March 14, 2026  
+**Date Updated:** April 30, 2026  
 **Project Type:** C# .NET 8.0 Console Application  
-**Purpose:** Non-profit calendar/document generation system with PDF rendering via Puppeteer and Scriban templating
+**Purpose:** Non-profit calendar/document generation system with PDF rendering via Puppeteer and Scriban templating  
+**Current Version:** v1.5 (production-ready)  
+**Next Version:** v1.6 (columnar CSV format, 11 degree types) — In planning/design phase
 
 ---
 
 ## 📋 Quick Reference
 
-### Active Features
+### Active Features (v1.5)
 - **3-Column Members Table Layout** (FIXED): Inline-block CSS layout maintains structure across page breaks
-- **Unit Filtering** (FIXED): `-unit` CLI parameter now correctly renders single units only
+- **Unit Filtering**: `-unit` CLI parameter renders single units only (core feature)
 - **Paged.js Integration**: W3C-standard print rendering with automatic pagination
 - **TOC Page Numbers**: JavaScript injection calculates page numbers after Paged.js pagination
+- **Membership Summary Pages**: Dedicated summary of member counts per degree (NEW v1.5)
+- **Meeting Date Tables**: Full 12-month meetings table for all degrees — Craft, Mark, Royal Arch, RAM (NEW v1.5)
+- **Enhanced Executive Officers**: Comprehensive officer lists with ranks and dates (NEW v1.5)
+- **Alphabetical TOC**: Table of contents sorted alphabetically by unit name (NEW v1.5)
+- **Data Validation**: Validation reports for meeting dates, unit counts, member deduplication (NEW v1.5)
+- **4 Degree Types**: Craft, Royal Arch, Mark, Royal Ark Mariners
 
-### Current Issues Status
-- ✅ Members table no longer collapses at page breaks
-- ✅ Unit filtering parameter works end-to-end
-- ✅ Members heading stays with table content
+### Current Status
+- ✅ v1.5 production-ready with all major features complete
+- ✅ Members table stable across page breaks
+- ✅ Unit filtering works end-to-end
+- ✅ Meeting tables and membership summaries rendering correctly
+- ✅ Validation pipeline operational
 
-### Recent Discoveries (This Session)
-1. **Unit Filter Bug Fix**: Renderer was reloading all units instead of using filtered parameter
-   - **File**: `SchemaPdfRenderer.RenderSectionAsync()` ~line 348
-   - **Solution**: Use `units` parameter directly (already filtered by CLI)
-   - **Impact**: `-unit 3366` now outputs 87.0KB (1 unit) vs 2428.0KB (all 49)
+### v1.6 Planning (Upcoming)
+- **Columnar CSV Format**: Moving from row-based to column-grouped CSV structure
+- **11 Degree Types**: Support for KT, KTP, OSC, PBQ, RCOC, STOA (in addition to current 4)
+- **Generic Terminology**: Replace `SchemaPastMaster` → `SchemaPastUnitHead` (works for all degrees)
+- **Unique ID Generation**: Composite keys from YAML-configured fields (to replace lost row identity)
+- **YAML Column Configuration**: Column ranges, filters, unique ID fields defined in data_source.yaml
+- **Status**: Analysis phase complete (see ANALYSIS_v1.6_FORMAT.md), implementation starts May 1, 2026
 
-2. **CSS Layout Solution**: Inline-block beats flexbox/grid for print media
-   - Uses `display: inline-block; width: calc(33.333% - 2px);`
-   - Font-size: 0 + letter-spacing removes whitespace between columns
-   - Maintains 3-column structure across Paged.js page breaks
+### Recent Discoveries (This Phase)
+1. **v1.5 Feature Completeness**: All planned features implemented and validated
+   - Membership summaries working correctly
+   - Meeting tables accurate for all degrees
+   - Data validation preventing duplicate entries
+   - Performance: Full document renders in 60-90 seconds
+
+2. **v1.6 Format Analysis Complete**
+   - Column structure mapped: 5 fixed sections (Members, Officers, Past Unit Heads, Joining, Honorary)
+   - Unique ID strategy: Composite keys from section-specific fields (deterministic, deduplication-ready)
+   - Two rank sources in Joining sections: Provincial Grand Rank (origin) vs Grand Rank (destination)
+   - Reference: `/ANALYSIS_v1.6_FORMAT.md` (1300+ lines, implementation blueprint)
 
 ---
 
@@ -83,12 +103,18 @@ ConvertHtmlToPdf: Puppeteer + Paged.js → PDF/HTML output
 - Each handles specific section type logic
 
 **Document Templates** (`document/templates/`)
-- `print.css` - Paged.js @page rules, margins, TOC styling
-- `unit-page.html` - Scriban template for individual unit pages
-- `toc-page.html` - Table of contents page template
-- `cover-page.html` - Static cover page
-- `forward-page.html` - Foreword/introduction page
-- `meetings-calendar-page.html` - Meeting calendar section template
+- `print.css` - Paged.js @page rules, margins, TOC styling, membership summary styling
+- `unit-page.html` - Scriban template for individual unit pages (members, officers, past unit heads)
+- `toc-page.html` - Table of contents page template with alphabetical sorting
+- `cover-page.html` - Static cover page with organization branding
+- `foreword-page.html` - Foreword/introduction page
+- `meetings-calendar-page.html` - 12-month meetings calendar for all degrees
+- `membership-summary-page.html` - NEW v1.5: Summary of member counts and statistics
+- `meetings-table-page.html` - NEW v1.5: Detailed meeting dates table
+- `unit-index-page.html` - NEW v1.5: Alphabetical unit index
+- `companion/` - Subdirectory with degree-specific intro pages (Mark, RAM)
+- `craft/` - Degree-specific templates for Craft lodges
+- `royalarch/` - Degree-specific templates for Royal Arch chapters
 
 ---
 
@@ -213,23 +239,48 @@ function injectTocPageNumbers() {
 
 ---
 
-### Document Structure (master_v1 Template)
+### Document Structure (master_v1 Template) — v1.5
 
 **Sections (in order):**
-1. `cover` (static) - Static cover page
-2. `master_toc` (toc) - Master table of contents with all sections
+1. `cover` (static) - Static cover page with organization branding
+2. `master_toc` (toc) - Master table of contents (alphabetically sorted)
 3. `master_foreword` (static) - Foreword/introduction
-4. `craft_toc` (toc) - Craft units table of contents
-5. `craft_units` (data-driven) - All craft unit pages
-6. `royalarch_toc` (toc) - Royal Arch table of contents  
-7. `royalarch_units` (data-driven) - All Royal Arch unit pages
-8. `meetings_calendar` (data-driven) - Meetings calendar pages
+4. **Membership Summary** (static) - NEW v1.5: Summary statistics for all degrees
+5. **Unit Index** (static) - NEW v1.5: Alphabetical listing of all units
+6. `craft_toc` (toc) - Craft units table of contents
+7. `craft_units` (data-driven) - All craft unit pages
+8. `craft_intro` (static) - Craft degree introduction
+9. **Craft Membership Summary** (static) - NEW v1.5: Craft-specific statistics
+10. **Craft Meetings Table** (static) - NEW v1.5: Full 12-month meeting dates
+11. `royalarch_toc` (toc) - Royal Arch table of contents
+12. `royalarch_units` (data-driven) - All Royal Arch unit pages
+13. `royalarch_intro` (static) - Royal Arch degree introduction
+14. **Royal Arch Membership Summary** (static) - NEW v1.5
+15. **Royal Arch Meetings Table** (static) - NEW v1.5
+16. `mark_toc` (toc) - Mark units table of contents
+17. `mark_units` (data-driven) - All Mark unit pages
+18. `mark_intro` (static) - Mark degree introduction
+19. **Mark Membership Summary** (static) - NEW v1.5
+20. **Mark Meetings Table** (static) - NEW v1.5
+21. `ram_toc` (toc) - Royal Ark Mariners table of contents
+22. `ram_units` (data-driven) - All RAM unit pages
+23. `ram_intro` (static) - RAM degree introduction
+24. **RAM Membership Summary** (static) - NEW v1.5
+25. **RAM Meetings Table** (static) - NEW v1.5
 
-**Unit Page Content:**
-- Officer lists (Past Master, Master, Wardens, etc.)
-- Member tables (3-column layout)
-- Location information
-- Meeting calendar
+**Unit Page Content (v1.5):**
+- Officers: Master, Past Master, Wardens, Secretary, Treasurer, etc. with ranks and installation dates
+- Past Unit Heads: Chronological list with installation dates and provincial/grand ranks
+- Joining Past Unit Heads: List of members who joined from other lodges with origin lodge numbers
+- Members: 3-column layout (alphabetical by surname)
+- Honorary Members: Name and rank
+- Location: Address, contact information
+
+**Data Validation (v1.5):**
+- Meeting date validation: Checks for date consistency across all degree types
+- Member deduplication: Identifies and removes duplicate entries
+- Unit count verification: Validates total units match expectations
+- CSV format validation: Ensures data structure integrity
 
 ---
 
@@ -323,72 +374,217 @@ Console.WriteLine($"⚠️ Warning message");                    // Warning
 
 ```
 document/
+  ├── master_v1.yaml            # Master template configuration for all sections
   ├── templates/
-  │   ├── print.css              # Paged.js @page rules, margins
-  │   ├── unit-page.html         # Unit page Scriban template
-  │   ├── toc-page.html          # TOC section template
+  │   ├── print.css              # Paged.js @page rules, margins, membership summary styling
+  │   ├── unit-page.html         # Unit page Scriban template (officers, members, past heads)
+  │   ├── toc-page.html          # Alphabetical TOC template (v1.5)
+  │   ├── unit-index-page.html   # Unit index page (NEW v1.5)
+  │   ├── membership-summary-page.html  # Member statistics (NEW v1.5)
+  │   ├── meetings-table-page.html     # Meeting dates table (NEW v1.5)
   │   ├── cover-page.html        # Cover page
-  │   ├── forward-page.html      # Foreword page
-  │   └── meetings-calendar-page.html  # Meetings calendar
+  │   ├── foreword-page.html     # Foreword page
+  │   ├── meetings-calendar-page.html  # Calendar grid
+  │   ├── copyright.html         # Copyright info
+  │   ├── craft/                 # Craft degree-specific templates
+  │   ├── royalarch/             # Royal Arch degree-specific templates
+  │   ├── companion/             # Companion degree templates (Mark, RAM)
+  │   └── *-introduction.html    # Degree intro pages
   ├── data/
-  │   ├── hermes-export.csv      # Consolidated CSV (v2 schema)
-  │   ├── sample-units.csv       # Unit definitions
-  │   ├── sample-unit-locations.csv
-  │   ├── sample-unit-meetings.csv
-  │   ├── royalarch_units.csv
-  │   └── _archive/              # Old v1 schema files
+  │   ├── units_v1.5.csv         # Unit master data (current version)
+  │   ├── membership_v1.5.csv    # Member data (current version)
+  │   ├── unit-meetings.csv      # Meeting definitions
+  │   ├── units_raw_v1.4.csv     # Previous version (archive)
+  │   ├── units_v1.4.csv         # Previous version (archive)
+  │   ├── units_v1.3.csv         # Previous version (archive)
+  │   ├── membership_v1.4.csv    # Previous version (archive)
+  │   ├── membership_v1.3.csv    # Previous version (archive)
+  │   └── sections_v1.6.csv      # INCOMING: Columnar v1.6 format (in progress)
   ├── data_sources/
-  │   ├── master_v1.yaml         # Master template layout config
-  │   ├── craft_data_source.yaml
-  │   ├── royalarch_data_source.yaml
-  │   └── meetings_data_source.yaml
+  │   ├── craft_data_source.yaml         # Craft CSV column mappings
+  │   ├── royalarch_data_source.yaml     # Royal Arch CSV column mappings
+  │   ├── mark_data_source.yaml          # Mark CSV column mappings (added v1.5)
+  │   ├── ram_data_source.yaml           # Royal Ark Mariners CSV mappings (added v1.5)
+  │   └── meetings_data_source.yaml      # Meeting recurrence rules
   └── images/
+      └── cover-img-yellow.jpg           # Cover page background image
 
 src/
   ├── MasonicCalendar.Console/
-  │   ├── Program.cs             # CLI entry point ⭐
+  │   ├── Program.cs             # CLI entry point, parameter parsing
   │   └── MasonicCalendar.Console.csproj
   └── MasonicCalendar.Core/
-      ├── Domain/                # Business entities
-      ├── Loaders/               # Data loading & template loading
-      ├── Renderers/             # PDF/HTML rendering logic ⭐
-      │   └── SectionRenderers/  # Section-specific renderers
-      └── Services/              # Business logic (recurrence, etc.)
+      ├── Domain/                # Business entities (SchemaUnit, SchemaMember, etc.)
+      ├── Loaders/               # Data loading (CSV, YAML, templates)
+      ├── Renderers/             # PDF/HTML rendering (SchemaPdfRenderer, section renderers)
+      │   └── SectionRenderers/  # Section-specific renderers (Data-driven, Static, TOC)
+      └── Services/              # Business logic (RecurrenceService, TextCleaner, etc.)
 
 output/
-  ├── master_v1-all-sections.html     # Full rendered document
-  ├── master_v1-craft_units.html      # Craft section only
-  └── master_v1-craft_units-unit3366.html  # Single unit (when -unit 3366)
+  ├── master_v1.1.5-all-sections.html   # Full rendered document (v1.5)
+  ├── validation-YYYY-MM-DD-HHMMSS.csv  # Data validation reports (NEW v1.5)
+  ├── v1.5/                             # v1.5 release outputs
+  │   ├── craft/                        # Craft section outputs
+  │   ├── mark/                         # Mark section outputs
+  │   ├── ra/                           # Royal Arch section outputs
+  │   └── ram/                          # Royal Ark Mariners section outputs
+  ├── v1.4/                             # v1.4 release archive
+  ├── v1.3/                             # v1.3 release archive
+  └── calendar/                         # Meeting calendar exports
 ```
 
 ---
 
-## 🚀 CLI Usage Examples
+## 🚀 CLI Usage Examples (v1.5)
 
 **Render full master template to HTML:**
 ```bash
-dotnet run -- -template master_v1 -output HTML
+cd src/MasonicCalendar.Console
+dotnet run -- -template master_v1 -output html
 ```
 
 **Render single section to PDF:**
 ```bash
-dotnet run -- -template master_v1 -section craft_units -output PDF
+dotnet run -- -template master_v1 -section craft_units -output pdf
 ```
 
 **Render single unit (craft section):**
 ```bash
-dotnet run -- -template master_v1 -unit 3366 -output HTML
+dotnet run -- -template master_v1 -unit 3366 -output html
 ```
 
 **Render single unit from royal arch:**
 ```bash
-dotnet run -- -template master_v1 -unit 3366 -section royalarch_units -output PDF
+dotnet run -- -template master_v1 -unit 3366 -section royalarch_units -output pdf
+```
+
+**Render membership summaries only:**
+```bash
+dotnet run -- -template master_v1 -section craft_membership_summary -output html
+```
+
+**Render meetings table for all degrees:**
+```bash
+dotnet run -- -template master_v1 -section craft_meetings_table -output html
 ```
 
 **Debug mode with bleed visualization:**
 ```bash
-dotnet run -- -template master_v1 -output HTML -debug -showbleeds
+dotnet run -- -template master_v1 -output html -debug -showbleeds
 ```
+
+**Render with data validation:**
+```bash
+# Validation reports generated automatically
+dotnet run -- -template master_v1 -output html
+# Check: output/validation-YYYY-MM-DD-HHMMSS.csv
+```
+
+## 🔄 v1.6 Data Model Changes (Upcoming)
+
+### New Classes
+**SchemaPastUnitHead** (replaces Craft-specific SchemaPastMaster)
+```csharp
+public class SchemaPastUnitHead
+{
+    public string UniqueId { get; set; }        // Generated composite key
+    public int UnitNumber { get; set; }
+    public string Name { get; set; }
+    public int Joined { get; set; }
+    public int? Installed { get; set; }
+    public string ProvincialRank { get; set; }
+    public int? DateRankAccorded { get; set; }
+    public string GrandRank { get; set; }       // NEW: Grand rank in unit
+    public int? GrandRankDateAccorded { get; set; }
+}
+```
+
+**SchemaJoiningPastUnitHead** (new, separate from Past Unit Heads)
+```csharp
+public class SchemaJoiningPastUnitHead
+{
+    public string UniqueId { get; set; }        // Generated composite key
+    public int UnitNumber { get; set; }
+    public List<int> OriginLodges { get; set; } // Lodges joined from
+    public int InstalledInCurrentUnit { get; set; }
+    public string Name { get; set; }
+    public int Joined { get; set; }
+    public string ProvincialGrandRank { get; set; }   // From origin lodge
+    public int? DateRankAccorded { get; set; }
+    public string GrandRank { get; set; }            // In destination unit
+    public int? GrandRankDateAccorded { get; set; }
+}
+```
+
+### Modified Classes
+**SchemaMember** (adds new fields)
+```csharp
+// NEW properties in v1.6:
+public string UniqueId { get; set; }   // Generated composite key
+public int? JoinDate { get; set; }     // Year joined
+```
+
+**SchemaUnit** (collection name changes)
+```csharp
+// RENAMED in v1.6:
+// Old: public List<SchemaPastMaster> PastMasters { get; set; }
+// New: public List<SchemaPastUnitHead> PastUnitHeads { get; set; }
+
+// Old: public List<SchemaJoiningPastMaster> JoiningPastMasters { get; set; }
+// New: public List<SchemaJoiningPastUnitHead> JoiningPastUnitHeads { get; set; }
+```
+
+### Benefits of v1.6 Structure
+- ✅ **Generic Terminology**: Works for all 11 degree types (PM, PP, PMM, PC, PPrM, etc.)
+- ✅ **Unique Identities**: Composite keys enable deduplication and change tracking
+- ✅ **Flexible Ranks**: Separate fields for different rank types and sources
+- ✅ **Audit Ready**: ID generation is deterministic and logged
+- ✅ **Future-Proof**: YAML configuration means no code changes for new degrees
+
+---
+
+## 🔄 v1.6 Columnar CSV Format
+
+### Column Structure
+```
+Columns 0-4:   Members (Unit Type, Unit No, Name, Join Date, empty)
+Columns 5-9:   Officers (Unit Type, Unit No, Name, Office, empty)
+Columns 10-19: Past Unit Heads (Unit No, Unit Type, Name, Joined, Installed, Prov Rank, Date, Grand Rank, GR Date, empty)
+Columns 20-29: Joining Past Unit Heads (Unit No, Lodge, Installed, Unit Type, Name, Joined, Prov Grand Rank, Date, Grand Rank, GR Date, empty)
+Columns 30-33: Honorary Members (Unit Type, Unit No, Name, Rank)
+```
+
+### Key Differences from v1.5
+- **Row-based CSV** → **Column-grouped CSV** (multiple person types per row)
+- Each row contains data for 5 different person type sections simultaneously
+- Column indices are configurable via YAML (not hardcoded in C#)
+- Unique IDs are generated from composite key fields (defined per section in YAML)
+- Supports all 11 degree types via same parsing logic + section-specific filters
+
+### Example Row (Craft unit 137)
+```
+Craft,137,Howard D,1964,,Craft,137,Jones W,Engineer,,137,Craft,Shorto R J,1959,1987,PPJGW,2019,PPGSwdB,2025,,137,5848,1987,Craft,Smith P,1950,PPGM,2020,PPGSwdB,2025,,Craft,137,Brown A,PPGM
+```
+
+### ColumnarCsvParser (New in v1.6)
+Will implement these key methods:
+- `ParseSectionStructure()` — Detect column sections from headers
+- `ExtractSectionData()` — Extract specific columns for one section type
+- `GenerateUniqueId()` — Create composite key from YAML-configured fields
+- `ParseMembersSection()` — Extract & deduplicate members
+- `ParseOfficersSection()` — Extract & deduplicate officers
+- `ParsePastUnitHeadsSection()` — Extract & deduplicate past unit heads
+- `ParseJoiningPastUnitHeadsSection()` — Handle multiple lodges + dual ranks
+- `ParseHonoraryMembersSection()` — Extract & deduplicate honorary members
+
+### Unique ID Strategy
+| Section | Composite Key Fields | Example |
+|---------|----------------------|---------|
+| Members | unit_type + unit_no + name + join_date | `Craft-137-Howard D-1964` |
+| Officers | unit_type + unit_no + name + office | `Craft-137-Jones W-Engineer` |
+| Past Unit Heads | unit_no + unit_type + name + installed | `137-Craft-Shorto R J-1987` |
+| Joining Past | unit_no + name + installed_in_unit | `137-Smith P-1987` |
+| Honorary | unit_type + unit_no + name + rank | `Craft-137-Brown A-PPGM` |
 
 ---
 
@@ -413,26 +609,50 @@ dotnet run -- -template master_v1 -output HTML -debug -showbleeds
 
 ---
 
-## 📚 Recent Session History
+## 📚 v1.5 Session Summary (April 2026)
 
-**Completed This Session:**
-1. ✅ Fixed Members table 3-column layout (inline-block CSS solution)
-2. ✅ Fixed duplicate headers in Members table (removed duplicate th/td elements)
-3. ✅ Added `-unit` CLI parameter
-4. ✅ Fixed unit filter bug in renderer (was reloading all units)
-5. ✅ Verified end-to-end unit filtering works correctly
+**Major Features Implemented:**
+1. ✅ Membership Summary Pages — Per-degree member statistics and counts
+2. ✅ Meeting Date Tables — Full 12-month calendars for all 4 degrees
+3. ✅ Enhanced Officers — Comprehensive executive officer listings with ranks
+4. ✅ Alphabetical TOC — Sorted by unit name for easier navigation
+5. ✅ Data Validation — Automated checks for duplicates and date consistency
+6. ✅ Degree-Specific Templates — Separate intro pages and styling per degree
 
-**Test Results:**
-- Single unit rendering: 87.0KB, 1 unit-page div
-- Full section rendering: 2428.0KB, 49 unit-page divs
-- Members table: Maintains 3-column layout across page breaks
-- TOC page numbers: Calculated correctly after Paged.js pagination
+**v1.5 Test Results:**
+- Full document: ~200+ pages, 60-90 second render time
+- Members table: Maintains 3-column layout across all page breaks
+- Membership summaries: Accurate counts across all degree types
+- Meeting tables: All dates parsing correctly for 12 months
+- Data validation: Deduplicating entries, detecting inconsistencies
+- PDF quality: Print-ready with proper margins and page numbering
 
-**Known Working:**
-- Members of unit 3366: 132+ members in 3-column layout
-- Page breaks: No content loss across sections
-- PDF rendering: Paged.js integration with Puppeteer
-- CLI parameter validation: Integer parsing with meaningful error messages
+**Known Working (v1.5):**
+- Unit 3366 members: 132+ in 3-column layout
+- Officer parsing: Names, ranks, installation dates extracted correctly
+- Meeting recurrence: Monthly, quarterly, semi-annual meetings calculated
+- HTML output: Paged.js pagination stable
+- PDF rendering: Puppeteer + Chromium headless mode working reliably
+- CLI parameters: -template, -output, -section, -unit, -debug, -showbleeds all functional
+
+## 📚 v1.6 Planning Phase (April 30, 2026)
+
+**Analysis Status:** ✅ COMPLETE (see `/ANALYSIS_v1.6_FORMAT.md`)
+
+**Key Decisions Made:**
+1. Columnar CSV format with 5 fixed sections per row
+2. 11 total degree types (adds 7 new: KT, KTP, OSC, PBQ, RCOC, STOA)
+3. Unique ID generation via composite keys from YAML-configured fields
+4. Generic terminology: `SchemaPastUnitHead` works for all degrees
+5. Two separate rank sources in Joining sections (origin vs destination)
+6. YAML-based column range configuration (not hard-coded in C#)
+
+**Implementation Timeline:**
+- May 1-3: Domain classes + config classes + ColumnarCsvParser
+- May 4-5: SchemaDataLoader updates + section parsers
+- May 6-7: YAML files for new degrees + template updates
+- May 8-10: Unit and integration testing
+- May 11: Production release as v1.6
 
 ---
 
@@ -452,8 +672,19 @@ dotnet run -- -template master_v1 -output HTML -debug -showbleeds
 
 ---
 
-## 📝 Last Updated
+## 📝 Project Status & Timeline
 
-**Date:** March 14, 2026  
-**Session Focus:** Unit filtering fix + CSS layout solutions  
-**Status:** All major features working, ready for production rendering
+**Current Version:** v1.5 (Production-Ready)  
+**Last Update:** April 30, 2026  
+**Features:** 4 degree types, membership summaries, meeting tables, data validation  
+**Status:** Stable, all major features complete and tested  
+
+**Next Phase:** v1.6 (May 2026)  
+**New Features:** 11 degree types, columnar CSV format, unique IDs via YAML config  
+**Status:** In planning/analysis phase, ready for implementation  
+
+**Documentation:**
+- README.md — User and developer guide (updated for v1.5)
+- ANALYSIS_v1.6_FORMAT.md — Complete v1.6 technical specification (1300+ lines)
+- memory/session/v1.6_investigation.md — Implementation roadmap with 11 phased tasks
+- calendar-expert.md (this file) — Agent instructions and quick reference

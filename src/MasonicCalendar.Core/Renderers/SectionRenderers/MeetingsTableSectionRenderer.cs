@@ -72,11 +72,23 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             // Expand recurrence rules into concrete dates
             var expanded = ExpandMeetings(meetings, startYear, startMonth, endYear, endMonth);
 
-            // Filter by unit type(s) if specified on the section
-            if (section.UnitTypes?.Count > 0)
+            // If single unit is pre-filtered, filter to just that unit; otherwise apply section unit types filter
+            if (units.Count == 1)
+            {
+                var singleUnit = units[0];
+                expanded = expanded
+                    .Where(e => e.UnitType.Equals(singleUnit.UnitType, StringComparison.OrdinalIgnoreCase) &&
+                                e.UnitId.Equals(singleUnit.Number.ToString(), StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (DebugMode)
+                    Console.WriteLine($"  - Filtered meetings to unit: {singleUnit.UnitType} {singleUnit.Number}");
+            }
+            else if (section.UnitTypes?.Count > 0)
+            {
                 expanded = expanded
                     .Where(e => section.UnitTypes.Any(t => t.Equals(e.UnitType, StringComparison.OrdinalIgnoreCase)))
                     .ToList();
+            }
 
             // Resolve unit display names (SuperShortName preferred) from data-driven sections
             var unitNameLookup = await BuildUnitNameLookupAsync(allSections, masterTemplateKey);

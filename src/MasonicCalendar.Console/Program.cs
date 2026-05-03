@@ -18,6 +18,7 @@ string? templateName = null;
 string? documentOutputFormat = null;
 string? sectionId = null;
 string? unitNumber = null;
+string? unitType = "craft";  // Default to craft units
 bool debugMode = false;
 
 var templateIndex = Array.IndexOf(args, "-template");
@@ -44,6 +45,12 @@ if (unitIndex != -1 && unitIndex + 1 < args.Length)
     unitNumber = args[unitIndex + 1];
 }
 
+var unitTypeIndex = Array.IndexOf(args, "-unittype");
+if (unitTypeIndex != -1 && unitTypeIndex + 1 < args.Length)
+{
+    unitType = args[unitTypeIndex + 1];
+}
+
 // Check for debug flag
 debugMode = Array.IndexOf(args, "-debug") != -1;
 
@@ -66,6 +73,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         if (!string.IsNullOrWhiteSpace(unitNumber))
         {
             Console.WriteLine($"Unit:     {unitNumber}");
+            Console.WriteLine($"UnitType: {unitType}");
         }
         Console.WriteLine();
 
@@ -84,6 +92,39 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Determine target section early (before loading units)
         string? targetSectionId = sectionId ?? null;
+
+        // If unit type is specified without section, determine section from unit type
+        if (!string.IsNullOrWhiteSpace(unitNumber) && targetSectionId == null)
+        {
+            // Map unit type to section ID and supplementary section prefix
+            var unitTypeToMapping = new Dictionary<string, (string section, string prefix)>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "craft", ("craft_units", "craft") },
+                { "royalarch", ("royalarch_units", "ra") },
+                { "ra", ("royalarch_units", "ra") },
+                { "mark", ("mark_units", "mark") },
+                { "ram", ("ram_units", "ram") },
+                { "rcoc", ("rcoc_units", "rcoc") },
+                { "kt", ("kt_units", "kt") },
+                { "ktp", ("ktp_units", "ktp") },
+                { "osc", ("osc_units", "osc") },
+                { "osm", ("osm_units", "osm") },
+                { "pbq", ("pbq_units", "pbq") },
+                { "stoa", ("stoa_units", "stoa") }
+            };
+            
+            if (unitTypeToMapping.TryGetValue(unitType ?? "craft", out var mapping))
+            {
+                targetSectionId = mapping.section;
+                unitType = mapping.prefix;  // Update unitType to be the correct prefix for supplementary sections
+            }
+            else
+            {
+                Console.WriteLine($"⚠️  Warning: Unknown unit type '{unitType}', defaulting to craft");
+                targetSectionId = "craft_units";
+                unitType = "craft";
+            }
+        }
 
         // Peek at the layout to determine the target section's type
         var peekLoader = new DocumentLayoutLoader(documentRoot);
@@ -172,14 +213,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Render using Scriban template
         var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
         
-        // When rendering a specific unit, auto-select section if not already specified
-        if (!string.IsNullOrWhiteSpace(unitNumber) && targetSectionId == null)
+        // Log the rendering details
+        if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
         {
-            // When unit is specified without section, render from craft units by default
-            // (For Royal Arch units, the user can specify -section royalarch_units)
-            targetSectionId = "craft_units";
-            Console.WriteLine($"📄 Rendering unit {unitNumber} from craft section");
-            Console.WriteLine($"   (To render from royal arch section: add '-section royalarch_units')");
+            Console.WriteLine($"📄 Rendering unit {unitNumber} from {unitType} section");
         }
         else if (targetSectionId != null)
         {
@@ -190,7 +227,46 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
-        var renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+        // For single unit renders with pre-filtering, auto-include membership summary and meetings
+        Result<byte[]> renderResult;
+        if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
+        {
+            // Use the unitType prefix (set above for single-unit renders with -unittype) for supplementary sections
+            var unitTypePrefix = unitType ?? "craft";
+            var membershipSectionId = $"{unitTypePrefix}_membership_summary";
+            var meetingsSectionId = $"{unitTypePrefix}_meetings_table";
+            
+            // Check if supplementary sections exist
+            var layoutForSupplemental = layoutResult.Data;
+            var hasMembershipSection = layoutForSupplemental?.Sections?.Any(s => 
+                s.SectionId?.Equals(membershipSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
+            var hasMeetingsSection = layoutForSupplemental?.Sections?.Any(s => 
+                s.SectionId?.Equals(meetingsSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
+            
+            // Render all sections together if supplementary sections exist
+            if (hasMembershipSection || hasMeetingsSection)
+            {
+                var sectionsToRender = new List<string> { targetSectionId };
+                if (hasMembershipSection) sectionsToRender.Add(membershipSectionId);
+                if (hasMeetingsSection) sectionsToRender.Add(meetingsSectionId);
+                
+                Console.WriteLine();
+                Console.WriteLine("📊 Including supplementary sections:");
+                foreach (var secId in sectionsToRender.Skip(1))
+                    Console.WriteLine($"   ✓ {secId}");
+                Console.WriteLine();
+                
+                renderResult = await renderer.RenderMultipleSectionsAsync(unitsToRender, templateName, sectionsToRender, documentOutputFormat);
+            }
+            else
+            {
+                renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+            }
+        }
+        else
+        {
+            renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+        }
         
         if (!renderResult.Success)
         {

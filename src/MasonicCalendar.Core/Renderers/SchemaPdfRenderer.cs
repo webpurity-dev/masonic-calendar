@@ -44,6 +44,153 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         return await RenderSectionAsync(units, masterTemplateKey, sectionId, format);
     }
 
+    /// <summary>
+    /// Render multiple sections into a single combined HTML/PDF document.
+    /// Used when rendering a single unit with supplementary sections (membership summary, meetings).
+    /// </summary>
+    public async Task<Result<byte[]>> RenderMultipleSectionsAsync(
+        List<SchemaUnit> units,
+        string masterTemplateKey,
+        List<string> sectionIds,
+        string format = "HTML")
+    {
+        if (sectionIds == null || sectionIds.Count == 0)
+            return Result<byte[]>.Fail("No sections specified for rendering");
+
+        try
+        {
+            var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
+            if (!layoutResult.Success)
+                return Result<byte[]>.Fail(layoutResult.Error ?? "Failed to load template");
+
+            var layout = layoutResult.Data;
+            var output = new StringBuilder();
+
+            // Build HTML document once
+            output.AppendLine("<!DOCTYPE html>");
+            output.AppendLine("<html>");
+            output.AppendLine("<head>");
+            output.AppendLine("<meta charset='utf-8'/>");
+            output.AppendLine("<title>Masonic Calendar</title>");
+            
+            var format_str = layout?.Document?.Format ?? "A6";
+            var orientation = layout?.Document?.Orientation ?? "portrait";
+            output.AppendLine($"<meta name='format' content='{format_str}'/>");
+            output.AppendLine($"<meta name='orientation' content='{orientation}'/>");
+            
+            // Add CSS and scripts
+            var printCssPath = Path.Combine(_templateRoot, "print.css");
+            if (File.Exists(printCssPath))
+            {
+                var printCssContent = File.ReadAllText(printCssPath);
+                output.AppendLine("<style>");
+                output.AppendLine(printCssContent);
+                
+                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(marginsCss))
+                {
+                    output.AppendLine("/* Page margins from configuration */");
+                    output.AppendLine(marginsCss);
+                }
+                
+                var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(globalStylesCss))
+                {
+                    output.AppendLine("/* Global styles from configuration */");
+                    output.AppendLine(globalStylesCss);
+                }
+                
+                if (_showBleeds)
+                {
+                    output.AppendLine("/* Bleed visualization */");
+                    output.AppendLine(".pagedjs_sheet { position: relative; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                }
+                
+                output.AppendLine("</style>");
+            }
+            
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
+            output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
+            output.AppendLine("</head>");
+            output.AppendLine("<body>");
+
+            // Render each section and combine
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+            var sectionIndex = 0;
+            
+            foreach (var requestedSectionId in sectionIds)
+            {
+                var section = layout?.Sections?.FirstOrDefault(s =>
+                    s.SectionId?.Equals(requestedSectionId, StringComparison.OrdinalIgnoreCase) ?? false);
+
+                if (section == null)
+                {
+                    if (_debugMode)
+                        Console.WriteLine($"    ⚠️  Section '{requestedSectionId}' not found");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(section.Template))
+                    continue;
+
+                // Use the appropriate renderer based on section type
+                var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
+
+                var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
+                var sectionOutput = new StringBuilder();
+                
+                await sectionRenderer.RenderAsync(section, sectionIndex, layout?.Sections ?? [], masterTemplateKey, units, sectionOutput);
+                output.Append(sectionOutput);
+                sectionIndex++;
+            }
+
+            output.AppendLine("</body>");
+            output.AppendLine("</html>");
+
+            var htmlContent = output.ToString();
+            
+            // Handle output format
+            if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
+            {
+                htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
+                var paperFormat = MapToPaperFormat(format_str);
+                var pdf = await ConvertHtmlToPdf(htmlContent, new PdfOptions
+                {
+                    Format = paperFormat,
+                    PrintBackground = true,
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }
+                });
+                
+                return Result<byte[]>.Ok(pdf);
+            }
+            else
+            {
+                // HTML output - just return bytes, let caller handle file writing
+                return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(htmlContent));
+            }
+        }
+        catch (Exception ex)
+        {
+            return Result<byte[]>.Fail($"Error rendering multiple sections: {ex.Message}");
+        }
+    }
+
     private async Task<Result<byte[]>> RenderSectionAsync(
         List<SchemaUnit> units,
         string masterTemplateKey,

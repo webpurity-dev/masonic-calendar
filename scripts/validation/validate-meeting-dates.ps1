@@ -13,7 +13,7 @@
 #>
 
 param(
-    [string]$Version = "1.5",
+    [string]$Version = "1.6",
     [string]$CsvPath = (Join-Path $PSScriptRoot "..\..\document\data\unit-meetings.csv")
 )
 

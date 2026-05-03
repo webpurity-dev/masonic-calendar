@@ -1,85 +1,55 @@
-# Core render script: reads unit list from a data source YAML and renders each unit as PDF.
-# Called by the type-specific wrapper scripts (render-all-craft-units.ps1, etc.)
+# Renders PDFs for all units from the units CSV file.
+# Iterates through each unit and renders using its own unit type from the CSV.
 #
-# Usage (direct):
-#   .\render-units.ps1 -DataSourceYaml craft_data_source.yaml
-#   .\render-units.ps1 -DataSourceYaml royalarch_data_source.yaml -Limit 3
-#   .\render-units.ps1 -DataSourceYaml craft_data_source.yaml -Version 1.4
+# Usage:
+#   .\render-units.ps1 -Version 1.6
+#   .\render-units.ps1 -Version 1.6 -Limit 10
 
 param(
-    [Parameter(Mandatory)][string]$DataSourceYaml,
+    [Parameter(Mandatory)][string]$Version,
     [int]$Limit = 0,
-    [string]$Version = ""  # Optional version suffix for output filenames (e.g. "1.4")
+    [string]$FilterUnitType = ""
 )
 
+# Optional: FilterUnitType filters to specific unit type (craft, royalarch, mark, ram, etc.)
+
 $rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-$dataSourceDir = Join-Path $rootDir "document\data_sources"
 $dataDir       = Join-Path $rootDir "document\data"
 $outputDir     = Join-Path $rootDir "output"
 $consoleProject = Join-Path $rootDir "src\MasonicCalendar.Console\MasonicCalendar.Console.csproj"
 
-$yamlPath = Join-Path $dataSourceDir $DataSourceYaml
-if (-not (Test-Path $yamlPath)) {
-    Write-Host "ERROR: YAML not found: $yamlPath" -ForegroundColor Red; exit 1
-}
 if (-not (Test-Path $consoleProject)) {
     Write-Host "ERROR: Console project not found: $consoleProject" -ForegroundColor Red; exit 1
 }
 
 # ============================================================
-# Parse the "units:" section of the data source YAML
+# Load units from CSV
 # ============================================================
-$lines         = Get-Content $yamlPath
-$inUnits       = $false
-$lastFieldName = $null
-$source        = $null
-$filterField   = $null
-$filterValue   = $null
-$unitNoCol     = "Unit No"
-$unitNameCol   = "Unit Name"
+Write-Host "Loading units from CSV (version $Version)..." -ForegroundColor Cyan
 
-foreach ($line in $lines) {
-    if ($line -match '^\s*#') { continue }
-    if ($line -match '^units:\s*$') { $inUnits = $true; continue }
-    # Stop when we hit the next top-level key
-    if ($inUnits -and $line -match '^[a-zA-Z][a-zA-Z_]*:\s*$') { break }
-    if (-not $inUnits) { continue }
-
-    if    ($line -match '^\s+source:\s*"([^"]+)"')        { $source      = $Matches[1] }
-    elseif ($line -match '^\s+filter_field:\s*"([^"]+)"') { $filterField = $Matches[1] }
-    elseif ($line -match '^\s+filter_value:\s*"([^"]+)"') { $filterValue = $Matches[1] }
-    elseif ($line -match '^\s+-\s*name:\s*"([^"]+)"')     { $lastFieldName = $Matches[1] }
-    elseif ($line -match '^\s+csv_column:\s*"([^"]+)"' -and $lastFieldName) {
-        if    ($lastFieldName -eq 'Number') { $unitNoCol   = $Matches[1] }
-        elseif ($lastFieldName -eq 'Name')  { $unitNameCol = $Matches[1] }
-        $lastFieldName = $null
-    }
-}
-
-if (-not $source -or -not $filterField -or -not $filterValue) {
-    Write-Host "ERROR: Could not parse units section from $DataSourceYaml" -ForegroundColor Red; exit 1
-}
-
-# Derive section ID: "craft_data_source.yaml" -> "craft_units"
-$sectionId = ([System.IO.Path]::GetFileNameWithoutExtension($DataSourceYaml) -replace '_data_source$','') + '_units'
-
-# ============================================================
-# Load and filter units from CSV
-# ============================================================
-$csvPath = Join-Path $dataDir $source
+# Determine which CSV to use based on version
+$csvPath = Join-Path $dataDir "units_v$Version.csv"
 if (-not (Test-Path $csvPath)) {
     Write-Host "ERROR: Units CSV not found: $csvPath" -ForegroundColor Red; exit 1
 }
 
+# Load all units with their unit type
 $units = @(Import-Csv $csvPath |
-    Where-Object { $_.$filterField.Trim() -eq $filterValue } |
-    Select-Object @{N='Number'; E={$_.$unitNoCol.Trim()}},
-                  @{N='Name';   E={$_.$unitNameCol.Trim()}})
+    Select-Object @{N='Type';   E={$_.'Unit Type'.Trim() -replace ' ', ''}},
+                  @{N='Number'; E={$_.'Unit No'.Trim()}},
+                  @{N='Name';   E={$_.'Unit Name'.Trim()}})
+
+# Filter by unit type if specified
+if (-not [string]::IsNullOrWhiteSpace($FilterUnitType)) {
+    $units = $units | Where-Object { $_.Type -eq $FilterUnitType }
+}
 
 if ($Limit -gt 0) { $units = $units | Select-Object -First $Limit }
 
 $limitNote = if ($Limit -gt 0) { " (limited to $Limit)" } else { "" }
-Write-Host "Rendering $($units.Count) $filterValue unit(s) as PDF$limitNote  [section: $sectionId]" -ForegroundColor Cyan
+$filterNote = if (-not [string]::IsNullOrWhiteSpace($FilterUnitType)) { " [$FilterUnitType only]" } else { "" }
+Write-Host "Rendering $($units.Count) unit(s) as PDF$filterNote$limitNote" -ForegroundColor Cyan
+
 Write-Host ""
 
 # ============================================================
@@ -91,32 +61,29 @@ $failCount    = 0
 
 foreach ($unit in $units) {
     $idx = $successCount + $failCount + 1
-    Write-Host "[$idx/$($units.Count)]  $($unit.Number)  $($unit.Name)..." -NoNewline
+    
+    # Get unit type from the CSV row
+    $unitType = $unit.Type
+    
+    Write-Host "[$idx/$($units.Count)]  [$unitType] $($unit.Number)  $($unit.Name)..." -NoNewline
+    
+    # Show the command being executed
+    Write-Host ""
+    Write-Host "  Command: dotnet run ... -unit $($unit.Number) -unittype $unitType -output pdf" -ForegroundColor DarkGray
+    Write-Host "  " -NoNewline
 
     & dotnet run --project $consoleProject -- `
         -template master_v1 `
-        -section $sectionId `
         -unit $unit.Number `
+        -unittype $unitType `
         -output pdf `
         2>&1 | Out-Null
 
     if ($LASTEXITCODE -eq 0) {
-        # If version is specified, rename the output file to include version in template name
-        if (-not [string]::IsNullOrWhiteSpace($Version)) {
-            $basePattern = "master_v1-$sectionId-unit$($unit.Number).pdf"
-            $existingFile = Get-ChildItem $outputDir -Filter $basePattern -ErrorAction SilentlyContinue | Select-Object -First 1
-            
-            if ($existingFile) {
-                # Replace "master_v1-" with "master_v{Version}-" in the filename
-                $newName = $existingFile.Name -replace '^master_v1-', "master_v$Version-"
-                Rename-Item -Path $existingFile.FullName -NewName $newName -Force
-            }
-        }
-        
-        Write-Host "  OK" -ForegroundColor Green
+        Write-Host "OK" -ForegroundColor Green
         $successCount++
     } else {
-        Write-Host "  FAILED" -ForegroundColor Red
+        Write-Host "FAILED" -ForegroundColor Red
         $failCount++
     }
 }

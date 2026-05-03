@@ -2,7 +2,7 @@
 
 A .NET console application for generating professionally formatted, print-ready PDF and HTML documents for non-profit Masonic organisations. Reads lodge and chapter data from CSV files and produces A6 booklet-style documents via Scriban templating and Puppeteer/Paged.js rendering.
 
-**Latest Release:** v1.5 (April 2026) — Includes complete Mark Masonry and Royal Ark Mariners sections with membership summaries and meeting tables for all degree types.
+**Latest Release:** v1.5 (Updated May 3, 2026) — Complete support for 5 degree types (Craft, Royal Arch, Mark, RAM, RCOC) with membership summaries, meeting tables, bold Grand Rank styling, and expanded logo integration.
 
 ## 🎯 Features
 
@@ -14,7 +14,7 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Page numbering** — CSS counter in footer, starts at the TOC section (cover has no number)
 - ✅ **Unit pages** — officers, past masters, joining past masters, members (3-column), honorary members
 - ✅ **Meeting dates** — 12-month calendar grid plus section-specific meeting tables for all degrees, with recurrence-rule expansion
-- ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners
+- ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners, RCOC (Royal Ark Mariners Companion Masons)
 - ✅ **Membership summaries** — statistical summaries for Craft, Royal Arch, Mark, and RAM with disclaimers
 - ✅ **Executive officer pages** — extended formatting for Grand Lodge sections with provincial officers per degree
 - ✅ **Section placeholders** — title pages for each degree section
@@ -25,6 +25,8 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Lunar season meetings** — full moon date calculation with `LunarSeason` and `LunarSeasonBefore` strategies
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
 - ✅ **Lodge list normalisation** — joining past master lodge lists stripped of spaces (`1895,6194,9660`)
+- ✅ **Grand rank styling** — Grand Ranks display in bold (font-weight: 600) for visual emphasis
+- ✅ **Logo integration** — cover pages and section headers with updated branding
 - ✅ **Data validation** — comprehensive validation scripts and output reporting
 
 ## 🏗️ Project Structure
@@ -131,8 +133,14 @@ dotnet run -- -template master_v1 -output html -unit 3366 -section royalarch_uni
 # Render RAM (Royal Ark Mariners) units only
 dotnet run -- -template master_v1 -output html -section ram_units
 
+# Render RCOC (Companion Masons) units only
+dotnet run -- -template master_v1 -output html -section rcoc_units
+
 # Render membership summary for a specific degree
 dotnet run -- -template master_v1 -output html -section craft_membership_summary
+
+# Render RCOC meeting dates table
+dotnet run -- -template master_v1 -output html -section rcoc_meetings_table
 
 # Render meeting dates for all Mark lodges
 dotnet run -- -template master_v1 -output html -section mark_meetings_table
@@ -191,6 +199,12 @@ dotnet run -- -template master_v1 -output csv
 | `ram_meetings_table` | meetings-table | RAM meeting dates table |
 | `ram_toc` | toc | RAM lodges table of contents |
 | `ram_units` | data-driven | All RAM lodge unit pages |
+| **RCOC (Companion Masons)** | — | — |
+| `rcoc_intro` | static | RCOC introduction |
+| `rcoc_membership_summary` | membership-summary | RCOC membership statistics with disclaimers |
+| `rcoc_meetings_table` | meetings-table | RCOC meeting dates table |
+| `rcoc_toc` | toc | RCOC lodges table of contents |
+| `rcoc_units` | data-driven | All RCOC lodge unit pages |
 
 ### Section Types
 
@@ -199,7 +213,7 @@ dotnet run -- -template master_v1 -output csv
 | `static` | Pre-rendered HTML pages (UGLE, Foreword, Introductions, Executive Officers, etc.) | `StaticSectionRenderer` |
 | `toc` | Auto-generated table of contents for a section (alphabetical order in v1.5) | `TocSectionRenderer` |
 | `data-driven` | Unit pages rendered from CSV data via Scriban template | `DataDrivenSectionRenderer` |
-| `membership-summary` | Statistical summaries per degree type (Craft, Royal Arch, Mark, RAM) with disclaimers | `MembershipSummarySectionRenderer` |
+| `membership-summary` | Statistical summaries per degree type (Craft, Royal Arch, Mark, RAM, RCOC) with disclaimers | `MembershipSummarySectionRenderer` |
 | `meetings-table` | Section-specific meeting dates table (per degree type) | `MeetingsTableSectionRenderer` |
 | `meetings-calendar` | Full 12-month calendar grid (supports multiple degree types) | `MeetingsCalendarSectionRenderer` |
 
@@ -258,6 +272,16 @@ The full moon calculation uses the mean synodic period (29.530588853 days) from 
 | YAML config | YamlDotNet | latest |
 
 ## 📝 Version History
+
+### v1.5 (Updated May 3, 2026)
+- **New:** RCOC (Royal Ark Mariners Companion Masons) degree type with full support — officers, members, past unit heads, membership summaries, and meeting tables
+- **New:** Bold Grand Rank styling — Grand Ranks now display with font-weight: 600 for visual emphasis
+- **New:** Logo integration — enhanced branding on cover pages and section headers
+- **Enhanced:** Meeting dates updated for all units including draft/new entries (unit 9689, etc.)
+- **Enhanced:** Render scripts updated to support all unit types (Craft, RA, Mark, RAM, RCOC)
+- **Fixed:** Email formatting with proper newline handling
+- **Improved:** Membership summary pages for all 5 degree types with statistics and disclaimers
+- **Status:** Production-ready, all features stable and tested
 
 ### v1.5 (April 2026)
 - **New:** Membership summary pages for all degree types (Craft, Royal Arch, Mark, RAM) with statistics and disclaimers

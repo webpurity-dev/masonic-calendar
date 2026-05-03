@@ -13,12 +13,13 @@ using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false, bool noPrintMode = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly bool _debugMode = debugMode;
     private readonly bool _showBleeds = showBleeds;
+    private readonly bool _noPrintMode = noPrintMode;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
@@ -86,11 +87,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
                 
-                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
-                if (!string.IsNullOrEmpty(marginsCss))
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
                 {
-                    output.AppendLine("/* Page margins from configuration */");
-                    output.AppendLine(marginsCss);
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
                 }
                 
                 var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
@@ -244,12 +264,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
                 
-                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
-                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
-                if (!string.IsNullOrEmpty(marginsCss))
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
                 {
-                    output.AppendLine("/* Page margins from configuration */");
-                    output.AppendLine(marginsCss);
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
                 }
                 
                 // Generate and inject global styles CSS from configuration
@@ -479,12 +517,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
                 
-                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
-                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
-                if (!string.IsNullOrEmpty(marginsCss))
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
                 {
-                    output.AppendLine("/* Page margins from configuration */");
-                    output.AppendLine(marginsCss);
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
                 }
                 
                 // Generate and inject global styles CSS from configuration
@@ -1168,6 +1224,57 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     /// Includes the base @page size rule, margins, and footer styling.
     /// Size is taken from page_margins.page_size or inferred from document.format.
     /// </summary>
+    /// <summary>
+    /// Generate only the base @page rule with size (no margins).
+    /// This is always included, even with -noprint flag.
+    /// </summary>
+    private string GeneratePageSizeOnlyCss(string? format, PageMargins? margins)
+    {
+        if (margins == null)
+            return string.Empty;
+
+        var css = new StringBuilder();
+        var pageSize = margins.PageSize ?? GetPageSizeFromFormat(format);
+        if (!string.IsNullOrEmpty(pageSize))
+        {
+            css.AppendLine("@page {");
+            css.AppendLine($"  size: {pageSize};");
+            css.AppendLine("  marks: none;");
+            css.AppendLine("}");
+        }
+        return css.ToString();
+    }
+
+    /// <summary>
+    /// Generate @page rules with 0 margins for -noprint mode.
+    /// Prevents browser default margins from being applied.
+    /// </summary>
+    private string GenerateZeroMarginsCss()
+    {
+        var css = new StringBuilder();
+        
+        // Right page (odd pages / Recto)
+        css.AppendLine("@page :right {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        // Left page (even pages / Verso)
+        css.AppendLine("@page :left {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        // First page (cover)
+        css.AppendLine("@page :first {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        return css.ToString();
+    }
+
+    /// <summary>
+    /// Generate margin and footer @page rules from PageMargins configuration.
+    /// This is skipped with -noprint flag but page size is always included.
+    /// </summary>
     private string GeneratePageMarginsCss(string? format, PageMargins? margins, GlobalStyling? globalStyling)
     {
         if (margins == null)
@@ -1181,16 +1288,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         // Specific footer font if defined, otherwise use default font
         if (!string.IsNullOrEmpty(globalStyling?.Footer?.FontFamily))
             footerFont = globalStyling.Footer.FontFamily;
-
-        // Generate @page base rule with size
-        var pageSize = margins.PageSize ?? GetPageSizeFromFormat(format);
-        if (!string.IsNullOrEmpty(pageSize))
-        {
-            css.AppendLine("@page {");
-            css.AppendLine($"  size: {pageSize};");
-            css.AppendLine("  marks: none;");
-            css.AppendLine("}");
-        }
 
         // Right page (odd pages / Recto)
         if (margins.RightPage != null)

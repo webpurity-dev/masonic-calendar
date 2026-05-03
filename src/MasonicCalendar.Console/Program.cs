@@ -57,6 +57,9 @@ debugMode = Array.IndexOf(args, "-debug") != -1;
 // Check for showbleeds flag
 bool showBleeds = Array.IndexOf(args, "-showbleeds") != -1;
 
+// Check for noprint flag (removes print-specific margins and padding)
+bool noPrintMode = Array.IndexOf(args, "-noprint") != -1;
+
 // Document renderer mode
 if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(documentOutputFormat))
 {
@@ -74,6 +77,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         {
             Console.WriteLine($"Unit:     {unitNumber}");
             Console.WriteLine($"UnitType: {unitType}");
+        }
+        if (noPrintMode)
+        {
+            Console.WriteLine($"Mode:     No-Print (margins/padding removed)");
         }
         Console.WriteLine();
 
@@ -211,7 +218,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var documentVersion = layoutResult.Data?.Document?.Version;
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds, noPrintMode);
         
         // Log the rendering details
         if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
@@ -279,7 +286,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var sectionPart = targetSectionId ?? "all-sections";
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedsPart = showBleeds ? "-showBleeds" : "";
-        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}.{fileExtension}";
+        var noPrintPart = noPrintMode ? "-noprint" : "";
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}{noPrintPart}.{fileExtension}";
         
         // If version is available, embed it in the template name: master_v1- → master_v1.4-
         if (!string.IsNullOrWhiteSpace(documentVersion))

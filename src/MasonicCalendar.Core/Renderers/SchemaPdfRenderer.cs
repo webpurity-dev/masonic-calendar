@@ -663,7 +663,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     private string ConvertRelativeImagesToDataUrls(string htmlContent)
     {
         // Find all img src attributes with relative paths and convert to data URLs
-        var regex = new System.Text.RegularExpressions.Regex(@"src=""\.\.\/images\/([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        // Matches: src="../images/file" or src="../../images/file" or src="../../../images/file" etc.
+        var regex = new System.Text.RegularExpressions.Regex(@"src=""(?:\.\.\/)+images\/([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         return regex.Replace(htmlContent, match =>
         {
             var fileName = match.Groups[1].Value;

@@ -56,6 +56,7 @@ public class SchemaPastMaster
     public string? YearInstalled { get; set; }  // FN01
     public string? Rank { get; set; } 
     public string? RankYear { get; set; }
+    public bool IsGrandRank { get; set; }  // True if Rank is from GrandRank field (vs ProvincialRank)
 }
 
 /// <summary>
@@ -71,6 +72,7 @@ public class SchemaJoinPastMaster
     public string? PastUnits { get; set; } 
     public string? Rank { get; set; } 
     public string? RankYear { get; set; }
+    public bool IsGrandRank { get; set; }  // True if Rank is from GrandRank field (vs ProvincialRank)
 }
 
 /// <summary>
@@ -100,6 +102,7 @@ public class SchemaHonoraryMember
     public string? GrandRank { get; set; }     // Grand rank (preferred if exists)
     public string? ProvincialRank { get; set; } // Provincial rank (fallback if no grand rank)
     public string? Rank { get; set; }     // Display rank (GrandRank or ProvincialRank)
+    public bool IsGrandRank { get; set; }  // True if Rank is from GrandRank field
 }
 
 /// <summary>

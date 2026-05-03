@@ -3,7 +3,7 @@
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
 units:
-  source: "units_v1.5.csv"
+  source: "units_v1.6.csv"
   filter_field: "Unit Type"
   filter_value: "RA"
   fields:

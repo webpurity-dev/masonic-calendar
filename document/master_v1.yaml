@@ -283,10 +283,45 @@ sections:
     template: "companion/_placeholder.html"
 
   # Red Cross
-  - section_id: "rcc"
+  - section_id: "rcoc_foreword"
     section_title: "Red Cross of Constantine"
     type: "static"
-    template: "companion/_placeholder.html"
+    template: "companion/rcoc_introduction.html"
+
+  - section_id: "rcoc_membership_summary"
+    section_title: "Red Cross Membership Summary"
+    type: "membership-summary"
+    template: "membership-summary-page.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
+    column_headings:
+      past_masters: "Past Sovereigns"
+    include_officers_as_members: true
+    is_child: true
+
+  - section_id: "rcoc_meetings_table"
+    section_title: "Red Cross Conclave Meeting Dates"
+    type: "meetings-table"
+    template: "meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RCOC"]
+    override_break_before: true
+    is_child: true
+
+  - section_id: "rcoc_toc"
+    section_title: "Red Cross Conclaves in Numerical Order"
+    type: "toc"
+    for_section: "rcoc_units"
+    template: "toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"
+    is_child: true
+
+  - section_id: "rcoc_units"
+    section_title: "Red Cross Conclaves in Numerical Order"
+    type: "data-driven"
+    template: "unit-page.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
+    hide_from_parent_toc: true
 
   # Royal and Select
   - section_id: "rsm_foreword"

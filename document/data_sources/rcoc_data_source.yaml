@@ -1,10 +1,10 @@
-﻿# Data source mappings for Mark Masonry section
+﻿# Data source mappings for Royal Ark Mariners section
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
 units:
   source: "units_v1.6.csv"
   filter_field: "Unit Type"
-  filter_value: "Mark"
+  filter_value: "RCOC"
   fields:
     - name: "Number"
       csv_column: "Unit No"
@@ -38,15 +38,15 @@ units:
       type: "string"
 
 officers:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.6.csv"
   filters:
     - filter_field: "Unit Type"
-      filter_value: "Mark"
+      filter_value: "RCOC"
     - filter_field: "MemType"
       filter_value: "Off"
   fields:
     - name: "Reference"
-      csv_column: "BroJoin"
+      csv_column: "UniqueRef"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -59,13 +59,13 @@ officers:
       type: "int"
 
 past_masters:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.6.csv"
   filters:
     - filter_field: "Unit Type"
-      filter_value: "Mark"
+      filter_value: "RCOC"
     - filter_field: "MemType"
-      filter_value: "PMO"
-  override_heading: "Past Mark Masters"
+      filter_value: "PCO"
+  override_heading: "Past Sovereigns"
   fields:
     - name: "Reference"
       csv_column: "BroJoin"
@@ -90,40 +90,19 @@ past_masters:
       type: "string"
 
 members:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.6.csv"
   filters:
     - filter_field: "Unit Type"
-      filter_value: "Mark"
+      filter_value: "RCOC"
     - filter_field: "MemType"
       filter_value: "Mem"
   fields:
     - name: "Reference"
-      csv_column: "BroJoin"
+      csv_column: "UniqueRef"
       type: "string"
     - name: "Name"
       csv_column: "Name"
       type: "string"
     - name: "YearInitiated"
       csv_column: "Year"
-      type: "string"
-
-honorary_members:
-  source: "membership_v1.5.csv"
-  filters:
-    - filter_field: "Unit Type"
-      filter_value: "Mark"
-    - filter_field: "MemType"
-      filter_value: "Hon"
-  fields:
-    - name: "Reference"
-      csv_column: "BroJoin"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "GrandRank"
-      csv_column: "Grand Rank"
-      type: "string"
-    - name: "ProvincialRank"
-      csv_column: "Provincial Rank"
       type: "string"

@@ -272,7 +272,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Name = TextCleaner.CleanName(name),
                             YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
-                            RankYear = TextCleaner.CleanDateIssued(displayRankYear)
+                            RankYear = TextCleaner.CleanDateIssued(displayRankYear),
+                            IsGrandRank = !string.IsNullOrWhiteSpace(grandRank)
                         });
                     });
             }
@@ -302,7 +303,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Name = TextCleaner.CleanName(name),
                             PastUnits = pastUnits,
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
-                            RankYear = TextCleaner.CleanDateIssued(displayRankYear)
+                            RankYear = TextCleaner.CleanDateIssued(displayRankYear),
+                            IsGrandRank = !string.IsNullOrWhiteSpace(grandRank)
                         });
                     });
             }
@@ -343,7 +345,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Reference = reference,
                             MemType = csv.GetField("MemType")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            Rank = TextCleaner.CleanProvincialRank(displayRank)
+                            GrandRank = TextCleaner.CleanProvincialRank(grandRank),
+                            ProvincialRank = TextCleaner.CleanProvincialRank(provincialRank),
+                            Rank = TextCleaner.CleanProvincialRank(displayRank),
+                            IsGrandRank = !string.IsNullOrWhiteSpace(grandRank)
                         });
                     });
             }

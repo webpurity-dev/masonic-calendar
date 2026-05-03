@@ -85,7 +85,8 @@ public static class UnitModelBuilder
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
                         { "rank", pm.Rank },
-                        { "rankYear", pm.RankYear }
+                        { "rankYear", pm.RankYear },
+                        { "isGrandRank", pm.IsGrandRank }
                     })
                     .ToList()
             },
@@ -98,7 +99,8 @@ public static class UnitModelBuilder
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "pastUnits", jpm.PastUnits },
                         { "rank", TextCleaner.CleanProvincialRank(jpm.Rank) },
-                        { "rankYear", TextCleaner.CleanDateIssued(jpm.RankYear) }
+                        { "rankYear", TextCleaner.CleanDateIssued(jpm.RankYear) },
+                        { "isGrandRank", jpm.IsGrandRank }
                     })
                     .ToList()
             },
@@ -124,7 +126,8 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "rank", hm.Rank }
+                        { "rank", hm.Rank },
+                        { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
             },

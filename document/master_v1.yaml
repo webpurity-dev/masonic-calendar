@@ -1,7 +1,7 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
   version: "1.6"
-  data_corrected_date: "2026-05-09"
+  data_corrected_date: "9th May 2026"
   orientation: "portrait"
   global_styling:
     fonts:
@@ -101,12 +101,11 @@ sections:
     template: "craft/provincial-officers.html"
     is_child: true
 
-  - section_id: "succession_lists"
+  - section_id: "craft_succession_lists"
     section_title: "Succession Lists"
     type: "static"
     template: "craft/succession.html"
     is_child: true
-
 
   - section_id: "locations"
     section_title: "Masonic Halls"
@@ -160,15 +159,21 @@ sections:
     hide_from_parent_toc: true
 
   # ROYAL ARCH
-  - section_id: "royalarch"
-    section_title: "Royal Arch Freemasonry"
-    type: "static"
-    template: "royalarch/introduction.html"
-
   - section_id: "ra_executive_officers"
-    section_title: "Provincial Executive"
+    section_title: "Provincial Grand Chapter of Dorset"
     type: "static"
     template: "royalarch/executive-officers.html"
+
+  - section_id: "ra_provincial_officers"
+    section_title: "Provincial Officers 2025-2026"
+    type: "static"
+    template: "royalarch/provincial-officers.html"
+    is_child: true
+
+  - section_id: "ra_succession_lists"
+    section_title: "Succession Lists"
+    type: "static"
+    template: "royalarch/succession.html"
     is_child: true
 
   - section_id: "ra_membership_summary"
@@ -198,15 +203,6 @@ sections:
     toc_sort_field: "number"
     toc_display_field: "name"  
     is_child: true
-
-  # - section_id: "royalarch_toc"
-  #   section_title: "Chapters in Alphabetical Order"
-  #   type: "toc"
-  #   for_section: "royalarch_units"
-  #   template: "toc-page.html"
-  #   toc_sort_field: "super_short_name"
-  #   toc_display_field: "super_short_name"  
-  #   is_child: true
 
   - section_id: "royalarch_units"
     section_title: "Chapters in Numerical Order"

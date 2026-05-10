@@ -24,7 +24,11 @@ html, body {
 }
 
 .location-page {
-    break-before: page;
+    /* Page breaks between locations are handled by .location-page-break class */
+}
+
+.location-page-break {
+    break-before: always;
 }
 
 .page-break-before {
@@ -37,6 +41,16 @@ html, body {
 
 .page-break-avoid {
     page-break-inside: avoid;
+}
+
+/* ========================================
+   LINK STYLING
+   ======================================== */
+
+a {
+    color: #808080;
+    text-decoration: none;
+    font-size: 7pt;
 }
 
 /* ========================================

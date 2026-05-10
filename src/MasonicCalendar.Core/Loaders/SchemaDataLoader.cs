@@ -14,6 +14,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly string _dataRoot = dataRoot ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "data");
+    private Dictionary<string, SchemaLocation>? _cachedLocations;
 
     public async Task<Result<List<SchemaUnit>>> LoadUnitsWithDataAsync(string masterTemplateKey, string? sectionId = null)
     {
@@ -61,6 +62,25 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 return Result<List<SchemaUnit>>.Fail(unitsResult.Error ?? "Failed to load units CSV");
 
             units = unitsResult.Data ?? [];
+
+            // Load location data from unit_locations.csv and join with units
+            var locationsFile = Path.Combine(_dataRoot, "unit_locations.csv");
+            var locationsResult = await LoadLocationsFromCsvAsync(locationsFile);
+            
+            if (locationsResult.Success && locationsResult.Data != null)
+            {
+                var locationsDict = locationsResult.Data;
+                foreach (var unit in units)
+                {
+                    if (!string.IsNullOrWhiteSpace(unit.Hall) && 
+                        locationsDict.TryGetValue(unit.Hall, out var location))
+                    {
+                        unit.Location = location;
+                        unit.LocationId = location.Name;        // Keep for backward compatibility
+                        unit.What3Words = location.What3Words;   // Keep for backward compatibility
+                    }
+                }
+            }
 
             // Load membership data (officers, past masters, members, etc.) and attach to units
             var hermesResult = await LoadHermesDataAsync(mapping!, units);
@@ -112,12 +132,12 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
                     SuperShortName = GetFieldValueWithComposite(csv, fieldMap, "SuperShortName"),
                     Contact = GetFieldValueWithComposite(csv, fieldMap, "Contact"),
-                    LocationId = GetFieldValueWithComposite(csv, fieldMap, "Location"),
+                    LocationId = GetFieldValueWithComposite(csv, fieldMap, "Hall"),  // Mapped to Location column in YAML
                     LastInstallationDate = GetFieldValueWithComposite(csv, fieldMap, "LastInstallationDate"),
                     Warrant = GetFieldValueWithComposite(csv, fieldMap, "Warrant"),
                     MeetingDates = GetFieldValueWithComposite(csv, fieldMap, "MeetingDates"),
-                    Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),
-                    What3Words = GetFieldValueWithComposite(csv, fieldMap, "What3Words"),
+                    Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),  // Mapped to Location column in YAML
+                    What3Words = GetFieldValueWithComposite(csv, fieldMap, "What3Words"),  // Will be overwritten by location join
                     UnitType = mapping.Units.FilterField != null ? csv.GetField(mapping.Units.FilterField) : null,
                 };
 
@@ -529,6 +549,65 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
             for (int i = 0; i < unit.Members.Count; i++)
                 unit.Members[i].PosNo = i;
+        }
+    }
+
+    /// <summary>
+    /// Loads unit_locations.csv and creates a lookup by Hall name.
+    /// Returns Dict&lt;hallName, SchemaLocation&gt; for joining with units.
+    /// </summary>
+    private async Task<Result<Dictionary<string, SchemaLocation>>> LoadLocationsFromCsvAsync(string locationsFile)
+    {
+        try
+        {
+            // Return cached locations if already loaded
+            if (_cachedLocations != null)
+                return Result<Dictionary<string, SchemaLocation>>.Ok(_cachedLocations);
+
+            var locations = new Dictionary<string, SchemaLocation>(StringComparer.OrdinalIgnoreCase);
+            
+            if (!File.Exists(locationsFile))
+            {
+                // Graceful degradation if file missing
+                Console.WriteLine($"⚠️  Locations file not found: {locationsFile}");
+                _cachedLocations = locations;  // Cache even if empty
+                return Result<Dictionary<string, SchemaLocation>>.Ok(locations);
+            }
+
+            using var reader = new StreamReader(locationsFile, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            
+            await csv.ReadAsync();
+            csv.ReadHeader();
+            
+            while (await csv.ReadAsync())
+            {
+                var locationKey = csv.GetField("Location")?.Trim();
+                if (string.IsNullOrWhiteSpace(locationKey))
+                    continue;
+                
+                var location = new SchemaLocation
+                {
+                    ID = locationKey,
+                    Name = csv.GetField("Name")?.Trim(),
+                    AddressLine1 = csv.GetField("Address")?.Trim(),
+                    What3Words = csv.GetField("What3Words")?.Trim(),
+                    ImageFile = csv.GetField("ImageFile")?.Trim(),
+                    Parking = csv.GetField("Parking")?.Trim(),
+                    Exclude = bool.TryParse(csv.GetField("Exclude")?.Trim() ?? "false", out var exclude) && exclude
+                };
+                
+                locations[locationKey] = location;
+            }
+            
+            _cachedLocations = locations;  // Cache the loaded locations
+            Console.WriteLine($"✓ Loaded {locations.Count} locations from unit_locations.csv");
+            return Result<Dictionary<string, SchemaLocation>>.Ok(locations);
+        }
+        catch (Exception ex)
+        {
+            return Result<Dictionary<string, SchemaLocation>>.Fail(
+                $"Error loading locations CSV: {ex.Message}");
         }
     }
 }

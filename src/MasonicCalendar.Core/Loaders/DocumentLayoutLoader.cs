@@ -129,6 +129,7 @@ public class DocumentInfo
     public string? Title { get; set; }
     public string? Version { get; set; }
     public string? Copyright { get; set; }
+    public string? DataCorrectedDate { get; set; }
     public string? Format { get; set; }
     public string? Orientation { get; set; }
     public GlobalStyling? GlobalStyling { get; set; }

@@ -117,4 +117,7 @@ public class SchemaLocation
     public string? Town { get; set; }
     public string? Postcode { get; set; }
     public string? What3Words { get; set; }
+    public string? ImageFile { get; set; }  // Image filename for location pages
+    public string? Parking { get; set; }     // Parking information/instructions
+    public bool Exclude { get; set; }        // If true, skip rendering on locations page
 }

@@ -388,7 +388,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     { "current_year", now.Year },
                     { "current_date", now.ToString("d MMMM yyyy") },
-                    { "build_version", layout?.Document?.Version ?? "" }
+                    { "publish_version", layout?.Document?.Version ?? "" },
+                    { "data_corrected_date", layout?.Document?.DataCorrectedDate ?? "" }
                 };
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS

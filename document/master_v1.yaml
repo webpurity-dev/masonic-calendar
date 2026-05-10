@@ -1,6 +1,7 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
   version: "1.6"
+  data_corrected_date: "2026-05-09"
   orientation: "portrait"
   global_styling:
     fonts:
@@ -37,13 +38,33 @@ sections:
   - section_id: "cover"
     type: "static"
     template: "cover-page.html"
-  
+   
+  - section_id: "pgm_photo"
+    type: "static"
+    template: "photo-pgm.html"
+   
+  - section_id: "dpgm_photo"
+    type: "static"
+    template: "photo-dpgm.html"
+   
+  - section_id: "apgm1_photo"
+    type: "static"
+    template: "photo-apgm1.html"
+   
+  - section_id: "apgm2_photo"
+    type: "static"
+    template: "photo-apgm2.html"
+   
+  - section_id: "gsi_photo"
+    type: "static"
+    template: "photo-gsi.html"
+
   - section_id: "master_toc"
     section_title: "Table of Contents"
     type: "toc"
     for_section: "all"
     template: "toc-page.html"
-    reset_page_counter: true
+    reset_page_counter: true 
   
   - section_id: "master_foreword"
     section_title: "Foreword"
@@ -60,20 +81,33 @@ sections:
     section_title: "Grand Officers"
     type: "static"
     template: "ugle/grand-officers.html"
-
-  # PROVINCIAL GRAND LODGE
-  - section_id: "craft"
-    section_title: "Craft Freemasonry"
-    type: "static"
-    template: "craft/introduction.html"
-
-  - section_id: "craft_executive_officers"
-    section_title: "Provincial Executive"
-    type: "static"
-    template: "craft/executive-officers.html"
     is_child: true
 
-  # LOCATIONS - Reference section listing all masonic halls
+  - section_id: "freemasons_charity"
+    section_title: "Freemason's Charity"
+    type: "static"
+    template: "craft/freemasons-charity.html"
+    is_child: true
+
+  # PROVINCIAL GRAND LODGE OF DORSET
+  - section_id: "craft_executive_officers"
+    section_title: "Provincial Grand Lodge of Dorset"
+    type: "static"
+    template: "craft/executive-officers.html"
+
+  - section_id: "craft_provincial_officers"
+    section_title: "Provincial Officers 2025-2026"
+    type: "static"
+    template: "craft/provincial-officers.html"
+    is_child: true
+
+  - section_id: "succession_lists"
+    section_title: "Succession Lists"
+    type: "static"
+    template: "craft/succession.html"
+    is_child: true
+
+
   - section_id: "locations"
     section_title: "Masonic Halls"
     type: "locations"
@@ -98,6 +132,15 @@ sections:
     unit_types: ["Craft"]
     is_child: true
 
+  - section_id: "craft_toc_alpha"
+    section_title: "Craft Lodges in Alphabetical Order"
+    type: "toc"
+    for_section: "craft_units"
+    template: "toc-page.html"
+    toc_sort_field: "super_short_name"
+    toc_display_field: "super_short_name" 
+    is_child: true
+
   - section_id: "craft_toc"
     section_title: "Craft Lodges in Numerical Order"
     type: "toc"
@@ -108,15 +151,6 @@ sections:
     # "name", "short_name", or "super_short_name"
     toc_display_field: "name"  
     is_child: true
-
-  # - section_id: "craft_toc_alpha"
-  #   section_title: "Craft Lodges in Alphabetical Order"
-  #   type: "toc"
-  #   for_section: "craft_units"
-  #   template: "toc-page.html"
-  #   toc_sort_field: "super_short_name"
-  #   toc_display_field: "super_short_name" 
-  #   is_child: true
   
   - section_id: "craft_units"
     section_title: "Craft Lodges in Numerical Order"

@@ -25,13 +25,9 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         if (template == null)
             return;
         
-        // Add section anchor for TOC links and page counter reset if needed
-        var anchorStyle = section.ResetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
-        output.AppendLine($"<div id=\"section_{section.SectionId}\"{anchorStyle}></div>");
-        
         // Group units by Hall and build location models
         var locationGroups = units
-            .Where(u => !string.IsNullOrWhiteSpace(u.Hall))
+            .Where(u => !string.IsNullOrWhiteSpace(u.Hall) && (u.Location == null || !u.Location.Exclude))
             .GroupBy(u => u.Hall)
             .OrderBy(g => g.Key)
             .ToList();
@@ -39,17 +35,21 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         if (DebugMode)
             Console.WriteLine($"  - Section '{section.SectionId}' ({section.Type}): {locationGroups.Count} locations");
 
-        // Render each location
+        // Build all location content first (like MembershipSummarySectionRenderer does)
+        var contentBuilder = new StringBuilder();
         var isFirstLocation = true;
         foreach (var hallGroup in locationGroups)
         {
             var hallName = hallGroup.Key;
+            var unit = hallGroup.First();
             
-            // Get the full location address from CSV (stored in LocationId)
-            var address = hallGroup.First().LocationId ?? "Address to be confirmed";
-            
-            // Get What3Words from the first unit at this location
-            var what3words = hallGroup.First().What3Words;
+            // Use the Location object from the unit (populated by location join in SchemaDataLoader)
+            var locationName = unit.Location?.Name ?? hallName;
+            var locationAddress = unit.Location?.AddressLine1 ?? "";
+            var what3words = unit.Location?.What3Words;
+            var imagePath = unit.Location?.ImageFile != null 
+                ? GenerateLocationImagePath(unit.Location.ImageFile)
+                : GenerateLocationImagePath(hallName);  // Fallback to hall name if no explicit image file
             
             // Sort units by Number and build unit dicts
             var sortedUnits = hallGroup
@@ -64,33 +64,36 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
 
             // Split units into 2 columns for better page fit
             var unitColumns = SplitUnitsIntoColumns(sortedUnits, 2);
-            
-            // Generate image path for location
-            var imagePath = GenerateLocationImagePath(hallName);
 
             var locationModel = new Dictionary<string, object?>
             {
-                { "hall_name", hallName },
-                { "address", address },
-                { "town", ExtractTownFromHall(hallName) },
-                { "description", null }, // Can be extended in future
-                { "location_image", imagePath },
-                { "what3words", what3words },
+                { "location", new Dictionary<string, object?>
+                {
+                    { "name", locationName },
+                    { "address_line1", locationAddress },
+                    { "town", unit.Location?.Town ?? ExtractTownFromHall(hallName) },
+                    { "what3_words", what3words },
+                    { "image_file", imagePath },
+                    { "parking", unit.Location?.Parking }
+                }},
                 { "units", sortedUnits },
                 { "unitColumns", unitColumns }
             };
 
-            // Add page break before each location (except the first)
-            if (!isFirstLocation)
-            {
-                output.AppendLine("<div style=\"page-break-before: always;\"></div>");
-            }
-            
             var renderedHtml = template.Render(locationModel);
-            output.AppendLine(renderedHtml);
+            
+            // Wrap each location in a container with proper CSS class for page breaks
+            // First location doesn't need break (handled by section-divider), subsequent ones do
+            var breakClass = isFirstLocation ? "location-page" : "location-page location-page-break";
+            contentBuilder.AppendLine($"<div class=\"{breakClass}\">");
+            contentBuilder.AppendLine(renderedHtml);
+            contentBuilder.AppendLine("</div>");
             
             isFirstLocation = false;
         }
+
+        // Wrap content with section anchor and page break (exactly like MembershipSummarySectionRenderer)
+        WrapWithPageBreakAndAnchor(output, $"section_{section.SectionId}", contentBuilder.ToString(), sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
 
         await Task.CompletedTask;
     }
@@ -125,7 +128,7 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
     /// Generates the relative path to a location image file.
     /// Converts hall name to lowercase with underscores and appends .png extension.
     /// Path is relative from the output HTML file location.
-    /// E.g., "Lyme Regis" → "../document/images/locations/lyme_regis.png"
+    /// E.g., "Lyme Regis" → "../images/locations/lyme_regis.png"
     /// </summary>
     private static string GenerateLocationImagePath(string hallName)
     {
@@ -139,7 +142,8 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
             .Replace("-", "_");
         
         // Path is relative from output directory to document/images/locations
-        return $"../document/images/locations/{imageName}.png";
+        // Format: ../images/locations/filename.png (matches SchemaPdfRenderer's regex pattern)
+        return $"../images/locations/{imageName}.png";
     }
 
     /// <summary>

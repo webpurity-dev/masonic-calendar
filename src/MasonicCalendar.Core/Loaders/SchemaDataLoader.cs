@@ -117,6 +117,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     Warrant = GetFieldValueWithComposite(csv, fieldMap, "Warrant"),
                     MeetingDates = GetFieldValueWithComposite(csv, fieldMap, "MeetingDates"),
                     Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),
+                    What3Words = GetFieldValueWithComposite(csv, fieldMap, "What3Words"),
                     UnitType = mapping.Units.FilterField != null ? csv.GetField(mapping.Units.FilterField) : null,
                 };
 

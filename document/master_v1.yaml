@@ -73,6 +73,13 @@ sections:
     template: "craft/executive-officers.html"
     is_child: true
 
+  # LOCATIONS - Reference section listing all masonic halls
+  - section_id: "locations"
+    section_title: "Masonic Halls"
+    type: "locations"
+    template: "location-page.html"
+    is_child: true
+
   - section_id: "craft_membership_summary"
     section_title: "Craft Membership Summary"
     type: "membership-summary"

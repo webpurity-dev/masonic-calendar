@@ -622,12 +622,35 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Get the appropriate renderer for this section type
                 var renderer = rendererFactory.CreateRenderer(section.Type);
                 
-                // For data-driven and membership-summary sections with a data_mapping, reload units for that specific section
+                // Handle unit loading for different section types
                 var unitsForSection = units;
                 var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
                 var isMembershipSummary = section.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isLocations = section.Type?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false;
                 
-                if (_dataLoader != null &&
+                // For locations sections, load all unit types from all data-driven sections
+                if (_dataLoader != null && isLocations)
+                {
+                    var allUnits = new List<SchemaUnit>();
+                    var dataSections = layout!.Sections
+                        .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false)
+                        .ToList();
+                    
+                    foreach (var dataSection in dataSections)
+                    {
+                        var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, dataSection.SectionId);
+                        if (reloadResult.Success && reloadResult.Data != null)
+                        {
+                            allUnits.AddRange(reloadResult.Data);
+                        }
+                    }
+                    
+                    unitsForSection = allUnits;
+                    if (_debugMode)
+                        Console.WriteLine($"    - Loaded {unitsForSection.Count} units from all data-driven sections for locations");
+                }
+                // For data-driven and membership-summary sections with a data_mapping, reload units for that specific section
+                else if (_dataLoader != null &&
                     !string.IsNullOrWhiteSpace(section.DataMapping) &&
                     (isDataDriven || isMembershipSummary))
                 {

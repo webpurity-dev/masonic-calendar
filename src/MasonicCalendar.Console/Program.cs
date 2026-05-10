@@ -141,7 +141,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Non-data-driven section types manage their own data loading — skip SchemaDataLoader
         bool needsUnitLoad = targetSectionId == null ||
-            (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true);
+            (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true) ||
+            (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false);
 
         // Load data using schema - load from specific section if requested
         var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
@@ -149,25 +150,67 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         if (needsUnitLoad)
         {
-            if (!string.IsNullOrWhiteSpace(targetSectionId))
+            // Special handling for locations section: load all unit types
+            if (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                Console.WriteLine($"Loading data for section: {targetSectionId} (all unit types)");
+                var allUnits = new List<SchemaUnit>();
+                
+                // Load units from all data-driven sections
+                var layout = peekLayout?.Data;
+                if (layout?.Sections != null)
+                {
+                    // Get all data-driven sections
+                    var dataSections = layout.Sections
+                        .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false)
+                        .ToList();
+                    
+                    foreach (var section in dataSections)
+                    {
+                        var sectionResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, section.SectionId);
+                        if (sectionResult.Success && sectionResult.Data != null)
+                        {
+                            allUnits.AddRange(sectionResult.Data);
+                        }
+                    }
+                }
+                
+                if (allUnits.Count == 0)
+                {
+                    Console.WriteLine($"❌ Error loading data: No units found for locations section");
+                    return 1;
+                }
+                
+                Console.WriteLine($"✓ Loaded {allUnits.Count} units from CSV files");
+                schemaResult = Result<List<SchemaUnit>>.Ok(allUnits);
+            }
+            else if (!string.IsNullOrWhiteSpace(targetSectionId))
             {
                 // Load units for the specific section
                 Console.WriteLine($"Loading data for section: {targetSectionId}");
                 schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, targetSectionId);
+                
+                if (!schemaResult.Success)
+                {
+                    Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
+                    return 1;
+                }
+
+                Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
             }
             else
             {
                 // Load default units (craft)
                 schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
-            }
+                
+                if (!schemaResult.Success)
+                {
+                    Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
+                    return 1;
+                }
 
-            if (!schemaResult.Success)
-            {
-                Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
-                return 1;
+                Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
             }
-
-            Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
         }
         else
         {

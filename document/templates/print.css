@@ -23,6 +23,10 @@ html, body {
     break-before: always;
 }
 
+.location-page {
+    break-before: page;
+}
+
 .page-break-before {
     page-break-before: always;
 }

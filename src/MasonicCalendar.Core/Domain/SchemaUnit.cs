@@ -18,6 +18,7 @@ public class SchemaUnit
     public string? Hall { get; set; }                 // Hall / venue name
     public string? UnitType { get; set; }
     public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
+    public string? What3Words { get; set; }  // What3Words location code (e.g., "///word.word.word")
     public SchemaLocation? Location { get; set; }
     
     // Related data, loaded based on section configuration

@@ -36,6 +36,9 @@ units:
     - name: "Contact"
       csv_column: "Email"
       type: "string"
+    - name: "What3Words"
+      csv_column: "What3Words"
+      type: "string"
 
 officers:
   source: "membership_v1.6.csv"

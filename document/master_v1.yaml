@@ -107,6 +107,12 @@ sections:
     template: "craft/succession.html"
     is_child: true
 
+  - section_id: "craft_salutes"
+    section_title: "Salutes"
+    type: "static"
+    template: "craft/salutes.html"
+    is_child: true
+
   - section_id: "locations"
     section_title: "Masonic Halls"
     type: "locations"
@@ -129,7 +135,7 @@ sections:
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Craft"]
-    is_child: true
+    is_child: true    
 
   - section_id: "craft_toc_alpha"
     section_title: "Craft Lodges in Alphabetical Order"

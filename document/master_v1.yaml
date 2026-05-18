@@ -471,28 +471,9 @@ sections:
 
   # PBQ
   - section_id: "pbq_intro"
-    section_title: "PBQ"
+    section_title: "The Worshipful Society of Free Masons"
     type: "static"
     template: "companion/_placeholder.html"
-
-  - section_id: "pbq_membership_summary"
-    section_title: "PBQ Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
-    data_mapping: "data_sources/pbq_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "pbq_meetings_table"
-    section_title: "PBQ Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["PBQ"]
-    override_break_before: true
-    is_child: true
 
   - section_id: "pbq_toc"
     section_title: "PBQ Councils in Numerical Order"
@@ -554,7 +535,7 @@ sections:
     
   # Rose Croix
   - section_id: "rc_intro"
-    section_title: "Rose Croix"
+    section_title: "Ancient and Accepted Rite"
     type: "static"
     template: "companion/_placeholder.html"
 
@@ -716,14 +697,14 @@ sections:
     data_mapping: "data_sources/sria_data_source.yaml"
     hide_from_parent_toc: true
 
-  # STOA
+  # St Thomas of Acon
   - section_id: "stoa_intro"
-    section_title: "STOA"
+    section_title: "Commemorative Order of St Thomas of Acon"
     type: "static"
     template: "companion/_placeholder.html"
 
   - section_id: "stoa_membership_summary"
-    section_title: "STOA Membership Summary"
+    section_title: "St Thomas of Acon Membership Summary"
     type: "membership-summary"
     template: "membership-summary-page.html"
     data_mapping: "data_sources/stoa_data_source.yaml"
@@ -733,7 +714,7 @@ sections:
     is_child: true
 
   - section_id: "stoa_meetings_table"
-    section_title: "STOA Meeting Dates"
+    section_title: "St Thomas of Acon Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
@@ -742,7 +723,7 @@ sections:
     is_child: true
 
   - section_id: "stoa_toc"
-    section_title: "STOA Councils in Numerical Order"
+    section_title: "St Thomas of Acon Chapels in Numerical Order"
     type: "toc"
     for_section: "stoa_units"
     template: "toc-page.html"
@@ -751,7 +732,7 @@ sections:
     is_child: true
 
   - section_id: "stoa_units"
-    section_title: "STOA Councils in Numerical Order"
+    section_title: "St Thomas of Acon Chapels in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/stoa_data_source.yaml"

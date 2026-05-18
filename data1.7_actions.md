@@ -11,3 +11,8 @@
   - They need to change it in Adelphi/Hermes
 - Draft emails for provincial secretaries
   - They need to update the templates and re-send
+
+
+Questions for next meeting:
+- Data Protection Notice page?
+- Meridian?

@@ -120,7 +120,7 @@ sections:
     is_child: true
 
   - section_id: "locations"
-    section_title: "Masonic Halls"
+    section_title: "Dorset Masonic Halls"
     type: "locations"
     template: "location-page.html"
     is_child: true

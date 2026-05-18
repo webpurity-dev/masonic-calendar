@@ -48,8 +48,7 @@
                     </tr>
                     {{ end }}
                 </tbody>
-            </table>
-            
+            </table>            
             <!-- Right Column -->
             <table style="border-collapse: collapse; font-size: 7.5pt; flex: 0 0 auto; table-layout: fixed;">
                 <tbody>
@@ -69,23 +68,21 @@
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: auto;">
         <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.pastMasters }} ({{ unit.number }})</h2>
-        <div style="display: flex; gap: 2px; justify-content: center; align-items: flex-start; break-inside: auto;">
-            <table style="border-collapse: collapse; font-size: 6.5pt; margin-left: auto; margin-right: auto;">
+        <div style="display: flex; gap: 2px; justify-content: center; align-items: flex-start; break-inside: auto; width: 100%;">
+            <table style="border-collapse: collapse; font-size: 6.5pt; width: 99%; margin-left: auto; margin-right: auto;">
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">Year</th>
-                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
-                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank & Date Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
                     <tr data-id="{{ master.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; min-width: 90px;">{{ master.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 50px;">{{ master.installed }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 70px; {{ if master.isGrandRank }}font-weight: 600;{{ end }}">{{ master.rank }}</td>  
-                        <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ master.rankYear }}</td>
+                        <td style="padding: 0.5px; text-align: left; min-width: 99px;">{{ master.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 55px;">{{ master.installed }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 110px; {{ if master.isGrandRank }}font-weight: 600;{{ end }}">{{ master.display_rank }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -98,26 +95,26 @@
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: avoid;">
         <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.joiningPastMasters }} ({{ unit.number }}) </h2>
-        <table style="border-collapse: collapse; font-size: 6pt; margin-left: auto; margin-right: auto; break-inside: auto;">
-            <thead>
-                <tr>
-                    <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
-                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Lodges</th>
-                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank</th>
-                    <th style="padding: 0.5px; text-align: right; font-weight: 800;">Accorded</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ for joiningPastMaster in joiningPastMasters }}
-                <tr data-id="{{ joiningPastMaster.dataId }}">
-                    <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ joiningPastMaster.name }}</td>
-                    <td style="padding: 0.5px; text-align: right; min-width: 70px;">{{ joiningPastMaster.pastUnits }}</td>
-                    <td style="padding: 0.5px; text-align: right; min-width: 70px; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.rank }}</td>  
-                    <td style="padding: 0.5px; text-align: right; min-width: 60px;">{{ joiningPastMaster.rankYear }}</td>
-                </tr>
-                {{ end }}
-            </tbody>
-        </table>
+        <div style="width: 100%;">
+            <table style="border-collapse: collapse; font-size: 6pt; width: 99%; margin-left: auto; margin-right: auto; break-inside: auto;">
+                <thead>
+                    <tr>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Lodges</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank & Date Accorded</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ for joiningPastMaster in joiningPastMasters }}
+                    <tr data-id="{{ joiningPastMaster.dataId }}">
+                        <td style="padding: 0.5px; text-align: left; min-width: 88px;">{{ joiningPastMaster.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 77px;">{{ joiningPastMaster.pastUnits }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 110px; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
     </div>
     {{ end }}
 
@@ -147,9 +144,9 @@
     <div style="margin-top: 5px; text-align: center; break-inside: auto;">
         <h2 style="font-size: 9pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.honoraryMembers }} ({{ unit.number }})</h2>
         {{ for honoraryMember in honoraryMembers }}
-        <p style="margin: 1px 0; text-align: center; font-size: 6pt; {{ if honoraryMember.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ honoraryMember.dataId }}">
-            {{ honoraryMember.name }}, {{ honoraryMember.rank }}
-        </p>
+        <div style="margin: 1px 0; text-align: center; font-size: 6pt; {{ if honoraryMember.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ honoraryMember.dataId }}">
+            {{ honoraryMember.name }}{{ honoraryMember.display_rank }}
+        </div>
         {{ end }}
     </div>
     {{ end }}

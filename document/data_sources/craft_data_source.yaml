@@ -1,6 +1,7 @@
 ﻿# Data source mappings for Craft Freemasonry section
 # CSV files and column mappings that support craft-related data
-# v1.4 format: units_v1.5.csv + membership_v1.5.csv
+# v1.7 format: units_v1.7.csv + membership_v1.7.csv
+# New in v1.7: Columns 13-16 for Other Province Rank and London Rank
 
 units:
   source: "units_v1.6.csv"
@@ -37,18 +38,21 @@ units:
     # Location and What3Words now loaded from unit_locations.csv via location join
 
 officers:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
-    - filter_field: "MemType"
+    - filter_field: "Mem Type"
       filter_value: "Off"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
+      type: "string"
+    - name: "Office"
+      csv_column: "Office"
       type: "string"
     - name: "Position"
       csv_column: "Office"
@@ -56,17 +60,38 @@ officers:
     - name: "PositionNo"
       csv_column: "OffPos"
       type: "int"
+    # v1.6 fields
+    - name: "GrandRank"
+      csv_column: "Grand Rank"
+      type: "string"
+    - name: "GrandRankDateAccorded"
+      csv_column: "GR Date Accorded"
+      type: "int"
+    # v1.7 NEW: Other Province Rank
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "OpDateAccorded"
+      csv_column: "OP Date Accorded"
+      type: "string"
+    # v1.7 NEW: London Rank
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
+      type: "string"
+    - name: "LondonRankDateAccorded"
+      csv_column: "LR Date Accorded"
+      type: "int"
 
 past_masters:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
-    - filter_field: "MemType"
+    - filter_field: "Mem Type"
       filter_value: "PMO"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -74,29 +99,44 @@ past_masters:
     - name: "YearInstalled"
       csv_column: "Installed"
       type: "string"
+    # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-    - name: "ProvincialRankYear"
+    - name: "DateRankAccorded"
       csv_column: "Date Accorded"
       type: "string"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "GrandRankYear"
+    - name: "GrandRankDateAccorded"
       csv_column: "GR Date Accorded"
       type: "string"
+    # v1.7 NEW: Other Province Rank
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "OpDateAccorded"
+      csv_column: "OP Date Accorded"
+      type: "string"
+    # v1.7 NEW: London Rank
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
+      type: "string"
+    - name: "LondonRankDateAccorded"
+      csv_column: "LR Date Accorded"
+      type: "int"
 
 joining_past_masters:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
-    - filter_field: "MemType"
+    - filter_field: "Mem Type"
       filter_value: "PMI"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -104,54 +144,117 @@ joining_past_masters:
     - name: "PastUnits"
       csv_column: "Join Unit"
       type: "string"
+    # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-    - name: "ProvincialRankYear"
+    - name: "DateRankAccorded"
       csv_column: "Date Accorded"
       type: "string"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "GrandRankYear"
+    - name: "GrandRankDateAccorded"
       csv_column: "GR Date Accorded"
       type: "string"
+    # v1.7 NEW: Other Province Rank
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "OpDateAccorded"
+      csv_column: "OP Date Accorded"
+      type: "string"
+    # v1.7 NEW: London Rank
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
+      type: "string"
+    - name: "LondonRankDateAccorded"
+      csv_column: "LR Date Accorded"
+      type: "int"
 
 members:
-  source: "membership_v1.5.csv"
+  source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
-    - filter_field: "MemType"
+    - filter_field: "Mem Type"
       filter_value: "Mem"
   fields:
     - name: "Reference"
-      csv_column: "UniqueRef"
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
       type: "string"
     - name: "YearInitiated"
-      csv_column: "Year"
+      csv_column: "Join Date"
       type: "string"
-
-honorary_members:
-  source: "membership_v1.5.csv"
-  filters:
-    - filter_field: "Unit Type"
-      filter_value: "Craft"
-    - filter_field: "MemType"
-      filter_value: "Hon"
-  fields:
-    - name: "Reference"
-      csv_column: "UniqueRef"
+    # v1.6 fields
+    - name: "ProvincialRank"
+      csv_column: "Provincial Rank"
       type: "string"
-    - name: "Name"
-      csv_column: "Name"
+    - name: "DateRankAccorded"
+      csv_column: "Date Accorded"
       type: "string"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
+    - name: "GrandRankDateAccorded"
+      csv_column: "GR Date Accorded"
+      type: "int"
+    # v1.7 NEW: Other Province Rank
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "OpDateAccorded"
+      csv_column: "OP Date Accorded"
+      type: "string"
+    # v1.7 NEW: London Rank
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
+      type: "string"
+    - name: "LondonRankDateAccorded"
+      csv_column: "LR Date Accorded"
+      type: "int"
+
+honorary_members:
+  source: "membership_v1.7.csv"
+  filters:
+    - filter_field: "Unit Type"
+      filter_value: "Craft"
+    - filter_field: "Mem Type"
+      filter_value: "Hon"
+  fields:
+    - name: "Reference"
+      csv_column: "Unique Ref"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    # v1.6 fields
+    - name: "GrandRank"
+      csv_column: "Grand Rank"
+      type: "string"
+    - name: "GrandRankDateAccorded"
+      csv_column: "GR Date Accorded"
+      type: "int"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
+    - name: "DateRankAccorded"
+      csv_column: "Date Accorded"
+      type: "int"
+    # v1.7 NEW: Other Province Rank
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "OpDateAccorded"
+      csv_column: "OP Date Accorded"
+      type: "string"
+    # v1.7 NEW: London Rank
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
+      type: "string"
+    - name: "LondonRankDateAccorded"
+      csv_column: "LR Date Accorded"
+      type: "int"

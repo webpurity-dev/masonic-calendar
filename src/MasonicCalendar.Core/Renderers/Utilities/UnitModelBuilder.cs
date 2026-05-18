@@ -69,7 +69,17 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                         { "name", TextCleaner.CleanName(o.Name) },
                         { "position", o.Position },
-                        { "posNo", o.PosNo }
+                        { "posNo", o.PosNo },
+                        // v1.6 fields
+                        { "grand_rank", o.GrandRank },
+                        { "grand_rank_date_accorded", o.GrandRankDateAccorded },
+                        // v1.7 NEW
+                        { "prov_rank_other_prov", o.ProvRankOtherProv },
+                        { "op_date_accorded", o.OpDateAccorded },
+                        { "op_date_start_year", o.OpDateStartYear },
+                        { "op_date_end_year", o.OpDateEndYear },
+                        { "london_rank", o.LondonRank },
+                        { "london_rank_date_accorded", o.LondonRankDateAccorded }
                     })
                     .ToList()
             },
@@ -84,8 +94,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled },
-                        { "rank", pm.Rank },
-                        { "rankYear", pm.RankYear },
+                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, pm.ProvincialRank, pm.DateRankAccorded, pm.ProvRankOtherProv, pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
                     .ToList()
@@ -98,8 +107,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "pastUnits", jpm.PastUnits },
-                        { "rank", TextCleaner.CleanProvincialRank(jpm.Rank) },
-                        { "rankYear", TextCleaner.CleanDateIssued(jpm.RankYear) },
+                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
                     .ToList()
@@ -112,7 +120,19 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                         { "name", TextCleaner.CleanName(m.Name) },
                         { "joined", m.YearInitiated },
-                        { "posNo", m.PosNo }
+                        { "posNo", m.PosNo },
+                        // v1.6 fields
+                        { "provincial_rank", m.ProvincialRank },
+                        { "date_rank_accorded", m.DateRankAccorded },
+                        { "grand_rank", m.GrandRank },
+                        { "grand_rank_date_accorded", m.GrandRankDateAccorded },
+                        // v1.7 NEW
+                        { "prov_rank_other_prov", m.ProvRankOtherProv },
+                        { "op_date_accorded", m.OpDateAccorded },
+                        { "op_date_start_year", m.OpDateStartYear },
+                        { "op_date_end_year", m.OpDateEndYear },
+                        { "london_rank", m.LondonRank },
+                        { "london_rank_date_accorded", m.LondonRankDateAccorded }
                     })
                     .ToList()
             },
@@ -126,7 +146,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "rank", hm.Rank },
+                        { "display_rank", BuildDisplayRankWithComma(hm.GrandRank, hm.ProvincialRank, hm.ProvRankOtherProv, hm.LondonRank) },
                         { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
@@ -177,7 +197,17 @@ public static class UnitModelBuilder
                 { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                 { "name", TextCleaner.CleanName(o.Name) },
                 { "position", o.Position },
-                { "posNo", o.PosNo }
+                { "posNo", o.PosNo },
+                // v1.6 fields
+                { "grand_rank", o.GrandRank },
+                { "grand_rank_date_accorded", o.GrandRankDateAccorded },
+                // v1.7 NEW
+                { "prov_rank_other_prov", o.ProvRankOtherProv },
+                { "op_date_accorded", o.OpDateAccorded },
+                { "op_date_start_year", o.OpDateStartYear },
+                { "op_date_end_year", o.OpDateEndYear },
+                { "london_rank", o.LondonRank },
+                { "london_rank_date_accorded", o.LondonRankDateAccorded }
             };
 
             if (i < splitAt) left.Add(dict);
@@ -213,7 +243,19 @@ public static class UnitModelBuilder
                 { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
-                { "posNo", m.PosNo }
+                { "posNo", m.PosNo },
+                // v1.6 fields
+                { "provincial_rank", m.ProvincialRank },
+                { "date_rank_accorded", m.DateRankAccorded },
+                { "grand_rank", m.GrandRank },
+                { "grand_rank_date_accorded", m.GrandRankDateAccorded },
+                // v1.7 NEW
+                { "prov_rank_other_prov", m.ProvRankOtherProv },
+                { "op_date_accorded", m.OpDateAccorded },
+                { "op_date_start_year", m.OpDateStartYear },
+                { "op_date_end_year", m.OpDateEndYear },
+                { "london_rank", m.LondonRank },
+                { "london_rank_date_accorded", m.LondonRankDateAccorded }
             };
 
             if (i < colSize) col0.Add(dict);
@@ -238,5 +280,91 @@ public static class UnitModelBuilder
         if (!string.IsNullOrWhiteSpace(office))
             parts.Append('-').Append(office.Trim());
         return parts.ToString();
+    }
+
+    /// <summary>
+    /// Build a comma-separated display rank string following priority:
+    /// IF grand_rank exists: return ONLY grand_rank (highest priority)
+    /// ELSE: return all applicable ranks (provincial, prov_rank_other_prov, london_rank) joined by ", "
+    /// </summary>
+    private static string? BuildDisplayRank(string? grandRank, string? provincialRank, 
+        string? provRankOtherProv, string? londonRank)
+    {
+        // If grand rank exists, show only that (highest priority)
+        if (!string.IsNullOrWhiteSpace(grandRank))
+            return grandRank;
+
+        // Otherwise, collect all applicable ranks and join with ", "
+        var ranks = new List<string>();
+        if (!string.IsNullOrWhiteSpace(provincialRank))
+            ranks.Add(provincialRank);
+        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
+            ranks.Add(provRankOtherProv);
+        if (!string.IsNullOrWhiteSpace(londonRank))
+            ranks.Add(londonRank);
+
+        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+    }
+
+    /// <summary>
+    /// Build a display rank string with dates in square brackets.
+    /// Format: "Rank [Year]" for each applicable rank.
+    /// Priority: grand_rank > provincial_rank, prov_rank_other_prov, london_rank
+    /// Example: "PProvAGReg (Hants. & IoW) [2021], LGR [2020]"
+    /// </summary>
+    private static string? BuildDisplayRankWithDates(
+        string? grandRank, int? grandRankDateAccorded,
+        string? provincialRank, int? dateRankAccorded,
+        string? provRankOtherProv, int? opDateAccorded,
+        string? londonRank, int? londonRankDateAccorded)
+    {
+        // If grand rank exists, show only that (highest priority)
+        if (!string.IsNullOrWhiteSpace(grandRank))
+        {
+            if (grandRankDateAccorded.HasValue)
+                return $"{grandRank} [{grandRankDateAccorded}]";
+            return grandRank;
+        }
+
+        // Otherwise, collect all applicable ranks with their dates
+        var ranks = new List<string>();
+        
+        if (!string.IsNullOrWhiteSpace(provincialRank))
+        {
+            if (dateRankAccorded.HasValue)
+                ranks.Add($"{provincialRank} [{dateRankAccorded}]");
+            else
+                ranks.Add(provincialRank);
+        }
+        
+        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
+        {
+            if (opDateAccorded.HasValue)
+                ranks.Add($"{provRankOtherProv} [{opDateAccorded}]");
+            else
+                ranks.Add(provRankOtherProv);
+        }
+        
+        if (!string.IsNullOrWhiteSpace(londonRank))
+        {
+            if (londonRankDateAccorded.HasValue)
+                ranks.Add($"{londonRank} [{londonRankDateAccorded}]");
+            else
+                ranks.Add(londonRank);
+        }
+
+        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+    }
+
+    /// <summary>
+    /// Build display rank string with comma prefix for honorary members.
+    /// If rank exists, returns ", Rank" format. If no rank, returns null (no trailing comma).
+    /// Uses same priority as BuildDisplayRank: grand_rank > provincial_rank, prov_rank_other_prov, london_rank
+    /// </summary>
+    private static string? BuildDisplayRankWithComma(string? grandRank, string? provincialRank,
+        string? provRankOtherProv, string? londonRank)
+    {
+        var displayRank = BuildDisplayRank(grandRank, provincialRank, provRankOtherProv, londonRank);
+        return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
     }
 }

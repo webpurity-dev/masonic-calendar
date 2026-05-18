@@ -18,6 +18,7 @@ string? templateName = null;
 string? documentOutputFormat = null;
 string? sectionId = null;
 string? unitNumber = null;
+string? unitType = "craft";  // Default to craft units
 bool debugMode = false;
 
 var templateIndex = Array.IndexOf(args, "-template");
@@ -44,11 +45,20 @@ if (unitIndex != -1 && unitIndex + 1 < args.Length)
     unitNumber = args[unitIndex + 1];
 }
 
+var unitTypeIndex = Array.IndexOf(args, "-unittype");
+if (unitTypeIndex != -1 && unitTypeIndex + 1 < args.Length)
+{
+    unitType = args[unitTypeIndex + 1];
+}
+
 // Check for debug flag
 debugMode = Array.IndexOf(args, "-debug") != -1;
 
 // Check for showbleeds flag
 bool showBleeds = Array.IndexOf(args, "-showbleeds") != -1;
+
+// Check for noprint flag (removes print-specific margins and padding)
+bool noPrintMode = Array.IndexOf(args, "-noprint") != -1;
 
 // Document renderer mode
 if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(documentOutputFormat))
@@ -66,6 +76,11 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         if (!string.IsNullOrWhiteSpace(unitNumber))
         {
             Console.WriteLine($"Unit:     {unitNumber}");
+            Console.WriteLine($"UnitType: {unitType}");
+        }
+        if (noPrintMode)
+        {
+            Console.WriteLine($"Mode:     No-Print (margins/padding removed)");
         }
         Console.WriteLine();
 
@@ -85,6 +100,39 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Determine target section early (before loading units)
         string? targetSectionId = sectionId ?? null;
 
+        // If unit type is specified without section, determine section from unit type
+        if (!string.IsNullOrWhiteSpace(unitNumber) && targetSectionId == null)
+        {
+            // Map unit type to section ID and supplementary section prefix
+            var unitTypeToMapping = new Dictionary<string, (string section, string prefix)>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "craft", ("craft_units", "craft") },
+                { "royalarch", ("royalarch_units", "ra") },
+                { "ra", ("royalarch_units", "ra") },
+                { "mark", ("mark_units", "mark") },
+                { "ram", ("ram_units", "ram") },
+                { "rcoc", ("rcoc_units", "rcoc") },
+                { "kt", ("kt_units", "kt") },
+                { "ktp", ("ktp_units", "ktp") },
+                { "osc", ("osc_units", "osc") },
+                { "osm", ("osm_units", "osm") },
+                { "pbq", ("pbq_units", "pbq") },
+                { "stoa", ("stoa_units", "stoa") }
+            };
+            
+            if (unitTypeToMapping.TryGetValue(unitType ?? "craft", out var mapping))
+            {
+                targetSectionId = mapping.section;
+                unitType = mapping.prefix;  // Update unitType to be the correct prefix for supplementary sections
+            }
+            else
+            {
+                Console.WriteLine($"⚠️  Warning: Unknown unit type '{unitType}', defaulting to craft");
+                targetSectionId = "craft_units";
+                unitType = "craft";
+            }
+        }
+
         // Peek at the layout to determine the target section's type
         var peekLoader = new DocumentLayoutLoader(documentRoot);
         var peekLayout = peekLoader.LoadMasterLayout(templateName);
@@ -93,7 +141,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Non-data-driven section types manage their own data loading — skip SchemaDataLoader
         bool needsUnitLoad = targetSectionId == null ||
-            (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true);
+            (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true) ||
+            (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false);
 
         // Load data using schema - load from specific section if requested
         var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
@@ -101,25 +150,67 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         if (needsUnitLoad)
         {
-            if (!string.IsNullOrWhiteSpace(targetSectionId))
+            // Special handling for locations section: load all unit types
+            if (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                Console.WriteLine($"Loading data for section: {targetSectionId} (all unit types)");
+                var allUnits = new List<SchemaUnit>();
+                
+                // Load units from all data-driven sections
+                var layout = peekLayout?.Data;
+                if (layout?.Sections != null)
+                {
+                    // Get all data-driven sections
+                    var dataSections = layout.Sections
+                        .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false)
+                        .ToList();
+                    
+                    foreach (var section in dataSections)
+                    {
+                        var sectionResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, section.SectionId);
+                        if (sectionResult.Success && sectionResult.Data != null)
+                        {
+                            allUnits.AddRange(sectionResult.Data);
+                        }
+                    }
+                }
+                
+                if (allUnits.Count == 0)
+                {
+                    Console.WriteLine($"❌ Error loading data: No units found for locations section");
+                    return 1;
+                }
+                
+                Console.WriteLine($"✓ Loaded {allUnits.Count} units from CSV files");
+                schemaResult = Result<List<SchemaUnit>>.Ok(allUnits);
+            }
+            else if (!string.IsNullOrWhiteSpace(targetSectionId))
             {
                 // Load units for the specific section
                 Console.WriteLine($"Loading data for section: {targetSectionId}");
                 schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName, targetSectionId);
+                
+                if (!schemaResult.Success)
+                {
+                    Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
+                    return 1;
+                }
+
+                Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
             }
             else
             {
                 // Load default units (craft)
                 schemaResult = await schemaLoader.LoadUnitsWithDataAsync(templateName);
-            }
+                
+                if (!schemaResult.Success)
+                {
+                    Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
+                    return 1;
+                }
 
-            if (!schemaResult.Success)
-            {
-                Console.WriteLine($"❌ Error loading data: {schemaResult.Error}");
-                return 1;
+                Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
             }
-
-            Console.WriteLine($"✓ Loaded {schemaResult.Data!.Count} units from CSV files");
         }
         else
         {
@@ -170,16 +261,12 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var documentVersion = layoutResult.Data?.Document?.Version;
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds, noPrintMode);
         
-        // When rendering a specific unit, auto-select section if not already specified
-        if (!string.IsNullOrWhiteSpace(unitNumber) && targetSectionId == null)
+        // Log the rendering details
+        if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
         {
-            // When unit is specified without section, render from craft units by default
-            // (For Royal Arch units, the user can specify -section royalarch_units)
-            targetSectionId = "craft_units";
-            Console.WriteLine($"📄 Rendering unit {unitNumber} from craft section");
-            Console.WriteLine($"   (To render from royal arch section: add '-section royalarch_units')");
+            Console.WriteLine($"📄 Rendering unit {unitNumber} from {unitType} section");
         }
         else if (targetSectionId != null)
         {
@@ -190,7 +277,46 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
-        var renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+        // For single unit renders with pre-filtering, auto-include membership summary and meetings
+        Result<byte[]> renderResult;
+        if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
+        {
+            // Use the unitType prefix (set above for single-unit renders with -unittype) for supplementary sections
+            var unitTypePrefix = unitType ?? "craft";
+            var membershipSectionId = $"{unitTypePrefix}_membership_summary";
+            var meetingsSectionId = $"{unitTypePrefix}_meetings_table";
+            
+            // Check if supplementary sections exist
+            var layoutForSupplemental = layoutResult.Data;
+            var hasMembershipSection = layoutForSupplemental?.Sections?.Any(s => 
+                s.SectionId?.Equals(membershipSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
+            var hasMeetingsSection = layoutForSupplemental?.Sections?.Any(s => 
+                s.SectionId?.Equals(meetingsSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
+            
+            // Render all sections together if supplementary sections exist
+            if (hasMembershipSection || hasMeetingsSection)
+            {
+                var sectionsToRender = new List<string> { targetSectionId };
+                if (hasMembershipSection) sectionsToRender.Add(membershipSectionId);
+                if (hasMeetingsSection) sectionsToRender.Add(meetingsSectionId);
+                
+                Console.WriteLine();
+                Console.WriteLine("📊 Including supplementary sections:");
+                foreach (var secId in sectionsToRender.Skip(1))
+                    Console.WriteLine($"   ✓ {secId}");
+                Console.WriteLine();
+                
+                renderResult = await renderer.RenderMultipleSectionsAsync(unitsToRender, templateName, sectionsToRender, documentOutputFormat);
+            }
+            else
+            {
+                renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+            }
+        }
+        else
+        {
+            renderResult = await renderer.RenderAsync(unitsToRender ?? [], templateName, targetSectionId, documentOutputFormat);
+        }
         
         if (!renderResult.Success)
         {
@@ -203,7 +329,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var sectionPart = targetSectionId ?? "all-sections";
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedsPart = showBleeds ? "-showBleeds" : "";
-        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}.{fileExtension}";
+        var noPrintPart = noPrintMode ? "-noprint" : "";
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}{noPrintPart}.{fileExtension}";
         
         // If version is available, embed it in the template name: master_v1- → master_v1.4-
         if (!string.IsNullOrWhiteSpace(documentVersion))

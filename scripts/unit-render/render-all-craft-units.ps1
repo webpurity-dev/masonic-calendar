@@ -1,14 +1,13 @@
-# Renders a PDF for every Craft unit.
+# Renders PDFs for all Craft units from the units CSV file.
 # Usage:
-#   .\render-all-craft-units.ps1
-#   .\render-all-craft-units.ps1 -Limit 3
-#   .\render-all-craft-units.ps1 -Version 1.4
+#   .\render-all-craft-units.ps1 -Version 1.5
+#   .\render-all-craft-units.ps1 -Version 1.5 -Limit 3
 
 param(
-    [int]$Limit = 0,
-    [string]$Version = ""
+    [Parameter(Mandatory)][string]$Version,
+    [int]$Limit = 0
 )
 
-& "$PSScriptRoot\render-units.ps1" -DataSourceYaml "craft_data_source.yaml" -Limit $Limit -Version $Version
+& "$PSScriptRoot\render-units.ps1" -Version $Version -FilterUnitType "Craft" -Limit $Limit
 exit $LASTEXITCODE
 

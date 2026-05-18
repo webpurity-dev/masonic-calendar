@@ -1,13 +1,12 @@
-# Renders a PDF for every RAM unit.
+# Renders PDFs for all Royal Ark Mariner units from the units CSV file.
 # Usage:
-#   .\render-all-ram-units.ps1
-#   .\render-all-ram-units.ps1 -Limit 3
-#   .\render-all-ram-units.ps1 -Version 1.4
+#   .\render-all-ram-units.ps1 -Version 1.5
+#   .\render-all-ram-units.ps1 -Version 1.5 -Limit 3
 
 param(
-    [int]$Limit = 0,
-    [string]$Version = ""
+    [Parameter(Mandatory)][string]$Version,
+    [int]$Limit = 0
 )
 
-& "$PSScriptRoot\render-units.ps1" -DataSourceYaml "ram_data_source.yaml" -Limit $Limit -Version $Version
+& "$PSScriptRoot\render-units.ps1" -Version $Version -FilterUnitType "RAM" -Limit $Limit
 exit $LASTEXITCODE

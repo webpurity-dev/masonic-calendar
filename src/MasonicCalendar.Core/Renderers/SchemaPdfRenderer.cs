@@ -13,12 +13,13 @@ using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false, bool noPrintMode = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly bool _debugMode = debugMode;
     private readonly bool _showBleeds = showBleeds;
+    private readonly bool _noPrintMode = noPrintMode;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
@@ -42,6 +43,172 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         }
 
         return await RenderSectionAsync(units, masterTemplateKey, sectionId, format);
+    }
+
+    /// <summary>
+    /// Render multiple sections into a single combined HTML/PDF document.
+    /// Used when rendering a single unit with supplementary sections (membership summary, meetings).
+    /// </summary>
+    public async Task<Result<byte[]>> RenderMultipleSectionsAsync(
+        List<SchemaUnit> units,
+        string masterTemplateKey,
+        List<string> sectionIds,
+        string format = "HTML")
+    {
+        if (sectionIds == null || sectionIds.Count == 0)
+            return Result<byte[]>.Fail("No sections specified for rendering");
+
+        try
+        {
+            var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
+            if (!layoutResult.Success)
+                return Result<byte[]>.Fail(layoutResult.Error ?? "Failed to load template");
+
+            var layout = layoutResult.Data;
+            var output = new StringBuilder();
+
+            // Build HTML document once
+            output.AppendLine("<!DOCTYPE html>");
+            output.AppendLine("<html>");
+            output.AppendLine("<head>");
+            output.AppendLine("<meta charset='utf-8'/>");
+            output.AppendLine("<title>Masonic Calendar</title>");
+            
+            var format_str = layout?.Document?.Format ?? "A6";
+            var orientation = layout?.Document?.Orientation ?? "portrait";
+            output.AppendLine($"<meta name='format' content='{format_str}'/>");
+            output.AppendLine($"<meta name='orientation' content='{orientation}'/>");
+            
+            // Add CSS and scripts
+            var printCssPath = Path.Combine(_templateRoot, "print.css");
+            if (File.Exists(printCssPath))
+            {
+                var printCssContent = File.ReadAllText(printCssPath);
+                output.AppendLine("<style>");
+                output.AppendLine(printCssContent);
+                
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
+                {
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
+                }
+                
+                var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
+                if (!string.IsNullOrEmpty(globalStylesCss))
+                {
+                    output.AppendLine("/* Global styles from configuration */");
+                    output.AppendLine(globalStylesCss);
+                }
+                
+                if (_showBleeds)
+                {
+                    output.AppendLine("/* Bleed visualization */");
+                    output.AppendLine(".pagedjs_sheet { position: relative; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                }
+                
+                output.AppendLine("</style>");
+            }
+            
+            output.AppendLine("<script>");
+            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+            output.AppendLine("  afterRendered(pages) {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("      el.style.overflow = 'visible';");
+            output.AppendLine("    });");
+            output.AppendLine("  }");
+            output.AppendLine("}");
+            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine("</script>");
+            output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
+            output.AppendLine("</head>");
+            output.AppendLine("<body>");
+
+            // Render each section and combine
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+            var sectionIndex = 0;
+            
+            foreach (var requestedSectionId in sectionIds)
+            {
+                var section = layout?.Sections?.FirstOrDefault(s =>
+                    s.SectionId?.Equals(requestedSectionId, StringComparison.OrdinalIgnoreCase) ?? false);
+
+                if (section == null)
+                {
+                    if (_debugMode)
+                        Console.WriteLine($"    ⚠️  Section '{requestedSectionId}' not found");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(section.Template))
+                    continue;
+
+                // Use the appropriate renderer based on section type
+                var isToc = section.Type?.Equals("toc", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isStatic = section.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
+
+                var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
+                var sectionOutput = new StringBuilder();
+                
+                await sectionRenderer.RenderAsync(section, sectionIndex, layout?.Sections ?? [], masterTemplateKey, units, sectionOutput);
+                output.Append(sectionOutput);
+                sectionIndex++;
+            }
+
+            output.AppendLine("</body>");
+            output.AppendLine("</html>");
+
+            var htmlContent = output.ToString();
+            
+            // Handle output format
+            if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
+            {
+                htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
+                var paperFormat = MapToPaperFormat(format_str);
+                var pdf = await ConvertHtmlToPdf(htmlContent, new PdfOptions
+                {
+                    Format = paperFormat,
+                    PrintBackground = true,
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }
+                });
+                
+                return Result<byte[]>.Ok(pdf);
+            }
+            else
+            {
+                // HTML output - just return bytes, let caller handle file writing
+                return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(htmlContent));
+            }
+        }
+        catch (Exception ex)
+        {
+            return Result<byte[]>.Fail($"Error rendering multiple sections: {ex.Message}");
+        }
     }
 
     private async Task<Result<byte[]>> RenderSectionAsync(
@@ -97,12 +264,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
                 
-                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
-                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
-                if (!string.IsNullOrEmpty(marginsCss))
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
                 {
-                    output.AppendLine("/* Page margins from configuration */");
-                    output.AppendLine(marginsCss);
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
                 }
                 
                 // Generate and inject global styles CSS from configuration
@@ -134,7 +319,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<script>");
             output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
             output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
             output.AppendLine("      el.style.overflow = 'visible';");
             output.AppendLine("    });");
             output.AppendLine("  }");
@@ -203,7 +388,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     { "current_year", now.Year },
                     { "current_date", now.ToString("d MMMM yyyy") },
-                    { "build_version", layout?.Document?.Version ?? "" }
+                    { "publish_version", layout?.Document?.Version ?? "" },
+                    { "data_corrected_date", layout?.Document?.DataCorrectedDate ?? "" }
                 };
                 var staticHtml = template.Render(staticModel);
                 output.AppendLine(staticHtml);  // Paged.js handles page numbering via CSS
@@ -332,12 +518,30 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 output.AppendLine("<style>");
                 output.AppendLine(printCssContent);
                 
-                // Generate and inject page margin CSS from configuration (overrides hardcoded values)
-                var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
-                if (!string.IsNullOrEmpty(marginsCss))
+                // Always include page size rule, even with -noprint
+                var pageSizeCss = GeneratePageSizeOnlyCss(layout?.Document?.Format, layout?.PageMargins);
+                if (!string.IsNullOrEmpty(pageSizeCss))
                 {
-                    output.AppendLine("/* Page margins from configuration */");
-                    output.AppendLine(marginsCss);
+                    output.AppendLine("/* Page size from configuration */");
+                    output.AppendLine(pageSizeCss);
+                }
+                
+                // With -noprint: set 0 margins to prevent browser defaults
+                // Without -noprint: use configured margins with footers
+                if (_noPrintMode)
+                {
+                    var zeroMarginsCss = GenerateZeroMarginsCss();
+                    output.AppendLine("/* Zero margins for no-print mode */");
+                    output.AppendLine(zeroMarginsCss);
+                }
+                else
+                {
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    if (!string.IsNullOrEmpty(marginsCss))
+                    {
+                        output.AppendLine("/* Page margins from configuration */");
+                        output.AppendLine(marginsCss);
+                    }
                 }
                 
                 // Generate and inject global styles CSS from configuration
@@ -369,7 +573,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<script>");
             output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
             output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
             output.AppendLine("      el.style.overflow = 'visible';");
             output.AppendLine("    });");
             output.AppendLine("  }");
@@ -419,12 +623,35 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Get the appropriate renderer for this section type
                 var renderer = rendererFactory.CreateRenderer(section.Type);
                 
-                // For data-driven and membership-summary sections with a data_mapping, reload units for that specific section
+                // Handle unit loading for different section types
                 var unitsForSection = units;
                 var isDataDriven = section.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false;
                 var isMembershipSummary = section.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false;
+                var isLocations = section.Type?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false;
                 
-                if (_dataLoader != null &&
+                // For locations sections, load all unit types from all data-driven sections
+                if (_dataLoader != null && isLocations)
+                {
+                    var allUnits = new List<SchemaUnit>();
+                    var dataSections = layout!.Sections
+                        .Where(s => s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false)
+                        .ToList();
+                    
+                    foreach (var dataSection in dataSections)
+                    {
+                        var reloadResult = await _dataLoader.LoadUnitsWithDataAsync(masterTemplateKey, dataSection.SectionId);
+                        if (reloadResult.Success && reloadResult.Data != null)
+                        {
+                            allUnits.AddRange(reloadResult.Data);
+                        }
+                    }
+                    
+                    unitsForSection = allUnits;
+                    if (_debugMode)
+                        Console.WriteLine($"    - Loaded {unitsForSection.Count} units from all data-driven sections for locations");
+                }
+                // For data-driven and membership-summary sections with a data_mapping, reload units for that specific section
+                else if (_dataLoader != null &&
                     !string.IsNullOrWhiteSpace(section.DataMapping) &&
                     (isDataDriven || isMembershipSummary))
                 {
@@ -663,7 +890,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     private string ConvertRelativeImagesToDataUrls(string htmlContent)
     {
         // Find all img src attributes with relative paths and convert to data URLs
-        var regex = new System.Text.RegularExpressions.Regex(@"src=""\.\.\/images\/([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        // Matches: src="../images/file" or src="../../images/file" or src="../../../images/file" etc.
+        var regex = new System.Text.RegularExpressions.Regex(@"src=""(?:\.\.\/)+images\/([^""]+)""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         return regex.Replace(htmlContent, match =>
         {
             var fileName = match.Groups[1].Value;
@@ -1020,6 +1248,57 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     /// Includes the base @page size rule, margins, and footer styling.
     /// Size is taken from page_margins.page_size or inferred from document.format.
     /// </summary>
+    /// <summary>
+    /// Generate only the base @page rule with size (no margins).
+    /// This is always included, even with -noprint flag.
+    /// </summary>
+    private string GeneratePageSizeOnlyCss(string? format, PageMargins? margins)
+    {
+        if (margins == null)
+            return string.Empty;
+
+        var css = new StringBuilder();
+        var pageSize = margins.PageSize ?? GetPageSizeFromFormat(format);
+        if (!string.IsNullOrEmpty(pageSize))
+        {
+            css.AppendLine("@page {");
+            css.AppendLine($"  size: {pageSize};");
+            css.AppendLine("  marks: none;");
+            css.AppendLine("}");
+        }
+        return css.ToString();
+    }
+
+    /// <summary>
+    /// Generate @page rules with 0 margins for -noprint mode.
+    /// Prevents browser default margins from being applied.
+    /// </summary>
+    private string GenerateZeroMarginsCss()
+    {
+        var css = new StringBuilder();
+        
+        // Right page (odd pages / Recto)
+        css.AppendLine("@page :right {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        // Left page (even pages / Verso)
+        css.AppendLine("@page :left {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        // First page (cover)
+        css.AppendLine("@page :first {");
+        css.AppendLine("  margin: 0;");
+        css.AppendLine("}");
+        
+        return css.ToString();
+    }
+
+    /// <summary>
+    /// Generate margin and footer @page rules from PageMargins configuration.
+    /// This is skipped with -noprint flag but page size is always included.
+    /// </summary>
     private string GeneratePageMarginsCss(string? format, PageMargins? margins, GlobalStyling? globalStyling)
     {
         if (margins == null)
@@ -1033,16 +1312,6 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         // Specific footer font if defined, otherwise use default font
         if (!string.IsNullOrEmpty(globalStyling?.Footer?.FontFamily))
             footerFont = globalStyling.Footer.FontFamily;
-
-        // Generate @page base rule with size
-        var pageSize = margins.PageSize ?? GetPageSizeFromFormat(format);
-        if (!string.IsNullOrEmpty(pageSize))
-        {
-            css.AppendLine("@page {");
-            css.AppendLine($"  size: {pageSize};");
-            css.AppendLine("  marks: none;");
-            css.AppendLine("}");
-        }
 
         // Right page (odd pages / Recto)
         if (margins.RightPage != null)

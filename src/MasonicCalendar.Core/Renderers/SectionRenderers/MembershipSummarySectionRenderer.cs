@@ -26,9 +26,9 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
         if (template == null)
             return;
 
-        // Always load units for this section from the data source mapping
+        // If a single unit is pre-filtered (e.g., -unit parameter), use it; otherwise reload all
         var unitsForSection = units;
-        if (DataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
+        if (units.Count != 1 && DataLoader != null && !string.IsNullOrWhiteSpace(section.DataMapping))
         {
             var reloadResult = await DataLoader.LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
             if (reloadResult.Success)
@@ -37,6 +37,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
                 if (DebugMode)
                     Console.WriteLine($"  - Loaded {unitsForSection.Count} units for membership summary");
             }
+        }
+        else if (units.Count == 1 && DebugMode)
+        {
+            Console.WriteLine($"  - Using pre-filtered unit for membership summary: {units[0].Name}");
         }
 
         if (unitsForSection.Count > 0)

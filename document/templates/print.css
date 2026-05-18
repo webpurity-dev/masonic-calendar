@@ -11,6 +11,22 @@ html, body {
     padding: 0;
 }
 
+/* Prevent Paged.js page boxes from clipping content */
+.pagedjs_page {
+    overflow: visible !important;
+}
+
+.pagedjs_page_box {
+    overflow: visible !important;
+}
+
+/* Ensure images render at their natural dimensions without clipping */
+img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+}
+
 .unit-page {
     break-before: always;
 }
@@ -20,6 +36,14 @@ html, body {
 }
 
 .section-divider {
+    break-before: always;
+}
+
+.location-page {
+    /* Page breaks between locations are handled by .location-page-break class */
+}
+
+.location-page-break {
     break-before: always;
 }
 
@@ -33,6 +57,16 @@ html, body {
 
 .page-break-avoid {
     page-break-inside: avoid;
+}
+
+/* ========================================
+   LINK STYLING
+   ======================================== */
+
+a {
+    color: #808080;
+    text-decoration: none;
+    font-size: 7pt;
 }
 
 /* ========================================

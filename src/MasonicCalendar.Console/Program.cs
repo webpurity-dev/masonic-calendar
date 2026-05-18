@@ -277,6 +277,19 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine($"📄 Rendering all sections");
         }
         
+        // Pre-load all data-driven sections to avoid repeated CSV loading during rendering
+        Console.WriteLine();
+        if (targetSectionId == null)
+        {
+            // Full render - preload all data upfront
+            var preloadResult = await schemaLoader.PreloadAllDataAsync(templateName);
+            if (!preloadResult.Success)
+            {
+                Console.WriteLine($"⚠️  Warning: Failed to preload data: {preloadResult.Error}");
+            }
+        }
+        Console.WriteLine();
+        
         // For single unit renders with pre-filtering, auto-include membership summary and meetings
         Result<byte[]> renderResult;
         if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))

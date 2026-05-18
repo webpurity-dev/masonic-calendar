@@ -15,11 +15,20 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly string _dataRoot = dataRoot ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "data");
     private Dictionary<string, SchemaLocation>? _cachedLocations;
+    private readonly Dictionary<string, List<SchemaUnit>> _cachedUnits = [];  // Cache units by section ID
 
     public async Task<Result<List<SchemaUnit>>> LoadUnitsWithDataAsync(string masterTemplateKey, string? sectionId = null)
     {
         try
         {
+            // Check cache first
+            string cacheKey = !string.IsNullOrWhiteSpace(sectionId) ? sectionId : "default";
+            if (_cachedUnits.TryGetValue(cacheKey, out var cachedData))
+            {
+                Console.WriteLine($"[SchemaDataLoader] Using cached data for '{cacheKey}'");
+                return Result<List<SchemaUnit>>.Ok(cachedData);
+            }
+
             var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
             if (!layoutResult.Success)
                 return Result<List<SchemaUnit>>.Fail(layoutResult.Error ?? "Failed to load template");
@@ -90,11 +99,56 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Assign column positions (posNo) for splitting officers and members across columns
             AssignColumnPositions(units);
 
+            // Cache the result for future calls
+            _cachedUnits[cacheKey] = units;
+
             return Result<List<SchemaUnit>>.Ok(units);
         }
         catch (Exception ex)
         {
             return Result<List<SchemaUnit>>.Fail($"Error loading data: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Pre-load all data-driven sections at once to avoid repeated CSV loading during rendering.
+    /// </summary>
+    public async Task<Result<bool>> PreloadAllDataAsync(string masterTemplateKey)
+    {
+        try
+        {
+            var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
+            if (!layoutResult.Success)
+                return Result<bool>.Fail(layoutResult.Error ?? "Failed to load template");
+
+            var layout = layoutResult.Data;
+            if (layout?.Sections == null || layout.Sections.Count == 0)
+                return Result<bool>.Ok(true);  // No sections to preload
+
+            Console.WriteLine($"  - Pre-loading data for all sections...");
+            
+            var dataSections = layout.Sections
+                .Where(s => (s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (s.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false))
+                .Where(s => !string.IsNullOrWhiteSpace(s.DataMapping))
+                .ToList();
+
+            foreach (var section in dataSections)
+            {
+                var result = await LoadUnitsWithDataAsync(masterTemplateKey, section.SectionId);
+                if (!result.Success)
+                {
+                    Console.WriteLine($"    ⚠️  Failed to preload {section.SectionId}: {result.Error}");
+                    continue;
+                }
+                Console.WriteLine($"    ✓ Preloaded {section.SectionId} ({result.Data?.Count ?? 0} units)");
+            }
+
+            return Result<bool>.Ok(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Fail($"Error pre-loading data: {ex.Message}");
         }
     }
 
@@ -403,6 +457,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Load members
             if (mapping.Members != null)
             {
+                int membersBefore = units.Sum(u => u.Members.Count);
                 await LoadPersonTypeAsync(units, mapping.Members, "member",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
@@ -446,6 +501,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             LondonRankDateAccorded = londonRankDate
                         });
                     });
+                int membersAfter = units.Sum(u => u.Members.Count);
+                Console.WriteLine($"[SchemaDataLoader Members] Before: {membersBefore}, After: {membersAfter}, Loaded: {membersAfter - membersBefore}");
             }
 
             // Load honorary members
@@ -505,6 +562,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 DeduplicateMemberLists(unit);
             }
 
+            
             return Result<bool>.Ok(true);
         }
         catch (Exception ex)

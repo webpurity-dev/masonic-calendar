@@ -146,7 +146,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "display_rank", BuildDisplayRankWithComma(hm.GrandRank, hm.ProvincialRank, hm.ProvRankOtherProv, hm.LondonRank) },
+                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, hm.ProvincialRank, hm.ProvRankOtherProv, hm.LondonRank) },
                         { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
@@ -281,35 +281,12 @@ public static class UnitModelBuilder
             parts.Append('-').Append(office.Trim());
         return parts.ToString();
     }
-
-    /// <summary>
-    /// Build a comma-separated display rank string following priority:
-    /// IF grand_rank exists: return ONLY grand_rank (highest priority)
-    /// ELSE: return all applicable ranks (provincial, prov_rank_other_prov, london_rank) joined by ", "
-    /// </summary>
-    private static string? BuildDisplayRank(string? grandRank, string? provincialRank, 
-        string? provRankOtherProv, string? londonRank)
-    {
-        // If grand rank exists, show only that (highest priority)
-        if (!string.IsNullOrWhiteSpace(grandRank))
-            return grandRank;
-
-        // Otherwise, collect all applicable ranks and join with ", "
-        var ranks = new List<string>();
-        if (!string.IsNullOrWhiteSpace(provincialRank))
-            ranks.Add(provincialRank);
-        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
-            ranks.Add(provRankOtherProv);
-        if (!string.IsNullOrWhiteSpace(londonRank))
-            ranks.Add(londonRank);
-
-        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
-    }
-
+   
     /// <summary>
     /// Build a display rank string with dates in square brackets.
-    /// Format: "Rank [Year]" for each applicable rank.
-    /// Priority: grand_rank > provincial_rank, prov_rank_other_prov, london_rank
+    /// Format: "Rank [Year]" for each applicable rank, joined by ", "
+    /// If grand_rank exists: return "grand_rank [year]"
+    /// If no grand_rank: return "provincial_rank [year], prov_rank_other_prov [year], london_rank [year]" (all non-empty ranks with dates)
     /// Example: "PProvAGReg (Hants. & IoW) [2021], LGR [2020]"
     /// </summary>
     private static string? BuildDisplayRankWithDates(
@@ -357,14 +334,53 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Build display rank string with comma prefix for honorary members.
+    /// Build display rank string with comma prefix for honorary members (ranks only, no dates).
     /// If rank exists, returns ", Rank" format. If no rank, returns null (no trailing comma).
-    /// Uses same priority as BuildDisplayRank: grand_rank > provincial_rank, prov_rank_other_prov, london_rank
+    /// If grand_rank exists: return ", grand_rank"
+    /// If no grand_rank: return ", provincial_rank, prov_rank_other_prov, london_rank" (all non-empty ranks joined by ", ")
     /// </summary>
-    private static string? BuildDisplayRankWithComma(string? grandRank, string? provincialRank,
+    private static string? BuildDisplayRankWithCommaSimple(string? grandRank, string? provincialRank, 
         string? provRankOtherProv, string? londonRank)
     {
-        var displayRank = BuildDisplayRank(grandRank, provincialRank, provRankOtherProv, londonRank);
+        var displayRank = BuildDisplayRankSimple(grandRank, provincialRank, provRankOtherProv, londonRank);
+        return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
+    }
+
+    /// <summary>
+    /// Build a comma-separated display rank string (ranks only, no dates).
+    /// If grand_rank exists: return only grand_rank (highest priority)
+    /// If no grand_rank: return all non-empty ranks joined by ", " (provincial, prov_rank_other_prov, london_rank)
+    /// </summary>
+    private static string? BuildDisplayRankSimple(string? grandRank, string? provincialRank, 
+        string? provRankOtherProv, string? londonRank)
+    {
+        // If grand rank exists, show only that (highest priority)
+        if (!string.IsNullOrWhiteSpace(grandRank))
+            return grandRank;
+
+        // Otherwise, collect all applicable ranks
+        var ranks = new List<string>();
+        if (!string.IsNullOrWhiteSpace(provincialRank))
+            ranks.Add(provincialRank);
+        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
+            ranks.Add(provRankOtherProv);
+        if (!string.IsNullOrWhiteSpace(londonRank))
+            ranks.Add(londonRank);
+
+        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+    }
+
+    /// <summary>
+    /// Build display rank string with comma prefix for past masters and joining past masters (with dates).
+    /// If rank exists, returns ", Rank [Year]" format. If no rank, returns null (no trailing comma).
+    /// Uses same logic as BuildDisplayRankWithDates: grand_rank only, or all other ranks with dates
+    /// </summary>
+    private static string? BuildDisplayRankWithComma(string? grandRank, int? grandRankDateAccorded,
+        string? provincialRank, int? dateRankAccorded,
+        string? provRankOtherProv, int? opDateAccorded,
+        string? londonRank, int? londonRankDateAccorded)
+    {
+        var displayRank = BuildDisplayRankWithDates(grandRank, grandRankDateAccorded, provincialRank, dateRankAccorded, provRankOtherProv, opDateAccorded, londonRank, londonRankDateAccorded);
         return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
     }
 }

@@ -4,7 +4,7 @@
 # New in v1.7: Columns 13-16 for Other Province Rank and London Rank
 
 units:
-  source: "units_v1.6.csv"
+  source: "units_v1.7.csv"
   filter_field: "Unit Type"
   filter_value: "Craft"
   fields:

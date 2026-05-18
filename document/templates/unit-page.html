@@ -43,7 +43,7 @@
                 <tbody>
                     {{ for officer in officerColumns[0] }}
                     <tr data-id="{{ officer.dataId }}">
-                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ if officer.name && officer.name != "" }}{{ officer.name }}{{ else }}<i>Not appointed</i>{{ end }}</td>
                         <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                     {{ end }}
@@ -54,7 +54,7 @@
                 <tbody>
                     {{ for officer in officerColumns[1] }}
                     <tr data-id="{{ officer.dataId }}">
-                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ officer.name }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ if officer.name && officer.name != "" }}{{ officer.name }}{{ else }}<i>Not appointed</i>{{ end }}</td>
                         <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                     {{ end }}

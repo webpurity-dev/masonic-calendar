@@ -86,7 +86,7 @@ sections:
   - section_id: "freemasons_charity"
     section_title: "Freemason's Charity"
     type: "static"
-    template: "craft/freemasons-charity.html"
+    template: "ugle/freemasons-charity-page.html"
     is_child: true
 
   # PROVINCIAL GRAND LODGE OF DORSET
@@ -111,6 +111,12 @@ sections:
     section_title: "Salutes"
     type: "static"
     template: "craft/salutes.html"
+    is_child: true
+
+  - section_id: "dorset_masonic_charity"
+    section_title: "Dorset Masonic Charities"
+    type: "static"
+    template: "craft/dorset-masonic-charities.html"
     is_child: true
 
   - section_id: "locations"

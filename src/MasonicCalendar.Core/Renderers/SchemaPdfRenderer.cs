@@ -135,7 +135,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<script>");
             output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
             output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
             output.AppendLine("      el.style.overflow = 'visible';");
             output.AppendLine("    });");
             output.AppendLine("  }");
@@ -319,7 +319,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<script>");
             output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
             output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
             output.AppendLine("      el.style.overflow = 'visible';");
             output.AppendLine("    });");
             output.AppendLine("  }");
@@ -573,7 +573,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<script>");
             output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
             output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page_content').forEach(el => {");
+            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
             output.AppendLine("      el.style.overflow = 'visible';");
             output.AppendLine("    });");
             output.AppendLine("  }");

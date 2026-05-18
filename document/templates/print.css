@@ -11,6 +11,22 @@ html, body {
     padding: 0;
 }
 
+/* Prevent Paged.js page boxes from clipping content */
+.pagedjs_page {
+    overflow: visible !important;
+}
+
+.pagedjs_page_box {
+    overflow: visible !important;
+}
+
+/* Ensure images render at their natural dimensions without clipping */
+img {
+    max-width: 100%;
+    height: auto;
+    display: inline-block;
+}
+
 .unit-page {
     break-before: always;
 }

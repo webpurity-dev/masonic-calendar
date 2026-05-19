@@ -139,10 +139,37 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var targetSectionType = peekLayout.Data?.Sections?
             .FirstOrDefault(s => s.SectionId == targetSectionId)?.Type;
 
+        // Handle special case: -section "static" renders all static sections
+        bool renderingAllStaticSections = false;
+        List<string>? staticSectionIds = null;
+        
+        if (targetSectionId?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false)
+        {
+            // Collect all static section IDs from the layout
+            staticSectionIds = peekLayout.Data?.Sections?
+                .Where(s => s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false)
+                .Select(s => s.SectionId!)
+                .ToList() ?? new List<string>();
+            
+            if (staticSectionIds.Count == 0)
+            {
+                Console.WriteLine($"❌ Error: No static sections found in template '{templateName}'");
+                return 1;
+            }
+            
+            renderingAllStaticSections = true;
+            targetSectionId = null; // Clear the special "static" ID since we'll use the real section IDs
+            targetSectionType = "static"; // Keep this to skip data loading
+        }
+
         // Non-data-driven section types manage their own data loading — skip SchemaDataLoader
         bool needsUnitLoad = targetSectionId == null ||
             (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true) ||
             (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false);
+        
+        // Never load units for static sections
+        if (renderingAllStaticSections)
+            needsUnitLoad = false;
 
         // Load data using schema - load from specific section if requested
         var schemaLoader = new SchemaDataLoader(new DocumentLayoutLoader(documentRoot), dataPath);
@@ -268,6 +295,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         {
             Console.WriteLine($"📄 Rendering unit {unitNumber} from {unitType} section");
         }
+        else if (renderingAllStaticSections)
+        {
+            Console.WriteLine($"📄 Rendering all static sections ({staticSectionIds?.Count ?? 0} sections)");
+        }
         else if (targetSectionId != null)
         {
             Console.WriteLine($"📄 Rendering section: {targetSectionId}");
@@ -292,7 +323,19 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         
         // For single unit renders with pre-filtering, auto-include membership summary and meetings
         Result<byte[]> renderResult;
-        if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
+        
+        if (renderingAllStaticSections && staticSectionIds?.Count > 0)
+        {
+            // Render all static sections together
+            Console.WriteLine();
+            Console.WriteLine("📊 Static sections to render:");
+            foreach (var staticSecId in staticSectionIds)
+                Console.WriteLine($"   ✓ {staticSecId}");
+            Console.WriteLine();
+            
+            renderResult = await renderer.RenderMultipleSectionsAsync([], templateName, staticSectionIds, documentOutputFormat);
+        }
+        else if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
         {
             // Use the unitType prefix (set above for single-unit renders with -unittype) for supplementary sections
             var unitTypePrefix = unitType ?? "craft";
@@ -339,7 +382,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Save output file with version embedded in template name if available
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
-        var sectionPart = targetSectionId ?? "all-sections";
+        var sectionPart = renderingAllStaticSections ? "static-sections" : (targetSectionId ?? "all-sections");
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedsPart = showBleeds ? "-showBleeds" : "";
         var noPrintPart = noPrintMode ? "-noprint" : "";
@@ -382,16 +425,19 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
     Console.WriteLine("  -section    Section ID to render (optional, default: all sections)");
+    Console.WriteLine("              Use 'static' to render only static pages (cover, foreword, etc.)");
     Console.WriteLine("  -unit       Unit number to render (optional, default: all units)");
     Console.WriteLine("  -showbleeds Show page bleeds with border (optional, for debugging layout)");
     Console.WriteLine("  -debug      Enable debug output and HTML file generation (optional)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
+    Console.WriteLine("  static      Render all static pages (cover, foreword, gallery photos, etc.)");
     Console.WriteLine("  cover       Cover page");
     Console.WriteLine("  craft       Craft Freemasonry");
     Console.WriteLine("  royalarch   Royal Arch Chapters");
     Console.WriteLine("\nExamples:");
     Console.WriteLine("  dotnet run -- -template master_v1 -output PDF                     (renders all units)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -unit 3366          (renders only unit 3366)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section static    (renders static pages only)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section craft     (renders only craft section)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -unit 3366 -debug  (renders unit 3366 with debug)");
     return 1;

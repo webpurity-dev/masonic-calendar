@@ -115,6 +115,9 @@ dotnet run -- -template master_v1 -output html
 # Render with page boundary visualisation
 dotnet run -- -template master_v1 -output html -showbleeds
 
+# Render a single section of all static pages
+dotnet run -- -template master_v1 -output html -section static
+
 # Render a single section of one degree type
 dotnet run -- -template master_v1 -output html -section craft_units
 

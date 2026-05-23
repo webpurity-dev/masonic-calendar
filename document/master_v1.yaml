@@ -117,14 +117,11 @@ sections:
     template: "location-page.html"
     is_child: true
 
-  - section_id: "craft_membership_summary"
+  - section_id: "craft_membership_statistics"
     section_title: "Craft Membership Statistics"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "membership-statistics"
+    template: "membership-statistics-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: false
     is_child: true
 
   - section_id: "craft_meetings_table"
@@ -133,6 +130,7 @@ sections:
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Craft"]
+    style: "small"
     is_child: true
 
   - section_id: "craft_toc_alpha"
@@ -180,14 +178,11 @@ sections:
     template: "royalarch/succession.html"
     is_child: true
 
-  - section_id: "ra_membership_summary"
+  - section_id: "ra_membership_statistics"
     section_title: "Royal Arch Membership Statistics"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "membership-statistics"
+    template: "membership-statistics-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
-    column_headings:
-      past_masters: "Past Principals"
-    include_officers_as_members: false
     is_child: true
 
   - section_id: "ra_meetings_table"
@@ -196,6 +191,7 @@ sections:
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RA"]
+    style: "medium"
     override_break_before: true
     is_child: true
 
@@ -368,6 +364,7 @@ sections:
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Mark"]
+    style: "medium"
     override_break_before: true
     is_child: true
 
@@ -596,6 +593,7 @@ sections:
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RAM"]
+    style: "medium"
     override_break_before: true
     is_child: true
 

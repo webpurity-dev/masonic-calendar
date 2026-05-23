@@ -1,0 +1,108 @@
+<div style="break-before: always; break-inside: avoid; padding: 1mm;">
+    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
+        <span style="font-size: 6pt; margin: 0 0 4px 0; font-style: italic; line-height: 1;">Membership statistics for the year up to 31st December 2025.</span>
+    </div>
+    <!-- First Table: Rows 0-27 (28 items) -->
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7.5pt; border: 0px; line-height: 1; margin-bottom: 8px;">
+        <thead>
+            <tr style="font-weight: 600; height: 50px;">
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 20px; border: 1px solid #000; vertical-align: top;">Lodge</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 64px; border: 1px solid #000; vertical-align: top;">Name</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 19px; border: 1px solid #000;">Start</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Initiated</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Joined</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Ceased</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Excluded</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Resigned</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Deceased</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Honorary</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 19px; border: 1px solid #000;">End</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for row in member_stats_page1 }}
+            <tr style="padding: 1px;">
+                <td style="text-align: left; padding: 2px; width: 20px; border: 1px solid #000;">{{ row.lodgeCode }}</td>
+                <td style="font-size: 7pt; text-align: left; padding: 2px; width: 64px; border: 1px solid #000;">{{ row.superShortName }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ row.membershipsStart }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.initiateExaltee }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.joiner }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.cessation }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.exclusion }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.resigned }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.deceased }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.honorary }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ row.membershipsEnd }}</td>
+            </tr>
+            {{ end }}
+            <!-- Totals row for single-page layout (if 28 or fewer items) -->
+            {{ if member_stats.size <= 28 }}
+            <tr style="padding: 1px; font-size: 7.5pt; font-weight: 600; border-top: 2px solid #000;">
+                <td colspan="2" style="text-align: left; padding: 2px; width: 84px; border: 1px solid #000;">Totals</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ total_memberships_start }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_initiate_exaltee }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_joiner }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_cessation }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_exclusion }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_resigned }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_deceased }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_honorary }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ total_memberships_end }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>    
+    <!-- Second Table: Rows 28+ (if more than 28) -->
+    {{ if member_stats.size > 28 }}
+    <div style="break-before: always; display: block; padding: 1mm;">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 7.5pt; border: 0px; line-height: 1; margin-bottom: 4px 0 8px 4px;">
+        <thead>
+            <tr style="font-weight: 600; height: 50px;">
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 20px; border: 1px solid #000; vertical-align: top;">Lodge</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 64px; border: 1px solid #000; vertical-align: top;">Name</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 19px; border: 1px solid #000;">Start</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Initiated</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Joined</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Ceased</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Excluded</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Resigned</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Deceased</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 15px; border: 1px solid #000;">Honorary</th>
+                <th style="text-align: left; padding: 2px; writing-mode: vertical-rl; transform: rotate(180deg); width: 19px; border: 1px solid #000;">End</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for row in member_stats_page2 }}
+            <tr style="padding: 1px;">
+                <td style="text-align: left; padding: 2px; width: 20px; border: 1px solid #000;">{{ row.lodgeCode }}</td>
+                <td style="font-size: 7pt; text-align: left; padding: 2px; width: 64px; border: 1px solid #000;">{{ row.superShortName }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ row.membershipsStart }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.initiateExaltee }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.joiner }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.cessation }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.exclusion }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.resigned }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.deceased }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ row.honorary }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ row.membershipsEnd }}</td>
+            </tr>
+            {{ end }}
+            <tr style="padding: 1px; font-size: 7.5pt; font-weight: 600; border-top: 2px solid #000;">
+                <td colspan="2" style="text-align: left; padding: 2px; width: 84px; border: 1px solid #000;">Totals</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ total_memberships_start }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_initiate_exaltee }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_joiner }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_cessation }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_exclusion }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_resigned }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_deceased }}</td>
+                <td style="text-align: center; padding: 2px; width: 15px; border: 1px solid #000;">{{ total_honorary }}</td>
+                <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ total_memberships_end }}</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    {{ end }}
+</div>

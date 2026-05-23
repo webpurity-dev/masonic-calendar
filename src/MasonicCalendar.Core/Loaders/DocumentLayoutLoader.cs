@@ -194,6 +194,7 @@ public class SectionConfig
     public string? TocSortBy { get; set; } = "number";  // "number" (default), "name", "short_name", "super_short_name"
     public string? TocSortField { get; set; } = "name";  // Field to sort by: "number", "name", "short_name", or "super_short_name"
     public string? TocDisplayField { get; set; } = "short_name";  // Field to display: "name", "short_name", or "super_short_name"
+    public string? Style { get; set; } = "small";  // Style for meetings table: "small" (4.8pt, line-height 1), "medium" (6pt, line-height 1.2), or "large" (7.2pt, line-height 1.3)
     public Dictionary<string, object>? DataFilters { get; set; }
     public Dictionary<string, object>? Styling { get; set; }
     public Dictionary<string, string>? ColumnHeadings { get; set; }  // For membership summary: override column heading labels
@@ -218,6 +219,7 @@ public class DataSourceMapping
     public DataSourceDefinition? Members { get; set; }
     public DataSourceDefinition? HonoraryMembers { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
+    public DataSourceDefinition? MemberStats { get; set; }
 }
 
 /// <summary>

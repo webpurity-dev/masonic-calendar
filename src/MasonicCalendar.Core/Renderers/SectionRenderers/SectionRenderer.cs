@@ -133,6 +133,7 @@ public abstract class SectionRenderer
                 (s.Type?.Equals("meetings-calendar", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("meetings-table", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("membership-statistics", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();

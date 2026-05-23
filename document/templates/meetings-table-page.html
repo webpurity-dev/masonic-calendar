@@ -1,10 +1,10 @@
-<div style="break-before: always; break-inside: avoid; padding: 0px;{{ if override_break_before }} margin-top: 8pt;{{ end }}">
+<div style="break-before: always; break-inside: avoid; padding: 1mm;{{ if override_break_before }} margin-top: 8pt;{{ end }}">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <h1 style="font-size: 11pt; margin: 0 0 4px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
     </div>
-    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 4.8pt; border: 0px; line-height: 1;">
+    <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: {{ font_size }}; line-height: {{ line_height }}; border: 0px;">
         <thead>
-            <tr style="padding: 1px; border-left: none; border-right: none; background: #f0f0f0;">
+            <tr style="padding: 1px; border-left: none; border-right: none;">
                 <th style="margin-left: 2px; text-align: left; font-weight: bold; padding: 0px;">
                     {{ year_label }}
                 </th>

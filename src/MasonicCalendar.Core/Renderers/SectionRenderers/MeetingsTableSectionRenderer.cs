@@ -165,12 +165,22 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 .Select(m => (object?)new Dictionary<string, object?> { { "label", m.Label } })
                 .ToList();
 
+            // Determine font size and line-height based on style
+            var (fontSize, lineHeight) = section.Style?.ToLowerInvariant() switch
+            {
+                "medium" => ("6pt", "1.2"),
+                "large" => ("7.2pt", "1.3"),
+                _ => ("4.8pt", "1")  // Default to "small"
+            };
+
             var model = new Dictionary<string, object?>
             {
                 { "section_title", section.SectionTitle },
                 { "year_label", yearLabel },
                 { "months", monthsModel },
                 { "rows", rows },
+                { "font_size", fontSize },
+                { "line_height", lineHeight },
                 { "override_break_before", section.OverrideBreakBefore }
             };
 

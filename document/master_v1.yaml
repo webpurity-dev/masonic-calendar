@@ -89,8 +89,9 @@ sections:
 
   - section_id: "craft_provincial_officers"
     section_title: "Provincial Officers 2025-2026"
-    type: "static"
-    template: "craft/provincial-officers.html"
+    type: "provincial_officers"
+    template: "provincial-officers.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
     is_child: true
 
   - section_id: "craft_succession_lists"
@@ -168,8 +169,9 @@ sections:
 
   - section_id: "ra_provincial_officers"
     section_title: "Provincial Officers 2025-2026"
-    type: "static"
-    template: "royalarch/provincial-officers.html"
+    type: "provincial_officers"
+    template: "provincial-officers.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
 
   - section_id: "ra_succession_lists"

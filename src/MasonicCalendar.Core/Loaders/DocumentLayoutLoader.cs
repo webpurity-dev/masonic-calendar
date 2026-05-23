@@ -220,6 +220,7 @@ public class DataSourceMapping
     public DataSourceDefinition? HonoraryMembers { get; set; }
     public DataSourceDefinition? Meetings { get; set; }
     public DataSourceDefinition? MemberStats { get; set; }
+    public ProvincialOfficersConfig? ProvincialOfficers { get; set; }
 }
 
 /// <summary>

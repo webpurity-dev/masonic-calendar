@@ -298,3 +298,29 @@ member_stats:
     - name: "Rejoiner"
       csv_column: "Rejoiner"
       type: "int"
+
+provincial_officers:
+  source: "craft_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Provincial Grand Lodge of Dorset"
+  heading2: "Provincial Grand Lodge Officers 2025-26" 
+  crest: "../../images/provincial-crest-sml.jpg"
+  heads: 
+    - rank: "Provincial Grand Master"
+      name: "RWBro Stephen Andrew James"
+  deputy_heads:
+    - rank: "Deputy Provincial Grand Master"
+      name: "VWBro Mark David Burstow, PGSwdB"
+    - rank: "Assistant Provincial Grand Master"
+      name: "WBro Micheal Richard Parkes, PSGD"
+    - rank: "Assistant Provincial Grand Master"
+      name: "WBro Leon Anthony Matthews, PJGD"

@@ -39,11 +39,11 @@ document/
 │   ├── cover-page.html         # Full-bleed cover page
 │   ├── foreword-page.html      # Foreword/introduction page
 │   ├── copyright.html          # Copyright page
-│   ├── toc-page.html           # Table of contents Scriban template
-│   ├── unit-page.html          # Unit page Scriban template
-│   ├── unit-index-page.html    # Unit index page
+│   ├── _data-driven/toc-page.html           # Table of contents Scriban template
+│   ├── _data-driven/unit-page.html          # Unit page Scriban template
+│   ├── _data-driven/unit-index-page.html    # Unit index page
 │   ├── meetings-calendar-page.html  # 12-month meetings calendar template
-│   ├── meetings-table-page.html     # Section-specific meetings table template
+│   ├── _data-driven/meetings-table-page.html     # Section-specific meetings table template
 │   ├── craft/                  # Craft-specific templates
 │   │   ├── introduction.html
 │   │   └── executive-officers.html

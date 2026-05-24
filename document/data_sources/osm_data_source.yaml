@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "The Order of the Secret Monitor or Brotherhood of David and Jonathan"  
   crest: "../../images/osm-logo.png"
+  website: "hhttps://www.markmasonshall.org/orders/osm"
   heads: 
     - rank: "Grand Supreme Ruler"
       name: "M.Wy.Bro. Andrew C. Sweeney"

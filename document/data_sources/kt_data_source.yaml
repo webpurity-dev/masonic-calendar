@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "The Great Priory of the United Religious, Military and Masonic Orders of the Temple and of St. John of Jerusalem, Palestine, Rhodes and Malta of England and Wales and its Provinces Overseas"  
   crest: "../../images/kt-logo.png"
+  website: "https://www.ktdorsetwilts.org.uk"
   heads: 
     - rank: "Grand Master"
       name: "M.E. & S.Kt. Paul R. Clement, OStJ, G.C.T."

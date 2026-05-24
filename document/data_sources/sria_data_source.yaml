@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "Societas Rosicruciana in Anglia"
   crest: "../../images/sria-logo.png"
+  website: "https://www.sria.uk.com"
   heads: 
     - rank: "Supreme Magus"
       name: "tbc"

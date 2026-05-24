@@ -206,6 +206,7 @@ provincial_officers:
       type: "string"
   heading1: "The Grand Lodge of Mark Master Masons of England and Wales and its Districts and Lodges Overseas"  
   crest: "../../images/mark-logo.png"
+  website: "http://www.dorsetmark.org.uk"
   heads: 
     - rank: "Grand Master"
       name: "M.W.Bro. H.R.H. Prince Michael of Kent, GCVO"
@@ -214,7 +215,7 @@ provincial_officers:
       name: "R.W.Bro. Prof. Denovan K. Wilson"
     - rank: "Assistant Grand Master"
       name: "R.W.Bro. Peter D. Williams"
-  district_heading: "http://www.dorsetmark.org.uk/"
+  district_heading: "Provincial Grand Mark Lodge Officers"
   district_heads:
     - rank: "Provincial Grand Master"
       name: "R.W.Bro. Victor H. Pomeroy"

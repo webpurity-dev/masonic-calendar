@@ -27,8 +27,8 @@ document/
 |   +-- print.css                     # Paged.js @page rules, TOC styling, page breaks
 |   +-- cover-page.html               # Full-bleed cover page (no margins, background colour)
 |   +-- forward-page.html             # Foreword/introduction
-|   +-- toc-page.html                 # TOC Scriban template
-|   +-- unit-page.html                # Unit page Scriban template
+|   +-- _data-driven/toc-page.html                 # TOC Scriban template
+|   +-- _data-driven/unit-page.html                # Unit page Scriban template
 |   +-- meetings-calendar-page.html   # Meetings calendar template
 +-- data/
 |   +-- CraftData.csv                 # Craft lodge data
@@ -175,7 +175,7 @@ new PdfOptions
 
 ---
 
-## Unit Page Template (unit-page.html)
+## Unit Page Template (_data-driven/unit-page.html)
 
 Sections rendered in order (all conditional on data existing):
 

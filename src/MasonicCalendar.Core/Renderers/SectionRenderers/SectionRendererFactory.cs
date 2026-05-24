@@ -36,6 +36,7 @@ public class SectionRendererFactory
             "membership-statistics" => new MembershipStatisticsSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "list_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "locations" => new LocationSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "succession-list" => new SuccessionListSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             _ => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode, _documentInfo)
         };
     }

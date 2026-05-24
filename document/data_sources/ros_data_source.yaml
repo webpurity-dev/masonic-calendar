@@ -14,6 +14,7 @@ provincial_officers:
   heading1: "Royal Order of Scotland. The King of Scots hereditary Grand Master"
   heading2: "Provincial Grand Lodge of Dorset"
   crest: "../../images/ros-logo.png"
+  website: "https://www.royalorderscotland.org"
   heads: 
     - rank: "Right Worshipful Provincial Grand Master"
       name: "Paul M. Muir"

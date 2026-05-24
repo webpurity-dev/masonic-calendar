@@ -244,7 +244,8 @@ provincial_officers:
       type: "string"
   heading1: "Ancient and Accepted Rite"  
   heading1: "Members of the Supreme Council 33°"
-  crest: "../../images/rc-logo.png"  
+  crest: "../../images/rc-logo.png"
+  website: "https://sc33.org.uk"
   heads: 
     - rank: "Sovereign Grand Commander"
       name: "tbc"

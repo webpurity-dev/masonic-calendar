@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "The Grand College of The Holy Royal Arch Knight Templar Priests and Order of Holy Wisdom"
   crest: "../../images/ktp-logo.png"
+  website: "http://www.knighttemplarpriests.com"
   heads: 
     - rank: "Grand High Priest"
       name: "M Ill Kt Pt Christopher Gavin Maiden, GCPO"
@@ -253,13 +254,7 @@ provincial_officers:
       name: "R Ill Kt Pt David Harold William Scott, GCPO"
     - rank: "Assistant Grand High Priest"
       name: "R Ill Kt Pt John Malcolm Berry Phillips, GCPO"
-    - rank: "Grand Recorder"
-      name: "R Ill Kt Pt G R Goddard, GCPO"
   district_heading: "District of Dorset and Wiltshire (No. 53)"
   district_heads:
     - rank: "Grand Superintendent"
-      name: "tbc"
-    - rank: "District Recorder"
-      name: "tbc"
-    - rank: "District Director of Ceremonies"
       name: "tbc"

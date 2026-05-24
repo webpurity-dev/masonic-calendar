@@ -242,8 +242,8 @@ provincial_officers:
       csv_column: "Unit"
       type: "string"
   heading1: "Commemorative Order of St Thomas of Acon"
-  heading2: "Provincial Grand Lodge of Dorset"
-  crest: "../../images/ros-logo.png"
+  crest: "../../images/stoa-logo.png"
+  website: "http://www.thomas-of-acon.org"
   heads: 
     - rank: "Most Worthy Grand Master"
       name: "tbc"

@@ -104,14 +104,14 @@ ConvertHtmlToPdf: Puppeteer + Paged.js → PDF/HTML output
 
 **Document Templates** (`document/templates/`)
 - `print.css` - Paged.js @page rules, margins, TOC styling, membership summary styling
-- `unit-page.html` - Scriban template for individual unit pages (members, officers, past unit heads)
-- `toc-page.html` - Table of contents page template with alphabetical sorting
+- `_data-driven/unit-page.html` - Scriban template for individual unit pages (members, officers, past unit heads)
+- `_data-driven/toc-page.html` - Table of contents page template with alphabetical sorting
 - `cover-page.html` - Static cover page with organization branding
 - `foreword-page.html` - Foreword/introduction page
 - `meetings-calendar-page.html` - 12-month meetings calendar for all degrees
-- `membership-summary-page.html` - NEW v1.5: Summary of member counts and statistics
-- `meetings-table-page.html` - NEW v1.5: Detailed meeting dates table
-- `unit-index-page.html` - NEW v1.5: Alphabetical unit index
+- `_data-driven/membership-summary-page.html` - NEW v1.5: Summary of member counts and statistics
+- `_data-driven/meetings-table-page.html` - NEW v1.5: Detailed meeting dates table
+- `_data-driven/unit-index-page.html` - NEW v1.5: Alphabetical unit index
 - `companion/` - Subdirectory with degree-specific intro pages (Mark, RAM)
 - `craft/` - Degree-specific templates for Craft lodges
 - `royalarch/` - Degree-specific templates for Royal Arch chapters
@@ -148,7 +148,7 @@ ConvertHtmlToPdf: Puppeteer + Paged.js → PDF/HTML output
 - Font-size: 0 on container + reset on children eliminates HTML whitespace rendering
 - Allows natural page flow: content fills 3 columns then continues on next page
 
-**Location:** `document/templates/unit-page.html` lines 111-170
+**Location:** `document/templates/_data-driven/unit-page.html` lines 111-170
 
 ---
 
@@ -377,11 +377,11 @@ document/
   ├── master_v1.yaml            # Master template configuration for all sections
   ├── templates/
   │   ├── print.css              # Paged.js @page rules, margins, membership summary styling
-  │   ├── unit-page.html         # Unit page Scriban template (officers, members, past heads)
-  │   ├── toc-page.html          # Alphabetical TOC template (v1.5)
-  │   ├── unit-index-page.html   # Unit index page (NEW v1.5)
-  │   ├── membership-summary-page.html  # Member statistics (NEW v1.5)
-  │   ├── meetings-table-page.html     # Meeting dates table (NEW v1.5)
+  │   ├── _data-driven/unit-page.html         # Unit page Scriban template (officers, members, past heads)
+  │   ├── _data-driven/toc-page.html          # Alphabetical TOC template (v1.5)
+  │   ├── _data-driven/unit-index-page.html   # Unit index page (NEW v1.5)
+  │   ├── _data-driven/membership-summary-page.html  # Member statistics (NEW v1.5)
+  │   ├── _data-driven/meetings-table-page.html     # Meeting dates table (NEW v1.5)
   │   ├── cover-page.html        # Cover page
   │   ├── foreword-page.html     # Foreword page
   │   ├── meetings-calendar-page.html  # Calendar grid
@@ -661,7 +661,7 @@ Will implement these key methods:
 **Files to Know:**
 - Principal renderer: [SchemaPdfRenderer.cs](src/MasonicCalendar.Core/Renderers/SchemaPdfRenderer.cs)
 - CLI entry: [Program.cs](src/MasonicCalendar.Console/Program.cs)
-- Unit template: [unit-page.html](document/templates/unit-page.html)
+- Unit template: [_data-driven/unit-page.html](document/templates/_data-driven/unit-page.html)
 - Print styles: [print.css](document/templates/print.css)
 
 **External Documentation:**

@@ -26,11 +26,11 @@
 
 - **Current behavior (v1.5):** All ranks are shown at once → cluttered display
 - **New behavior (v1.7):** Grand Rank takes precedence, other ranks only show when Grand Rank is absent
-- **Template change:** Scriban `if/else` logic in `unit-page.html` applies the priority rules
+- **Template change:** Scriban `if/else` logic in `_data-driven/unit-page.html` applies the priority rules
 
 ### Implementation Location
 
-**Primary:** `document/templates/unit-page.html`
+**Primary:** `document/templates/_data-driven/unit-page.html`
 - Member rank display section
 - Honorary member rank display section  
 - Officer rank display section
@@ -560,7 +560,7 @@ Display Output:
 
 ## 7. Template Changes
 
-### Unit Page Template (`unit-page.html`)
+### Unit Page Template (`_data-driven/unit-page.html`)
 
 #### Members Section - Extended Rank Display
 
@@ -735,7 +735,7 @@ public static Dictionary<string, object?> BuildMemberModel(SchemaMember member)
 }
 ```
 
-**NOTE:** The rank display logic (Grand Rank → Provincial → Other Province → London) is handled **entirely in the Scriban template** (`unit-page.html`). No computed fields are needed — the template's `if/else` logic applies the priority rules.
+**NOTE:** The rank display logic (Grand Rank → Provincial → Other Province → London) is handled **entirely in the Scriban template** (`_data-driven/unit-page.html`). No computed fields are needed — the template's `if/else` logic applies the priority rules.
 
 **Template applies this logic:**
 - Line 1: Check if `grand_rank` exists → if yes, display only `grand_rank` in bold
@@ -804,11 +804,11 @@ public static string ExtractProvinceFromRank(string? rankWithProvince)
 
 ### Phase 3: Template Updates (2-3 hours)
 
-- [ ] Update `unit-page.html` member section with rank display priority logic
+- [ ] Update `_data-driven/unit-page.html` member section with rank display priority logic
   - Implement `if grand_rank` → show only grand_rank (bold)
   - Implement `else` → show provincial_rank, then prov_rank_other_prov, then london_rank (each on new line)
-- [ ] Update `unit-page.html` honorary member section with same rank logic
-- [ ] Update `unit-page.html` officer section with same rank logic
+- [ ] Update `_data-driven/unit-page.html` honorary member section with same rank logic
+- [ ] Update `_data-driven/unit-page.html` officer section with same rank logic
 - [ ] Add CSS rules to `print.css` for multi-line rank display with proper line spacing
 - [ ] Test rendering with sample data (members with/without grand ranks, multiple province ranks, etc.)
 
@@ -967,7 +967,7 @@ From `membership_v1.7.csv` (first 500 members):
 | `document/data_sources/mark_data_source.yaml` | Add column 13-16 mappings | P1 | Post-Craft validation |
 | `document/data_sources/ram_data_source.yaml` | Add column 13-16 mappings | P1 | Post-Craft validation |
 | `document/data_sources/rcoc_data_source.yaml` | Add column 13-16 mappings | P1 | Post-Craft validation |
-| **`document/templates/unit-page.html`** | **Implement rank display priority logic** | **P1** | **CRITICAL: If/else logic for Grand Rank vs Provincial vs Other vs London** |
+| **`document/templates/_data-driven/unit-page.html`** | **Implement rank display priority logic** | **P1** | **CRITICAL: If/else logic for Grand Rank vs Provincial vs Other vs London** |
 | `document/templates/print.css` | Add multi-line rank spacing CSS | P2 | |
 | `README.md` | Document v1.7 changes | P3 | Document Craft-only release note |
 

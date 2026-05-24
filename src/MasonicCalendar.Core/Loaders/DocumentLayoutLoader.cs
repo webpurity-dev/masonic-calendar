@@ -221,6 +221,7 @@ public class DataSourceMapping
     public DataSourceDefinition? Meetings { get; set; }
     public DataSourceDefinition? MemberStats { get; set; }
     public ProvincialOfficersConfig? ProvincialOfficers { get; set; }
+    public SuccessionListConfig? SuccessionList { get; set; }
 }
 
 /// <summary>

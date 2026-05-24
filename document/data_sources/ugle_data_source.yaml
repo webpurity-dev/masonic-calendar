@@ -12,6 +12,7 @@ provincial_officers:
       csv_column: "Unit"
       type: "string"
   heading1: "The United Grand Lodge of England"
+  website: "https://www.ugle.org.uk"
   crest: "../../images/ugle-logo.png"
   heads: 
     - rank: "GRAND MASTER"

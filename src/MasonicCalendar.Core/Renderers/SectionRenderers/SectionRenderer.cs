@@ -119,7 +119,7 @@ public abstract class SectionRenderer
     }
 
     /// <summary>
-    /// Filter sections for TOC display: includes data-driven, static, toc, meetings-table, meetings-calendar, and membership-summary sections,
+    /// Filter sections for TOC display: includes data-driven, static, toc, meetings-table, meetings-calendar, membership-summary, succession-list, and other sections,
     /// but excludes those marked with HideFromParentToc.
     /// </summary>
     public static List<SectionConfig> FilterSectionsForToc(List<SectionConfig> sections, int skipAfterIndex)
@@ -135,7 +135,8 @@ public abstract class SectionRenderer
                 (s.Type?.Equals("membership-summary", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("membership-statistics", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (s.Type?.Equals("list_officers", StringComparison.OrdinalIgnoreCase) ?? false)) &&
+                (s.Type?.Equals("list_officers", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("succession-list", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();
     }

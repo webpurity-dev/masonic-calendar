@@ -20,8 +20,8 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         List<SchemaUnit> units,
         StringBuilder output)
     {
-        // Load the location template
-        var template = LoadTemplate("location-page.html");
+        // Load the location template from config
+        var template = LoadTemplate(section.Template);
         if (template == null)
             return;
         

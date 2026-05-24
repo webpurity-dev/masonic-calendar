@@ -1,0 +1,27 @@
+<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="font-size: 14pt; margin: 6px; font-weight: 600;">Succession Lists</h2>
+</div>
+
+{{ for table in tables }}
+<!-- {{ table.title }} -->
+<table style="margin: {{ if for.index == 0 }}0{{ else }}8px 0 0 0{{ end }}; font-size: {{ table.font_size }}; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+    <thead>
+        <tr style="margin: 0; padding: 0;">
+            {{ for column in table.columns }}
+            <th style="text-align: {{ column.alignment }}; width: {{ column.width }};">{{ column.name }}</th>
+            {{ end }}
+        </tr>
+    </thead>
+    <tbody>
+        {{ for row in table.rows }}
+        <tr style="margin: 6px; padding: 0;">
+            {{ for column in table.columns }}
+            <td style="text-align: {{ column.alignment }}; width: {{ column.width }};">{{ row[column.csv_column] }}</td>
+            {{ end }}
+        </tr>
+        {{ end }}
+    </tbody>
+</table>
+{{ if table.table_caption != null && table.table_caption != "" }}<p style="font-size: 6pt; margin: 2px; font-style: italic;">{{ table.table_caption }}</p>{{ end }}
+{{ end }}
+

@@ -244,6 +244,7 @@ provincial_officers:
   heading1: "The Worshipful Society of Free Masons"
   heading2: "Rough Masons, Wallers, Slaters, Paviors, Plaisterers and Bricklayers (The Operatives)"
   crest: "../../images/pbq-logo.png"
+  website: "https://www.theoperatives.org"
   heads: 
     - rank: "1st Grand Master Mason"
       name: "M.W. Bro. Paul P. Mycock, VII°"

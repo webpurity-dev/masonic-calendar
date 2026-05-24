@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "The Ancient and Masonic Order of the Scarlet Cord"  
   crest: "../../images/osc-logo.png"
+  website: "https://www.markmasonshall.org/orders/osc"
   heads: 
     - rank: "Grand Summus"
       name: "M.Dist.Comp. Ian S. Currans"

@@ -243,6 +243,7 @@ provincial_officers:
       type: "string"
   heading1: "The Grand Council of the Order of Royal and Select Masters of England and Wales and its Districts and Councils Overseas"  
   crest: "../../images/rsm-logo.png"
+  website: "https://dorset-hants-rsm.org/"
   heads: 
     - rank: "GRAND MASTER"
       name: "M.Ill.Comp. Kessick J. Jones, IX"
@@ -251,8 +252,6 @@ provincial_officers:
       name: "R.Ill.Comp. Paul A. Norman, IX"
     - rank: "Grand Principal Conductor of the Work"
       name: "R.Ill. Comp. Norman Dunkeld Milburn, 1X"
-    - rank: "Grand Recorder"
-      name: "R.Ill. Comp. Dan Heath, P.G.Coun."
   district_heading: "District of Dorset, Hampshire and Isle of Wight"
   district_heads:
     - rank: "District Grand Master"
@@ -262,4 +261,5 @@ provincial_officers:
     - rank: "Deputy District Grand Master"
       name: "Ill. Comp. Simon P. Lancaster, P.G.Cond.C."
     - rank: "District Grand Principal Conductor of the Work"
-      name: "Ill. Comp. Clive B. Egerton, P.Capt.Gd." 
+      name: "Ill. Comp. Clive B. Egerton, P.Capt.Gd."
+  district_heading: "District Officers for Dorset, Hampshire and Isle of Wight"

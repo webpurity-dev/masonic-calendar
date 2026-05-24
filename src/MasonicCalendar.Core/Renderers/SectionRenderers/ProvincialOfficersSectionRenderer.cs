@@ -41,6 +41,7 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
             {
                 { "heading1", metadata["heading1"] },
                 { "heading2", metadata["heading2"] },
+                { "website", metadata["website"] },
                 { "district_heading", metadata["district_heading"] },
                 { "officers_heading", metadata["officers_heading"] },
                 { "crest", metadata["crest"] },
@@ -99,6 +100,7 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         // Populate metadata directly from config
         data["heading1"] = config.Heading1 ?? "";
         data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
+        data["website"] = string.IsNullOrWhiteSpace(config.Website) ? null : config.Website;
         data["district_heading"] = string.IsNullOrWhiteSpace(config.DistrictHeading) ? null : config.DistrictHeading;
         data["officers_heading"] = string.IsNullOrWhiteSpace(config.OfficersHeading) ? null : config.OfficersHeading;
         data["crest"] = config.Crest ?? "";

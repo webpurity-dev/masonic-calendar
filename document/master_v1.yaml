@@ -374,6 +374,11 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/ram_data_source.yaml"
+  - section_id: "ram_intro"
+    section_title: "Introduction to Royal Ark Mariner"
+    type: "static"
+    template: "ram-intro.html"
+    hide_from_parent_toc: true
   - section_id: "ram_membership_summary"
     section_title: "Royal Ark Mariner Membership Summary 2026"
     type: "membership-summary"
@@ -462,7 +467,7 @@ sections:
   - section_id: "data_protection"
     section_title: "Data Protection Notice"
     type: "static"
-    template: "companion/_placeholder.html"
+    template: "data-protection.html"
 
   # INDEX PAGES
   - section_id: "all_units_index"

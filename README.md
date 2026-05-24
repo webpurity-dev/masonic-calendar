@@ -2,7 +2,7 @@
 
 A .NET console application for generating professionally formatted, print-ready PDF and HTML documents for non-profit Masonic organisations. Reads lodge and chapter data from CSV files and produces A6 booklet-style documents via Scriban templating and Puppeteer/Paged.js rendering.
 
-**Latest Release:** v1.5 (Updated May 3, 2026) — Complete support for 5 degree types (Craft, Royal Arch, Mark, RAM, RCOC) with membership summaries, meeting tables, bold Grand Rank styling, and expanded logo integration.
+**Latest Release:** v1.7 (Updated May 24, 2026) — Extended rank fields (Provincial Rank, London Rank, Other Province Rank) with priority-based display logic, succession lists for Craft and Royal Arch, support for up to 14 degree types, and architectural improvements for template path resolution.
 
 ## 🎯 Features
 
@@ -12,7 +12,7 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Cover page** — full-bleed image with automatic binding-edge compensation
 - ✅ **Table of Contents** — master TOC and per-section TOCs with JavaScript-injected page numbers (alphabetical order)
 - ✅ **Page numbering** — CSS counter in footer, starts at the TOC section (cover has no number)
-- ✅ **Unit pages** — officers, past masters, joining past masters, members (3-column), honorary members
+- ✅ **Unit pages** — officers (with extended ranks), past unit heads, joining past unit heads, members (3-column), honorary members (all with rank cascading)
 - ✅ **Meeting dates** — 12-month calendar grid plus section-specific meeting tables for all degrees, with recurrence-rule expansion
 - ✅ **Multiple degree types** — Craft, Royal Arch, Mark Masonry, Royal Ark Mariners, RCOC (Royal Ark Mariners Companion Masons)
 - ✅ **Membership summaries** — statistical summaries for Craft, Royal Arch, Mark, and RAM with disclaimers
@@ -26,8 +26,11 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
 - ✅ **Lodge list normalisation** — joining past master lodge lists stripped of spaces (`1895,6194,9660`)
 - ✅ **Grand rank styling** — Grand Ranks display in bold (font-weight: 600) for visual emphasis
+- ✅ **Extended rank fields** — Provincial Rank, London Rank, Other Province Rank with cascading display logic (Grand Rank takes precedence)
+- ✅ **Succession lists** — Craft and Royal Arch succession pages with officer tables, years, and special characters (resigned/dismissed marks)
 - ✅ **Logo integration** — cover pages and section headers with updated branding
 - ✅ **Data validation** — comprehensive validation scripts and output reporting
+- ✅ **Extended degree type support** — Architecture ready for 14+ degree types (Craft, Royal Arch, Mark, RAM, RCOC, plus 9 new types via YAML config)
 
 ## 🏗️ Project Structure
 
@@ -65,11 +68,15 @@ document/
 │   ├── unit-meetings.csv      # Meeting recurrence rules and dates
 │   └── _archive/              # Previous schema versions
 ├── data_sources/
-│   ├── craft_data_source.yaml      # Column mappings for Craft data
-│   ├── royalarch_data_source.yaml  # Column mappings for Royal Arch data
-│   ├── mark_data_source.yaml       # Column mappings for Mark data
-│   ├── ram_data_source.yaml        # Column mappings for RAM data
-│   └── meetings_data_source.yaml   # Column mappings for meetings data
+│   ├── craft_data_source.yaml              # Column mappings for Craft data + succession lists
+│   ├── royalarch_data_source.yaml         # Column mappings for Royal Arch data + succession lists
+│   ├── mark_data_source.yaml              # Column mappings for Mark data
+│   ├── ram_data_source.yaml               # Column mappings for RAM data
+│   ├── meetings_data_source.yaml          # Column mappings for meetings data
+│   ├── kt_data_source.yaml                # Knight Templar (v1.7+)
+│   ├── ktp_data_source.yaml               # Knight Templar Priest (v1.7+)
+│   ├── osc_data_source.yaml               # Order of Secret Monitor (v1.7+)
+│   └── [9 additional degree types]        # Extended degrees (YAML-driven configuration)
 └── images/
     └── (cover and decorative images)
 
@@ -176,6 +183,8 @@ dotnet run -- -template master_v1 -output csv
 | `master_foreword` | static | Foreword/introduction |
 | `ugle_officers` | static | United Grand Lodge of England officers |
 | `grand_officers` | static | Provincial Grand Officers |
+| `craft_succession_lists` | succession-list | Craft PGM/DPGM/APGM succession tables |
+| `ra_succession_lists` | succession-list | Royal Arch GS/DGS succession tables |
 | **Craft Freemasonry** | — | — |
 | `craft` | static | Craft Freemasonry introduction |
 | `craft_executive_officers` | static | Provincial Craft Executive officers |
@@ -214,8 +223,9 @@ dotnet run -- -template master_v1 -output csv
 | Type | Purpose | Renderer |
 |------|---------|----------|
 | `static` | Pre-rendered HTML pages (UGLE, Foreword, Introductions, Executive Officers, etc.) | `StaticSectionRenderer` |
-| `toc` | Auto-generated table of contents for a section (alphabetical order in v1.5) | `TocSectionRenderer` |
+| `toc` | Auto-generated table of contents for a section (alphabetical order) | `TocSectionRenderer` |
 | `data-driven` | Unit pages rendered from CSV data via Scriban template | `DataDrivenSectionRenderer` |
+| `succession-list` | Officer succession tables (PGM/DPGM/APGM for Craft, GS/DGS for RA) with dates and notes | `SuccessionListSectionRenderer` |
 | `membership-summary` | Statistical summaries per degree type (Craft, Royal Arch, Mark, RAM, RCOC) with disclaimers | `MembershipSummarySectionRenderer` |
 | `meetings-table` | Section-specific meeting dates table (per degree type) | `MeetingsTableSectionRenderer` |
 | `meetings-calendar` | Full 12-month calendar grid (supports multiple degree types) | `MeetingsCalendarSectionRenderer` |
@@ -275,6 +285,16 @@ The full moon calculation uses the mean synodic period (29.530588853 days) from 
 | YAML config | YamlDotNet | latest |
 
 ## 📝 Version History
+
+### v1.7 (Updated May 24, 2026)
+- **New:** Extended rank fields — 4 new rank columns per person (Provincial Rank, London Rank, Prov Rank Other Prov, with associated date fields)
+- **New:** Priority-based rank display — Grand Rank displays in bold only; other ranks cascade (Provincial → Other Prov → London) only when Grand Rank absent
+- **New:** Succession lists — Craft PGM/DPGM/APGM and Royal Arch GS/DGS tables with appointment years and special characters († resigned, ‡ dismissed)
+- **Enhanced:** LocationSectionRenderer now uses template path from YAML config (architectural consistency improvement)
+- **Enhanced:** SchemaMember, SchemaOfficer, SchemaHonoraryMember all support new rank fields with robust date range parsing
+- **Architecture:** Foundation laid for 14+ degree type support (additional degrees via data_source YAML files)
+- **Status:** Craft units fully tested and rendering; additional degrees can be added via YAML configuration
+- **Data Format:** membership_v1.7.csv with 27 columns including new rank fields
 
 ### v1.5 (Updated May 3, 2026)
 - **New:** RCOC (Royal Ark Mariners Companion Masons) degree type with full support — officers, members, past unit heads, membership summaries, and meeting tables

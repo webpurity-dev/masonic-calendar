@@ -3,6 +3,8 @@
 ## Project Context
 A C# .NET 8.0 console application for a non-profit Masonic organisation. Reads lodge/chapter data from CSV files and generates print-ready A6 booklet PDFs and proofing HTML via Scriban templating and Puppeteer/Paged.js rendering. All libraries must be open-source (MIT/Apache 2.0) or free for non-profits.
 
+**Current Version:** v1.7 (May 24, 2026) — Extended rank fields with priority-based cascading display, succession lists for Craft and Royal Arch, architecture ready for 14+ degree types via YAML configuration.
+
 ---
 
 ## Technical Stack
@@ -181,16 +183,48 @@ Sections rendered in order (all conditional on data existing):
 
 1. **Header** -- unit name + number, installation date
 2. **Location** -- meeting address, email
-3. **Officers** -- two flex-column tables split at `posNo <= 11` / `posNo > 11`
-4. **Past Masters** -- name, year installed, provincial rank, rank year
-5. **Joining Past Masters** -- name, lodge list (comma-separated no spaces), provincial rank
-6. **Members** -- 3 `inline-block` tables from `memberColumns` (pre-split vertically in C#)
-7. **Honorary Members** -- name and rank
+3. **Officers** -- two flex-column tables split at `posNo <= 11` / `posNo > 11` with extended rank display
+4. **Past Unit Heads** -- name, year installed, ranks (provincial, london, other province) with dates, provincial grand ranks
+5. **Joining Past Unit Heads** -- name, lodge list (comma-separated no spaces), ranks with dates
+6. **Members** -- 3 `inline-block` tables from `memberColumns` (pre-split vertically in C#) with extended rank display
+7. **Honorary Members** -- name and extended rank display
+
+### v1.7 Rank Display Logic (Priority-Based Cascading)
+
+**Critical Rule:** The following logic applies to all person types (Officers, Members, Honorary Members, Past Unit Heads):
+
+1. **IF** person has `grand_rank` → Display ONLY the Grand Rank in bold (`<strong>{{grand_rank}}</strong>`), hide all other ranks
+2. **ELSE** (no Grand Rank) → Display in order on separate lines:
+   - Provincial Rank with Date Accorded in parentheses
+   - Prov Rank Other Province (if present) with Date Accorded
+   - London Rank (if present) with Date Accorded
+   - Empty ranks are completely omitted (no blank lines)
+
+**Example (Member with Grand Rank):** `William Jones` displays only `**Past Grand Master**` (bold)
+
+**Example (Member without Grand Rank):**
+```
+Peter Brown
+Prov GM (2020)
+London Rank (2022)
+```
+
+**Template Implementation:** In `_data-driven/unit-page.html`, the rank display uses Scriban if/else logic:
+```scriban
+{{ if person.grand_rank }}
+  <strong>{{ person.grand_rank }}</strong>
+{{ else }}
+  {{ if person.provincial_rank }}<div>{{ person.provincial_rank }}{{ if person.date_rank_accorded }} ({{ person.date_rank_accorded }}){{ end }}</div>{{ end }}
+  {{ if person.prov_rank_other_prov }}<div>{{ person.prov_rank_other_prov }}{{ if person.op_date_accorded }} ({{ person.op_date_accorded }}){{ end }}</div>{{ end }}
+  {{ if person.london_rank }}<div>{{ person.london_rank }}{{ if person.london_rank_date_accorded }} ({{ person.london_rank_date_accorded }}){{ end }}</div>{{ end }}
+{{ end }}
+```
 
 **Key CSS rules:**
 - No `height` on `<tr>` elements -- let browser size from content, so Paged.js measures true height
 - `break-before: always` on `.unit-page` in print.css
 - `break-inside: avoid` on officer/past-master sections to keep heading with table
+- Multi-line rank display with proper spacing between rank lines
 
 ---
 
@@ -212,6 +246,12 @@ Key methods in `MasonicCalendar.Core.Renderers.Utilities.TextCleaner`:
 ## Data Loading
 
 - `SchemaDataLoader.LoadUnitsWithDataAsync(templateKey, sectionId?)` -- loads CSV per data source YAML mapping
+- v1.7 rank field extraction: `ParseDateRange()` handles formats like "2021", "1993-15", "1993-2025" for date fields
+- All person types (SchemaOfficer, SchemaMember, SchemaHonoraryMember) load 8 rank-related fields:
+  - `grand_rank` (string?), `grand_rank_date_accorded` (int?)
+  - `provincial_rank` (string?), `date_rank_accorded` (int?)
+  - `prov_rank_other_prov` (string?), `op_date_accorded` (int?)
+  - `london_rank` (string?), `london_rank_date_accorded` (int?)
 - When `-unit <N>` is specified, `Program.cs` filters the list *before* passing to renderer
 - `DataDrivenSectionRenderer` uses the `units` parameter directly -- it does **not** reload from disk, preserving the filter
 - `SchemaPdfRenderer.RenderSectionAsync` reloads only when `units.Count > 1` and a DataMapping exists (i.e. not pre-filtered)
@@ -230,6 +270,53 @@ Key methods in `MasonicCalendar.Core.Renderers.Utilities.TextCleaner`:
 
 ---
 
+## Section Renderer Types (v1.7+)
+
+| Renderer Type | Purpose | Configuration | Example |
+|---------------|---------|---|---|
+| `static` | Pre-rendered HTML files (foreword, introductions, cover) | Points to `.html` file path | `type: "static"` + `template: "foreword-page.html"` |
+| `data-driven` | CSV data → Scriban template (unit pages) | References `data_mapping` YAML file + CSV source | `type: "data-driven"` + `data_mapping: "data_sources/craft_data_source.yaml"` |
+| `toc` | Auto-generated table of contents | Indexes child sections | `type: "toc"` + `section_id: "craft_toc"` |
+| `succession-list` | Officer succession tables (PGM, DPGM, APGM for Craft; GS, DGS for RA) | Multiple tables defined in data_source YAML `succession_list` section | `type: "succession-list"` + `data_mapping: "data_sources/craft_data_source.yaml"` |
+| `membership-summary` | Statistical summaries per degree | Calculates counts from loaded units | `type: "membership-summary"` + `degree_filter: "Craft"` |
+| `meetings-calendar` | 12-month meetings grid | Processes meeting rules from CSV | `type: "meetings-calendar"` |
+| `meetings-table` | Per-degree meeting dates | Expands recurrence rules | `type: "meetings-table"` + `degree_filter: "Craft"` |
+
+### Succession List Configuration (craft_data_source.yaml)
+
+Example from v1.7:
+
+```yaml
+succession_list:
+  tables:
+    - title: "PROVINCIAL GRAND MASTERS"
+      source: "data/craft_pgm_succession_v1.7.csv"
+      font_size: "8pt"
+      columns:
+        - name: "Appointed"
+          csv_column: "Appointed"
+          width: "18%"
+          alignment: "left"
+        - name: "PROVINCIAL GRAND MASTERS"
+          csv_column: "Name"
+          width: "70%"
+          alignment: "left"
+        - name: "Years"
+          csv_column: "Years"
+          width: "12%"
+          alignment: "right"
+      table_caption: "† Resigned from Office. ‡ Dismissed from Office by the Grand Master."
+```
+
+**Key Points:**
+- Multiple tables per section
+- Years column includes special characters († resigned, ‡ dismissed) postfixed to year value
+- Table captions defined in YAML (optional, only rendered if not null)
+- Column widths sum to 100% for proper CSS layout
+- Alignment: "left" or "right" for CSS text-align
+
+---
+
 ## Known Gotchas
 
 | Issue | Cause | Fix Applied |
@@ -241,6 +328,10 @@ Key methods in `MasonicCalendar.Core.Renderers.Utilities.TextCleaner`:
 | Cover bleed hidden by image | `position:absolute` div creates stacking context above bleed overlays | Bleed visualisation uses `::after` pseudo-elements with `z-index:99999` |
 | Long surname overflow | 4-word surnames (e.g. "Andrade De Azeredo Coutinho") overflow officer cell | `ShortenSurname` keeps last 2 words when >3 words |
 | Lodge list with spaces | CSV may contain `"1895, 6194, 9660"` with spaces | `CleanPastUnits` splits, trims, rejoins with no spaces |
+| Rank display precedence | Multiple rank fields in CSV, user needs to know which displays | Grand Rank takes absolute priority (displayed only if present); cascade: Provincial → Other Prov → London when Grand absent |
+| Template path resolution | Hardcoded template paths inconsistent across renderers | v1.7 fix: All renderers now use `section.Template` from YAML config (e.g. `template: "_data-driven/unit-page.html"`) |
+| Date format parsing | v1.7 date fields use "2021", "1993-15", "1993-2025" formats | `ParseDateRange()` handles all variants with century inference |
+| Succession list table captions | Special characters in table notes | Store directly in CSV Years column with special character postfix (e.g., "7 †", "9 ‡")
 
 ---
 

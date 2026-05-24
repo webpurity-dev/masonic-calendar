@@ -122,8 +122,20 @@ dotnet run -- -template master_v1 -output html
 # Render with page boundary visualisation
 dotnet run -- -template master_v1 -output html -showbleeds
 
-# Render a single section of all static pages
+# Render all static pages together
 dotnet run -- -template master_v1 -output html -section static
+
+# Render all officer list sections together
+dotnet run -- -template master_v1 -output html -section list_officers
+
+# Render all succession list sections (Craft PGM/DPGM/APGM + RA GS/DGS)
+dotnet run -- -template master_v1 -output html -section succession-list
+
+# Render all membership summary sections for all degrees
+dotnet run -- -template master_v1 -output html -section membership-summary
+
+# Render all meetings table sections for all degrees
+dotnet run -- -template master_v1 -output html -section meetings-table
 
 # Render a single section of one degree type
 dotnet run -- -template master_v1 -output html -section craft_units
@@ -168,11 +180,16 @@ dotnet run -- -template master_v1 -output csv
 |-----------|----------|--------|-------------|
 | `-template` | Yes | `master_v1` | Master layout template name |
 | `-output` | Yes | `pdf` / `html` | Output format |
-| `-section` | No | See below | Render one section only (default: all) |
+| `-section` | No | Section ID or Type | Render one section only, or all sections of a type (e.g. `-section craft_units` or `-section list_officers`) |
 | `-unit` | No | Lodge number | Render one unit only (e.g. `-unit 3366`) |
 | `-showbleeds` | No | flag | Overlay red/blue borders on page boundaries |
 | `-debug` | No | flag | Extra console output + debug HTML file |
 | `-output csv` | — | — | Exports `{template}-meetings.csv` (all expanded dates) and `{template}-members.csv` (all people per unit) to `output/` |
+
+**Section Parameter Modes:**
+- **Specific section:** `-section craft_units` renders only that section
+- **Type matching:** `-section list_officers` renders **all** sections where `type: "list_officers"` (useful for aggregating similar sections)
+- **Available types:** `static`, `data-driven`, `toc`, `list_officers`, `succession-list`, `membership-statistics`, `membership-summary`, `meetings-table`, `meetings-calendar`, `locations`
 
 ### Sections in `master_v1`
 
@@ -236,6 +253,10 @@ dotnet run -- -template master_v1 -output csv
 |---------|-------------|
 | `-template master_v1 -output pdf` | `output/master_v1-all-sections.pdf` |
 | `-template master_v1 -output html` | `output/master_v1-all-sections.html` |
+| `-template master_v1 -output html -section static` | `output/master_v1-static-sections.html` |
+| `-template master_v1 -output html -section list_officers` | `output/master_v1-list_officers-sections.html` |
+| `-template master_v1 -output html -section succession-list` | `output/master_v1-succession-list-sections.html` |
+| `-template master_v1 -output html -section membership-summary` | `output/master_v1-membership-summary-sections.html` |
 | `-template master_v1 -output html -section craft_units` | `output/master_v1-craft_units.html` |
 | `-template master_v1 -output html -section royalarch_units` | `output/master_v1-royalarch_units.html` |
 | `-template master_v1 -output html -section mark_units` | `output/master_v1-mark_units.html` |

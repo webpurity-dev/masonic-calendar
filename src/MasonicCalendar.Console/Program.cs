@@ -139,27 +139,38 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var targetSectionType = peekLayout.Data?.Sections?
             .FirstOrDefault(s => s.SectionId == targetSectionId)?.Type;
 
-        // Handle special case: -section "static" renders all static sections
-        bool renderingAllStaticSections = false;
-        List<string>? staticSectionIds = null;
+        // Handle special case: -section "{type}" renders all sections of that type
+        bool renderingMultipleSectionsOfType = false;
+        List<string>? sectionsOfTypeIds = null;
+        string? matchedTypeName = null;
         
-        if (targetSectionId?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false)
+        // Check if targetSectionId matches a known section type (not a real section ID)
+        if (!string.IsNullOrWhiteSpace(targetSectionId))
         {
-            // Collect all static section IDs from the layout
-            staticSectionIds = peekLayout.Data?.Sections?
-                .Where(s => s.Type?.Equals("static", StringComparison.OrdinalIgnoreCase) ?? false)
-                .Select(s => s.SectionId!)
-                .ToList() ?? new List<string>();
+            var knownTypes = new[] { "static", "data-driven", "toc", "list_officers", "succession-list", "membership-statistics", "membership-summary", "meetings-table", "meetings-calendar", "locations" };
+            var matchingType = knownTypes.FirstOrDefault(t => t.Equals(targetSectionId, StringComparison.OrdinalIgnoreCase));
             
-            if (staticSectionIds.Count == 0)
+            if (!string.IsNullOrWhiteSpace(matchingType) && !(peekLayout.Data?.Sections?.Any(s => s.SectionId?.Equals(targetSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false))
             {
-                Console.WriteLine($"❌ Error: No static sections found in template '{templateName}'");
-                return 1;
+                // This is a type name, not a section ID
+                matchedTypeName = matchingType;
+                
+                // Collect all section IDs of this type from the layout
+                sectionsOfTypeIds = peekLayout.Data?.Sections?
+                    .Where(s => s.Type?.Equals(matchedTypeName, StringComparison.OrdinalIgnoreCase) ?? false)
+                    .Select(s => s.SectionId!)
+                    .ToList() ?? new List<string>();
+                
+                if (sectionsOfTypeIds.Count == 0)
+                {
+                    Console.WriteLine($"❌ Error: No sections of type '{matchedTypeName}' found in template '{templateName}'");
+                    return 1;
+                }
+                
+                renderingMultipleSectionsOfType = true;
+                targetSectionId = null; // Clear the type name since we'll use the real section IDs
+                targetSectionType = matchedTypeName; // Keep this to skip data loading for non-data-driven types
             }
-            
-            renderingAllStaticSections = true;
-            targetSectionId = null; // Clear the special "static" ID since we'll use the real section IDs
-            targetSectionType = "static"; // Keep this to skip data loading
         }
 
         // Non-data-driven section types manage their own data loading — skip SchemaDataLoader
@@ -167,8 +178,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             (targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? true) ||
             (targetSectionType?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false);
         
-        // Never load units for static sections
-        if (renderingAllStaticSections)
+        // Never load units for static or list_officers sections
+        if (renderingMultipleSectionsOfType && !(targetSectionType?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) ?? false))
             needsUnitLoad = false;
 
         // Load data using schema - load from specific section if requested
@@ -295,9 +306,9 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         {
             Console.WriteLine($"📄 Rendering unit {unitNumber} from {unitType} section");
         }
-        else if (renderingAllStaticSections)
+        else if (renderingMultipleSectionsOfType)
         {
-            Console.WriteLine($"📄 Rendering all static sections ({staticSectionIds?.Count ?? 0} sections)");
+            Console.WriteLine($"📄 Rendering all sections of type '{matchedTypeName}' ({sectionsOfTypeIds?.Count ?? 0} sections)");
         }
         else if (targetSectionId != null)
         {
@@ -324,16 +335,16 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // For single unit renders with pre-filtering, auto-include membership summary and meetings
         Result<byte[]> renderResult;
         
-        if (renderingAllStaticSections && staticSectionIds?.Count > 0)
+        if (renderingMultipleSectionsOfType && sectionsOfTypeIds?.Count > 0)
         {
-            // Render all static sections together
+            // Render multiple sections of a type together
             Console.WriteLine();
-            Console.WriteLine("📊 Static sections to render:");
-            foreach (var staticSecId in staticSectionIds)
-                Console.WriteLine($"   ✓ {staticSecId}");
+            Console.WriteLine($"📊 Sections to render ({matchedTypeName ?? "unknown"}):");
+            foreach (var secId in sectionsOfTypeIds)
+                Console.WriteLine($"   ✓ {secId}");
             Console.WriteLine();
             
-            renderResult = await renderer.RenderMultipleSectionsAsync([], templateName, staticSectionIds, documentOutputFormat);
+            renderResult = await renderer.RenderMultipleSectionsAsync([], templateName, sectionsOfTypeIds, documentOutputFormat);
         }
         else if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
         {
@@ -382,7 +393,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Save output file with version embedded in template name if available
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
-        var sectionPart = renderingAllStaticSections ? "static-sections" : (targetSectionId ?? "all-sections");
+        var sectionPart = renderingMultipleSectionsOfType ? $"{matchedTypeName}-sections" : (targetSectionId ?? "all-sections");
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedsPart = showBleeds ? "-showBleeds" : "";
         var noPrintPart = noPrintMode ? "-noprint" : "";

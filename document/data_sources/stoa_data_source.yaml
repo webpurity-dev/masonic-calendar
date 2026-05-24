@@ -228,3 +228,35 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Commemorative Order of St Thomas of Acon"
+  heading2: "Provincial Grand Lodge of Dorset"
+  crest: "../../images/ros-logo.png"
+  heads: 
+    - rank: "Most Worthy Grand Master"
+      name: "tbc"
+  deputy_heads:
+    - rank: "Most Eminent Grand Prior"
+      name: "tbc"
+    - rank: "Grand Secretary"
+      name: "tbc"
+  district_heading: "Province of Wessex"
+  district_heads:
+    - rank: "Grand Preceptor"
+      name: "tbc"
+    - rank: "Provincial Grand Prior"
+      name: "tbc"
+  # "Erected and Consecrated on 5 October 1999. Meet at the Kinson Masonic Hall, Ferncroft Road, Bournemouth on the second Saturday in January, the first Saturday in May and the second Saturday in August."
+  officers_heading: "Officers appointed 2025-26"

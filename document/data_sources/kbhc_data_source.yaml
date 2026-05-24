@@ -1,0 +1,22 @@
+# Data source mappings for UGLE
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Grand Priory of the Knights Beneficent of the Holy City of the Rectified Scottish Rite of England and Wales"
+  crest: "../../images/kbhc-logo.png"
+  heads: 
+    - rank: "GRAND MASTER"
+      name: "M.Em. & Revd.Kt. Dr Vivian Thomas, JP, G.C.H.C."
+  deputy_heads:
+    - rank: "Grand Prior & Deputy Grand Master"
+      name: "R.Revd.Kt. P.R Clement, G.C.H.C."

@@ -10,10 +10,12 @@ public class ProvincialOfficersConfig
     public List<FieldMapping>? Fields { get; set; }
     public string? Heading1 { get; set; }
     public string? Heading2 { get; set; }
-    public string? Heading3 { get; set; }
+    public string? DistrictHeading { get; set; }
+    public string? OfficersHeading { get; set; }
     public string? Crest { get; set; }
     public List<OfficerGroup>? Heads { get; set; }
     public List<OfficerGroup>? DeputyHeads { get; set; }
+    public List<OfficerGroup>? DistrictHeads { get; set; }
 }
 
 /// <summary>

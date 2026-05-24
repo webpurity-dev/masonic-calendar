@@ -229,3 +229,37 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Ancient and Accepted Rite"  
+  heading1: "Members of the Supreme Council 33°"
+  crest: "../../images/rc-logo.png"  
+  heads: 
+    - rank: "Sovereign Grand Commander"
+      name: "tbc"
+  deputy_heads:
+    - rank: "Lieutenant Grand Commander"
+      name: "tbc"
+    - rank: "Grand Prior"
+      name: "tbc"
+    - rank: "Grand Marshal"
+      name: "tbc"
+    - rank: "Grand Chancellor"
+      name: "tbc"
+  district_heading: "District of Dorset"
+  district_heads:
+    - rank: "Inspector General"
+      name: "tbc"
+    - rank: "District Recorder"
+      name: "tbc"

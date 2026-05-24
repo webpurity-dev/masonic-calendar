@@ -228,3 +228,31 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Worshipful Society of Free Masons"
+  heading2: "Rough Masons, Wallers, Slaters, Paviors, Plaisterers and Bricklayers (The Operatives)"
+  crest: "../../images/pbq-logo.png"
+  heads: 
+    - rank: "1st Grand Master Mason"
+      name: "M.W. Bro. Paul P. Mycock, VII°"
+  deputy_heads:
+    - rank: "2nd Grand Master Mason"
+      name: "M.W. Bro. Raymond S. Ellis, VII°"
+    - rank: "3rd Grand Master Mason"
+      name: "M.W. Bro. Graham L. Flight, VII°"
+  district_heading: "South Western Counties Region"
+  district_heads:
+    - rank: "Deputy Grand Master Mason and Senior Passed Master"
+      name: "tbc"

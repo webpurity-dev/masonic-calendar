@@ -228,3 +228,33 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Grand Council of the Order of Allied Masonic Degrees of England and Wales and Districts and Councils Overseas"  
+  crest: "../../images/amd-logo.png"
+  heads: 
+    - rank: "Grand Master"
+      name: "M.W.Bro. Thomas F. Jackson"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      name: "R.W.Bro. Colin R. Woodcock MBE"
+  district_heading: "District of the Southern Counties"
+  district_heads:
+    - rank: "District Grand Prefect"
+      name: "R.W.Bro. Anthony J. Green"
+    - rank: "Deputy District Grand Prefect"
+      name: "V.W.Bro. Laurence T. Brookes, P.G.Reg."
+    - rank: "District Grand Secretary"
+      name: "W.Bro. Malcolm E. W. Stevens"
+

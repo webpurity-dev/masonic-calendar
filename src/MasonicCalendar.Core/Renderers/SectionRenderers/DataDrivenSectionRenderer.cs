@@ -125,6 +125,13 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                     Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {mapping.JoiningPastMasters.OverrideHeading}");
             }
 
+            if (!string.IsNullOrWhiteSpace(mapping?.JoiningPastMasters?.UnitsColumnHeading))
+            {
+                headings["joiningPastMastersUnitsColumn"] = mapping.JoiningPastMasters.UnitsColumnHeading;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMastersUnitsColumn: {mapping.JoiningPastMasters.UnitsColumnHeading}");
+            }
+
             if (!string.IsNullOrWhiteSpace(mapping?.HonoraryMembers?.OverrideHeading))
             {
                 headings["honoraryMembers"] = mapping.HonoraryMembers.OverrideHeading;

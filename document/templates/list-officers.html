@@ -1,17 +1,16 @@
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="font-size: 14pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
+    <h2 style="font-size: 12pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
     <img src="{{ crest }}" style="max-width: 25%; height: auto; margin: 10px 0;"/>
     {{ end }}
-    <h3 style="font-size: 11pt; margin: 4px 0;">{{ heading2 }}</h3>
-    {{ if heading3 }}
-    <h4 style="font-size: 9pt; font-style: italic; margin: 4px 0;">{{ heading3 }}</h4>
+    {{ if heading2 != null && heading2 != "" }}
+    <h3 style="font-size: 10pt; margin: 4px 0;">{{ heading2 }}</h3>
     {{ end }}
 </div>
 
 {{ if heads.size > 0 }}
 <!-- Order/Province Heads (PGM, etc.) -->
-<table style="margin: 8px 0; font-size: 11pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 8px 0; font-size: 10pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for head in heads }}
         <tr style="margin: 2px; padding: 0;">
@@ -41,15 +40,43 @@
 </table>
 {{ end }}
 
+{{ if district_heads.size > 0 }}
+{{ if district_heading != null && district_heading != "" }}
+<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h4 style="font-size: 9pt; margin: 4px 0;">{{ district_heading }}</h4>
+</div>
+{{ end }}
+
+<!-- District Heads -->
+<table style="margin: 8px 0; font-size: 9pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+    <tbody>
+        {{ for district in district_heads }}
+        <tr style="margin: 1px; padding: 0;">
+            <td style="font-weight: 600; text-align: center;">{{ district.rank }}</td>
+        </tr>
+        <tr style="margin: 1px; padding: 0;">
+            <td style="text-align: center;">{{ district.name }}</td>
+        </tr>
+        {{ end }}
+    </tbody>
+</table>
+{{ end }}
+
+{{ if officers_heading != null && officers_heading != "" }}
+<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h4 style="font-size: 9pt; margin: 4px 0;">{{ officers_heading }}</h4>
+</div>
+{{ end }}
+
 {{ if officers.size > 0 }}
-<!-- Regional Officers -->
+<!-- Officers -->
 <table style="margin: 8px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in officers }}
         <tr style="margin: 6px; padding: 0;">
-            <td style="text-align: left; width: 45%; font-weight: 600;">{{ officer.office }}</td>
+            <td style="text-align: left; width: 40%; font-weight: 600;">{{ officer.office }}</td>
             <td style="text-align: right; width: 45%;">{{ officer.name }}</td>
-            <td style="text-align: right;">{{ officer.unit }}</td>
+            <td style="text-align: right; width: 15%;">{{ officer.unit }}</td>
         </tr>
         {{ end }}
     </tbody>

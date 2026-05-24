@@ -228,3 +228,32 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Great Priory of the United Religious, Military and Masonic Orders of the Temple and of St. John of Jerusalem, Palestine, Rhodes and Malta of England and Wales and its Provinces Overseas"  
+  crest: "../../images/kt-logo.png"
+  heads: 
+    - rank: "Grand Master"
+      name: "M.E. & S.Kt. Paul R. Clement, OStJ, G.C.T."
+  deputy_heads:
+    - rank: "Great Seneschal"
+      name: "V.H. & R.E.Kt. Andrew C. Rainbow, G.C.T."
+  district_heading: "Province of Dorset and Wiltshire"
+  district_heads:
+    - rank: "Provincial Prior"
+      name: "R.E.Kt. Richard F. Micklefield"
+    - rank: "Provincial Sub-Prior"
+      name: "E.Kt. Maurice E. Lound, P.Gt.St.B.(B.)"
+    - rank: "Provincial Vice-Chancellor"
+      name: "E.Kt. Brian F. Amos, P.Dep.Gt.Swd.B."

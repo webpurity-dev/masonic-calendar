@@ -312,7 +312,6 @@ provincial_officers:
       csv_column: "Unit"
       type: "string"
   heading1: "The Provincial Grand Lodge of Dorset"
-  heading2: "Provincial Grand Lodge Officers 2025-26" 
   crest: "../../images/provincial-crest-sml.jpg"
   heads: 
     - rank: "Provincial Grand Master"
@@ -324,3 +323,4 @@ provincial_officers:
       name: "WBro Micheal Richard Parkes, PSGD"
     - rank: "Assistant Provincial Grand Master"
       name: "WBro Leon Anthony Matthews, PJGD"
+  officers_heading: "Provincial Grand Lodge Officers 2025-26"

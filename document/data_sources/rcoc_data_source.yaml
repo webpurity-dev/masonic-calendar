@@ -237,3 +237,32 @@ honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
+      
+provincial_officers:
+  source: "rcoc_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Grand Imperial Conclave of the Masonic and Military Order of the Red Cross of Constantine and the Orders of the Holy Sepulchre and of St. John the Evangelist in England and Wales and its Divisions and Conclaves Overseas"  
+  crest: "../../images/rcoc-logo.png"
+  heads: 
+    - rank: "GRAND SOVEREIGN"
+      name: "Graham Leslie Flight, G.C.C."
+  deputy_heads:
+    - rank: "DEPUTY GRAND SOVEREIGN"
+      name: "Christopher John Macdonald, G.C.C."
+    - rank: "GRAND EUSEBIUS"
+      name: "Rev. Timothy John Nicholas L’Estrange, G.C.C."
+  district_heading: "Division of Dorset and Wiltshire"
+  district_heads:
+    - rank: "INTENDANT-GENERAL"
+      name: "Rt. Ill. Kt. Alan Curley"
+    - rank: "DEPUTY INTENDANT-GENERAL"
+      name: "Ill. Kt. Barry Keith Hobbs"

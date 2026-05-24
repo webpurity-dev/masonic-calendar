@@ -191,3 +191,32 @@ honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Ancient and Honourable Fraternity of Royal Ark Mariner"  
+  crest: "../../images/ram-logo.png"
+  heads: 
+    - rank: "Grand Master"
+      name: "M.W.Bro. H.R.H. Prince Michael of Kent, GCVO"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      name: "R.W.Bro. Prof. Denovan K. Wilson"
+    - rank: "Assistant Grand Master"
+      name: "R.W.Bro. Peter D. Williams"
+  district_heading: "http://www.dorsetmark.org.uk/"
+  district_heads:
+    - rank: "Provincial Grand Master"
+      name: "R.W.Bro. Victor H. Pomeroy"
+    - rank: "Deputy Provincial Grand Master"
+      name: "W.Bro. David F. Eaton, JP, P.A.G.D.C."

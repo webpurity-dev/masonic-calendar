@@ -228,3 +228,38 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Grand College of The Holy Royal Arch Knight Templar Priests and Order of Holy Wisdom"
+  crest: "../../images/ktp-logo.png"
+  heads: 
+    - rank: "Grand High Priest"
+      name: "M Ill Kt Pt Christopher Gavin Maiden, GCPO"
+  deputy_heads:
+    - rank: "Deputy Grand High Priest and Grand High Prelate"
+      name: "M Em Kt Pt Ian Paterson Duff, GHPA, GCPO"
+    - rank: "Assistant Grand High Priest"
+      name: "R Ill Kt Pt David Harold William Scott, GCPO"
+    - rank: "Assistant Grand High Priest"
+      name: "R Ill Kt Pt John Malcolm Berry Phillips, GCPO"
+    - rank: "Grand Recorder"
+      name: "R Ill Kt Pt G R Goddard, GCPO"
+  district_heading: "District of Dorset and Wiltshire (No. 53)"
+  district_heads:
+    - rank: "Grand Superintendent"
+      name: "tbc"
+    - rank: "District Recorder"
+      name: "tbc"
+    - rank: "District Director of Ceremonies"
+      name: "tbc"

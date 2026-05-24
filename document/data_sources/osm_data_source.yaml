@@ -228,3 +228,34 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Order of the Secret Monitor or Brotherhood of David and Jonathan"  
+  crest: "../../images/osm-logo.png"
+  heads: 
+    - rank: "Grand Supreme Ruler"
+      name: "M.Wy.Bro. Andrew C. Sweeney"
+  deputy_heads:
+    - rank: "Deputy Grand Supreme Ruler"
+      name: "R.Wy.Bro. Keith B. Ferguson"
+    - rank: "Assistant Grand Supreme Ruler"
+      name: "R.Wy.Bro. G. Llewellyn Gill"
+  district_heading: "Province of Dorset and Wiltshire"
+  district_heads:
+    - rank: "Provincial Grand Supreme Ruler"
+      name: "R.Wy.Bro. Ian R. Sullivan"
+    - rank: "Deputy Provincial Grand Supreme Ruler"
+      name: "V.Wy.Bro. Graham S. Franklin, G.V."
+    - rank: "Provincial Grand Recorder"
+      name: "Wy.Bro. Paul R. Gawler, P.G.Swd.B."

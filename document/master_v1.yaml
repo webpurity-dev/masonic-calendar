@@ -22,11 +22,11 @@ page_margins:
     top: 0mm
     bottom: 10mm            # Space for page number in footer
     left: 10mm              # Inner margin (gutter)
-    right: 0mm              # Outer margin
+    right: 1mm              # Outer margin
   left_page:                # Even pages (Verso)
     top: 0mm
     bottom: 10mm            # Space for page number in footer
-    left: 0mm               # Outer margin
+    left: 1mm               # Outer margin
     right: 10mm             # Inner margin (gutter)
   first_page:               # Cover page - no page number, no margins
     top: 0mm
@@ -37,27 +37,22 @@ page_margins:
 sections:
   - section_id: "cover"
     type: "static"
-    template: "cover-page.html"
-   
+    template: "cover-page.html"  
   - section_id: "pgm_photo"
     type: "static"
     template: "craft/photo-pgm.html"
-   
   - section_id: "dpgm_photo"
     type: "static"
     template: "craft/photo-dpgm.html"
-   
   - section_id: "ra_photo"
     type: "static"
     template: "royalarch/photo-ra.html"
-
   - section_id: "master_toc"
     section_title: "Table of Contents"
     type: "toc"
     for_section: "all"
     template: "toc-page.html"
     reset_page_counter: true 
-  
   - section_id: "master_foreword"
     section_title: "Foreword"
     type: "static"
@@ -65,16 +60,16 @@ sections:
 
   # GRAND LODGE
   - section_id: "ugle_officers"
-    section_title: "The United Grand Lodge of England"
-    type: "static"
-    template: "ugle/ugle-officers.html"
-
+    section_title: "United Grand Lodge of England"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/ugle_data_source.yaml"
   - section_id: "grand_officers"
     section_title: "Grand Officers"
-    type: "static"
-    template: "ugle/grand-officers.html"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/grand_officers_data_source.yaml"
     is_child: true
-
   - section_id: "freemasons_charity"
     section_title: "Freemason's Charity"
     type: "static"
@@ -86,65 +81,48 @@ sections:
     section_title: "Provincial Grand Lodge of Dorset"
     type: "static"
     template: "craft/executive-officers.html"
-
   - section_id: "craft_provincial_officers"
-    section_title: "Provincial Officers 2025-2026"
-    type: "provincial_officers"
-    template: "provincial-officers.html"
+    section_title: "Provincial Officers 2025/26"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/craft_data_source.yaml"
     is_child: true
-
   - section_id: "craft_succession_lists"
     section_title: "Succession Lists"
     type: "static"
     template: "craft/succession.html"
     is_child: true
-
   - section_id: "craft_salutes"
     section_title: "Salutes"
     type: "static"
     template: "craft/salutes.html"
     is_child: true
-
   - section_id: "dorset_masonic_charity"
     section_title: "Dorset Masonic Charities"
     type: "static"
     template: "craft/dorset-masonic-charities.html"
     is_child: true
-
-  - section_id: "locations"
+  - section_id: "dorset_masonic_halls"
     section_title: "Dorset Masonic Halls"
     type: "locations"
     template: "location-page.html"
     is_child: true
-
   - section_id: "craft_membership_statistics"
-    section_title: "Craft Membership Statistics"
+    section_title: "Membership Statistics"
     type: "membership-statistics"
     template: "membership-statistics-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
     is_child: true
-
   - section_id: "craft_meetings_table"
-    section_title: "Craft Meeting Dates"
+    section_title: "Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Craft"]
     style: "small"
     is_child: true
-
-  - section_id: "craft_toc_alpha"
-    section_title: "Craft Lodges in Alphabetical Order"
-    type: "toc"
-    for_section: "craft_units"
-    template: "toc-page.html"
-    toc_sort_field: "super_short_name"
-    toc_display_field: "super_short_name" 
-    is_child: true
-
   - section_id: "craft_toc"
-    section_title: "Craft Lodges in Numerical Order"
+    section_title: "Lodges in Numerical Order"
     type: "toc"
     for_section: "craft_units"
     template: "toc-page.html"
@@ -152,10 +130,9 @@ sections:
     toc_sort_field: "number"
     # "name", "short_name", or "super_short_name"
     toc_display_field: "name"  
-    is_child: true
-  
+    is_child: true 
   - section_id: "craft_units"
-    section_title: "Craft Lodges in Numerical Order"
+    section_title: "Lodges in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
@@ -166,29 +143,25 @@ sections:
     section_title: "Provincial Grand Chapter of Dorset"
     type: "static"
     template: "royalarch/executive-officers.html"
-
   - section_id: "ra_provincial_officers"
-    section_title: "Provincial Officers 2025-2026"
-    type: "provincial_officers"
-    template: "provincial-officers.html"
+    section_title: "Provincial Officers 2025/26"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
-
   - section_id: "ra_succession_lists"
     section_title: "Succession Lists"
     type: "static"
     template: "royalarch/succession.html"
     is_child: true
-
   - section_id: "ra_membership_statistics"
-    section_title: "Royal Arch Membership Statistics"
+    section_title: "Membership Statistics"
     type: "membership-statistics"
     template: "membership-statistics-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
-
   - section_id: "ra_meetings_table"
-    section_title: "Royal Arch Meeting Dates"
+    section_title: "Chapter Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
@@ -196,65 +169,27 @@ sections:
     style: "medium"
     override_break_before: true
     is_child: true
-
   - section_id: "royalarch_toc"
-    section_title: "Royal Arch Chapters in Numerical Order"
+    section_title: "Chapters in Numerical Order"
     type: "toc"
     for_section: "royalarch_units"
     template: "toc-page.html"
     toc_sort_field: "number"
     toc_display_field: "name"  
     is_child: true
-
   - section_id: "royalarch_units"
-    section_title: "Royal Arch Chapters in Numerical Order"
+    section_title: "Chapters in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     hide_from_parent_toc: true
-    
-  # TRIAL MEETINGS CALENDAR
-  # - section_id: "meetings_calendar"
-  #   section_title: "Craft & Royal Arch Meeting Dates (Calendar)"
-  #   type: "meetings-calendar"
-  #   template: "meetings-calendar-page.html"
-  #   data_mapping: "data_sources/meetings_data_source.yaml"
-  #   unit_types: ["Craft", "RoyalArch"]
 
   # Allied Masonic Degrees
-  - section_id: "amd_intro"
+  - section_id: "amd_officers"
     section_title: "Allied Masonic Degrees"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "amd_membership_summary"
-    section_title: "Allied Masonic Degree Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/amd_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "amd_meetings_table"
-    section_title: "Allied Masonic Degree Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["AMD"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "amd_toc"
-    section_title: "Allied Masonic Degree Councils in Numerical Order"
-    type: "toc"
-    for_section: "amd_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "amd_units"
     section_title: "Allied Masonic Degree Councils in Numerical Order"
     type: "data-driven"
@@ -262,40 +197,42 @@ sections:
     data_mapping: "data_sources/amd_data_source.yaml"
     hide_from_parent_toc: true
 
-  # Knights Templar
-  - section_id: "kt_intro"
-    section_title: "Knights Templar"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "kt_membership_summary"
-    section_title: "Knights Templar Membership Summary"
+  # Ancient and Accepted Rite (Rose Croix)
+  - section_id: "rc_officers"
+    section_title: "Ancient and Accepted Rite"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/rc_data_source.yaml"
+  - section_id: "rc_membership_summary"
+    section_title: "Ancient and Accepted Rite Membership Summary"
     type: "membership-summary"
     template: "membership-summary-page.html"
-    data_mapping: "data_sources/kt_data_source.yaml"
+    data_mapping: "data_sources/rc_data_source.yaml"
     column_headings:
-      past_masters: "Past Commanders"
+      past_masters: "Past Sovereigns"
     include_officers_as_members: true
-    is_child: true
-
-  - section_id: "kt_meetings_table"
-    section_title: "Knights Templar Meeting Dates"
+    hide_from_parent_toc: true
+  - section_id: "rc_meetings_table"
+    section_title: "Ancient and Accepted Rite Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["KT"]
+    unit_types: ["RC"]
     override_break_before: true
-    is_child: true
-
-  - section_id: "kt_toc"
-    section_title: "Knights Templar Preceptories in Numerical Order"
-    type: "toc"
-    for_section: "kt_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
+    hide_from_parent_toc: true
+  - section_id: "rc_units"
+    section_title: "Ancient and Accepted Rite Conclaves in Numerical Order"
+    type: "data-driven"
+    template: "unit-page.html"
+    data_mapping: "data_sources/rc_data_source.yaml"
+    hide_from_parent_toc: true
+  
+  # Knights Templar
+  - section_id: "kt_officers"
+    section_title: "Knights Templar"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/kt_data_source.yaml"  
   - section_id: "kt_units"
     section_title: "Knights Templar Preceptories in Numerical Order"
     type: "data-driven"
@@ -304,39 +241,11 @@ sections:
     hide_from_parent_toc: true
 
   # Knight Templar Priests
-  - section_id: "ktp_intro"
+  - section_id: "ktp_officers"
     section_title: "Knight Templar Priests"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "ktp_membership_summary"
-    section_title: "Knight Templar Priests Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/ktp_data_source.yaml"
-    column_headings:
-      past_masters: "Past High Priests"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "ktp_meetings_table"
-    section_title: "Knight Templar Priests Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["KTP"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "ktp_toc"
-    section_title: "Knight Templar Priests Tabernacles in Numerical Order"
-    type: "toc"
-    for_section: "ktp_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "ktp_units"
     section_title: "Knight Templar Priests Tabernacles in Numerical Order"
     type: "data-driven"
@@ -344,12 +253,12 @@ sections:
     data_mapping: "data_sources/ktp_data_source.yaml"
     hide_from_parent_toc: true
 
-  # MARK
-  - section_id: "mark_intro"
+  # MARK  
+  - section_id: "mark_officers"
     section_title: "Mark Masonry"
-    type: "static"
-    template: "companion/mark-introduction.html"
-
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/mark_data_source.yaml"
   - section_id: "mark_membership_summary"
     section_title: "Mark Membership Summary"
     type: "membership-summary"
@@ -358,8 +267,7 @@ sections:
     column_headings:
       past_masters: "Past Mark Masters"
     include_officers_as_members: true
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "mark_meetings_table"
     section_title: "Mark Meeting Dates"
     type: "meetings-table"
@@ -368,17 +276,7 @@ sections:
     unit_types: ["Mark"]
     style: "medium"
     override_break_before: true
-    is_child: true
-
-  - section_id: "mark_toc"
-    section_title: "Mark Lodges in Numerical Order"
-    type: "toc"
-    for_section: "mark_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"  
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "mark_units"
     section_title: "Mark Lodges in Numerical Order"
     type: "data-driven"
@@ -387,11 +285,11 @@ sections:
     hide_from_parent_toc: true
 
   # Order of the Secret Monitor
-  - section_id: "osm_intro"
+  - section_id: "osm_officers"
     section_title: "Order of the Secret Monitor"
-    type: "static"
-    template: "companion/_placeholder.html"
-
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/osm_data_source.yaml"
   - section_id: "osm_membership_summary"
     section_title: "Secret Monitor Membership Summary"
     type: "membership-summary"
@@ -400,8 +298,7 @@ sections:
     column_headings:
       past_masters: "Past Masters"
     include_officers_as_members: true
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "osm_meetings_table"
     section_title: "Secret Monitor Meeting Dates"
     type: "meetings-table"
@@ -409,17 +306,7 @@ sections:
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["OSM"]
     override_break_before: true
-    is_child: true
-
-  - section_id: "osm_toc"
-    section_title: "Secret Monitor Conclaves in Numerical Order"
-    type: "toc"
-    for_section: "osm_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "osm_units"
     section_title: "Secret Monitor Conclaves in Numerical Order"
     type: "data-driven"
@@ -428,75 +315,24 @@ sections:
     hide_from_parent_toc: true
 
   # Order of the Scarlet Cord
-  - section_id: "osc_intro"
+  - section_id: "osc_officers"
     section_title: "Order of the Scarlet Cord"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "osc_membership_summary"
-    section_title: "Scarlet Cord Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/osc_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "osc_meetings_table"
-    section_title: "Scarlet Cord Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["OSC"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "osc_toc"
-    section_title: "Scarlet Cord Consistories in Numerical Order"
-    type: "toc"
-    for_section: "osc_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "osc_units"
     section_title: "Scarlet Cord Consistories in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/osc_data_source.yaml"
     hide_from_parent_toc: true
-
-  # PBQ
-  - section_id: "pbq_intro"
-    section_title: "The Worshipful Society of Free Masons"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "pbq_toc"
-    section_title: "PBQ Councils in Numerical Order"
-    type: "toc"
-    for_section: "pbq_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
-  - section_id: "pbq_units"
-    section_title: "PBQ Councils in Numerical Order"
-    type: "data-driven"
-    template: "unit-page.html"
-    data_mapping: "data_sources/pbq_data_source.yaml"
-    hide_from_parent_toc: true  
-
   
   # Red Cross of Constantine
-  - section_id: "rcoc_foreword"
+  - section_id: "rcoc_officers"
     section_title: "Red Cross of Constantine"
-    type: "static"
-    template: "companion/rcoc_introduction.html"
-
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
   - section_id: "rcoc_membership_summary"
     section_title: "Red Cross Membership Summary"
     type: "membership-summary"
@@ -505,150 +341,60 @@ sections:
     column_headings:
       past_masters: "Past Sovereigns"
     include_officers_as_members: true
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "rcoc_meetings_table"
     section_title: "Red Cross Conclave Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RCOC"]
+    style: "medium"
     override_break_before: true
-    is_child: true
-
-  - section_id: "rcoc_toc"
-    section_title: "Red Cross Conclaves in Numerical Order"
-    type: "toc"
-    for_section: "rcoc_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "rcoc_units"
     section_title: "Red Cross Conclaves in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/rcoc_data_source.yaml"
     hide_from_parent_toc: true
-    
-  # Rose Croix
-  - section_id: "rc_intro"
-    section_title: "Ancient and Accepted Rite"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "rc_membership_summary"
-    section_title: "Rose Croix Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
-    data_mapping: "data_sources/rc_data_source.yaml"
-    column_headings:
-      past_masters: "Past Sovereigns"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "rc_meetings_table"
-    section_title: "Rose Croix Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RC"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "rc_toc"
-    section_title: "Rose Croix Conclaves in Numerical Order"
-    type: "toc"
-    for_section: "rc_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
-  - section_id: "rc_units"
-    section_title: "Rose Croix Conclaves in Numerical Order"
-    type: "data-driven"
-    template: "unit-page.html"
-    data_mapping: "data_sources/rc_data_source.yaml"
-    hide_from_parent_toc: true
 
   # RAM
-  - section_id: "ram_intro"
+  - section_id: "ram_officers"
     section_title: "Royal Ark Mariners"
-    type: "static"
-    template: "companion/ram-introduction.html"
-
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/ram_data_source.yaml"
   - section_id: "ram_membership_summary"
-    section_title: "Royal Ark Mariners Membership Summary"
+    section_title: "Royal Ark Mariner Membership Summary"
     type: "membership-summary"
     template: "membership-summary-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
     column_headings:
       past_masters: "Past Commanders"
     include_officers_as_members: true
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "ram_meetings_table"
-    section_title: "Royal Ark Mariners Meeting Dates"
+    section_title: "Royal Ark Mariner Meeting Dates"
     type: "meetings-table"
     template: "meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RAM"]
     style: "medium"
     override_break_before: true
-    is_child: true
-
-  - section_id: "ram_toc"
-    section_title: "Royal Ark Mariners Lodges in Numerical Order"
-    type: "toc"
-    for_section: "ram_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
+    hide_from_parent_toc: true
   - section_id: "ram_units"
-    section_title: "Royal Ark Mariners Lodges in Numerical Order"
+    section_title: "Royal Ark Mariner Lodges in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
     hide_from_parent_toc: true
 
   # Royal and Select Masters
-  - section_id: "rsm_intro"
+  - section_id: "rsm_officers"
     section_title: "Royal and Select Masters"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "rsm_membership_summary"
-    section_title: "Royal and Select Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/rsm_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "rsm_meetings_table"
-    section_title: "Royal and Select Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RSM"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "rsm_toc"
-    section_title: "Royal and Select Councils in Numerical Order"
-    type: "toc"
-    for_section: "rsm_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "rsm_units"
     section_title: "Royal and Select Councils in Numerical Order"
     type: "data-driven"
@@ -656,87 +402,57 @@ sections:
     data_mapping: "data_sources/rsm_data_source.yaml"
     hide_from_parent_toc: true
 
+  # Royal Order of Scotland
+  - section_id: "ros_officers"
+    section_title: "Royal Order of Scotland"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/ros_data_source.yaml"
+
   # Societas Rosicruciana in Anglia
-  - section_id: "sria_intro"
+  - section_id: "sria_officers"
     section_title: "Societas Rosicruciana in Anglia"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "sria_membership_summary"
-    section_title: "SRIA Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/sria_data_source.yaml"
-    column_headings:
-      past_masters: "Past Maguses"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "sria_meetings_table"
-    section_title: "SRIA Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["SRIA"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "sria_toc"
-    section_title: "SRIA Colleges in Numerical Order"
-    type: "toc"
-    for_section: "sria_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "sria_units"
-    section_title: "SRIA Colleges in Numerical Order"
+    section_title: "Societas Rosicruciana Colleges in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/sria_data_source.yaml"
     hide_from_parent_toc: true
 
   # St Thomas of Acon
-  - section_id: "stoa_intro"
+  - section_id: "stoa_officers"
     section_title: "Commemorative Order of St Thomas of Acon"
-    type: "static"
-    template: "companion/_placeholder.html"
-
-  - section_id: "stoa_membership_summary"
-    section_title: "St Thomas of Acon Membership Summary"
-    type: "membership-summary"
-    template: "membership-summary-page.html"
+    type: "list_officers"
+    template: "list-officers.html"
     data_mapping: "data_sources/stoa_data_source.yaml"
-    column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
-    is_child: true
-
-  - section_id: "stoa_meetings_table"
-    section_title: "St Thomas of Acon Meeting Dates"
-    type: "meetings-table"
-    template: "meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["STOA"]
-    override_break_before: true
-    is_child: true
-
-  - section_id: "stoa_toc"
-    section_title: "St Thomas of Acon Chapels in Numerical Order"
-    type: "toc"
-    for_section: "stoa_units"
-    template: "toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"
-    is_child: true
-
   - section_id: "stoa_units"
     section_title: "St Thomas of Acon Chapels in Numerical Order"
     type: "data-driven"
     template: "unit-page.html"
     data_mapping: "data_sources/stoa_data_source.yaml"
     hide_from_parent_toc: true
+
+  # The Operatives
+  - section_id: "pbq_officers"
+    section_title: "The Worshipful Society of Free Masons"
+    type: "list_officers"
+    template: "list-officers.html"
+    data_mapping: "data_sources/pbq_data_source.yaml"
+  - section_id: "pbq_units"
+    section_title: "OperativesAssemblages in Numerical Order"
+    type: "data-driven"
+    template: "unit-page.html"
+    data_mapping: "data_sources/pbq_data_source.yaml"
+    hide_from_parent_toc: true
+
+  # DATA PROTECTION
+  - section_id: "data_protection"
+    section_title: "Data Protection Notice"
+    type: "static"
+    template: "companion/_placeholder.html"
 
   # INDEX PAGES
   - section_id: "all_units_index"

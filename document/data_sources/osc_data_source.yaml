@@ -228,3 +228,36 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The Ancient and Masonic Order of the Scarlet Cord"  
+  crest: "../../images/osc-logo.png"
+  heads: 
+    - rank: "Grand Summus"
+      name: "M.Dist.Comp. Ian S. Currans"
+  deputy_heads:
+    - rank: "Deputy Grand Summus"
+      name: "R.Dist.Comp. Francis C. Spencer"
+    - rank: "Assistant Grand Summus"
+      name: "R.Dist.Comp. Trevor D. Currans"
+  district_heading: "Province of Somerset and Dorset"
+  district_heads:
+    - rank: "Provincial Grand Summus"
+      name: "R.Dist.Comp. Ian R. Sullivan, V"
+    - rank: "Deputy Provincial Grand Summus"
+      name: "V.Dist.Comp. Colin T. Cooper, V, P.G.Reg."
+    - rank: "Assistant Provincial Grand Summus"
+      name: "Dist.Comp. Laurence T. Brookes, V, P.A.G.D.C."
+    - rank: "Provincial Grand Recorder"
+      name: "Dist.Comp. David J. W. Willcock, V, P.G.Swd.B."

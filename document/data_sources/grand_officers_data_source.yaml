@@ -1,0 +1,19 @@
+# Data source mappings for Grand Officers
+
+provincial_officers:
+  source: "grand_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Grand Officers"
+  heading2: "Grand Officers within the Province of Dorset"
+  crest: "../../images/ugle-logo.png"
+  heads: []
+  deputy_heads: []

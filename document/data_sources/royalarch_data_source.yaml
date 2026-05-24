@@ -135,6 +135,7 @@ joining_past_masters:
     - filter_field: "Mem Type"
       filter_value: "JPMEZ"
   override_heading: "Joining Past First Principals"
+  units_column_heading: "Chapters"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -291,8 +292,7 @@ provincial_officers:
     - name: "Unit"
       csv_column: "Unit"
       type: "string"
-  heading1: "The Provincial Grand Chapter of Dorset"
-  heading2: "Provincial Grand Chapter Officers 2025-26"
+  heading1: "The Provincial Grand Chapter of Dorset"  
   crest: "../../images/ra-logo.png"
   heads: 
     - rank: "Grand Superintendent"
@@ -304,3 +304,4 @@ provincial_officers:
       name: "Kevin Abbiss, PAGDC"
     - rank: "Third Grand Principal"
       name: "Nigel Melville Douglas House, PAGDC"
+  officers_heading: "Provincial Grand Chapter Officers 2025-26"

@@ -228,3 +228,34 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+provincial_officers:
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Societas Rosicruciana in Anglia"
+  crest: "../../images/sria-logo.png"
+  heads: 
+    - rank: "Supreme Magus"
+      name: "tbc"
+  deputy_heads:
+    - rank: "Senior Substitute Magus"
+      name: "tbc"
+    - rank: "Junior Substitute Magus"
+      name: "tbc"
+    - rank: "Secretary-General"
+      name: "tbc"
+  district_heading: "Province of Southern England"
+  district_heads:
+    - rank: "Chief Adept"
+      name: "tbc"
+    - rank: "Suffragan"
+      name: "tbc"

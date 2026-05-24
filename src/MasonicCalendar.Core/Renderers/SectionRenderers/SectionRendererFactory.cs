@@ -34,7 +34,7 @@ public class SectionRendererFactory
             "meetings-table" => new MeetingsTableSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "membership-summary" => new MembershipSummarySectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "membership-statistics" => new MembershipStatisticsSectionRenderer(_templateRoot, _dataLoader, _debugMode),
-            "provincial_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "list_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "locations" => new LocationSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             _ => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode, _documentInfo)
         };

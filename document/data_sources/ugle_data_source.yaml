@@ -1,0 +1,29 @@
+# Data source mappings for UGLE
+provincial_officers:
+  source: "ugle_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "The United Grand Lodge of England"
+  crest: "../../images/ugle-logo.png"
+  heads: 
+    - rank: "GRAND MASTER"
+      name: "HRH THE DUKE OF KENT KG, GCMG, GCVO, ADC"
+  deputy_heads:
+    - rank: "Pro Grand Master"
+      name: "JONATHAN SPENCE, DL"
+    - rank: "Deputy Grand Master"
+      name: "SIR MICHAEL SNYDER"
+    - rank: "Assistant Grand Master"
+      name: "STEVEN VARLEY"
+    - rank: "Assistant Grand Master"
+      name: "JOHN PAUL THOMPSON"
+    - rank: "Assistant Grand Master"
+      name: "CHARLES HOPKINSON-WOOLLEY"

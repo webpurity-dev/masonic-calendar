@@ -41,10 +41,12 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
             {
                 { "heading1", metadata["heading1"] },
                 { "heading2", metadata["heading2"] },
-                { "heading3", metadata["heading3"] },
+                { "district_heading", metadata["district_heading"] },
+                { "officers_heading", metadata["officers_heading"] },
                 { "crest", metadata["crest"] },
                 { "heads", metadata["heads"] },
                 { "deputy_heads", metadata["deputy_heads"] },
+                { "district_heads", metadata["district_heads"] },
                 { "officers", metadata["officers"] },
                 { "override_break_before", section.OverrideBreakBefore }
             };
@@ -96,11 +98,13 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
 
         // Populate metadata directly from config
         data["heading1"] = config.Heading1 ?? "";
-        data["heading2"] = config.Heading2 ?? "";
-        data["heading3"] = config.Heading3 ?? "";
+        data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
+        data["district_heading"] = string.IsNullOrWhiteSpace(config.DistrictHeading) ? null : config.DistrictHeading;
+        data["officers_heading"] = string.IsNullOrWhiteSpace(config.OfficersHeading) ? null : config.OfficersHeading;
         data["crest"] = config.Crest ?? "";
         data["heads"] = config.Heads ?? new List<OfficerGroup>();
         data["deputy_heads"] = config.DeputyHeads ?? new List<OfficerGroup>();
+        data["district_heads"] = config.DistrictHeads ?? new List<OfficerGroup>();
 
         if (DebugMode)
             Console.WriteLine($"    ✓ Loaded provincial officers metadata");

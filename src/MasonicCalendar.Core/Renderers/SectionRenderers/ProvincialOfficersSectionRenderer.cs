@@ -88,9 +88,22 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         }
 
         var mapping = mappingResult.Data;
+        if (mapping == null)
+        {
+            data["heading1"] = section.SectionTitle ?? "Officers";
+            data["website"] = null;
+            data["crest"] = "";
+            data["heading2"] = null;
+            data["district_heading"] = null;
+            data["officers_heading"] = null;
+            data["heads"] = new List<OfficerGroup>();
+            data["deputy_heads"] = new List<OfficerGroup>();
+            data["district_heads"] = new List<OfficerGroup>();
+            return data;
+        }
         
         // v1.7: Use OrderRegionalOfficers (order_ prefix for order-level data)
-        var config = mapping?.OrderRegionalOfficers;
+        var config = mapping.OrderRegionalOfficers;
 
         // v1.7: Load branding from order_summary (consolidated metadata)
         var orderSummary = mapping.OrderSummary;

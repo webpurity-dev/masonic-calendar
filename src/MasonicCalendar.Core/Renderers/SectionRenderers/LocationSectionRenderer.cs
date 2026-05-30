@@ -21,6 +21,9 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         StringBuilder output)
     {
         // Load the location template from config
+        if (string.IsNullOrWhiteSpace(section.Template))
+            return;
+        
         var template = LoadTemplate(section.Template);
         if (template == null)
             return;
@@ -40,7 +43,7 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         var isFirstLocation = true;
         foreach (var hallGroup in locationGroups)
         {
-            var hallName = hallGroup.Key;
+            var hallName = hallGroup.Key ?? "Unknown Location";
             var unit = hallGroup.First();
             
             // Use the Location object from the unit (populated by location join in SchemaDataLoader)
@@ -49,7 +52,7 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
             var what3words = unit.Location?.What3Words;
             var imagePath = unit.Location?.ImageFile != null 
                 ? GenerateLocationImagePath(unit.Location.ImageFile)
-                : GenerateLocationImagePath(hallName);  // Fallback to hall name if no explicit image file
+                : GenerateLocationImagePath(hallName);
             
             // Sort units by Number and build unit dicts
             var sortedUnits = hallGroup
@@ -71,7 +74,7 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
                 {
                     { "name", locationName },
                     { "address_line1", locationAddress },
-                    { "town", unit.Location?.Town ?? ExtractTownFromHall(hallName) },
+                    { "town", unit.Location?.Town ?? (hallName != null ? ExtractTownFromHall(hallName) : "") },
                     { "what3_words", what3words },
                     { "image_file", imagePath },
                     { "parking", unit.Location?.Parking }
@@ -130,7 +133,7 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
     /// Path is relative from the output HTML file location.
     /// E.g., "Lyme Regis" → "../images/locations/lyme_regis.png"
     /// </summary>
-    private static string GenerateLocationImagePath(string hallName)
+    private static string GenerateLocationImagePath(string? hallName)
     {
         if (string.IsNullOrWhiteSpace(hallName))
             return string.Empty;

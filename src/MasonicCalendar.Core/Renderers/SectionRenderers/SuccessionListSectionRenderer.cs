@@ -47,7 +47,7 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
             Console.WriteLine($"  ✓ SuccessionListSectionRenderer: Completed '{section.SectionId}'");
     }
 
-    private async Task<Dictionary<string, object?>> LoadSuccessionListDataAsync(
+    private Task<Dictionary<string, object?>> LoadSuccessionListDataAsync(
         string? dataMapping,
         string documentRoot
     )
@@ -57,7 +57,7 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
         if (string.IsNullOrWhiteSpace(dataMapping))
         {
             data["tables"] = new List<object>();
-            return data;
+            return Task.FromResult(data);
         }
 
         // Load data source mapping from YAML
@@ -68,7 +68,7 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
             if (DebugMode)
                 Console.WriteLine($"    ❌ Failed to load succession mapping: {mappingResult.Error}");
             data["tables"] = new List<object>();
-            return data;
+            return Task.FromResult(data);
         }
 
         var mapping = mappingResult.Data;
@@ -80,7 +80,7 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
             if (DebugMode)
                 Console.WriteLine($"    ❌ OrderSuccessionList config not found in mapping");
             data["tables"] = new List<object>();
-            return data;
+            return Task.FromResult(data);
         }
 
         var tables = new List<object>();
@@ -121,7 +121,7 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
         }
 
         data["tables"] = tables;
-        return data;
+        return Task.FromResult(data);
     }
 
     private List<Dictionary<string, object?>> ReadCsvAsRecords(string csvPath)

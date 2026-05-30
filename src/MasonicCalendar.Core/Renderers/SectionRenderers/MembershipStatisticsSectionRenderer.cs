@@ -157,9 +157,11 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
                 .Build();
 
             var mapping = deserializer.Deserialize<DataSourceMapping>(yaml);
+            if (mapping == null)
+                return Result<List<MemberStatRow>>.Fail("Failed to deserialize data mapping YAML");
             
             // v1.7: Use OrderMemberStats (order_ prefix for order-level data)
-            var memberStatsConfig = mapping?.OrderMemberStats;
+            var memberStatsConfig = mapping.OrderMemberStats;
             if (memberStatsConfig == null)
                 return Result<List<MemberStatRow>>.Fail("order_member_stats section not found in data mapping");
 
@@ -175,7 +177,7 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
 
             // Load units data for enrichment (to get super_short_name)
             var unitsResult = await LoadUnitsForEnrichmentAsync(mapping, documentRoot, dataRoot);
-            var unitsByNumber = unitsResult.Success ? unitsResult.Data : new Dictionary<int, string>();
+            var unitsByNumber = unitsResult.Success && unitsResult.Data != null ? unitsResult.Data : new Dictionary<int, string>();
 
             var rows = new List<MemberStatRow>();
 
@@ -279,7 +281,7 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
 
             return Result<Dictionary<int, string>>.Ok(unitsByNumber);
         }
-        catch (Exception ex)
+        catch
         {
             // If units enrichment fails, return empty dict to allow stats to render anyway
             return Result<Dictionary<int, string>>.Ok(new Dictionary<int, string>());

@@ -86,9 +86,18 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
         }
 
         var mapping = mappingResult.Data;
+        if (mapping == null)
+        {
+            data["heading1"] = section.SectionTitle ?? "Officers";
+            data["website"] = null;
+            data["crest"] = "";
+            data["heads"] = new List<OfficerGroup>();
+            data["deputy_heads"] = new List<OfficerGroup>();
+            return data;
+        }
         
         // v1.7: Use OrderExecutiveOfficers (order_ prefix for order-level data)
-        var config = mapping?.OrderExecutiveOfficers;
+        var config = mapping.OrderExecutiveOfficers;
         if (config == null)
         {
             if (DebugMode)

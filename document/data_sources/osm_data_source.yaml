@@ -3,15 +3,29 @@ order_summary:
   crest: "../../images/osm-logo.png"
   website: "https://www.markmasonshall.org/orders/osm"
   heads: 
-    - rank: "Grand Patron"
-      name: "tbc"
+    - rank: "Grand Supreme Ruler"
+      title: "M.Wy.Bro."
+      name: "Andrew C. Sweeney"
   deputy_heads:
-    - rank: "Deputy Grand Patron"
-      name: "tbc"
-  district_heads: []
+    - rank: "Deputy Grand Supreme Ruler"
+      title: "R.Wy.Bro."
+      name: "Keith B. Ferguson"
+    - rank: "Assistant Grand Supreme Ruler"
+      title: "R.Wy.Bro."
+      name: "G. Llewellyn Gill"  
+  district_heads:
+    - rank: "Provincial Grand Supreme Ruler"
+      title: "R.Wy.Bro."
+      name: "Ian R. Sullivan"
+    - rank: "Deputy Provincial Grand Supreme Ruler"
+      title: "V.Wy.Bro."
+      name: "Graham S. Franklin, G.V."
+    - rank: "Provincial Grand Recorder"
+      title: "Wy.Bro."
+      name: "Paul R. Gawler, P.G.Swd.B."
 
 order_regional_officers:
-  heading2: "Provincial Officers"
+  district_heading: "Province of Dorset and Wiltshire"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

@@ -28,7 +28,7 @@ order_summary:
       name: "David J. W. Willcock, V, P.G.Swd.B."
 
 order_regional_officers:
-  heading2: "Province of Somerset and Dorset"
+  district_heading: "Province of Somerset and Dorset"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

@@ -12,10 +12,16 @@ order_summary:
     - rank: "Grand Prior & Deputy Grand Master"
       title: "R.Revd.Kt."
       name: "P.R Clement, G.C.H.C."
-  district_heads: []
+  district_heads:
+    - rank: "Regional Grand Prefect"
+      title: "R.Revd.Kt."
+      name: "Adrian T Jones"
+    - rank: "Chancellor"
+      title: "Revd.Kt."
+      name: "Ian C Satherley, BEM, P.G.I.Sent."
 
 order_regional_officers:
-  heading2: "Provincial Officers"
+  district_heading: "Avalon Prefecture"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

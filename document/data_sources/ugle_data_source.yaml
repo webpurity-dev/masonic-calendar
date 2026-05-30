@@ -21,7 +21,7 @@ order_summary:
   district_heads: []
 
 order_regional_officers:
-  heading2: "Grand Lodge Officers"
+  heading2: "Grand Lodge Officers 2025-26"
   source: "ugle_officers_v1.7.csv"
   fields:
     - name: "Office"

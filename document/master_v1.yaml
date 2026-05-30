@@ -237,8 +237,34 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/rc_data_source.yaml"
-    hide_from_parent_toc: true
+    hide_from_parent_toc: true  
   
+  # St Thomas of Acon
+  - section_id: "stoa_officers"
+    section_title: "Commemorative Order of St Thomas of Acon"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/stoa_data_source.yaml"
+  - section_id: "stoa_units"
+    section_title: "St Thomas of Acon Chapels in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/stoa_data_source.yaml"
+    hide_from_parent_toc: true
+
+  # Knights Beneficient of the Holy City
+  - section_id: "kbhc_officers"
+    section_title: "Knights Beneficent of the Holy City"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/kbhc_data_source.yaml"  
+  # - section_id: "kbhc_units"
+  #   section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
+  #   type: "data-driven"
+  #   template: "_data-driven/unit-page.html"
+  #   data_mapping: "data_sources/kbhc_data_source.yaml"
+  #   hide_from_parent_toc: true
+
   # Knights Templar
   - section_id: "kt_officers"
     section_title: "Knights Templar"
@@ -296,6 +322,32 @@ sections:
     data_mapping: "data_sources/mark_data_source.yaml"
     hide_from_parent_toc: true
 
+  # Order of Athelstan
+  - section_id: "ooa_officers"
+    section_title: "Masonic Order of Athelstan"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/ooa_data_source.yaml"
+  - section_id: "ooa_units"
+    section_title: "Order of Athelstan Courts in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/ooa_data_source.yaml"
+    hide_from_parent_toc: true
+
+  # Order of the Scarlet Cord
+  - section_id: "osc_officers"
+    section_title: "Order of the Scarlet Cord"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/osc_data_source.yaml"
+  - section_id: "osc_units"
+    section_title: "Scarlet Cord Consistories in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/osc_data_source.yaml"
+    hide_from_parent_toc: true
+
   # Order of the Secret Monitor
   - section_id: "osm_officers"
     section_title: "Order of the Secret Monitor"
@@ -324,19 +376,6 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/osm_data_source.yaml"
-    hide_from_parent_toc: true
-
-  # Order of the Scarlet Cord
-  - section_id: "osc_officers"
-    section_title: "Order of the Scarlet Cord"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/osc_data_source.yaml"
-  - section_id: "osc_units"
-    section_title: "Scarlet Cord Consistories in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/osc_data_source.yaml"
     hide_from_parent_toc: true
   
   # Red Cross of Constantine
@@ -437,19 +476,6 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/sria_data_source.yaml"
-    hide_from_parent_toc: true
-
-  # St Thomas of Acon
-  - section_id: "stoa_officers"
-    section_title: "Commemorative Order of St Thomas of Acon"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/stoa_data_source.yaml"
-  - section_id: "stoa_units"
-    section_title: "St Thomas of Acon Chapels in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/stoa_data_source.yaml"
     hide_from_parent_toc: true
 
   # The Operatives

@@ -4,7 +4,7 @@ order_summary:
   website: "http://www.thomas-of-acon.org"
   heads: 
     - rank: "Most Worthy Grand Master"
-      name: "tbc"
+      name: "Sir Philip of Hamilton"
   deputy_heads:
     - rank: "Most Eminent Grand Prior"
       name: "tbc"
@@ -17,7 +17,7 @@ order_summary:
       name: "tbc"
 
 order_regional_officers:
-  heading2: "Province of Wessex"
+  district_heading: "Province of Wessex"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

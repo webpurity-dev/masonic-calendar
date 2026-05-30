@@ -4,7 +4,7 @@ order_summary:
   website: "https://www.sria.uk.com"
   heads: 
     - rank: "Supreme Magus"
-      name: "tbc"
+      name: "Anthony W Llewellyn"
   deputy_heads:
     - rank: "Senior Substitute Magus"
       name: "tbc"
@@ -19,7 +19,7 @@ order_summary:
       name: "tbc"
 
 order_regional_officers:
-  heading2: "Province of Southern England"
+  district_heading: "Province of Southern England"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

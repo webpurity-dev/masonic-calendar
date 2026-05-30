@@ -21,7 +21,7 @@ order_summary:
       name: "tbc"
 
 order_regional_officers:
-  heading2: "District of Dorset and Wiltshire (No. 53)"
+  district_heading: "District of Dorset and Wiltshire (No. 53)"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

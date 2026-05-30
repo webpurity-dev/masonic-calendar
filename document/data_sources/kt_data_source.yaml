@@ -22,7 +22,7 @@ order_summary:
       name: "Brian F. Amos, P.Dep.Gt.Swd.B."
 
 order_regional_officers:
-  heading2: "Province of Dorset and Wiltshire"
+  district_heading: "Province of Dorset and Wiltshire"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

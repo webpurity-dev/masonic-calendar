@@ -1,0 +1,37 @@
+order_summary:
+  title: "The Masonic Order of Athelstan in England, Wales and its Provinces Overseas"
+  crest: "../../images/ooa-logo.png"
+  website: "https://athelstan.org.uk/"
+  heads: 
+    - rank: "Grand Master"
+      title: "MW Bro"
+      name: "Charles J. Aspinell, GCAG"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      title: "RW Bro"
+      name: "Clive Robert Manuel, GCAG"
+    - rank: "Assistant Grand Master"
+      title: "RW Bro"
+      name: "Lionel Broadbent Mee, GCAG"
+  district_heads:
+    - rank: "Provincial Grand Master"
+      title: "R.W.Bro."
+      name: "Chris D Hallett, GCAG"
+    - rank: "Deputy Provincial Grand Master"
+      title: "W.Bro."
+      name: "Stephen Ball"
+
+order_regional_officers:
+  district_heading: "Province of Dumnonia"
+  officers_heading: "Active Provincial Officers 2026-27"
+  source: "ooa_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"

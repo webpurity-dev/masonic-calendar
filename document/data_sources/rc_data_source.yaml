@@ -1,5 +1,5 @@
 order_summary:
-  title: "Ancient and Accepted Rite - Members of the Supreme Council 33°"
+  title: "Ancient and Accepted Rite"
   crest: "../../images/rc-logo.png"
   website: "https://sc33.org.uk"
   heads: 
@@ -21,7 +21,8 @@ order_summary:
       name: "tbc"
 
 order_regional_officers:
-  heading2: "District of Dorset"
+  heading2: "Members of the Supreme Council 33°"
+  district_heading: "District of Dorset"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

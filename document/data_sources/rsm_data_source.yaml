@@ -28,7 +28,7 @@ order_summary:
       name: "Clive B. Egerton, P.Capt.Gd."
 
 order_regional_officers:
-  heading2: "District Officers for Dorset, Hampshire and Isle of Wight"
+  district_heading: "District of Dorset, Hampshire and Isle of Wight"
   source: "rsm_officers_v1.7.csv"
   fields:
     - name: "Office"

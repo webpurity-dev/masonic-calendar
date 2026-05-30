@@ -18,7 +18,7 @@ order_summary:
       name: "tbc"
 
 order_regional_officers:
-  heading2: "South Western Counties Region"
+  district_heading: "South Western Counties Region"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"

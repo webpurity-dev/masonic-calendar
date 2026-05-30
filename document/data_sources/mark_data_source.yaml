@@ -21,6 +21,21 @@ order_summary:
       title: "W.Bro."
       name: "David F. Eaton, JP, P.A.G.D.C."
 
+order_regional_officers:
+  district_heading: "Provincial Grand Mark Lodge of Dorset"
+  #officers_heading: "Provincial Grand Mark Lodge Officers"
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+
 units:
   source: "units_v1.7.csv"
   filter_field: "Unit Type"
@@ -211,19 +226,3 @@ unit_honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-
-order_regional_officers:
-  heading2: "Provincial Grand Mark Lodge Officers"
-  source: "no_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-
-

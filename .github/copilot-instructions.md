@@ -7,6 +7,28 @@ A C# .NET 8.0 console application for a non-profit Masonic organisation. Reads l
 
 ---
 
+## Workflow: Questions → Plan → Execute
+
+**For any feature or refactoring request:**
+
+1. **Ask Clarifying Questions** (concise bullet list):
+   - Scope boundaries (affected files/components)
+   - Timeline/priority (immediate vs phased)
+   - Rollback strategy (commits exist?)
+   - Validation criteria (tests, manual checks)
+
+2. **Create Plan Document**:
+   - File: `_work-plan-[YYYYMMDD].md` (e.g., `_work-plan-20260530.md`)
+   - Sections: Scope | Approach | Files | Risks | Rollback
+   - Place in workspace root for visibility
+
+3. **Execute & Document**:
+   - Update plan with actual changes as work progresses
+   - Reference plan in tool calls/explanations
+   - Link changed files to plan sections
+
+---
+
 ## Technical Stack
 
 | Component | Library | Version |

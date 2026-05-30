@@ -1,5 +1,29 @@
 # Masonic Calendar - Copilot Agent Instructions
 
+**Mode:** calendar-expert | **Updated:** May 30, 2026 | **Status:** v1.7 Production
+
+---
+
+## 🎯 Workflow: Questions → Plan → Execute
+
+**When receiving feature or refactoring requests:**
+
+1. **Ask Concise Clarifying Questions** (bullet format):
+   - Scope: Which files/components?
+   - Timeline: Phased or immediate?
+   - Rollback: Can work be undone?
+   - Success: How to verify?
+
+2. **Create Visible Plan** (`_work-plan-[DATE].md`):
+   - Scope | Approach | Changed Files | Risks | Rollback Strategy
+
+3. **Execute Systematically**:
+   - Reference plan in explanations
+   - Update plan as work progresses
+   - Document decisions inline
+
+---
+
 **Date Updated:** April 30, 2026  
 **Project Type:** C# .NET 8.0 Console Application  
 **Purpose:** Non-profit calendar/document generation system with PDF rendering via Puppeteer and Scriban templating  

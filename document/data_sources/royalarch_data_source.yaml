@@ -2,6 +2,133 @@
 # CSV files and column mappings that support royal arch related data
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
+order_summary:
+  title: "The Provincial Grand Chapter of Dorset"
+  crest: "../../images/ra-logo.png"
+  website: "https://dorset-freemasonry.org/"
+  heads:
+    - rank: "Grand Superintendent"
+      title: "E Comp"
+      name: "Stephen Andrew James"
+      contact: "gsupt@dorsetfreemasonry.info"
+  deputy_heads:
+    - rank: "Deputy Grand Superintendent"
+      title: "E Comp"
+      name: "Mark Christopher Hinsley, PAGDC"
+      contact: "dpgsupt@dorsetfreemasonry.info"
+    - rank: "Second Grand Principal"
+      title: "E Comp"
+      name: "Kevin Abbiss, PAGDC"
+      contact: "2ndprgprinc@dorsetfreemasonry.info"
+    - rank: "Third Grand Principal"
+      title: "E Comp"
+      name: "Nigel Melville Douglas House, PAGDC"
+      contact: "3rdprgprinc@dorsetfreemasonry.info"
+  district_heads: []
+
+order_executive_officers:
+  heading2: "Provincial Executive"
+  source: "royalarch_executive_officers_v1.7.csv"
+  fields:
+    - name: "Rank"
+      csv_column: "Rank"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Contact"
+      csv_column: "Contact"
+      type: "string"
+
+order_regional_officers:
+  officers_heading: "Provincial Grand Chapter Officers 2025-26"
+  source: "royalarch_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+
+order_succession_list:
+  tables:
+    - title: "GRAND SUPERINTENDENTS"
+      source: "data/royalarch_megs_succession_v1.7.csv"
+      font_size: "8pt"
+      columns:
+        - name: "Appointed"
+          csv_column: "Appointed"
+          width: "18%"
+          alignment: "left"
+        - name: "GRAND SUPERINTENDENTS"
+          csv_column: "Name"
+          width: "70%"
+          alignment: "left"
+        - name: "Years"
+          csv_column: "Years"
+          width: "12%"
+          alignment: "left"
+    - title: "DEPUTY GRAND SUPERINTENDENTS"
+      source: "data/royalarch_degs_succession_v1.7.csv"
+      font_size: "7pt"
+      columns:
+        - name: "Appointed"
+          csv_column: "Appointed"
+          width: "18%"
+          alignment: "left"
+        - name: "DEPUTY GRAND SUPERINTENDENTS"
+          csv_column: "Name"
+          width: "70%"
+          alignment: "left"
+        - name: "Years"
+          csv_column: "Years"
+          width: "12%"
+          alignment: "left"
+
+order_member_stats:
+  source: "royalarch_stats_v1.7.csv"
+  fields:
+    - name: "LodgeCode"
+      csv_column: "Lc no"
+      type: "string"
+    - name: "MembershipsStart"
+      csv_column: "Mships start"
+      type: "int"
+    - name: "MembershipsEnd"
+      csv_column: "Mships end"
+      type: "int"
+    - name: "Difference"
+      csv_column: "Difference"
+      type: "int"
+    - name: "Resigned"
+      csv_column: "Resigned"
+      type: "int"
+    - name: "Honorary"
+      csv_column: "Honorary"
+      type: "int"
+    - name: "Cessation"
+      csv_column: "Cessation"
+      type: "int"
+    - name: "Exclusion"
+      csv_column: "Exclusion"
+      type: "int"
+    - name: "Deceased"
+      csv_column: "Deceased"
+      type: "int"
+    - name: "InitiateExaltee"
+      csv_column: "Initiate exaltee"
+      type: "int"
+    - name: "Joiner"
+      csv_column: "Joiner"
+      type: "int"
+    - name: "Rejoiner"
+      csv_column: "Rejoiner"
+      type: "int"
+
 units:
   source: "units_v1.7.csv"
   filter_field: "Unit Type"
@@ -36,7 +163,7 @@ units:
       type: "string"
     # Location and What3Words now loaded from unit_locations.csv via location join
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -81,7 +208,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -127,7 +254,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -174,7 +301,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -219,7 +346,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -239,135 +366,3 @@ honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-
-member_stats:
-  source: "royalarch_stats_v1.7.csv"
-  fields:
-    - name: "LodgeCode"
-      csv_column: "Lc no"
-      type: "string"
-    - name: "MembershipsStart"
-      csv_column: "Mships start"
-      type: "int"
-    - name: "MembershipsEnd"
-      csv_column: "Mships end"
-      type: "int"
-    - name: "Difference"
-      csv_column: "Difference"
-      type: "int"
-    - name: "Resigned"
-      csv_column: "Resigned"
-      type: "int"
-    - name: "Honorary"
-      csv_column: "Honorary"
-      type: "int"
-    - name: "Cessation"
-      csv_column: "Cessation"
-      type: "int"
-    - name: "Exclusion"
-      csv_column: "Exclusion"
-      type: "int"
-    - name: "Deceased"
-      csv_column: "Deceased"
-      type: "int"
-    - name: "InitiateExaltee"
-      csv_column: "Initiate exaltee"
-      type: "int"
-    - name: "Joiner"
-      csv_column: "Joiner"
-      type: "int"
-    - name: "Rejoiner"
-      csv_column: "Rejoiner"
-      type: "int"
-
-provincial_officers:
-  source: "royalarch_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The Provincial Grand Chapter of Dorset"  
-  crest: "../../images/ra-logo.png"
-  website: "https://dorset-freemasonry.org/"
-  heads: 
-    - rank: "Grand Superintendent"
-      name: "Stephen Andrew James"
-  deputy_heads:
-    - rank: "Deputy Grand Superintendent"
-      name: "Mark Christopher Hinsley, PAGDC"
-    - rank: "Second Grand Principal"
-      name: "Kevin Abbiss, PAGDC"
-    - rank: "Third Grand Principal"
-      name: "Nigel Melville Douglas House, PAGDC"
-  officers_heading: "Provincial Grand Chapter Officers 2025-26"
-
-executive_officers:
-  source: "royalarch_executive_officers_v1.7.csv"
-  fields:
-    - name: "Rank"
-      csv_column: "Rank"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Contact"
-      csv_column: "Contact"
-      type: "string"
-  heading1: "The Provincial Grand Chapter of Dorset"  
-  crest: "../../images/ra-logo.png"
-  heading2: "Provincial Executive"
-  heads: 
-    - rank: "Grand Superintendent"
-      name: "Stephen Andrew James"
-      contact: "gsupt@dorsetfreemasonry.info"
-  deputy_heads:
-    - rank: "Deputy Grand Superintendent"
-      name: "Mark C Hinsley, PAGDC"
-      contact: "dpgsupt@dorsetfreemasonry.info"
-    - rank: "Second Grand Principal"
-      name: "Kevin Abbiss, PAGDC"
-      contact: "2ndprgprinc@dorsetfreemasonry.info"
-    - rank: "Third Grand Principal"
-      name: "Nigel M D House, PAGDC"
-      contact: "3rdprgprinc@dorsetfreemasonry.info"
-
-succession_list:
-  tables:
-    - title: "GRAND SUPERINTENDENTS"
-      source: "data/royalarch_megs_succession_v1.7.csv"
-      font_size: "8pt"
-      columns:
-        - name: "Appointed"
-          csv_column: "Appointed"
-          width: "18%"
-          alignment: "left"
-        - name: "GRAND SUPERINTENDENTS"
-          csv_column: "Name"
-          width: "70%"
-          alignment: "left"
-        - name: "Years"
-          csv_column: "Years"
-          width: "12%"
-          alignment: "left"
-    - title: "DEPUTY GRAND SUPERINTENDENTS"
-      source: "data/royalarch_degs_succession_v1.7.csv"
-      font_size: "7pt"
-      columns:
-        - name: "Appointed"
-          csv_column: "Appointed"
-          width: "18%"
-          alignment: "left"
-        - name: "DEPUTY GRAND SUPERINTENDENTS"
-          csv_column: "Name"
-          width: "70%"
-          alignment: "left"
-        - name: "Years"
-          csv_column: "Years"
-          width: "12%"
-          alignment: "left"

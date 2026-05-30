@@ -1,19 +1,9 @@
 # Data source mappings for UGLE
-provincial_officers:
-  source: "ugle_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The United Grand Lodge of England"
-  website: "https://www.ugle.org.uk"
+
+order_summary:
+  title: "The United Grand Lodge of England"
   crest: "../../images/ugle-logo.png"
+  website: "https://www.ugle.org.uk"
   heads: 
     - rank: "GRAND MASTER"
       name: "HRH THE DUKE OF KENT KG, GCMG, GCVO, ADC"
@@ -28,3 +18,18 @@ provincial_officers:
       name: "JOHN PAUL THOMPSON"
     - rank: "Assistant Grand Master"
       name: "CHARLES HOPKINSON-WOOLLEY"
+  district_heads: []
+
+order_regional_officers:
+  heading2: "Grand Lodge Officers"
+  source: "ugle_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"

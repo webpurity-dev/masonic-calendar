@@ -1,5 +1,45 @@
-# Data source mappings for Royal and Select Masters section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "The Grand Council of the Order of Royal and Select Masters of England and Wales and its Districts and Councils Overseas"
+  crest: "../../images/rsm-logo.png"
+  website: "https://dorset-hants-rsm.org/"
+  heads: 
+    - rank: "GRAND MASTER"
+      title: "M.Ill.Comp."
+      name: "Kessick J. Jones, IX"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      title: "R.Ill.Comp."
+      name: "Paul A. Norman, IX"
+    - rank: "Grand Principal Conductor of the Work"
+      title: "R.Ill. Comp."
+      name: "Norman Dunkeld Milburn, 1X"
+  district_heads:
+    - rank: "District Grand Master"
+      title: "R.Ill. Comp."
+      name: "Frank J. Shaw"
+    - rank: "District Grand Master Designate"
+      title: "V.Ill. Comp."
+      name: "Peter R. Dack, P.G.Lect."
+    - rank: "Deputy District Grand Master"
+      title: "Ill. Comp."
+      name: "Simon P. Lancaster, P.G.Cond.C."
+    - rank: "District Grand Principal Conductor of the Work"
+      title: "Ill. Comp."
+      name: "Clive B. Egerton, P.Capt.Gd."
+
+order_regional_officers:
+  heading2: "District Officers for Dorset, Hampshire and Isle of Wight"
+  source: "rsm_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +74,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +116,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +155,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +197,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +233,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -228,38 +268,3 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
-
-provincial_officers:
-  source: "rsm_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The Grand Council of the Order of Royal and Select Masters of England and Wales and its Districts and Councils Overseas"  
-  crest: "../../images/rsm-logo.png"
-  website: "https://dorset-hants-rsm.org/"
-  heads: 
-    - rank: "GRAND MASTER"
-      name: "M.Ill.Comp. Kessick J. Jones, IX"
-  deputy_heads:
-    - rank: "Deputy Grand Master"
-      name: "R.Ill.Comp. Paul A. Norman, IX"
-    - rank: "Grand Principal Conductor of the Work"
-      name: "R.Ill. Comp. Norman Dunkeld Milburn, 1X"
-  district_heading: "District of Dorset, Hampshire and Isle of Wight"
-  district_heads:
-    - rank: "District Grand Master"
-      name: "R.Ill. Comp. Frank J. Shaw"
-    - rank: "District Grand Master Designate"
-      name: "V.Ill. Comp. Peter R. Dack, P.G.Lect."
-    - rank: "Deputy District Grand Master"
-      name: "Ill. Comp. Simon P. Lancaster, P.G.Cond.C."
-    - rank: "District Grand Principal Conductor of the Work"
-      name: "Ill. Comp. Clive B. Egerton, P.Capt.Gd."
-  district_heading: "District Officers for Dorset, Hampshire and Isle of Wight"

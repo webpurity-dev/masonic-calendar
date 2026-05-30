@@ -86,22 +86,42 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
         }
 
         var mapping = mappingResult.Data;
-        if (mapping?.ExecutiveOfficers == null)
+        
+        // v1.7: Use OrderExecutiveOfficers (order_ prefix for order-level data)
+        var config = mapping?.OrderExecutiveOfficers;
+        if (config == null)
         {
             if (DebugMode)
-                Console.WriteLine($"    ❌ ExecutiveOfficers config not found in mapping");
+                Console.WriteLine($"    ❌ OrderExecutiveOfficers config not found in mapping");
             return data;
         }
 
-        var config = mapping.ExecutiveOfficers;
+        // v1.7: Load branding from order_summary (consolidated metadata)
+        var orderSummary = mapping.OrderSummary;
+        if (orderSummary != null)
+        {
+            data["heading1"] = orderSummary.Title ?? "";
+            data["website"] = string.IsNullOrWhiteSpace(orderSummary.Website) ? null : orderSummary.Website;
+            data["crest"] = orderSummary.Crest ?? "";
+            data["heads"] = orderSummary.Heads ?? new List<OfficerGroup>();
+            data["deputy_heads"] = orderSummary.DeputyHeads ?? new List<OfficerGroup>();
+            if (DebugMode)
+                Console.WriteLine($"    ✓ Loaded branding from order_summary");
+        }
+        else
+        {
+            // Fallback: load from executive_officers section itself (backward compatibility)
+            data["heading1"] = config.Heading1 ?? "";
+            data["website"] = string.IsNullOrWhiteSpace(config.Website) ? null : config.Website;
+            data["crest"] = config.Crest ?? "";
+            data["heads"] = config.Heads ?? new List<OfficerGroup>();
+            data["deputy_heads"] = config.DeputyHeads ?? new List<OfficerGroup>();
+            if (DebugMode)
+                Console.WriteLine($"    ⚠ order_summary not found, using executive_officers fallback");
+        }
 
-        // Populate metadata directly from config
-        data["heading1"] = config.Heading1 ?? "";
+        // Use section-specific heading2 (distinct from title)
         data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
-        data["website"] = string.IsNullOrWhiteSpace(config.Website) ? null : config.Website;
-        data["crest"] = config.Crest ?? "";
-        data["heads"] = config.Heads ?? new List<OfficerGroup>();
-        data["deputy_heads"] = config.DeputyHeads ?? new List<OfficerGroup>();
 
         if (DebugMode)
             Console.WriteLine($"    ✓ Loaded executive officers metadata");

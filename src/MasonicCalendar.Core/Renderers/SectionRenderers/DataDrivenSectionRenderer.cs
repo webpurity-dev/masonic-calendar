@@ -111,32 +111,33 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             var headings = new Dictionary<string, string>();
 
             // Extract override_heading from each person type section
-            if (!string.IsNullOrWhiteSpace(mapping?.PastMasters?.OverrideHeading))
+            // v1.7: Use new property names (unit_ prefix for unit-level data)
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitPastHeads?.OverrideHeading))
             {
-                headings["pastMasters"] = mapping.PastMasters.OverrideHeading;
+                headings["pastMasters"] = mapping.UnitPastHeads.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] pastMasters: {mapping.PastMasters.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] pastMasters: {mapping.UnitPastHeads.OverrideHeading}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.JoiningPastMasters?.OverrideHeading))
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.OverrideHeading))
             {
-                headings["joiningPastMasters"] = mapping.JoiningPastMasters.OverrideHeading;
+                headings["joiningPastMasters"] = mapping.UnitJoiningPastHeads.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {mapping.JoiningPastMasters.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {mapping.UnitJoiningPastHeads.OverrideHeading}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.JoiningPastMasters?.UnitsColumnHeading))
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.UnitsColumnHeading))
             {
-                headings["joiningPastMastersUnitsColumn"] = mapping.JoiningPastMasters.UnitsColumnHeading;
+                headings["joiningPastMastersUnitsColumn"] = mapping.UnitJoiningPastHeads.UnitsColumnHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMastersUnitsColumn: {mapping.JoiningPastMasters.UnitsColumnHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMastersUnitsColumn: {mapping.UnitJoiningPastHeads.UnitsColumnHeading}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.HonoraryMembers?.OverrideHeading))
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitHonoraryMembers?.OverrideHeading))
             {
-                headings["honoraryMembers"] = mapping.HonoraryMembers.OverrideHeading;
+                headings["honoraryMembers"] = mapping.UnitHonoraryMembers.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {mapping.HonoraryMembers.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {mapping.UnitHonoraryMembers.OverrideHeading}");
             }
 
             if (DebugMode && headings.Count == 0)

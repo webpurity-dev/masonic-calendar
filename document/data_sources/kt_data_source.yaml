@@ -1,5 +1,39 @@
-# Data source mappings for Knights Templar section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "The Great Priory of the United Religious, Military and Masonic Orders of the Temple and of St. John of Jerusalem, Palestine, Rhodes and Malta of England and Wales and its Provinces Overseas"
+  crest: "../../images/kt-logo.png"
+  website: "https://www.ktdorsetwilts.org.uk"
+  heads: 
+    - rank: "Grand Master"
+      title: "M.E. & S.Kt."
+      name: "Paul R. Clement, OStJ, G.C.T."
+  deputy_heads:
+    - rank: "Great Seneschal"
+      title: "V.H. & R.E.Kt."
+      name: "Andrew C. Rainbow, G.C.T."
+  district_heads:
+    - rank: "Provincial Prior"
+      title: "R.E.Kt."
+      name: "Richard F. Micklefield"
+    - rank: "Provincial Sub-Prior"
+      title: "E.Kt."
+      name: "Maurice E. Lound, P.Gt.St.B.(B.)"
+    - rank: "Provincial Vice-Chancellor"
+      title: "E.Kt."
+      name: "Brian F. Amos, P.Dep.Gt.Swd.B."
+
+order_regional_officers:
+  heading2: "Province of Dorset and Wiltshire"
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +68,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +110,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +149,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +191,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +227,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -228,33 +262,3 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
-
-provincial_officers:
-  source: "no_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The Great Priory of the United Religious, Military and Masonic Orders of the Temple and of St. John of Jerusalem, Palestine, Rhodes and Malta of England and Wales and its Provinces Overseas"  
-  crest: "../../images/kt-logo.png"
-  website: "https://www.ktdorsetwilts.org.uk"
-  heads: 
-    - rank: "Grand Master"
-      name: "M.E. & S.Kt. Paul R. Clement, OStJ, G.C.T."
-  deputy_heads:
-    - rank: "Great Seneschal"
-      name: "V.H. & R.E.Kt. Andrew C. Rainbow, G.C.T."
-  district_heading: "Province of Dorset and Wiltshire"
-  district_heads:
-    - rank: "Provincial Prior"
-      name: "R.E.Kt. Richard F. Micklefield"
-    - rank: "Provincial Sub-Prior"
-      name: "E.Kt. Maurice E. Lound, P.Gt.St.B.(B.)"
-    - rank: "Provincial Vice-Chancellor"
-      name: "E.Kt. Brian F. Amos, P.Dep.Gt.Swd.B."

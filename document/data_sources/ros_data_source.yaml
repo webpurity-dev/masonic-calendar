@@ -1,5 +1,19 @@
-# Data source mappings for UGLE
-provincial_officers:
+order_summary:
+  title: "Royal Order of Scotland. The King of Scots hereditary Grand Master"
+  crest: "../../images/ros-logo.png"
+  website: "https://www.royalorderscotland.org"
+  heads: 
+    - rank: "Right Worshipful Provincial Grand Master"
+      name: "Paul M. Muir"
+  deputy_heads:
+    - rank: "Worshipful Deputy Provincial Grand Master"
+      name: "tbc"
+    - rank: "Worshipful Substitute Provincial Grand Masters"
+      name: "tbc"
+  district_heads: []
+
+order_regional_officers:
+  heading2: "Provincial Grand Lodge of Dorset"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"
@@ -11,17 +25,3 @@ provincial_officers:
     - name: "Unit"
       csv_column: "Unit"
       type: "string"
-  heading1: "Royal Order of Scotland. The King of Scots hereditary Grand Master"
-  heading2: "Provincial Grand Lodge of Dorset"
-  crest: "../../images/ros-logo.png"
-  website: "https://www.royalorderscotland.org"
-  heads: 
-    - rank: "Right Worshipful Provincial Grand Master"
-      name: "Paul M. Muir"
-  deputy_heads:
-    - rank: "Worshipful Deputy Provincial Grand Master"
-      name: "tbc"
-    - rank: "Worshipful Substitute Provincial Grand Masters"
-      name: "tbc"
-  # "Erected and Consecrated on 5 October 1999. Meet at the Kinson Masonic Hall, Ferncroft Road, Bournemouth on the second Saturday in January, the first Saturday in May and the second Saturday in August."
-  officers_heading: "Provincial Grand Office Bearers for 2025-26"

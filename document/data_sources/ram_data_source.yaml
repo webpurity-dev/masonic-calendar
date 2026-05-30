@@ -1,5 +1,25 @@
-﻿# Data source mappings for Royal Ark Mariners section
-# v1.4 format: units_v1.5.csv + membership_v1.5.csv
+order_summary:
+  title: "The Ancient and Honourable Fraternity of Royal Ark Mariner"
+  crest: "../../images/ram-logo.png"
+  website: "http://www.dorsetmark.org.uk"
+  heads: 
+    - rank: "Grand Master"
+      title: "M.W.Bro."
+      name: "H.R.H. Prince Michael of Kent, GCVO"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      title: "R.W.Bro."
+      name: "Prof. Denovan K. Wilson"
+    - rank: "Assistant Grand Master"
+      title: "R.W.Bro."
+      name: "Peter D. Williams"
+  district_heads:
+    - rank: "Provincial Grand Master"
+      title: "R.W.Bro."
+      name: "Victor H. Pomeroy"
+    - rank: "Deputy Provincial Grand Master"
+      title: "W.Bro."
+      name: "David F. Eaton, JP, P.A.G.D.C."
 
 units:
   source: "units_v1.7.csv"
@@ -35,7 +55,7 @@ units:
       type: "string"
     # Location and What3Words now loaded from unit_locations.csv via location join
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -80,7 +100,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -126,7 +146,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -171,7 +191,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -192,7 +212,8 @@ honorary_members:
       csv_column: "Provincial Rank"
       type: "string"
 
-provincial_officers:
+order_regional_officers:
+  heading2: "Provincial Grand Master"
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"
@@ -204,20 +225,5 @@ provincial_officers:
     - name: "Unit"
       csv_column: "Unit"
       type: "string"
-  heading1: "The Ancient and Honourable Fraternity of Royal Ark Mariner"  
-  crest: "../../images/ram-logo.png"
-  website: "http://www.dorsetmark.org.uk"
-  heads: 
-    - rank: "Grand Master"
-      name: "M.W.Bro. H.R.H. Prince Michael of Kent, GCVO"
-  deputy_heads:
-    - rank: "Deputy Grand Master"
-      name: "R.W.Bro. Prof. Denovan K. Wilson"
-    - rank: "Assistant Grand Master"
-      name: "R.W.Bro. Peter D. Williams"
-  district_heading: "Provincial Grand Mark Lodge Officers"
-  district_heads:
-    - rank: "Provincial Grand Master"
-      name: "R.W.Bro. Victor H. Pomeroy"
-    - rank: "Deputy Provincial Grand Master"
-      name: "W.Bro. David F. Eaton, JP, P.A.G.D.C."
+
+

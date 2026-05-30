@@ -20,7 +20,7 @@
             <td style="font-weight: 600; text-align: center;">{{ head.rank }}</td>
         </tr>
         <tr style="margin: 2px; padding: 0;">
-            <td style="text-align: center;">{{ head.name }}</td>
+            <td style="text-align: center;">{{ if head.title }}{{ head.title }} {{ end }}{{ head.name }}</td>
         </tr>
         {{ end }}
     </tbody>
@@ -36,7 +36,7 @@
             <td style="font-weight: 600; text-align: center;">{{ deputy.rank }}</td>
         </tr>
         <tr style="margin: 1px; padding: 0;">
-            <td style="text-align: center;">{{ deputy.name }}</td>
+            <td style="text-align: center;">{{ if deputy.title }}{{ deputy.title }} {{ end }}{{ deputy.name }}</td>
         </tr>
         {{ end }}
     </tbody>
@@ -58,7 +58,7 @@
             <td style="font-weight: 600; text-align: center;">{{ district.rank }}</td>
         </tr>
         <tr style="margin: 1px; padding: 0;">
-            <td style="text-align: center;">{{ district.name }}</td>
+            <td style="text-align: center;">{{ if district.title }}{{ district.title }} {{ end }}{{ district.name }}</td>
         </tr>
         {{ end }}
     </tbody>
@@ -78,7 +78,7 @@
         {{ for officer in officers }}
         <tr style="margin: 6px; padding: 0;">
             <td style="text-align: left; width: 40%; font-weight: 600;">{{ officer.office }}</td>
-            <td style="text-align: right; width: 45%;">{{ officer.name }}</td>
+            <td style="text-align: left; width: 45%;">{{ officer.name }}</td>
             <td style="text-align: right; width: 15%;">{{ officer.unit }}</td>
         </tr>
         {{ end }}

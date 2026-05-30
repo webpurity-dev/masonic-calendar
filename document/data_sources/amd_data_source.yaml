@@ -1,5 +1,16 @@
-# Data source mappings for Allied Masonic Degrees section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "Grand Council of the Order of Allied Masonic Degrees of England and Wales and Districts and Councils Overseas"
+  crest: "../../images/amd-logo.png"
+  website: "https://www.markmasonshall.org/orders/amd"
+  heads: 
+    - rank: "Grand Master"
+      title: "M.W.Bro."
+      name: "Thomas F. Jackson"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      title: "R.W.Bro."
+      name: "James M. Birrell"
+  district_heads: []
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +45,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +87,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +126,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +168,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +204,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -229,7 +240,7 @@ honorary_members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-provincial_officers:
+order_regional_officers:
   source: "no_officers_v1.7.csv"
   fields:
     - name: "Office"
@@ -258,4 +269,3 @@ provincial_officers:
       name: "V.W.Bro. Laurence T. Brookes, P.G.Reg."
     - rank: "District Grand Secretary"
       name: "W.Bro. Malcolm E. W. Stevens"
-

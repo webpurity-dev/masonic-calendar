@@ -213,16 +213,23 @@ public class SectionStyling
 public class DataSourceMapping
 {
     public DataSourceDefinition? Units { get; set; }
-    public DataSourceDefinition? Officers { get; set; }
-    public DataSourceDefinition? PastMasters { get; set; }
-    public DataSourceDefinition? JoiningPastMasters { get; set; }
-    public DataSourceDefinition? Members { get; set; }
-    public DataSourceDefinition? HonoraryMembers { get; set; }
+    public OrderSummaryConfig? OrderSummary { get; set; }
+    
+    // Shared data (not order-level or unit-level)
     public DataSourceDefinition? Meetings { get; set; }
-    public DataSourceDefinition? MemberStats { get; set; }
-    public ProvincialOfficersConfig? ProvincialOfficers { get; set; }
-    public ProvincialOfficersConfig? ExecutiveOfficers { get; set; }
-    public SuccessionListConfig? SuccessionList { get; set; }
+    
+    // v1.7 unit-level sections (with unit_ prefix)
+    public DataSourceDefinition? UnitOfficers { get; set; }
+    public DataSourceDefinition? UnitPastHeads { get; set; }
+    public DataSourceDefinition? UnitJoiningPastHeads { get; set; }
+    public DataSourceDefinition? UnitMembers { get; set; }
+    public DataSourceDefinition? UnitHonoraryMembers { get; set; }
+    
+    // v1.7 order-level sections (with order_ prefix)
+    public ProvincialOfficersConfig? OrderRegionalOfficers { get; set; }
+    public ProvincialOfficersConfig? OrderExecutiveOfficers { get; set; }
+    public DataSourceDefinition? OrderMemberStats { get; set; }
+    public SuccessionListConfig? OrderSuccessionList { get; set; }
 }
 
 /// <summary>

@@ -295,10 +295,17 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     {
         try
         {
+            // v1.7: Use the new property names (unit_ prefix for unit-level data)
+            var officersConfig = mapping.UnitOfficers;
+            var pastHeadsConfig = mapping.UnitPastHeads;
+            var joiningPastConfig = mapping.UnitJoiningPastHeads;
+            var membersConfig = mapping.UnitMembers;
+            var honoraryConfig = mapping.UnitHonoraryMembers;
+
             // Load officers
-            if (mapping.Officers != null)
+            if (officersConfig != null)
             {
-                await LoadPersonTypeAsync(units, mapping.Officers, "officer", schemaUnit =>
+                await LoadPersonTypeAsync(units, officersConfig, "officer", schemaUnit =>
                 {
                     return (fieldMap, csv, unitNumber) =>
                     {
@@ -348,9 +355,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
 
             // Load past masters
-            if (mapping.PastMasters != null)
+            if (pastHeadsConfig != null)
             {
-                await LoadPersonTypeAsync(units, mapping.PastMasters, "past master",
+                await LoadPersonTypeAsync(units, pastHeadsConfig, "past master",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var name = GetFieldValue(csv, fieldMap, "Name");
@@ -401,9 +408,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
 
             // Load joining past masters
-            if (mapping.JoiningPastMasters != null)
+            if (joiningPastConfig != null)
             {
-                await LoadPersonTypeAsync(units, mapping.JoiningPastMasters, "joining past master",
+                await LoadPersonTypeAsync(units, joiningPastConfig, "joining past master",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var name = GetFieldValue(csv, fieldMap, "Name");
@@ -455,10 +462,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
 
             // Load members
-            if (mapping.Members != null)
+            if (membersConfig != null)
             {
                 int membersBefore = units.Sum(u => u.Members.Count);
-                await LoadPersonTypeAsync(units, mapping.Members, "member",
+                await LoadPersonTypeAsync(units, membersConfig, "member",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var name = GetFieldValue(csv, fieldMap, "Name");
@@ -506,9 +513,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
 
             // Load honorary members
-            if (mapping.HonoraryMembers != null)
+            if (honoraryConfig != null)
             {
-                await LoadPersonTypeAsync(units, mapping.HonoraryMembers, "honorary member",
+                await LoadPersonTypeAsync(units, honoraryConfig, "honorary member",
                     schemaUnit => (fieldMap, csv, unitNumber) =>
                     {
                         var reference = GetFieldValue(csv, fieldMap, "Reference");

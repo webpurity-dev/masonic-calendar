@@ -72,15 +72,17 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
         }
 
         var mapping = mappingResult.Data;
-        if (mapping?.SuccessionList == null)
+        // v1.7: Use OrderSuccessionList (order_ prefix for order-level data)
+        var config = mapping?.OrderSuccessionList;
+        
+        if (config == null)
         {
             if (DebugMode)
-                Console.WriteLine($"    ❌ SuccessionList config not found in mapping");
+                Console.WriteLine($"    ❌ OrderSuccessionList config not found in mapping");
             data["tables"] = new List<object>();
             return data;
         }
 
-        var config = mapping.SuccessionList;
         var tables = new List<object>();
 
         if (DebugMode)
@@ -110,7 +112,8 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
                     { "title", tableConfig.Title ?? "" },
                     { "font_size", tableConfig.FontSize ?? "8pt" },
                     { "columns", tableConfig.Columns ?? new List<TableColumn>() },
-                    { "rows", rows }
+                    { "rows", rows },
+                    { "table_caption", tableConfig.TableCaption ?? "" }
                 };
 
                 tables.Add(table);

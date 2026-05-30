@@ -1,5 +1,45 @@
-# Data source mappings for Order of the Scarlet Cord section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "The Ancient and Masonic Order of the Scarlet Cord"
+  crest: "../../images/osc-logo.png"
+  website: "https://www.markmasonshall.org/orders/osc"
+  heads: 
+    - rank: "Grand Summus"
+      title: "R.Dist.Comp."
+      name: "Ian S. Currans"
+  deputy_heads:
+    - rank: "Deputy Grand Summus"
+      title: "R.Dist.Comp."
+      name: "Francis C. Spencer"
+    - rank: "Assistant Grand Summus"
+      title: "R.Dist.Comp."
+      name: "Trevor D. Currans"
+  district_heads:
+    - rank: "Provincial Grand Summus"
+      title: "R.Dist.Comp."
+      name: "Ian R. Sullivan, V"
+    - rank: "Deputy Provincial Grand Summus"
+      title: "V.Dist.Comp."
+      name: "Colin T. Cooper, V, P.G.Reg."
+    - rank: "Assistant Provincial Grand Summus"
+      title: "Dist.Comp."
+      name: "Laurence T. Brookes, V, P.A.G.D.C."
+    - rank: "Provincial Grand Recorder"
+      title: "Dist.Comp."
+      name: "David J. W. Willcock, V, P.G.Swd.B."
+
+order_regional_officers:
+  heading2: "Province of Somerset and Dorset"
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +74,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +116,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +155,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +197,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +233,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -229,36 +269,6 @@ honorary_members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-provincial_officers:
-  source: "no_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The Ancient and Masonic Order of the Scarlet Cord"  
-  crest: "../../images/osc-logo.png"
-  website: "https://www.markmasonshall.org/orders/osc"
-  heads: 
-    - rank: "Grand Summus"
-      name: "M.Dist.Comp. Ian S. Currans"
-  deputy_heads:
-    - rank: "Deputy Grand Summus"
-      name: "R.Dist.Comp. Francis C. Spencer"
-    - rank: "Assistant Grand Summus"
-      name: "R.Dist.Comp. Trevor D. Currans"
-  district_heading: "Province of Somerset and Dorset"
-  district_heads:
-    - rank: "Provincial Grand Summus"
-      name: "R.Dist.Comp. Ian R. Sullivan, V"
-    - rank: "Deputy Provincial Grand Summus"
-      name: "V.Dist.Comp. Colin T. Cooper, V, P.G.Reg."
-    - rank: "Assistant Provincial Grand Summus"
-      name: "Dist.Comp. Laurence T. Brookes, V, P.A.G.D.C."
-    - rank: "Provincial Grand Recorder"
-      name: "Dist.Comp. David J. W. Willcock, V, P.G.Swd.B."
+
+
+

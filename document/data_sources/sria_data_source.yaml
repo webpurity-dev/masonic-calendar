@@ -1,5 +1,36 @@
-# Data source mappings for Societas Rosicruciana in Anglia section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "Societas Rosicruciana in Anglia"
+  crest: "../../images/sria-logo.png"
+  website: "https://www.sria.uk.com"
+  heads: 
+    - rank: "Supreme Magus"
+      name: "tbc"
+  deputy_heads:
+    - rank: "Senior Substitute Magus"
+      name: "tbc"
+    - rank: "Junior Substitute Magus"
+      name: "tbc"
+    - rank: "Secretary-General"
+      name: "tbc"
+  district_heads:
+    - rank: "Chief Adept"
+      name: "tbc"
+    - rank: "Suffragan"
+      name: "tbc"
+
+order_regional_officers:
+  heading2: "Province of Southern England"
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +65,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +107,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +146,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +188,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +224,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -228,35 +259,3 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
-
-provincial_officers:
-  source: "no_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "Societas Rosicruciana in Anglia"
-  crest: "../../images/sria-logo.png"
-  website: "https://www.sria.uk.com"
-  heads: 
-    - rank: "Supreme Magus"
-      name: "tbc"
-  deputy_heads:
-    - rank: "Senior Substitute Magus"
-      name: "tbc"
-    - rank: "Junior Substitute Magus"
-      name: "tbc"
-    - rank: "Secretary-General"
-      name: "tbc"
-  district_heading: "Province of Southern England"
-  district_heads:
-    - rank: "Chief Adept"
-      name: "tbc"
-    - rank: "Suffragan"
-      name: "tbc"

@@ -25,6 +25,21 @@ public class ProvincialOfficersConfig
 public class OfficerGroup
 {
     public string? Rank { get; set; }
+    public string? Title { get; set; }
     public string? Name { get; set; }
     public string? Contact { get; set; }
+}
+
+/// <summary>
+/// Configuration for order summary section (consolidated metadata: title, crest, website, heads, deputy_heads, district_heads).
+/// Used by ExecutiveOfficersSectionRenderer and ProvincialOfficersSectionRenderer for consistent branding.
+/// </summary>
+public class OrderSummaryConfig
+{
+    public string? Title { get; set; }
+    public string? Crest { get; set; }
+    public string? Website { get; set; }
+    public List<OfficerGroup>? Heads { get; set; }
+    public List<OfficerGroup>? DeputyHeads { get; set; }
+    public List<OfficerGroup>? DistrictHeads { get; set; }
 }

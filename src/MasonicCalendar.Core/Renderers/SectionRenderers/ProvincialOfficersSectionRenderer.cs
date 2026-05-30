@@ -88,31 +88,65 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         }
 
         var mapping = mappingResult.Data;
-        if (mapping?.ProvincialOfficers == null)
+        
+        // v1.7: Use OrderRegionalOfficers (order_ prefix for order-level data)
+        var config = mapping?.OrderRegionalOfficers;
+
+        // v1.7: Load branding from order_summary (consolidated metadata)
+        var orderSummary = mapping.OrderSummary;
+        if (orderSummary != null)
         {
+            data["heading1"] = orderSummary.Title ?? "";
+            data["website"] = string.IsNullOrWhiteSpace(orderSummary.Website) ? null : orderSummary.Website;
+            data["crest"] = orderSummary.Crest ?? "";
+            data["heads"] = orderSummary.Heads ?? new List<OfficerGroup>();
+            data["deputy_heads"] = orderSummary.DeputyHeads ?? new List<OfficerGroup>();
+            data["district_heads"] = orderSummary.DistrictHeads ?? new List<OfficerGroup>();
             if (DebugMode)
-                Console.WriteLine($"    ❌ ProvincialOfficers config not found in mapping");
-            return data;
+                Console.WriteLine($"    ✓ Loaded branding from order_summary");
+        }
+        else if (config != null)
+        {
+            // Fallback: load from provincial_officers section itself (backward compatibility)
+            data["heading1"] = config.Heading1 ?? "";
+            data["website"] = string.IsNullOrWhiteSpace(config.Website) ? null : config.Website;
+            data["crest"] = config.Crest ?? "";
+            data["heads"] = config.Heads ?? new List<OfficerGroup>();
+            data["deputy_heads"] = config.DeputyHeads ?? new List<OfficerGroup>();
+            data["district_heads"] = config.DistrictHeads ?? new List<OfficerGroup>();
+            if (DebugMode)
+                Console.WriteLine($"    ⚠ order_summary not found, using provincial_officers fallback");
+        }
+        else
+        {
+            // No config or order_summary available
+            if (DebugMode)
+                Console.WriteLine($"    ⚠ OrderRegionalOfficers and order_summary both missing, rendering with defaults");
+            data["heading1"] = section.SectionTitle ?? "Officers";
+            data["website"] = null;
+            data["crest"] = "";
+            data["heads"] = new List<OfficerGroup>();
+            data["deputy_heads"] = new List<OfficerGroup>();
+            data["district_heads"] = new List<OfficerGroup>();
         }
 
-        var config = mapping.ProvincialOfficers;
-
-        // Populate metadata directly from config
-        data["heading1"] = config.Heading1 ?? "";
-        data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
-        data["website"] = string.IsNullOrWhiteSpace(config.Website) ? null : config.Website;
-        data["district_heading"] = string.IsNullOrWhiteSpace(config.DistrictHeading) ? null : config.DistrictHeading;
-        data["officers_heading"] = string.IsNullOrWhiteSpace(config.OfficersHeading) ? null : config.OfficersHeading;
-        data["crest"] = config.Crest ?? "";
-        data["heads"] = config.Heads ?? new List<OfficerGroup>();
-        data["deputy_heads"] = config.DeputyHeads ?? new List<OfficerGroup>();
-        data["district_heads"] = config.DistrictHeads ?? new List<OfficerGroup>();
+        // Use section-specific headings (distinct from branding) - only if config exists
+        if (config != null)
+        {
+            data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
+            data["district_heading"] = string.IsNullOrWhiteSpace(config.DistrictHeading) ? null : config.DistrictHeading;
+            data["officers_heading"] = string.IsNullOrWhiteSpace(config.OfficersHeading) ? null : config.OfficersHeading;
+        }
 
         if (DebugMode)
             Console.WriteLine($"    ✓ Loaded provincial officers metadata");
 
-        // Load CSV officers
-        var officers = await LoadOfficersFromCsvAsync(config.Source, documentRoot);
+        // Load CSV officers - only if config has source
+        var officers = new List<ProvinceOfficer>();
+        if (config?.Source != null)
+        {
+            officers = await LoadOfficersFromCsvAsync(config.Source, documentRoot);
+        }
         data["officers"] = officers;
 
         return data;

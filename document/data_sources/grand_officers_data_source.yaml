@@ -1,6 +1,6 @@
 # Data source mappings for Grand Officers
 
-provincial_officers:
+order_regional_officers:
   source: "grand_officers_v1.7.csv"
   fields:
     - name: "Office"

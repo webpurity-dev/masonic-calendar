@@ -1,5 +1,38 @@
-# Data source mappings for Knight Templar Priests section
-# v1.7 format: units_v1.6.csv + membership_v1.7.csv
+order_summary:
+  title: "The Grand College of The Holy Royal Arch Knight Templar Priests and Order of Holy Wisdom"
+  crest: "../../images/ktp-logo.png"
+  website: "http://www.knighttemplarpriests.com"
+  heads: 
+    - rank: "Grand High Priest"
+      title: "M Ill Kt Pt"
+      name: "Christopher Gavin Maiden, GCPO"
+  deputy_heads:
+    - rank: "Deputy Grand High Priest and Grand High Prelate"
+      title: "M Em Kt Pt"
+      name: "Ian Paterson Duff, GHPA, GCPO"
+    - rank: "Assistant Grand High Priest"
+      title: "R Ill Kt Pt"
+      name: "David Harold William Scott, GCPO"
+    - rank: "Assistant Grand High Priest"
+      title: "R Ill Kt Pt"
+      name: "John Malcolm Berry Phillips, GCPO"
+  district_heads:
+    - rank: "Grand Superintendent"
+      name: "tbc"
+
+order_regional_officers:
+  heading2: "District of Dorset and Wiltshire (No. 53)"
+  source: "no_officers_v1.7.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
 
 units:
   source: "units_v1.7.csv"
@@ -34,7 +67,7 @@ units:
       csv_column: "Email"
       type: "string"
 
-officers:
+unit_officers:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -76,7 +109,7 @@ officers:
       csv_column: "LR Date Accorded"
       type: "int"
 
-past_masters:
+unit_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -115,7 +148,7 @@ past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-joining_past_masters:
+unit_joining_past_heads:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -157,7 +190,7 @@ joining_past_masters:
       csv_column: "LR Date Accorded"
       type: "int"
 
-members:
+unit_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -193,7 +226,7 @@ members:
       csv_column: "LR Date Accorded"
       type: "int"
 
-honorary_members:
+unit_honorary_members:
   source: "membership_v1.7.csv"
   filters:
     - filter_field: "Unit Type"
@@ -228,33 +261,3 @@ honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
-
-provincial_officers:
-  source: "no_officers_v1.7.csv"
-  fields:
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
-    - name: "Name"
-      csv_column: "Name"
-      type: "string"
-    - name: "Unit"
-      csv_column: "Unit"
-      type: "string"
-  heading1: "The Grand College of The Holy Royal Arch Knight Templar Priests and Order of Holy Wisdom"
-  crest: "../../images/ktp-logo.png"
-  website: "http://www.knighttemplarpriests.com"
-  heads: 
-    - rank: "Grand High Priest"
-      name: "M Ill Kt Pt Christopher Gavin Maiden, GCPO"
-  deputy_heads:
-    - rank: "Deputy Grand High Priest and Grand High Prelate"
-      name: "M Em Kt Pt Ian Paterson Duff, GHPA, GCPO"
-    - rank: "Assistant Grand High Priest"
-      name: "R Ill Kt Pt David Harold William Scott, GCPO"
-    - rank: "Assistant Grand High Priest"
-      name: "R Ill Kt Pt John Malcolm Berry Phillips, GCPO"
-  district_heading: "District of Dorset and Wiltshire (No. 53)"
-  district_heads:
-    - rank: "Grand Superintendent"
-      name: "tbc"

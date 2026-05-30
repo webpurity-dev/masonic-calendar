@@ -843,14 +843,15 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             var headings = new Dictionary<string, string>();
 
             // Extract override_heading from each person type section
-            if (!string.IsNullOrWhiteSpace(mapping?.PastMasters?.OverrideHeading))
-                headings["pastMasters"] = mapping.PastMasters.OverrideHeading;
+            // v1.7: Use new property names (unit_ prefix for unit-level data)
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitPastHeads?.OverrideHeading))
+                headings["pastMasters"] = mapping.UnitPastHeads.OverrideHeading;
 
-            if (!string.IsNullOrWhiteSpace(mapping?.JoiningPastMasters?.OverrideHeading))
-                headings["joiningPastMasters"] = mapping.JoiningPastMasters.OverrideHeading;
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.OverrideHeading))
+                headings["joiningPastMasters"] = mapping.UnitJoiningPastHeads.OverrideHeading;
 
-            if (!string.IsNullOrWhiteSpace(mapping?.HonoraryMembers?.OverrideHeading))
-                headings["honoraryMembers"] = mapping.HonoraryMembers.OverrideHeading;
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitHonoraryMembers?.OverrideHeading))
+                headings["honoraryMembers"] = mapping.UnitHonoraryMembers.OverrideHeading;
 
             return Task.FromResult<Dictionary<string, string>?>(headings.Count > 0 ? headings : null);
         }

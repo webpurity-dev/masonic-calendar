@@ -157,12 +157,14 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
                 .Build();
 
             var mapping = deserializer.Deserialize<DataSourceMapping>(yaml);
-            if (mapping?.MemberStats == null)
-                return Result<List<MemberStatRow>>.Fail("member_stats section not found in data mapping");
+            
+            // v1.7: Use OrderMemberStats (order_ prefix for order-level data)
+            var memberStatsConfig = mapping?.OrderMemberStats;
+            if (memberStatsConfig == null)
+                return Result<List<MemberStatRow>>.Fail("order_member_stats section not found in data mapping");
 
-            var memberStatsConfig = mapping.MemberStats;
             if (string.IsNullOrWhiteSpace(memberStatsConfig.Source))
-                return Result<List<MemberStatRow>>.Fail("member_stats.source not defined in data mapping");
+                return Result<List<MemberStatRow>>.Fail("order_member_stats.source not defined in data mapping");
 
             // Load the CSV file
             var dataRoot = Path.Combine(documentRoot, "data");

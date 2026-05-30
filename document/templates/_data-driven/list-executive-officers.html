@@ -33,10 +33,10 @@
 
 {{ if deputy_heads && deputy_heads.size > 0 }}
 <!-- Deputy and Assistant Heads -->
-<table style="margin: 8px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 2px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for deputy in deputy_heads }}
-        <tr style="margin: 8px 6px; padding: 6px 0;">
+        <tr style="margin: 2px 6px; padding: 2px 0;">
             <td style="font-weight: 600; width: 45%; vertical-align: top;">{{ deputy.rank }}</td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
@@ -52,10 +52,10 @@
 
 {{ if executive_officers && executive_officers.size > 0 }}
 <!-- Executive Officers -->
-<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in executive_officers }}
-        <tr style="margin: 8px 6px; padding: 4px 0;">
+        <tr style="margin: 2px 6px; padding: 2px 0;">
             <td style="font-weight: 600; width: 45%; vertical-align: top;">{{ officer.rank }}</td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">

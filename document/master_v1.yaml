@@ -70,6 +70,7 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/grand_officers_data_source.yaml"
     is_child: true
+    hide_from_parent_toc: true
   - section_id: "freemasons_charity"
     section_title: "Freemason's Charity"
     type: "static"

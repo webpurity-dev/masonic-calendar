@@ -307,6 +307,36 @@ provincial_officers:
       name: "Nigel Melville Douglas House, PAGDC"
   officers_heading: "Provincial Grand Chapter Officers 2025-26"
 
+executive_officers:
+  source: "royalarch_executive_officers_v1.7.csv"
+  fields:
+    - name: "Rank"
+      csv_column: "Rank"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Contact"
+      csv_column: "Contact"
+      type: "string"
+  heading1: "The Provincial Grand Chapter of Dorset"  
+  crest: "../../images/ra-logo.png"
+  heading2: "Provincial Executive"
+  heads: 
+    - rank: "Grand Superintendent"
+      name: "Stephen Andrew James"
+      contact: "gsupt@dorsetfreemasonry.info"
+  deputy_heads:
+    - rank: "Deputy Grand Superintendent"
+      name: "Mark C Hinsley, PAGDC"
+      contact: "dpgsupt@dorsetfreemasonry.info"
+    - rank: "Second Grand Principal"
+      name: "Kevin Abbiss, PAGDC"
+      contact: "2ndprgprinc@dorsetfreemasonry.info"
+    - rank: "Third Grand Principal"
+      name: "Nigel M D House, PAGDC"
+      contact: "3rdprgprinc@dorsetfreemasonry.info"
+
 succession_list:
   tables:
     - title: "GRAND SUPERINTENDENTS"

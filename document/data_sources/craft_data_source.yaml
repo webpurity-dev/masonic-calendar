@@ -326,6 +326,36 @@ provincial_officers:
       name: "WBro Leon Anthony Matthews, PJGD"
   officers_heading: "Provincial Grand Lodge Officers 2025-26"
 
+executive_officers:
+  source: "craft_executive_officers_v1.7.csv"
+  fields:
+    - name: "Rank"
+      csv_column: "Rank"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Contact"
+      csv_column: "Contact"
+      type: "string"
+  heading1: "The Provincial Grand Lodge of Dorset"
+  crest: "../../images/provincial-crest-sml.jpg"
+  heading2: "Provincial Executive"
+  heads: 
+    - rank: "Provincial Grand Master"
+      name: "Stephen Andrew James"
+      contact: "pgm@dorsetfreemasonry.info"
+  deputy_heads:
+    - rank: "Deputy Grand Master"
+      name: "Mark David Burstow, PGSwdB"
+      contact: "dpgm@dorsetfreemasonry.info"
+    - rank: "Assistant Grand Master"
+      name: "Micheal Richard Parkes, PSGD"
+      contact: "apgm@dorsetfreemasonry.info"
+    - rank: "Assistant Grand Master"
+      name: "Leon Anthony Matthews, PJGD"
+      contact: "apgm2@dorsetfreemasonry.info"
+
 succession_list:
   tables:
     - title: "PROVINCIAL GRAND MASTERS"

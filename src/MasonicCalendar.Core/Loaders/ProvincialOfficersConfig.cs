@@ -20,10 +20,11 @@ public class ProvincialOfficersConfig
 }
 
 /// <summary>
-/// Represents a group of officers with a rank/title.
+/// Represents a group of officers with a rank/title and optional contact email.
 /// </summary>
 public class OfficerGroup
 {
     public string? Rank { get; set; }
     public string? Name { get; set; }
+    public string? Contact { get; set; }
 }

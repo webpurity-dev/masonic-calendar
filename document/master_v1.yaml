@@ -79,8 +79,9 @@ sections:
   # PROVINCIAL GRAND LODGE OF DORSET
   - section_id: "craft_executive_officers"
     section_title: "Provincial Grand Lodge of Dorset"
-    type: "static"
-    template: "craft/executive-officers.html"
+    type: "list_executive_officers"
+    template: "_data-driven/list-executive-officers.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
   - section_id: "craft_provincial_officers"
     section_title: "Provincial Officers 2025/26"
     type: "list_officers"
@@ -145,8 +146,9 @@ sections:
   # ROYAL ARCH
   - section_id: "ra_executive_officers"
     section_title: "Provincial Grand Chapter of Dorset"
-    type: "static"
-    template: "royalarch/executive-officers.html"
+    type: "list_executive_officers"
+    template: "_data-driven/list-executive-officers.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
   - section_id: "ra_provincial_officers"
     section_title: "Provincial Officers 2025/26"
     type: "list_officers"

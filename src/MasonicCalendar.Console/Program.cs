@@ -147,7 +147,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Check if targetSectionId matches a known section type (not a real section ID)
         if (!string.IsNullOrWhiteSpace(targetSectionId))
         {
-            var knownTypes = new[] { "static", "data-driven", "toc", "list_officers", "succession-list", "membership-statistics", "membership-summary", "meetings-table", "meetings-calendar", "locations" };
+            var knownTypes = new[] { "static", "data-driven", "toc", "list_officers", "list_executive_officers", "succession-list", "membership-statistics", "membership-summary", "meetings-table", "meetings-calendar", "locations" };
             var matchingType = knownTypes.FirstOrDefault(t => t.Equals(targetSectionId, StringComparison.OrdinalIgnoreCase));
             
             if (!string.IsNullOrWhiteSpace(matchingType) && !(peekLayout.Data?.Sections?.Any(s => s.SectionId?.Equals(targetSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false))

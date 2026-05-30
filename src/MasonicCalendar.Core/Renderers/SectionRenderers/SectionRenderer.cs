@@ -136,6 +136,7 @@ public abstract class SectionRenderer
                 (s.Type?.Equals("membership-statistics", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("locations", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("list_officers", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (s.Type?.Equals("list_executive_officers", StringComparison.OrdinalIgnoreCase) ?? false) ||
                 (s.Type?.Equals("succession-list", StringComparison.OrdinalIgnoreCase) ?? false)) &&
                 !s.HideFromParentToc)
             .ToList();

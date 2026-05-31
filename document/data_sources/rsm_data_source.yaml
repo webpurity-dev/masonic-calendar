@@ -29,6 +29,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "District of Dorset, Hampshire and Isle of Wight"
+  officers_heading: "Officers appointed on 29th August 2026"
   source: "rsm_officers_v1.7.csv"
   fields:
     - name: "Office"

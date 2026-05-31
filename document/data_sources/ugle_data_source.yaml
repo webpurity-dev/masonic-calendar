@@ -12,16 +12,14 @@ order_summary:
       name: "JONATHAN SPENCE, DL"
     - rank: "Deputy Grand Master"
       name: "SIR MICHAEL SNYDER"
-    - rank: "Assistant Grand Master"
+    - rank: "Assistant Grand Masters"
       name: "STEVEN VARLEY"
-    - rank: "Assistant Grand Master"
-      name: "JOHN PAUL THOMPSON"
-    - rank: "Assistant Grand Master"
-      name: "CHARLES HOPKINSON-WOOLLEY"
+    - name: "JOHN PAUL THOMPSON"
+    - name: "CHARLES HOPKINSON-WOOLLEY"
   district_heads: []
 
 order_regional_officers:
-  heading2: "Grand Lodge Officers 2025-26"
+  officers_heading: "Officers of The United Grand Lodge of England"
   source: "ugle_officers_v1.7.csv"
   fields:
     - name: "Office"

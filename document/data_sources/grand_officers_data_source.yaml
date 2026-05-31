@@ -14,6 +14,5 @@ order_regional_officers:
       type: "string"
   heading1: "Grand Officers"
   heading2: "Grand Officers within the Province of Dorset"
-  crest: "../../images/ugle-logo.png"
   heads: []
   deputy_heads: []

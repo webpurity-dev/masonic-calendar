@@ -317,7 +317,7 @@ sections:
     override_break_before: true
     hide_from_parent_toc: true
   - section_id: "mark_units"
-    section_title: "Lodges in Numerical Order"
+    section_title: "Mark Lodges in Numerical Order"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/mark_data_source.yaml"
@@ -379,37 +379,6 @@ sections:
     data_mapping: "data_sources/osm_data_source.yaml"
     hide_from_parent_toc: true
   
-  # Red Cross of Constantine
-  - section_id: "rcoc_officers"
-    section_title: "Red Cross of Constantine"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/rcoc_data_source.yaml"
-  - section_id: "rcoc_membership_summary"
-    section_title: "Red Cross Membership Summary"
-    type: "membership-summary"
-    template: "_data-driven/membership-summary-page.html"
-    data_mapping: "data_sources/rcoc_data_source.yaml"
-    column_headings:
-      past_masters: "Past Sovereigns"
-    include_officers_as_members: true
-    hide_from_parent_toc: true
-  - section_id: "rcoc_meetings_table"
-    section_title: "Red Cross Conclave Meeting Dates"
-    type: "meetings-table"
-    template: "_data-driven/meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["RCOC"]
-    style: "medium"
-    override_break_before: true
-    hide_from_parent_toc: true
-  - section_id: "rcoc_units"
-    section_title: "Red Cross Conclaves in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/rcoc_data_source.yaml"
-    hide_from_parent_toc: true
-
   # RAM
   - section_id: "ram_officers"
     section_title: "Royal Ark Mariners"
@@ -446,6 +415,44 @@ sections:
     data_mapping: "data_sources/ram_data_source.yaml"
     hide_from_parent_toc: true
 
+  # Red Cross of Constantine
+  - section_id: "rcoc_officers"
+    section_title: "Red Cross of Constantine"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
+  - section_id: "rcoc_membership_summary"
+    section_title: "Red Cross Membership Summary"
+    type: "membership-summary"
+    template: "_data-driven/membership-summary-page.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
+    column_headings:
+      past_masters: "Past Sovereigns"
+    include_officers_as_members: true
+    hide_from_parent_toc: true
+  - section_id: "rcoc_meetings_table"
+    section_title: "Red Cross Conclave Meeting Dates"
+    type: "meetings-table"
+    template: "_data-driven/meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["RCOC"]
+    style: "medium"
+    override_break_before: true
+    hide_from_parent_toc: true
+  - section_id: "rcoc_units"
+    section_title: "Red Cross Conclaves in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/rcoc_data_source.yaml"
+    hide_from_parent_toc: true
+
+  # Royal Order of Scotland
+  - section_id: "ros_officers"
+    section_title: "Royal Order of Scotland"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/ros_data_source.yaml"
+
   # Royal and Select Masters
   - section_id: "rsm_officers"
     section_title: "Royal and Select Masters"
@@ -457,14 +464,7 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/rsm_data_source.yaml"
-    hide_from_parent_toc: true
-
-  # Royal Order of Scotland
-  - section_id: "ros_officers"
-    section_title: "Royal Order of Scotland"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/ros_data_source.yaml"
+    hide_from_parent_toc: true 
 
   # Societas Rosicruciana in Anglia
   - section_id: "sria_officers"
@@ -486,7 +486,7 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/pbq_data_source.yaml"
   - section_id: "pbq_units"
-    section_title: "OperativesAssemblages in Numerical Order"
+    section_title: "Operative Assemblages in Numerical Order"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/pbq_data_source.yaml"

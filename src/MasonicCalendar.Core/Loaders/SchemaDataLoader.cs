@@ -282,12 +282,18 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
     private string? GetFieldValue(CsvReader csv, Dictionary<string, string> fieldMap, string propertyName)
     {
-        if (fieldMap.TryGetValue(propertyName, out var csvColumn))
+        if (fieldMap.TryGetValue(propertyName, out var csvColumn) && !string.IsNullOrWhiteSpace(csvColumn))
         {
-            return csv.GetField(csvColumn);
+            if (csv.HeaderRecord?.Contains(csvColumn) == true)
+                return csv.GetField(csvColumn);
+            return null;
         }
+
         // Fallback to property name if not in map
-        return csv.GetField(propertyName);
+        if (csv.HeaderRecord?.Contains(propertyName) == true)
+            return csv.GetField(propertyName);
+
+        return null;
     }    
     
     
@@ -319,7 +325,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.6 fields
                         var grandRankStr = GetFieldValue(csv, fieldMap, "GrandRank");
                         var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
-                        var grandRankDate = int.TryParse(grandRankDateStr?.Trim(), out var grd) ? (int?)grd : null;
+                        var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
@@ -329,7 +335,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.7 NEW: London Rank
                         var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
                         var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
-                        var londonRankDate = int.TryParse(londonRankDateStr?.Trim(), out var lrd) ? (int?)lrd : null;
+                        var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
@@ -364,10 +370,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
-                        var grandRankDate = int.TryParse(grandRankDateStr?.Trim(), out var grd) ? (int?)grd : null;
+                        var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
                         var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
-                        var provRankDate = int.TryParse(provRankDateStr?.Trim(), out var prd) ? (int?)prd : null;
+                        var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
                         var displayRankYear = string.IsNullOrWhiteSpace(grandRankDateStr) ? provRankDateStr : grandRankDateStr;
@@ -380,14 +386,14 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.7 NEW: London Rank
                         var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
                         var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
-                        var londonRankDate = int.TryParse(londonRankDateStr?.Trim(), out var lrd) ? (int?)lrd : null;
+                        var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            YearInstalled = GetFieldValue(csv, fieldMap, "YearInstalled"),
+                            YearInstalled = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "YearInstalled")),
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(displayRankYear),
                             IsGrandRank = !string.IsNullOrWhiteSpace(grandRank),
@@ -418,10 +424,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
-                        var grandRankDate = int.TryParse(grandRankDateStr?.Trim(), out var grd) ? (int?)grd : null;
+                        var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
                         var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
-                        var provRankDate = int.TryParse(provRankDateStr?.Trim(), out var prd) ? (int?)prd : null;
+                        var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
                         var displayRankYear = string.IsNullOrWhiteSpace(grandRankDateStr) ? provRankDateStr : grandRankDateStr;
@@ -434,7 +440,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.7 NEW: London Rank
                         var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
                         var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
-                        var londonRankDate = int.TryParse(londonRankDateStr?.Trim(), out var lrd) ? (int?)lrd : null;
+                        var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
@@ -473,10 +479,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.6 fields
                         var provRankStr = GetFieldValue(csv, fieldMap, "ProvincialRank");
                         var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
-                        var provRankDate = int.TryParse(provRankDateStr?.Trim(), out var prd) ? (int?)prd : null;
+                        var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         var grandRankStr = GetFieldValue(csv, fieldMap, "GrandRank");
                         var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
-                        var grandRankDate = int.TryParse(grandRankDateStr?.Trim(), out var grd) ? (int?)grd : null;
+                        var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
@@ -486,14 +492,14 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.7 NEW: London Rank
                         var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
                         var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
-                        var londonRankDate = int.TryParse(londonRankDateStr?.Trim(), out var lrd) ? (int?)lrd : null;
+                        var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.Members.Add(new SchemaMember
                         {
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            YearInitiated = GetFieldValue(csv, fieldMap, "YearInitiated"),
+                            YearInitiated = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "YearInitiated")),
                             // v1.6
                             ProvincialRank = TextCleaner.CleanProvincialRank(provRankStr),
                             DateRankAccorded = provRankDate,
@@ -522,10 +528,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var name = GetFieldValue(csv, fieldMap, "Name");
                         var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
                         var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
-                        var grandRankDate = int.TryParse(grandRankDateStr?.Trim(), out var grd) ? (int?)grd : null;
+                        var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
                         var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
-                        var provRankDate = int.TryParse(provRankDateStr?.Trim(), out var prd) ? (int?)prd : null;
+                        var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provincialRank : grandRank;
@@ -538,7 +544,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         // v1.7 NEW: London Rank
                         var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
                         var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
-                        var londonRankDate = int.TryParse(londonRankDateStr?.Trim(), out var lrd) ? (int?)lrd : null;
+                        var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
@@ -663,6 +669,14 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         return int.TryParse(value?.Trim(), out var result) ? result : 0;
     }
 
+    private static int? ParseOptionalPositiveInt(string? value)
+    {
+        if (!int.TryParse(value?.Trim(), out var result))
+            return null;
+
+        return result > 0 ? result : null;
+    }
+
     /// <summary>
     /// Parse v1.7 date range format: single year "2021" or range "1993-15" (1993-2015).
     /// Returns tuple: (startYear, endYear).
@@ -689,11 +703,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             var startStr = parts[0].Trim();
             var endStr = parts[1].Trim();
 
-            if (!int.TryParse(startStr, out var startYear))
+            if (!int.TryParse(startStr, out var startYear) || startYear <= 0)
                 return (null, null);
 
             // End year might be abbreviated (e.g., "15" for 2015)
-            if (!int.TryParse(endStr, out var endYearParsed))
+            if (!int.TryParse(endStr, out var endYearParsed) || endYearParsed <= 0)
                 return (null, null);
 
             int? endYear = endYearParsed;
@@ -711,7 +725,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         else
         {
             // Single year
-            if (int.TryParse(trimmed, out var year))
+            if (int.TryParse(trimmed, out var year) && year > 0)
                 return (year, null);
         }
 
@@ -737,7 +751,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.PastMasters = unit.PastMasters
             .GroupBy(p => p.Reference)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(p => ExtractFirstDate(p.YearInstalled))
+            .OrderBy(p => ExtractSortYear(p.YearInstalled) ?? int.MaxValue)
             .ToList();
 
         // For Joining Past Masters: deduplicate by Reference (keep last occurrence)
@@ -772,6 +786,35 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         // Split on comma and take the first part, trimmed
         var firstDate = dateString.Split(',')[0].Trim();
         return string.IsNullOrWhiteSpace(firstDate) ? null : firstDate;
+    }
+
+    /// <summary>
+    /// Extract a sortable year from a date-like string.
+    /// Handles full dates such as 14/10/2009 as well as year-only values.
+    /// </summary>
+    private static int? ExtractSortYear(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return null;
+
+        var trimmed = dateString.Split(',')[0].Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+            return null;
+
+        var formats = new[]
+        {
+            "d/M/yyyy", "dd/MM/yyyy",
+            "d/M/yy", "dd/MM/yy",
+            "yyyy-MM-dd", "yyyy/M/d", "yyyy/MM/dd"
+        };
+
+        if (DateOnly.TryParseExact(trimmed, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+            return parsedDate.Year;
+
+        if (int.TryParse(trimmed, out var year))
+            return year;
+
+        return null;
     }
 
     /// <summary>

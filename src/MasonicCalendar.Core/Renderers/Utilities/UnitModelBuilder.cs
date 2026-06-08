@@ -2,7 +2,9 @@ namespace MasonicCalendar.Core.Renderers.Utilities;
 
 using MasonicCalendar.Core.Domain;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Builds Scriban model dictionaries from SchemaUnit objects.
@@ -24,6 +26,39 @@ public static class UnitModelBuilder
             _ => "th"
         };
         return date.ToString($"d'{ordinalSuffix}' MMMM yyyy");
+    }
+
+    /// <summary>
+    /// Format a date-like string as just the year for display.
+    /// Falls back to the first 4-digit year if parsing fails.
+    /// </summary>
+    private static string FormatYearOnly(string? dateText)
+    {
+        if (string.IsNullOrWhiteSpace(dateText))
+            return string.Empty;
+
+        var trimmed = dateText.Split(',')[0].Trim();
+        if (string.IsNullOrWhiteSpace(trimmed))
+            return string.Empty;
+
+        var formats = new[]
+        {
+            "d/M/yyyy", "dd/MM/yyyy",
+            "d/M/yy", "dd/MM/yy",
+            "yyyy-MM-dd", "yyyy/M/d", "yyyy/MM/dd"
+        };
+
+        if (DateOnly.TryParseExact(trimmed, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+            return parsedDate.Year.ToString(CultureInfo.InvariantCulture);
+
+        if (int.TryParse(trimmed, out var numericYear) && numericYear <= 0)
+            return string.Empty;
+
+        var yearMatch = Regex.Match(trimmed, @"\b(19|20)\d{2}\b");
+        if (yearMatch.Success)
+            return yearMatch.Value;
+
+        return trimmed;
     }
 
     /// <summary>
@@ -93,7 +128,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(pm.Reference) },
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
-                        { "installed", pm.YearInstalled },
+                        { "installed", FormatYearOnly(pm.YearInstalled) },
                         { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, pm.ProvincialRank, pm.DateRankAccorded, pm.ProvRankOtherProv, pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })

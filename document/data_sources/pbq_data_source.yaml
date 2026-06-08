@@ -123,7 +123,7 @@ unit_past_heads:
     - name: "Joined"
       csv_column: "Joined"
       type: "int"
-    - name: "Installed"
+    - name: "YearInstalled"
       csv_column: "Installed"
       type: "int"
     - name: "GrandRank"

@@ -72,6 +72,10 @@ public static class TextCleaner
         
         // Remove commas but preserve existing brackets
         var cleaned = rank.Replace(",", "").Trim();
+
+        // Source files use "0" as an empty placeholder in some rank columns.
+        if (cleaned == "0")
+            return "";
         
         // Remove extra spaces between words
         while (cleaned.Contains("  "))
@@ -109,6 +113,9 @@ public static class TextCleaner
         // Remove parentheses and extra spaces
         cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"[()]+", "");
         cleaned = cleaned.Trim();
+
+        if (cleaned == "0")
+            return "";
         
         return cleaned;
     }

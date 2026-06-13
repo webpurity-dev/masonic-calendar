@@ -16,20 +16,17 @@ order_summary:
   district_heads:
     - rank: "District Grand Master"
       title: "R.Ill. Comp."
-      name: "Frank J. Shaw"
-    - rank: "District Grand Master Designate"
-      title: "V.Ill. Comp."
-      name: "Peter R. Dack, P.G.Lect."
+      name: "Peter R. Dack"
     - rank: "Deputy District Grand Master"
       title: "Ill. Comp."
-      name: "Simon P. Lancaster, P.G.Cond.C."
+      name: "Simon P. Lancaster"
     - rank: "District Grand Principal Conductor of the Work"
       title: "Ill. Comp."
-      name: "Clive B. Egerton, P.Capt.Gd."
+      name: "Clive B. Egerton"
 
 order_regional_officers:
   district_heading: "District of Dorset, Hampshire and Isle of Wight"
-  officers_heading: "Officers appointed on 29th August 2026"
+  officers_heading: "District Officers 2026-27"
   source: "rsm_officers_v1.7.csv"
   fields:
     - name: "Office"

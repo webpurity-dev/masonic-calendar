@@ -24,7 +24,7 @@ order_summary:
 order_regional_officers:
   district_heading: "Province of Dumnonia"
   officers_heading: "Active Provincial Officers 2026-27"
-  source: "ooa_officers_v1.7.csv"
+  source: "ooa_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -37,7 +37,7 @@ order_regional_officers:
       type: "string"
 
 units:
-  source: "units_v1.7.csv"
+  source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "OA"
   fields:
@@ -70,7 +70,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "AMD"
@@ -112,7 +112,7 @@ unit_officers:
       type: "int"
 
 unit_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "AMD"

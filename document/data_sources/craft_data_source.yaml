@@ -24,7 +24,7 @@
 
 order_executive_officers:
   heading2: "Provincial Executive"
-  source: "craft_executive_officers_v1.7.csv"
+  source: "craft_executive_officers.csv"
   fields:
     - name: "Rank"
       csv_column: "Rank"
@@ -38,7 +38,7 @@ order_executive_officers:
 
 order_regional_officers:
   officers_heading: "Provincial Grand Lodge Officers 2025-26"
-  source: "craft_officers_v1.7.csv"
+  source: "craft_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -53,7 +53,7 @@ order_regional_officers:
 order_succession_list:
   tables:
     - title: "PROVINCIAL GRAND MASTERS"
-      source: "data/craft_pgm_succession_v1.7.csv"
+      source: "data/craft_pgm_succession.csv"
       font_size: "8pt"
       columns:
         - name: "Appointed"
@@ -70,7 +70,7 @@ order_succession_list:
           alignment: "left"
       table_caption: "† Resigned from Office. ‡ Dismissed from Office by the Grand Master."
     - title: "DEPUTY PROVINCIAL GRAND MASTERS"
-      source: "data/craft_dpgm_succession_v1.7.csv"
+      source: "data/craft_dpgm_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"
@@ -86,7 +86,7 @@ order_succession_list:
           width: "12%"
           alignment: "left"
     - title: "ASSISTANT PROVINCIAL GRAND MASTERS"
-      source: "data/craft_apgm_succession_v1.7.csv"
+      source: "data/craft_apgm_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"
@@ -103,7 +103,7 @@ order_succession_list:
           alignment: "left"
 
 order_member_stats:
-  source: "craft_stats_v1.7.csv"
+  source: "craft_stats.csv"
   fields:
     - name: "LodgeCode"
       csv_column: "Lc no"
@@ -143,7 +143,7 @@ order_member_stats:
       type: "int"
 
 units:
-  source: "units_v1.7.csv"
+  source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "Craft"
   fields:
@@ -176,7 +176,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
@@ -218,7 +218,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
@@ -263,7 +263,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
@@ -308,7 +308,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"
@@ -353,7 +353,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Craft"

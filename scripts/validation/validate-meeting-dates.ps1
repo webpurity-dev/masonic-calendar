@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Validates the unit-meetings.csv file for data integrity and coverage issues.
+    Validates the unit_meetings.csv file for data integrity and coverage issues.
 
 .DESCRIPTION
     This script performs the following validations:
@@ -13,15 +13,14 @@
 #>
 
 param(
-    [string]$Version = "1.6",
-    [string]$CsvPath = (Join-Path $PSScriptRoot "..\..\document\data\unit-meetings.csv")
+    [string]$CsvPath = (Join-Path $PSScriptRoot "..\..\document\data\unit_meetings.csv")
 )
 
 Write-Host "== Unit Meetings Validation Script ==" -ForegroundColor Cyan
 Write-Host ""
 
 # Load units CSV for cross-validation
-$unitsCsvPath = Join-Path $PSScriptRoot "..\..\document\data\units_v$Version.csv"
+$unitsCsvPath = Join-Path $PSScriptRoot "..\..\document\data\units.csv"
 if (!(Test-Path $unitsCsvPath)) {
     Write-Host "[ERROR] Units CSV file not found: $unitsCsvPath" -ForegroundColor Red
     exit 1
@@ -195,7 +194,7 @@ Write-Host ""
 $grouped = $rows | Group-Object -Property @{Expression={$_.UnitType}}, @{Expression={$_.Number}}
 
 Write-Host "== Unit Summary ==" -ForegroundColor Cyan
-Write-Host "Total units in reference file (units_v$Version.csv): $($unitsRef.Count)"
+Write-Host "Total units in reference file (units.csv): $($unitsRef.Count)"
 Write-Host "Total unique units in meetings CSV: $($grouped.Count)"
 $unitsWithMultiple = @($grouped | Where-Object { $_.Group.Count -gt 1 })
 Write-Host "Units with multiple rows: $($unitsWithMultiple.Count)"
@@ -211,7 +210,7 @@ Write-Host "Reference file units: $($refUnits.Count)"
 Write-Host "Meetings CSV units: $($meetingUnits.Count)"
 
 if ($missingUnits.Count -gt 0) {
-    Write-Host "[WARN] Found $($missingUnits.Count) unit(s) in meetings CSV not in reference units_v$Version.csv:" -ForegroundColor Yellow
+    Write-Host "[WARN] Found $($missingUnits.Count) unit(s) in meetings CSV not in reference units.csv:" -ForegroundColor Yellow
     $missingUnits | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
 } else {
     Write-Host "[OK] All units in meetings CSV exist in reference file" -ForegroundColor Green
@@ -436,7 +435,7 @@ if ($errors.Count -eq 0 -and $multipleDefinitions.Count -eq 0 -and $missingUnits
     
     if ($missingUnits.Count -gt 0) {
         Write-Host ""
-        Write-Host "[WARN] $($missingUnits.Count) unit(s) not in reference file (units_v$Version.csv)" -ForegroundColor Yellow
+        Write-Host "[WARN] $($missingUnits.Count) unit(s) not in reference file (units.csv)" -ForegroundColor Yellow
     }
 }
 

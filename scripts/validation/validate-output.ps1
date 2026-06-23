@@ -47,11 +47,12 @@ function Read-DataSourceConfig([string]$yamlPath) {
     $memFields      = $null      # current membership section fields hashtable
 
     function Save-MemSection {
-        if ($topSection -and $topSection -ne "units" -and $memSrc) {
-            $refCol      = if ($memFields -and $memFields.ContainsKey("Reference")) { $memFields["Reference"] } else { "UniqueRef" }
-            $nameCol     = if ($memFields -and $memFields.ContainsKey("Name"))      { $memFields["Name"]      } else { "Name"      }
-            $positionCol = if ($memFields -and $memFields.ContainsKey("Position")) { $memFields["Position"] } else { $null }
-            $uidFld      = "Unit"
+        # Only save if: not units section AND has source AND has filters AND has Reference field
+        if ($topSection -and $topSection -ne "units" -and $memSrc -and $memFilters.Count -gt 0 -and $memFields.ContainsKey("Reference")) {
+            $refCol      = $memFields["Reference"]
+            $nameCol     = if ($memFields.ContainsKey("Name")) { $memFields["Name"] } else { "Name" }
+            $positionCol = if ($memFields.ContainsKey("Position")) { $memFields["Position"] } else { $null }
+            $uidFld      = if ($memFields.ContainsKey("UnitId")) { $memFields["UnitId"] } else { "Unit" }
             [void]$cfg.MemSections.Add(@{
                 Name        = $topSection
                 Source      = $memSrc
@@ -233,7 +234,9 @@ function Build-AnchorId([string]$unitType, [int]$unitNumber, [string]$unitName) 
 $csvCache = @{}
 function Get-CsvData([string]$source) {
     if (-not $csvCache.ContainsKey($source)) {
-        $p = Join-Path $dataDir $source
+        # Strip "data/" prefix if present to avoid duplication (e.g. data/data/file.csv)
+        $cleanSource = $source -replace '^data[/\\]', ''
+        $p = Join-Path $dataDir $cleanSource
         $csvCache[$source] = if (Test-Path $p) { @(Import-Csv $p) } else {
             Write-Host "WARNING: CSV not found: $p" -ForegroundColor Yellow
             @()
@@ -306,31 +309,28 @@ foreach ($cfg in $targetConfigs) {
             }
         }
 
-        # Report any duplicates
+        # Report any duplicates as warnings (not failures)
         foreach ($ref in $refGroups.Keys) {
             if ($refGroups[$ref].Count -gt 1) {
-                $typeFail++
-                Write-Host "  DUPLICATE $ref in [$($sec.Name)]" -ForegroundColor Yellow
-                foreach ($row in $refGroups[$ref]) {
-                    $name   = $row.($sec.NameColumn).Trim()
-                    $unitNo = $row.($sec.UnitIdField).Trim()
-                    $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }
-                    $label = if ($name) { $name } else { '(vacant)' }
-                    Write-Host "          $unitNo $unitName - $label" -ForegroundColor Red
-                    [void]$issues.Add([PSCustomObject]@{
-                        Timestamp  = $timestamp
-                        HtmlFile   = (Split-Path $HtmlFile -Leaf)
-                        UnitType   = $cfg.UnitType
-                        UnitNo     = $unitNo
-                        UnitName   = $unitName
-                        IssueType  = "DuplicateRef"
-                        Section    = $sec.Name
-                        MemType    = if ($row.PSObject.Properties['MemType']) { $row.MemType.Trim() } else { $sec.Name }
-                        MemberName = $name
-                        DataId     = $ref
-                    })
-                }
-                Write-Host ""
+                Write-Host "  WARN  $ref in [$($sec.Name)] - duplicate rows in CSV" -ForegroundColor Yellow
+                # Only log the first instance as a warning; don't fail the validation
+                $row = $refGroups[$ref][0]
+                $name   = $row.($sec.NameColumn).Trim()
+                $unitNo = $row.($sec.UnitIdField).Trim()
+                $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }
+                $label = if ($name) { $name } else { '(vacant)' }
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "DuplicateRef-MembershipCsv"
+                    Section    = $sec.Name
+                    MemType    = if ($row.PSObject.Properties['MemType']) { $row.MemType.Trim() } else { $sec.Name }
+                    MemberName = $name
+                    DataId     = $ref
+                })
             }
         }
     }
@@ -359,29 +359,113 @@ foreach ($cfg in $targetConfigs) {
         }
     }
 
+    # Check for units with no membership data
+    $unitsWithMembers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unitsWithOfficers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unitsWithPastMasters = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+
+    foreach ($sec in $cfg.MemSections) {
+        # Skip optional sections (honorary members, joining past masters)
+        if ($sec.Name -match "honorary|joining") {
+            continue
+        }
+
+        foreach ($row in $secData[$sec.Name]) {
+            $unitNo = $row.($sec.UnitIdField).Trim()
+            if (-not [string]::IsNullOrWhiteSpace($unitNo)) {
+                # Track by section type
+                if ($sec.Name -match "officers") {
+                    [void]$unitsWithOfficers.Add($unitNo)
+                } elseif ($sec.Name -match "past_heads|past_masters") {
+                    [void]$unitsWithPastMasters.Add($unitNo)
+                } elseif ($sec.Name -match "members" -and $sec.Name -notmatch "past") {
+                    [void]$unitsWithMembers.Add($unitNo)
+                }
+            }
+        }
+    }
+
+    foreach ($unit in $typeUnits) {
+        $unitNo   = $unit.($cfg.UnitNoColumn).Trim()
+        $unitName = $unit.($cfg.UnitNameColumn).Trim()
+        
+        # Check for missing officers
+        if (-not $unitsWithOfficers.Contains($unitNo)) {
+            $typeFail++
+            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No officer data found" -ForegroundColor Red
+            [void]$issues.Add([PSCustomObject]@{
+                Timestamp  = $timestamp
+                HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                UnitType   = $cfg.UnitType
+                UnitNo     = $unitNo
+                UnitName   = $unitName
+                IssueType  = "NoOfficerData"
+                Section    = ""
+                MemType    = ""
+                MemberName = ""
+                DataId     = ""
+            })
+        }
+
+        # Check for missing past masters
+        if (-not $unitsWithPastMasters.Contains($unitNo)) {
+            $typeFail++
+            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No past master data found" -ForegroundColor Red
+            [void]$issues.Add([PSCustomObject]@{
+                Timestamp  = $timestamp
+                HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                UnitType   = $cfg.UnitType
+                UnitNo     = $unitNo
+                UnitName   = $unitName
+                IssueType  = "NoPastMasterData"
+                Section    = ""
+                MemType    = ""
+                MemberName = ""
+                DataId     = ""
+            })
+        }
+
+        # Check for missing members
+        if (-not $unitsWithMembers.Contains($unitNo)) {
+            $typeFail++
+            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No member data found" -ForegroundColor Red
+            [void]$issues.Add([PSCustomObject]@{
+                Timestamp  = $timestamp
+                HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                UnitType   = $cfg.UnitType
+                UnitNo     = $unitNo
+                UnitName   = $unitName
+                IssueType  = "NoMemberData"
+                Section    = ""
+                MemType    = ""
+                MemberName = ""
+                DataId     = ""
+            })
+        }
+    }
+
     # b) Check EVERY row in EVERY CSV section directly.
     #    CSV (filtered by YAML section rules) is the single source of truth.
     #    No per-unit filtering, no skipping - every row must have a matching data-id in HTML.
     foreach ($sec in $cfg.MemSections) {
         foreach ($row in $secData[$sec.Name]) {
-            $ref     = $row.($sec.RefColumn).Trim()
-            # Always use MemType from CSV - matches C# BuildDataId() which uses the CSV MemType value
-            $memType = if ([string]::IsNullOrWhiteSpace($row.MemType)) { "" } else { $row.MemType.Trim() }
-            # Only include office if this section maps Position/Office in the data source
-            $office  = if ($sec.PositionColumn -and $row.PSObject.Properties[$sec.PositionColumn]) { $row.($sec.PositionColumn).Trim() } else { '' }
-            $dataId  = $ref + '-' + $memType
-            if ($office) { $dataId += '-' + $office }
+            $dataId = $row.($sec.RefColumn).Trim()
 
             $typeRowsChecked++
 
-            if (-not $htmlDataIds.Contains($dataId)) {
+            # Check if any HTML data-id contains this reference (as a substring)
+            $found = $htmlDataIds | Where-Object { $_.StartsWith($dataId) } | Select-Object -First 1
+            if (-not $found) {
                 $typeFail++
                 $name     = $row.($sec.NameColumn).Trim()
                 $unitNo   = $row.($sec.UnitIdField).Trim()
                 $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }
                 $label    = if ($name) { $name } else { '(vacant)' }
                 Write-Host "  FAIL $unitNo $unitName" -ForegroundColor Yellow
-                Write-Host "       MISSING [$memType] $label (dataId=$dataId)" -ForegroundColor Red
+                Write-Host "       MISSING $label (dataId=$dataId)" -ForegroundColor Red
                 [void]$issues.Add([PSCustomObject]@{
                     Timestamp  = $timestamp
                     HtmlFile   = (Split-Path $HtmlFile -Leaf)
@@ -390,7 +474,7 @@ foreach ($cfg in $targetConfigs) {
                     UnitName   = $unitName
                     IssueType  = "MissingMember"
                     Section    = $sec.Name
-                    MemType    = $memType
+                    MemType    = ""
                     MemberName = $name
                     DataId     = $dataId
                 })

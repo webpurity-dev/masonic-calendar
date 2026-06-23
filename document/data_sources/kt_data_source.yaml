@@ -23,7 +23,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "Province of Dorset and Wiltshire"
-  source: "no_officers_v1.7.csv"
+  source: "no_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -36,7 +36,7 @@ order_regional_officers:
       type: "string"
 
 units:
-  source: "units_v1.7.csv"
+  source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "KT"
   fields:
@@ -69,7 +69,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "KT"
@@ -111,7 +111,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "KT"
@@ -157,7 +157,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "KT"
@@ -199,7 +199,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "KT"
@@ -235,7 +235,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "KT"

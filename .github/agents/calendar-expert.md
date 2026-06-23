@@ -417,7 +417,7 @@ document/
   ├── data/
   │   ├── units_v1.5.csv         # Unit master data (current version)
   │   ├── membership_v1.5.csv    # Member data (current version)
-  │   ├── unit-meetings.csv      # Meeting definitions
+  │   ├── unit_meetings.csv      # Meeting definitions
   │   ├── units_raw_v1.4.csv     # Previous version (archive)
   │   ├── units_v1.4.csv         # Previous version (archive)
   │   ├── units_v1.3.csv         # Previous version (archive)

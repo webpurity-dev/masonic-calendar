@@ -58,7 +58,7 @@ document/
 |   +-- CraftData.csv                 # Craft lodge data
 |   +-- RAData.csv                    # Royal Arch chapter data
 |   +-- unit-locations.csv            # Meeting locations
-|   +-- sample-unit-meetings.csv      # Meeting recurrence rules
+|   +-- sample-unit_meetings.csv      # Meeting recurrence rules
 +-- data_sources/
 |   +-- craft_data_source.yaml        # Column mappings for Craft CSV
 |   +-- royalarch_data_source.yaml    # Column mappings for Royal Arch CSV

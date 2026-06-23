@@ -28,7 +28,7 @@ order_summary:
 
 order_executive_officers:
   heading2: "Provincial Executive"
-  source: "royalarch_executive_officers_v1.7.csv"
+  source: "royalarch_executive_officers.csv"
   fields:
     - name: "Rank"
       csv_column: "Rank"
@@ -42,7 +42,7 @@ order_executive_officers:
 
 order_regional_officers:
   officers_heading: "Provincial Grand Chapter Officers 2025-26"
-  source: "royalarch_officers_v1.7.csv"
+  source: "royalarch_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -57,7 +57,7 @@ order_regional_officers:
 order_succession_list:
   tables:
     - title: "GRAND SUPERINTENDENTS"
-      source: "data/royalarch_megs_succession_v1.7.csv"
+      source: "data/royalarch_megs_succession.csv"
       font_size: "8pt"
       columns:
         - name: "Appointed"
@@ -73,7 +73,7 @@ order_succession_list:
           width: "12%"
           alignment: "left"
     - title: "DEPUTY GRAND SUPERINTENDENTS"
-      source: "data/royalarch_degs_succession_v1.7.csv"
+      source: "data/royalarch_degs_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"
@@ -90,7 +90,7 @@ order_succession_list:
           alignment: "left"
 
 order_member_stats:
-  source: "royalarch_stats_v1.7.csv"
+  source: "royalarch_stats.csv"
   fields:
     - name: "LodgeCode"
       csv_column: "Lc no"
@@ -130,7 +130,7 @@ order_member_stats:
       type: "int"
 
 units:
-  source: "units_v1.7.csv"
+  source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "RA"
   fields:
@@ -164,7 +164,7 @@ units:
     # Location and What3Words now loaded from unit_locations.csv via location join
 
 unit_officers:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -206,7 +206,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -252,7 +252,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -299,7 +299,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -344,7 +344,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"

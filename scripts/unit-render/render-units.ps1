@@ -6,7 +6,6 @@
 #   .\render-units.ps1 -Version 1.6 -Limit 10
 
 param(
-    [Parameter(Mandatory)][string]$Version,
     [int]$Limit = 0,
     [string]$FilterUnitType = ""
 )
@@ -25,10 +24,10 @@ if (-not (Test-Path $consoleProject)) {
 # ============================================================
 # Load units from CSV
 # ============================================================
-Write-Host "Loading units from CSV (version $Version)..." -ForegroundColor Cyan
+Write-Host "Loading units from CSV..." -ForegroundColor Cyan
 
-# Determine which CSV to use based on version
-$csvPath = Join-Path $dataDir "units_v$Version.csv"
+# Determine which CSV to use
+$csvPath = Join-Path $dataDir "units.csv"
 if (-not (Test-Path $csvPath)) {
     Write-Host "ERROR: Units CSV not found: $csvPath" -ForegroundColor Red; exit 1
 }

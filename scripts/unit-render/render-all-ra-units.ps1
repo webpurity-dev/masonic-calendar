@@ -4,9 +4,8 @@
 #   .\render-all-ra-units.ps1 -Version 1.5 -Limit 3
 
 param(
-    [Parameter(Mandatory)][string]$Version,
     [int]$Limit = 0
 )
 
-& "$PSScriptRoot\render-units.ps1" -Version $Version -FilterUnitType "RA" -Limit $Limit
+& "$PSScriptRoot\render-units.ps1" -FilterUnitType "RA" -Limit $Limit
 exit $LASTEXITCODE

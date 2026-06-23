@@ -65,7 +65,7 @@ document/
 ├── data/
 │   ├── units_v1.3.csv         # Unit data (Craft, RA, Mark, RAM; v1.3 schema)
 │   ├── membership_v1.3.csv    # Member data (v1.3 schema)
-│   ├── unit-meetings.csv      # Meeting recurrence rules and dates
+│   ├── unit_meetings.csv      # Meeting recurrence rules and dates
 │   └── _archive/              # Previous schema versions
 ├── data_sources/
 │   ├── craft_data_source.yaml              # Column mappings for Craft data + succession lists

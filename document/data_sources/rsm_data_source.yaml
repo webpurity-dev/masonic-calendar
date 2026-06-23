@@ -27,7 +27,7 @@ order_summary:
 order_regional_officers:
   district_heading: "District of Dorset, Hampshire and Isle of Wight"
   officers_heading: "District Officers 2026-27"
-  source: "rsm_officers_v1.7.csv"
+  source: "rsm_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -40,7 +40,7 @@ order_regional_officers:
       type: "string"
 
 units:
-  source: "units_v1.7.csv"
+  source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "RSM"
   fields:
@@ -73,7 +73,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RSM"
@@ -115,7 +115,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RSM"
@@ -161,7 +161,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RSM"
@@ -203,7 +203,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RSM"
@@ -239,7 +239,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership_v1.7.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RSM"

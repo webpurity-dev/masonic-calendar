@@ -14,7 +14,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "Provincial Grand Lodge of Dorset"
-  source: "no_officers_v1.7.csv"
+  source: "no_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"

@@ -141,6 +141,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(jpm.Reference) },
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
+                        { "joinedDate", jpm.JoinedDate },
                         { "pastUnits", jpm.PastUnits },
                         { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }

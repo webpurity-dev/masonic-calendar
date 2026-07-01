@@ -447,6 +447,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Reference = GetFieldValue(csv, fieldMap, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
+                            JoinedDate = GetFieldValue(csv, fieldMap, "JoinedDate"),
                             PastUnits = pastUnits,
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(displayRankYear),
@@ -758,6 +759,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.JoinPastMasters = unit.JoinPastMasters
             .GroupBy(j => j.Reference)
             .SelectMany(g => g.Skip(g.Count() - 1))
+            .OrderBy(j => ExtractFirstDate(j.JoinedDate))
             .ToList();
 
         // For Members: deduplicate by Reference (keep last occurrence)

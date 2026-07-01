@@ -161,6 +161,40 @@ unit_past_heads:
       csv_column: "LR Date Accorded"
       type: "int"
 
+unit_joining_past_heads:
+  source: "membership.csv"
+  filters:
+    - filter_field: "Unit Type"
+      filter_value: "Mark"
+    - filter_field: "Mem Type"
+      filter_value: "PMI"
+  fields:
+    - name: "Reference"
+      csv_column: "Unique Ref"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "JoinedDate"
+      csv_column: "Join Date"
+      type: "string"
+    - name: "PastUnits"
+      csv_column: "Lodge"
+      type: "string"
+    # v1.6 fields
+    - name: "ProvincialRank"
+      csv_column: "Provincial Rank"
+      type: "string"
+    - name: "DateRankAccorded"
+      csv_column: "Date Accorded"
+      type: "string"
+    - name: "GrandRank"
+      csv_column: "Grand Rank"
+      type: "string"
+    - name: "GrandRankDateAccorded"
+      csv_column: "GR Date Accorded"
+      type: "string"
+
 unit_members:
   source: "membership.csv"
   filters:

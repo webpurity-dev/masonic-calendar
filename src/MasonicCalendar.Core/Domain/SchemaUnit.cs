@@ -98,6 +98,7 @@ public class SchemaJoinPastMaster
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
+    public string? JoinedDate { get; set; }  // Year/date joined as joining past master
     public string? PastUnits { get; set; } 
     public string? Rank { get; set; }  // Legacy: computed display rank
     public string? RankYear { get; set; }

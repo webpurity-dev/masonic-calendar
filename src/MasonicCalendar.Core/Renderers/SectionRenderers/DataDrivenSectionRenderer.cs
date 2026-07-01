@@ -140,6 +140,14 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                     Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {mapping.UnitHonoraryMembers.OverrideHeading}");
             }
 
+            // v1.9: Extract installation heading override from Units section
+            if (!string.IsNullOrWhiteSpace(mapping?.Units?.OverrideInstallationHeading))
+            {
+                headings["installationHeading"] = mapping.Units.OverrideInstallationHeading;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] installationHeading: {mapping.Units.OverrideInstallationHeading}");
+            }
+
             if (DebugMode && headings.Count == 0)
                 Console.WriteLine($"    [LoadSectionHeadings] No headings found in {section.DataMapping}");
 

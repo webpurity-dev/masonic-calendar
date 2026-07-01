@@ -104,17 +104,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                         { "name", TextCleaner.CleanName(o.Name) },
                         { "position", o.Position },
-                        { "posNo", o.PosNo },
-                        // v1.6 fields
-                        { "grand_rank", o.GrandRank },
-                        { "grand_rank_date_accorded", o.GrandRankDateAccorded },
-                        // v1.7 NEW
-                        { "prov_rank_other_prov", o.ProvRankOtherProv },
-                        { "op_date_accorded", o.OpDateAccorded },
-                        { "op_date_start_year", o.OpDateStartYear },
-                        { "op_date_end_year", o.OpDateEndYear },
-                        { "london_rank", o.LondonRank },
-                        { "london_rank_date_accorded", o.LondonRankDateAccorded }
+                        { "posNo", o.PosNo }
                     })
                     .ToList()
             },
@@ -156,24 +146,15 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                         { "name", TextCleaner.CleanName(m.Name) },
                         { "joined", m.YearInitiated },
-                        { "posNo", m.PosNo },
-                        // v1.6 fields
-                        { "provincial_rank", m.ProvincialRank },
-                        { "date_rank_accorded", m.DateRankAccorded },
-                        { "grand_rank", m.GrandRank },
-                        { "grand_rank_date_accorded", m.GrandRankDateAccorded },
-                        // v1.7 NEW
-                        { "prov_rank_other_prov", m.ProvRankOtherProv },
-                        { "op_date_accorded", m.OpDateAccorded },
-                        { "op_date_start_year", m.OpDateStartYear },
-                        { "op_date_end_year", m.OpDateEndYear },
-                        { "london_rank", m.LondonRank },
-                        { "london_rank_date_accorded", m.LondonRankDateAccorded }
+                        { "posNo", m.PosNo }
                     })
                     .ToList()
             },
             {
                 "memberColumns", SplitMembersIntoColumns(unit.Members)
+            },
+            {
+                "groupedMembers", BuildGroupedMembers(unit.Members)  // v1.9: Support grouped members (e.g., RC degrees)
             },
             {
                 "honoraryMembers", unit.HonoraryMembers
@@ -205,7 +186,9 @@ public static class UnitModelBuilder
             { "pastMasters", overrides?.TryGetValue("pastMasters", out var pm) == true ? pm : "Past Masters" },
             { "joiningPastMasters", overrides?.TryGetValue("joiningPastMasters", out var jpm) == true ? jpm : "Joining Past Masters" },
             { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },
-            { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" }
+            { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },
+            { "installationHeading", overrides?.TryGetValue("installationHeading", out var ih) == true ? ih : "Installation" },  // v1.9: Support override (e.g., "Enthronement" for RC)
+            { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" }  // v1.9: Optional caption under member table
         };
         return headings;
     }
@@ -234,17 +217,7 @@ public static class UnitModelBuilder
                 { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                 { "name", TextCleaner.CleanName(o.Name) },
                 { "position", o.Position },
-                { "posNo", o.PosNo },
-                // v1.6 fields
-                { "grand_rank", o.GrandRank },
-                { "grand_rank_date_accorded", o.GrandRankDateAccorded },
-                // v1.7 NEW
-                { "prov_rank_other_prov", o.ProvRankOtherProv },
-                { "op_date_accorded", o.OpDateAccorded },
-                { "op_date_start_year", o.OpDateStartYear },
-                { "op_date_end_year", o.OpDateEndYear },
-                { "london_rank", o.LondonRank },
-                { "london_rank_date_accorded", o.LondonRankDateAccorded }
+                { "posNo", o.PosNo }
             };
 
             if (i < splitAt) left.Add(dict);
@@ -280,19 +253,7 @@ public static class UnitModelBuilder
                 { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
-                { "posNo", m.PosNo },
-                // v1.6 fields
-                { "provincial_rank", m.ProvincialRank },
-                { "date_rank_accorded", m.DateRankAccorded },
-                { "grand_rank", m.GrandRank },
-                { "grand_rank_date_accorded", m.GrandRankDateAccorded },
-                // v1.7 NEW
-                { "prov_rank_other_prov", m.ProvRankOtherProv },
-                { "op_date_accorded", m.OpDateAccorded },
-                { "op_date_start_year", m.OpDateStartYear },
-                { "op_date_end_year", m.OpDateEndYear },
-                { "london_rank", m.LondonRank },
-                { "london_rank_date_accorded", m.LondonRankDateAccorded }
+                { "posNo", m.PosNo }
             };
 
             if (i < colSize) col0.Add(dict);
@@ -419,5 +380,96 @@ public static class UnitModelBuilder
     {
         var displayRank = BuildDisplayRankWithDates(grandRank, grandRankDateAccorded, provincialRank, dateRankAccorded, provRankOtherProv, opDateAccorded, londonRank, londonRankDateAccorded);
         return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
+    }
+
+    /// <summary>
+    /// Build grouped members structure for units with grouping (e.g., RC degrees like "33°", "32°", etc).
+    /// Returns a list of groups, each with a groupKey and list of members in that group.
+    /// If no members have a Grouping value, returns empty list.
+    /// </summary>
+    private static List<Dictionary<string, object?>> BuildGroupedMembers(List<SchemaMember> members)
+    {
+        // Check if any members have grouping
+        if (members.All(m => string.IsNullOrWhiteSpace(m.Grouping)))
+            return [];
+
+        // Group members by their grouping value
+        var grouped = members
+            .Where(m => !string.IsNullOrWhiteSpace(m.Grouping))
+            .GroupBy(m => m.Grouping ?? "")
+            // Sort groups by numeric value in descending order (33°, 32°, 31°, etc.)
+            .OrderByDescending(g => ExtractNumericFromGrouping(g.Key))
+            .Select(g => 
+            {
+                // Sort members within each group by year initiated (ascending)
+                var sortedMembers = g.OrderBy(m => GetSortableYear(m.YearInitiated)).ToList();
+                
+                return new Dictionary<string, object?>
+                {
+                    { "groupKey", g.Key },
+                    { "columns", SplitGroupMembers(sortedMembers) }  // v1.9: Split into 2 columns
+                };
+            })
+            .ToList();
+
+        return grouped;
+    }
+
+    /// <summary>
+    /// Extract numeric value from grouping string (e.g., "33°" → 33)
+    /// </summary>
+    private static int ExtractNumericFromGrouping(string grouping)
+    {
+        if (string.IsNullOrWhiteSpace(grouping))
+            return 0;
+        
+        // Extract digits from the beginning of the string
+        var numericPart = new string(grouping.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(numericPart, out var num) ? num : 0;
+    }
+
+    /// <summary>
+    /// Extract sortable year from year initiated string (e.g., "1996" → 1996)
+    /// </summary>
+    private static int GetSortableYear(string? year)
+    {
+        if (string.IsNullOrWhiteSpace(year))
+            return int.MaxValue; // Sort nulls to the end
+        
+        // Extract digits and convert to int
+        var numericPart = new string(year.TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(numericPart, out var num) ? num : int.MaxValue;
+    }
+
+    /// <summary>
+    /// Split group members into 2 columns for display (for grouped members like RC degrees)
+    /// </summary>
+    private static List<List<Dictionary<string, object?>>> SplitGroupMembers(List<SchemaMember> members)
+    {
+        const int numColumns = 2;
+        var col0 = new List<Dictionary<string, object?>>();
+        var col1 = new List<Dictionary<string, object?>>();
+
+        if (members.Count == 0)
+            return [col0, col1];
+
+        var colSize = (int)Math.Ceiling(members.Count / (double)numColumns);
+
+        for (int i = 0; i < members.Count; i++)
+        {
+            var m = members[i];
+            var dict = new Dictionary<string, object?>
+            {
+                { "reference", TextCleaner.CleanReference(m.Reference) },
+                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
+                { "name", TextCleaner.CleanName(m.Name) },
+                { "joined", m.YearInitiated }
+            };
+
+            if (i < colSize) col0.Add(dict);
+            else col1.Add(dict);
+        }
+
+        return [col0, col1];
     }
 }

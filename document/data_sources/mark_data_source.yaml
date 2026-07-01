@@ -93,27 +93,6 @@ unit_officers:
     - name: "PositionNo"
       csv_column: "OffPos"
       type: "int"
-    # v1.6 fields
-    - name: "GrandRank"
-      csv_column: "Grand Rank"
-      type: "string"
-    - name: "GrandRankDateAccorded"
-      csv_column: "GR Date Accorded"
-      type: "int"
-    # v1.7 NEW: Other Province Rank
-    - name: "ProvRankOtherProv"
-      csv_column: "Prov Rank Oth Prov"
-      type: "string"
-    - name: "OpDateAccorded"
-      csv_column: "OP Date Accorded"
-      type: "string"
-    # v1.7 NEW: London Rank
-    - name: "LondonRank"
-      csv_column: "Lndn Rank"
-      type: "string"
-    - name: "LondonRankDateAccorded"
-      csv_column: "LR Date Accorded"
-      type: "int"
 
 unit_past_heads:
   source: "membership.csv"
@@ -212,33 +191,6 @@ unit_members:
     - name: "YearInitiated"
       csv_column: "Join Date"
       type: "string"
-    # v1.6 fields
-    - name: "ProvincialRank"
-      csv_column: "Provincial Rank"
-      type: "string"
-    - name: "DateRankAccorded"
-      csv_column: "Date Accorded"
-      type: "string"
-    - name: "GrandRank"
-      csv_column: "Grand Rank"
-      type: "string"
-    - name: "GrandRankDateAccorded"
-      csv_column: "GR Date Accorded"
-      type: "string"
-    # v1.7 NEW: Other Province Rank
-    - name: "ProvRankOtherProv"
-      csv_column: "Prov Rank Oth Prov"
-      type: "string"
-    - name: "OpDateAccorded"
-      csv_column: "OP Date Accorded"
-      type: "string"
-    # v1.7 NEW: London Rank
-    - name: "LondonRank"
-      csv_column: "Lndn Rank"
-      type: "string"
-    - name: "LondonRankDateAccorded"
-      csv_column: "LR Date Accorded"
-      type: "int"
 
 unit_honorary_members:
   source: "membership.csv"

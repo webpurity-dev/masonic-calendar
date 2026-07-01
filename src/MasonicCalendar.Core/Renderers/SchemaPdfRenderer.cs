@@ -853,6 +853,14 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             if (!string.IsNullOrWhiteSpace(mapping?.UnitHonoraryMembers?.OverrideHeading))
                 headings["honoraryMembers"] = mapping.UnitHonoraryMembers.OverrideHeading;
 
+            // v1.9: Extract installation heading override from Units section
+            if (!string.IsNullOrWhiteSpace(mapping?.Units?.OverrideInstallationHeading))
+                headings["installationHeading"] = mapping.Units.OverrideInstallationHeading;
+
+            // v1.9: Extract caption from unit_members section
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitMembers?.Caption))
+                headings["memberCaption"] = mapping.UnitMembers.Caption;
+
             return Task.FromResult<Dictionary<string, string>?>(headings.Count > 0 ? headings : null);
         }
         catch

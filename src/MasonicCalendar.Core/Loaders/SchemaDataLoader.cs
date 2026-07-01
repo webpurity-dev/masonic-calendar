@@ -344,17 +344,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Office = office,
                             Name = TextCleaner.CleanName(name),
                             Position = GetFieldValue(csv, fieldMap, "Position"),
-                            PosNo = positionNo,
-                            // v1.6
-                            GrandRank = TextCleaner.CleanProvincialRank(grandRankStr),
-                            GrandRankDateAccorded = grandRankDate,
-                            // v1.7 NEW
-                            ProvRankOtherProv = TextCleaner.CleanProvincialRank(provRankOtherProv),
-                            OpDateAccorded = opDateAccordedStr,
-                            OpDateStartYear = opDateStart,
-                            OpDateEndYear = opDateEnd,
-                            LondonRank = TextCleaner.CleanProvincialRank(londonRank),
-                            LondonRankDateAccorded = londonRankDate
+                            PosNo = positionNo
                         });
                     };
                 });
@@ -501,18 +491,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
                             YearInitiated = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "YearInitiated")),
-                            // v1.6
-                            ProvincialRank = TextCleaner.CleanProvincialRank(provRankStr),
-                            DateRankAccorded = provRankDate,
-                            GrandRank = TextCleaner.CleanProvincialRank(grandRankStr),
-                            GrandRankDateAccorded = grandRankDate,
-                            // v1.7 NEW
-                            ProvRankOtherProv = TextCleaner.CleanProvincialRank(provRankOtherProv),
-                            OpDateAccorded = opDateAccordedStr,
-                            OpDateStartYear = opDateStart,
-                            OpDateEndYear = opDateEnd,
-                            LondonRank = TextCleaner.CleanProvincialRank(londonRank),
-                            LondonRankDateAccorded = londonRankDate
+                            Grouping = GetFieldValue(csv, fieldMap, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
                         });
                     });
                 int membersAfter = units.Sum(u => u.Members.Count);
@@ -740,38 +719,41 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     /// </summary>
     private void DeduplicateMemberLists(SchemaUnit unit)
     {
-        // For Officers: deduplicate by Reference + Office (a person can't hold the same office twice)
+        // For Officers: deduplicate by Reference + Office or Name + Office (a person can't hold the same office twice)
+        // If Reference is null/empty, use Name instead for the composite key
         unit.Officers = unit.Officers
-            .GroupBy(o => (o.Reference, o.Office))
+            .GroupBy(o => (!string.IsNullOrWhiteSpace(o.Reference) ? o.Reference : o.Name, o.Office))
             .SelectMany(g => g.Skip(g.Count() - 1))
             .ToList();
 
-        // For Past Masters: deduplicate by Reference (keep last occurrence)
-        // A person appears as PMO, PMEZ, PCO etc - same person different abbreviations are different entries
-        // But if the exact same reference appears twice, keep only last
+        // For Past Masters: deduplicate by Reference or Name (keep last occurrence)
+        // If Reference is null/empty, use Name as the key for deduplication
         unit.PastMasters = unit.PastMasters
-            .GroupBy(p => p.Reference)
+            .GroupBy(p => !string.IsNullOrWhiteSpace(p.Reference) ? p.Reference : p.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
             .OrderBy(p => ExtractSortYear(p.YearInstalled) ?? int.MaxValue)
             .ToList();
 
-        // For Joining Past Masters: deduplicate by Reference (keep last occurrence)
+        // For Joining Past Masters: deduplicate by Reference or Name (keep last occurrence)
+        // If Reference is null/empty, use Name as the key for deduplication
         unit.JoinPastMasters = unit.JoinPastMasters
-            .GroupBy(j => j.Reference)
+            .GroupBy(j => !string.IsNullOrWhiteSpace(j.Reference) ? j.Reference : j.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
             .OrderBy(j => ExtractFirstDate(j.JoinedDate))
             .ToList();
 
-        // For Members: deduplicate by Reference (keep last occurrence)
+        // For Members: deduplicate by Reference or Name (keep last occurrence)
+        // If Reference is null/empty, use Name as the key for deduplication
         unit.Members = unit.Members
-            .GroupBy(m => m.Reference)
+            .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
             .OrderBy(m => ExtractFirstDate(m.YearInitiated))
             .ToList();
 
-        // For Honorary Members: deduplicate by Reference (keep last occurrence)
+        // For Honorary Members: deduplicate by Reference or Name (keep last occurrence)
+        // If Reference is null/empty, use Name as the key for deduplication
         unit.HonoraryMembers = unit.HonoraryMembers
-            .GroupBy(h => h.Reference)
+            .GroupBy(h => !string.IsNullOrWhiteSpace(h.Reference) ? h.Reference : h.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
             .ToList();
     }

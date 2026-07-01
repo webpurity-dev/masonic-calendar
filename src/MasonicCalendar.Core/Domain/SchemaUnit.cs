@@ -42,20 +42,6 @@ public class SchemaOfficer
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? Position { get; set; }  // FN01
     public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
-    
-    // v1.6 fields
-    public string? GrandRank { get; set; }         // Grand rank (preferred if exists)
-    public int? GrandRankDateAccorded { get; set; } // Year rank was accorded
-    
-    // v1.7 NEW: Other Province Rank
-    public string? ProvRankOtherProv { get; set; }     // Provincial rank from different province
-    public string? OpDateAccorded { get; set; }       // OP date accorded (raw format: "2021" or "1993-15")
-    public int? OpDateStartYear { get; set; }        // Parsed start year from date range
-    public int? OpDateEndYear { get; set; }          // Parsed end year from date range
-    
-    // v1.7 NEW: London Rank
-    public string? LondonRank { get; set; }           // London Grand Rank (rare)
-    public int? LondonRankDateAccorded { get; set; } // Year London rank was accorded
 }
 
 /// <summary>
@@ -131,22 +117,7 @@ public class SchemaMember
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInitiated { get; set; } // FN01
     public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
-    
-    // v1.6 fields
-    public string? ProvincialRank { get; set; }        // Provincial rank (Dorset)
-    public int? DateRankAccorded { get; set; }        // Year rank was accorded
-    public string? GrandRank { get; set; }             // Grand rank (preferred if exists)
-    public int? GrandRankDateAccorded { get; set; }   // Year Grand rank was accorded
-    
-    // v1.7 NEW: Other Province Rank
-    public string? ProvRankOtherProv { get; set; }     // Provincial rank from different province
-    public string? OpDateAccorded { get; set; }       // OP date accorded (raw format: "2021" or "1993-15")
-    public int? OpDateStartYear { get; set; }        // Parsed start year from date range
-    public int? OpDateEndYear { get; set; }          // Parsed end year from date range
-    
-    // v1.7 NEW: London Rank
-    public string? LondonRank { get; set; }           // London Grand Rank (rare)
-    public int? LondonRankDateAccorded { get; set; } // Year London rank was accorded
+    public string? Grouping { get; set; }  // v1.9: Grouping identifier (e.g., "33°", "32°" for RC units)
 }
 
 /// <summary>

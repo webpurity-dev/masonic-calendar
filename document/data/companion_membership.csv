@@ -1,4 +1,4 @@
-﻿Unit Type,Mem Type,Unit,Unit No,Type,Pos No,ConCatLu,ONPOS,Office,Joined,Joined From,†,Installed,Name,j,a,f,Prov Rank,Date Accorded,SCode,Main Detail,Import,Grouping,Sort Order,Unique Ref
+﻿Unit Type,Mem Type,Unit,Unit No,Type,Pos No,ConCatLu,ONPOS,Office,Joined,Joined From,Suffix,Installed,Name,j,a,f,Prov Rank,Date Accorded,SCode,Main Detail,Import,Grouping,Sort Order,Unique Ref
 Athel,,143,143,,,,,,,,,,,,,,,,Sec Email,c143-courtsec@moa-dumninia.org.uk,Y,,,
 Athel,Off,143,143,WM,1,1 143 WM,,,2019-22,,,0,"Wakely , D",0,a,,Prov JGW,2026,,,Y,,Athel 0143 Off 001,AthelWakelyDOff1
 Athel,Off,143,143,Off,1,1 143 Off,143Worshipful Master,Worshipful Master,,,,,"Thomas, R J",,,,,,,,Y,,Athel 0143 Off 001,AthelThomasRJOff1
@@ -561,9 +561,9 @@ RC,,4,,Off,5,5 4 Off,4Treasurer,Treasurer,,,,,"Dorrington-Ward, S",,,,,,,,Y,,,
 RC,,4,,Mem,5,5 4 Mem,,,2003,,†,,"Wales, R P",0,0,,,,,,Y,30°,,
 RC,,4,,Off,6,6 4 Off,4Recorder,Recorder,,,,,"Sutcliffe, P M",,,,,,,,Y,,,
 RC,,4,,Mem,6,6 4 Mem,,,2009,,†,,"Wood, N B",0,0,,,,,,Y,30°,,
-RC,,4,,Mem,7,7 4 Mem,,,2015,,†,,"Harper, W B",re-j,0,,,,,,Y,30°,,
+RC,,4,,Mem,7,7 4 Mem,,,2015,,†,,"Harper, W B †",re-j,0,,,,,,Y,30°,,
 RC,,4,,Off,7,7 4 Off,4D.C.,D.C.,,,,,"Abbis, K",,,,,,,,Y,,,
-RC,,4,,Mem,8,8 4 Mem,,,2013,,†,,"Heald, G J",0,0,,,,,,Y,30°,,
+RC,,4,,Mem,8,8 4 Mem,,,2013,,†,,"Heald, G J †",0,0,,,,,,Y,30°,,
 RC,,4,,Off,8,8 4 Off,4Almoner,Almoner,,,,,"Shadbolt, P E",,,,,,,,Y,,,
 RC,,4,,Off,9,9 4 Off,4Marshal,Marshal,,,,,"Turner, K M",,,,,,,,Y,,,
 RC,,4,,Mem,9,9 4 Mem,,,2000,,†,,"Abbis, K",0,0,,,,,,Y,30°,,

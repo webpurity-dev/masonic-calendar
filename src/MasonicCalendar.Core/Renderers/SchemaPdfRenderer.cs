@@ -861,6 +861,11 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             if (!string.IsNullOrWhiteSpace(mapping?.UnitMembers?.Caption))
                 headings["memberCaption"] = mapping.UnitMembers.Caption;
 
+            // v1.9: Extract members heading override (default to "Members" if not provided)
+            headings["members"] = !string.IsNullOrWhiteSpace(mapping?.UnitMembers?.OverrideHeading)
+                ? mapping.UnitMembers.OverrideHeading
+                : "Members";
+
             return Task.FromResult<Dictionary<string, string>?>(headings.Count > 0 ? headings : null);
         }
         catch

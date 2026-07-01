@@ -271,6 +271,32 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             }
         }
 
+        // v1.9: Handle array of columns — use first non-empty value (fallback chain) or concatenate
+        // For references, typically uses fallback: ["Unique Ref", "ConCatLu", "Name"] — tries each in order
+        // For names/descriptions, can concatenate: ["FirstName", "LastName"]
+        if (fieldMapping.CsvColumns?.Count > 0)
+        {
+            try
+            {
+                // First, check if this is a fallback scenario (all columns are simple names, likely for Reference field)
+                // Try each column in order until finding a non-empty value
+                foreach (var columnName in fieldMapping.CsvColumns)
+                {
+                    var value = (csv.GetField(columnName) ?? "").Trim();
+                    if (!string.IsNullOrWhiteSpace(value))
+                        return value;  // Return first non-empty value
+                }
+
+                // All columns are empty
+                return null;
+            }
+            catch
+            {
+                // If CsvColumns lookup fails, fall back to primary CsvColumn
+                return !string.IsNullOrWhiteSpace(fieldMapping.CsvColumn) ? csv.GetField(fieldMapping.CsvColumn) : null;
+            }
+        }
+
         // Handle regular single-column fields
         if (!string.IsNullOrWhiteSpace(fieldMapping.CsvColumn))
         {
@@ -313,28 +339,28 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             {
                 await LoadPersonTypeAsync(units, officersConfig, "officer", schemaUnit =>
                 {
-                    return (fieldMap, csv, unitNumber) =>
+                    return (fieldMapWithMetadata, csv, unitNumber) =>
                     {
-                        var reference = GetFieldValue(csv, fieldMap, "Reference");
-                        var name = GetFieldValue(csv, fieldMap, "Name");
-                        var rawPos = GetFieldValue(csv, fieldMap, "PositionNo");
+                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                        var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PositionNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
                         var memType = csv.GetField("Mem Type")?.Trim() ?? "";
                         var office  = csv.GetField("Office")?.Trim()  ?? "";
 
                         // v1.6 fields
-                        var grandRankStr = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
+                        var grandRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
+                        var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
                         var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         
                         // v1.7 NEW: Other Province Rank
-                        var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
-                        var opDateAccordedStr = GetFieldValue(csv, fieldMap, "OpDateAccorded");
+                        var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
                         // v1.7 NEW: London Rank
-                        var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
-                        var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
+                        var londonRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRank");
+                        var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.Officers.Add(new SchemaOfficer
@@ -343,7 +369,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             MemType = memType,
                             Office = office,
                             Name = TextCleaner.CleanName(name),
-                            Position = GetFieldValue(csv, fieldMap, "Position"),
+                            Position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position"),
                             PosNo = positionNo
                         });
                     };
@@ -354,36 +380,36 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             if (pastHeadsConfig != null)
             {
                 await LoadPersonTypeAsync(units, pastHeadsConfig, "past master",
-                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
-                        var name = GetFieldValue(csv, fieldMap, "Name");
+                        var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
 
-                        var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
+                        var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
+                        var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
                         var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
-                        var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
+                        var provRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
+                        var provRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "DateRankAccorded");
                         var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
                         var displayRankYear = string.IsNullOrWhiteSpace(grandRankDateStr) ? provRankDateStr : grandRankDateStr;
                         
                         // v1.7 NEW: Other Province Rank
-                        var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
-                        var opDateAccordedStr = GetFieldValue(csv, fieldMap, "OpDateAccorded");
+                        var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
                         // v1.7 NEW: London Rank
-                        var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
-                        var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
+                        var londonRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRank");
+                        var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
-                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            YearInstalled = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "YearInstalled")),
+                            YearInstalled = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInstalled")),
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(displayRankYear),
                             IsGrandRank = !string.IsNullOrWhiteSpace(grandRank),
@@ -407,37 +433,37 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             if (joiningPastConfig != null)
             {
                 await LoadPersonTypeAsync(units, joiningPastConfig, "joining past master",
-                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
-                        var name = GetFieldValue(csv, fieldMap, "Name");
-                        var pastUnits = TextCleaner.CleanPastUnits(GetFieldValue(csv, fieldMap, "PastUnits"));
+                        var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var pastUnits = TextCleaner.CleanPastUnits(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PastUnits"));
                         
-                        var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
+                        var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
+                        var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
                         var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
-                        var provRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
+                        var provRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
+                        var provRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "DateRankAccorded");
                         var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provRank : grandRank;
                         var displayRankYear = string.IsNullOrWhiteSpace(grandRankDateStr) ? provRankDateStr : grandRankDateStr;
                         
                         // v1.7 NEW: Other Province Rank
-                        var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
-                        var opDateAccordedStr = GetFieldValue(csv, fieldMap, "OpDateAccorded");
+                        var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
                         // v1.7 NEW: London Rank
-                        var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
-                        var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
+                        var londonRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRank");
+                        var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
-                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            JoinedDate = GetFieldValue(csv, fieldMap, "JoinedDate"),
+                            JoinedDate = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "JoinedDate"),
                             PastUnits = pastUnits,
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
                             RankYear = TextCleaner.CleanDateIssued(displayRankYear),
@@ -463,35 +489,36 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             {
                 int membersBefore = units.Sum(u => u.Members.Count);
                 await LoadPersonTypeAsync(units, membersConfig, "member",
-                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
-                        var name = GetFieldValue(csv, fieldMap, "Name");
+                        var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
 
                         // v1.6 fields
-                        var provRankStr = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
+                        var provRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
+                        var provRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "DateRankAccorded");
                         var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
-                        var grandRankStr = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
+                        var grandRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
+                        var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
                         var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
                         
                         // v1.7 NEW: Other Province Rank
-                        var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
-                        var opDateAccordedStr = GetFieldValue(csv, fieldMap, "OpDateAccorded");
+                        var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
                         // v1.7 NEW: London Rank
-                        var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
-                        var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
+                        var londonRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRank");
+                        var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.Members.Add(new SchemaMember
                         {
-                            Reference = GetFieldValue(csv, fieldMap, "Reference"),
+                            Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
                             MemType = csv.GetField("Mem Type")?.Trim() ?? "",
                             Name = TextCleaner.CleanName(name),
-                            YearInitiated = TextCleaner.CleanDateIssued(GetFieldValue(csv, fieldMap, "YearInitiated")),
-                            Grouping = GetFieldValue(csv, fieldMap, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
+                            YearInitiated = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated")),
+                            Suffix = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Suffix"),  // v1.9: Optional suffix (e.g., "PM", "†") — ignore if blank or "0"
+                            Grouping = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
                         });
                     });
                 int membersAfter = units.Sum(u => u.Members.Count);
@@ -502,28 +529,28 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             if (honoraryConfig != null)
             {
                 await LoadPersonTypeAsync(units, honoraryConfig, "honorary member",
-                    schemaUnit => (fieldMap, csv, unitNumber) =>
+                    schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
-                        var reference = GetFieldValue(csv, fieldMap, "Reference");
-                        var name = GetFieldValue(csv, fieldMap, "Name");
-                        var grandRank = GetFieldValue(csv, fieldMap, "GrandRank");
-                        var grandRankDateStr = GetFieldValue(csv, fieldMap, "GrandRankDateAccorded");
+                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                        var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
+                        var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
                         var grandRankDate = ParseOptionalPositiveInt(grandRankDateStr);
-                        var provincialRank = GetFieldValue(csv, fieldMap, "ProvincialRank");
-                        var provRankDateStr = GetFieldValue(csv, fieldMap, "DateRankAccorded");
+                        var provincialRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
+                        var provRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "DateRankAccorded");
                         var provRankDate = ParseOptionalPositiveInt(provRankDateStr);
                         
                         // Prefer GrandRank, fallback to ProvincialRank
                         var displayRank = string.IsNullOrWhiteSpace(grandRank) ? provincialRank : grandRank;
                         
                         // v1.7 NEW: Other Province Rank
-                        var provRankOtherProv = GetFieldValue(csv, fieldMap, "ProvRankOtherProv");
-                        var opDateAccordedStr = GetFieldValue(csv, fieldMap, "OpDateAccorded");
+                        var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
                         // v1.7 NEW: London Rank
-                        var londonRank = GetFieldValue(csv, fieldMap, "LondonRank");
-                        var londonRankDateStr = GetFieldValue(csv, fieldMap, "LondonRankDateAccorded");
+                        var londonRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRank");
+                        var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
@@ -568,7 +595,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         List<SchemaUnit> units,
         DataSourceDefinition dataSource,
         string personTypeName,
-        Func<SchemaUnit, Action<Dictionary<string, string>, CsvReader, int>> addPersonDelegate)
+        Func<SchemaUnit, Action<Dictionary<string, FieldMapping>, CsvReader, int>> addPersonDelegate)
     {
         try
         {
@@ -585,7 +612,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             await csv.ReadAsync();
             csv.ReadHeader();
 
-            var fieldMap = BuildFieldMap(dataSource.Fields);
+            var fieldMapWithMetadata = BuildFieldMapWithMetadata(dataSource.Fields);  // v1.9: Use full metadata to support CsvColumns fallback chain
             var unitIdField = dataSource.UnitIdField ?? "Unit";
 
             while (await csv.ReadAsync())
@@ -602,7 +629,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     continue;
 
                 var addPerson = addPersonDelegate(unit);
-                addPerson(fieldMap, csv, unitNumber);
+                addPerson(fieldMapWithMetadata, csv, unitNumber);
             }
         }
         catch (Exception ex)

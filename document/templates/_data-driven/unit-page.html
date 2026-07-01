@@ -123,14 +123,14 @@
     <!-- Members Table - 3 explicit inline-block tables to avoid CSS column-count PDF reflow -->
     {{ if members && members.size > 0 && (!groupedMembers || groupedMembers.size == 0) }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Members ({{ unit.number }})</h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.members }} ({{ unit.number }})</h2>
         <div style="font-size: 0; width: 100%; break-inside: auto;">
             {{ for col in memberColumns }}
             <table style="display: inline-block; vertical-align: top; width: 33.333%; border-collapse: collapse; font-size: 6pt; box-sizing: border-box;">
                 <tbody>
                     {{ for member in col }}
                     <tr data-id="{{ member.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                         <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
@@ -144,7 +144,7 @@
     <!-- Grouped Members Table (for units with degree/level grouping like RC) -->
     {{ if groupedMembers && groupedMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">Members ({{ unit.number }})</h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.members }} ({{ unit.number }})</h2>
         {{ for group in groupedMembers }}
         <div style="margin-top: 4px; text-align: left; break-inside: auto;">
             <div style="font-size: 6pt; font-weight: bold; margin-bottom: 2px; text-align: left; padding-left: 2px;">{{ group.groupKey }}</div>
@@ -157,7 +157,7 @@
                         <tbody>
                             {{ for member in $col }}
                             <tr data-id="{{ member.dataId }}">
-                                <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}</td>
+                                <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                                 <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
                             </tr>
                             {{ end }}

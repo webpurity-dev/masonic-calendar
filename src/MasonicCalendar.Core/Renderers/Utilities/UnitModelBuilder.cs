@@ -183,6 +183,7 @@ public static class UnitModelBuilder
     {
         var headings = new Dictionary<string, object?>
         {
+            { "members", overrides?.TryGetValue("members", out var m) == true ? m : "Members" },  // v1.9: Support override with default "Members"
             { "pastMasters", overrides?.TryGetValue("pastMasters", out var pm) == true ? pm : "Past Masters" },
             { "joiningPastMasters", overrides?.TryGetValue("joiningPastMasters", out var jpm) == true ? jpm : "Joining Past Masters" },
             { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },
@@ -253,7 +254,8 @@ public static class UnitModelBuilder
                 { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
                 { "joined", m.YearInitiated },
-                { "posNo", m.PosNo }
+                { "posNo", m.PosNo },
+                { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
             };
 
             if (i < colSize) col0.Add(dict);
@@ -463,7 +465,8 @@ public static class UnitModelBuilder
                 { "reference", TextCleaner.CleanReference(m.Reference) },
                 { "dataId", BuildDataId(m.Reference, m.MemType, null) },
                 { "name", TextCleaner.CleanName(m.Name) },
-                { "joined", m.YearInitiated }
+                { "joined", m.YearInitiated },
+                { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
             };
 
             if (i < colSize) col0.Add(dict);

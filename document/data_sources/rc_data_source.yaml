@@ -78,7 +78,7 @@ unit_officers:
       filter_value: "Off"
   fields:
     - name: "Reference"
-      csv_column: "Unique Ref"
+      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -100,9 +100,10 @@ unit_members:
       filter_value: "RC"
     - filter_field: "Type"
       filter_value: "Mem"
+  override_heading: "Members - With year of joining"
   fields:
     - name: "Reference"
-      csv_column: "Unique Ref"
+      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -110,6 +111,9 @@ unit_members:
     - name: "YearInitiated"
       csv_column: "Joined"
       type: "int"
+    - name: "Suffix"
+      csv_column: "Suffix"
+      type: "string"
     - name: "Grouping"
       csv_column: "Grouping"
       type: "string"
@@ -124,7 +128,7 @@ unit_honorary_members:
       filter_value: "Hon"
   fields:
     - name: "Reference"
-      csv_column: "Unique Ref"
+      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
       type: "string"
     - name: "Name"
       csv_column: "Name"

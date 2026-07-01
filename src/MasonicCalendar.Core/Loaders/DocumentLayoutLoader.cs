@@ -266,7 +266,8 @@ public class DataSourceFilter
 public class FieldMapping
 {
     public string? Name { get; set; }                      // Domain property name (e.g., "Position")
-    public string? CsvColumn { get; set; }                 // CSV column name (e.g., "FN01")
+    public string? CsvColumn { get; set; }                 // CSV column name (e.g., "FN01") — single column
+    public List<string>? CsvColumns { get; set; }          // v1.9: Multiple CSV columns to concatenate (e.g., ["ConCatLu", "Name"]) — alternative to CsvColumn
     public string? Type { get; set; }                      // Data type: string, int, date
     
     // Composite field support - combine multiple columns with format string

@@ -16,6 +16,11 @@ public static class TextCleaner
         
         // Remove newlines/carriage returns, trim, replace corruption chars
         var cleaned = name.Replace("\r", "").Replace("\n", "").Trim();
+        
+        // Source files use "0" as an empty placeholder in some name columns.
+        if (cleaned == "0")
+            return "";
+        
         cleaned = cleaned.Replace("•", " ");  // Replace bullet char with space
         cleaned = cleaned.Replace("\ufffd", " ");  // Replace Unicode Replacement Character with space
         
@@ -143,6 +148,21 @@ public static class TextCleaner
             return "";
         var trimmed = value.TrimEnd();
         return trimmed.EndsWith('.') ? trimmed : trimmed + ".";
+    }
+
+    /// <summary>
+    /// Clean office/position value by treating "0" as empty (placeholder in CSV data).
+    /// </summary>
+    public static string CleanOfficePosition(string? office)
+    {
+        if (string.IsNullOrWhiteSpace(office))
+            return "";
+        
+        var cleaned = office.Trim();
+        if (cleaned == "0")
+            return "";
+        
+        return cleaned;
     }
 
     public static string CleanPastUnits(string? pastUnits)

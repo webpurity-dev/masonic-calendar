@@ -98,18 +98,19 @@ public static class UnitModelBuilder
             },
             {
                 "officers", unit.Officers
+                    .Where(o => o.Office != "0")  // Filter out placeholder rows
                     .Select(o => new Dictionary<string, object?>
                     {
                         { "reference", TextCleaner.CleanReference(o.Reference) },
                         { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                         { "name", TextCleaner.CleanName(o.Name) },
-                        { "position", o.Position },
+                        { "position", TextCleaner.CleanOfficePosition(o.Position) },
                         { "posNo", o.PosNo }
                     })
                     .ToList()
             },
             {
-                "officerColumns", SplitOfficersIntoColumns(unit.Officers)
+                "officerColumns", SplitOfficersIntoColumns(unit.Officers.Where(o => o.Office != "0").ToList())
             },
             {
                 "pastMasters", unit.PastMasters
@@ -217,7 +218,7 @@ public static class UnitModelBuilder
                 { "reference", TextCleaner.CleanReference(o.Reference) },
                 { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
                 { "name", TextCleaner.CleanName(o.Name) },
-                { "position", o.Position },
+                { "position", TextCleaner.CleanOfficePosition(o.Position) },
                 { "posNo", o.PosNo }
             };
 

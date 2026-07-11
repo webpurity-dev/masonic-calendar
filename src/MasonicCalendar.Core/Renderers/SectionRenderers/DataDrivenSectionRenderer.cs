@@ -34,7 +34,8 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                                      previousSection?.ForSection?.Equals(section.SectionId, StringComparison.OrdinalIgnoreCase) == true;
 
         // Add section anchor for TOC links (with page break wrapper, unless first section or preceded by targeted TOC)
-        var startPageBreak = sectionIndex > 0 && !precededbytargetedtoc;
+        // Respect section.OverrideBreakBefore: if true, skip the page break to allow natural flow
+        var startPageBreak = (section.OverrideBreakBefore != true) && (sectionIndex > 0 && !precededbytargetedtoc);
         
         // Place anchor at the very start of the section, before any wrappers
         var anchorStyle = section.ResetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
@@ -60,13 +61,25 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         // Load section heading overrides from data source mapping
         var sectionHeadings = await LoadSectionHeadingsAsync(section);
 
+        var unitIndex = 0;
         foreach (var unit in unitsForSection)
         {
             var anchorId = GenerateAnchorId(unit);
             var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings);
-            output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
+            
+            // For the first unit in the section, respect override_break_before:
+            // If true, add inline style to disable the break-before CSS rule
+            var styleAttr = "";
+            if (unitIndex == 0 && section.OverrideBreakBefore == true)
+            {
+                styleAttr = " style=\"break-before: auto;\"";
+            }
+            
+            output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'{styleAttr}>");
             output.Append(unitHtml);
             output.AppendLine("</div>");
+            
+            unitIndex++;
         }
 
         // Close section divider if it was opened
@@ -112,40 +125,41 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
 
             // Extract override_heading from each person type section
             // v1.7: Use new property names (unit_ prefix for unit-level data)
-            if (!string.IsNullOrWhiteSpace(mapping?.UnitPastHeads?.OverrideHeading))
+            // NOTE: Allow null-coalescing only; allow space-only values (" ") to suppress headings
+            if (mapping?.UnitPastHeads?.OverrideHeading != null)
             {
                 headings["pastMasters"] = mapping.UnitPastHeads.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] pastMasters: {mapping.UnitPastHeads.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] pastMasters: {(mapping.UnitPastHeads.OverrideHeading == " " ? "(space)" : mapping.UnitPastHeads.OverrideHeading)}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.OverrideHeading))
+            if (mapping?.UnitJoiningPastHeads?.OverrideHeading != null)
             {
                 headings["joiningPastMasters"] = mapping.UnitJoiningPastHeads.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {mapping.UnitJoiningPastHeads.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMasters: {(mapping.UnitJoiningPastHeads.OverrideHeading == " " ? "(space)" : mapping.UnitJoiningPastHeads.OverrideHeading)}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.UnitsColumnHeading))
+            if (mapping?.UnitJoiningPastHeads?.UnitsColumnHeading != null)
             {
                 headings["joiningPastMastersUnitsColumn"] = mapping.UnitJoiningPastHeads.UnitsColumnHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMastersUnitsColumn: {mapping.UnitJoiningPastHeads.UnitsColumnHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] joiningPastMastersUnitsColumn: {(mapping.UnitJoiningPastHeads.UnitsColumnHeading == " " ? "(space)" : mapping.UnitJoiningPastHeads.UnitsColumnHeading)}");
             }
 
-            if (!string.IsNullOrWhiteSpace(mapping?.UnitHonoraryMembers?.OverrideHeading))
+            if (mapping?.UnitHonoraryMembers?.OverrideHeading != null)
             {
                 headings["honoraryMembers"] = mapping.UnitHonoraryMembers.OverrideHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {mapping.UnitHonoraryMembers.OverrideHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] honoraryMembers: {(mapping.UnitHonoraryMembers.OverrideHeading == " " ? "(space)" : mapping.UnitHonoraryMembers.OverrideHeading)}");
             }
 
             // v1.9: Extract installation heading override from Units section
-            if (!string.IsNullOrWhiteSpace(mapping?.Units?.OverrideInstallationHeading))
+            if (mapping?.Units?.OverrideInstallationHeading != null)
             {
                 headings["installationHeading"] = mapping.Units.OverrideInstallationHeading;
                 if (DebugMode)
-                    Console.WriteLine($"    [LoadSectionHeadings] installationHeading: {mapping.Units.OverrideInstallationHeading}");
+                    Console.WriteLine($"    [LoadSectionHeadings] installationHeading: {(mapping.Units.OverrideInstallationHeading == " " ? "(space)" : mapping.Units.OverrideInstallationHeading)}");
             }
 
             if (DebugMode && headings.Count == 0)

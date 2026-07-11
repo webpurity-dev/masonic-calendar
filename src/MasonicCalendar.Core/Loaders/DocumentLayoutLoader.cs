@@ -247,6 +247,8 @@ public class DataSourceDefinition
     public string? UnitsColumnHeading { get; set; }     // Optional override for units/lodges column header (e.g., "Chapters" for Royal Arch)
     public string? Caption { get; set; }                // Optional caption to display under member table (e.g., "Those marked † have passed this Chair")
     public int? CalendarStartMonth { get; set; }         // Meetings calendar: first month to render (1=Jan … 12=Dec); runs 12 months from this point
+    public bool HideUnitNumber { get; set; } = false;   // When true, unit number is hidden in templates
+    public bool HideUnitName { get; set; } = false;     // When true, unit name is hidden in templates
     public List<FieldMapping>? Fields { get; set; }
 }
 

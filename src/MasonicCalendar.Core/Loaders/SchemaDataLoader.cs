@@ -193,6 +193,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     Hall = GetFieldValueWithComposite(csv, fieldMap, "Hall"),  // Mapped to Location column in YAML
                     What3Words = GetFieldValueWithComposite(csv, fieldMap, "What3Words"),  // Will be overwritten by location join
                     UnitType = mapping.Units.FilterField != null ? csv.GetField(mapping.Units.FilterField) : null,
+                    HideUnitNumber = mapping.Units.HideUnitNumber,
+                    HideUnitName = mapping.Units.HideUnitName,
                 };
 
                 units.Add(unit);
@@ -300,7 +302,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         // Handle regular single-column fields
         if (!string.IsNullOrWhiteSpace(fieldMapping.CsvColumn))
         {
-            return csv.GetField(fieldMapping.CsvColumn);
+            var value = csv.GetField(fieldMapping.CsvColumn);
+            // Return trimmed value, or null if it's empty/whitespace-only
+            return !string.IsNullOrWhiteSpace(value) ? value.Trim() : null;
         }
 
         return null;

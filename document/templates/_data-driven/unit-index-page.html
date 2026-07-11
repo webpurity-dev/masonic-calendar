@@ -14,7 +14,8 @@
             {{ for item in group.col1 }}
             <tr class="toc-item">
                 <td style="padding: 2px; text-align: left; font-size: 6pt;">
-                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> {{ item.short_name }}</a>
+                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">
+                        {{ if !item.hide_unit_number }}<strong>{{ item.unit_number }}</strong> {{ end }}{{ item.short_name }}</a>
                 </td>
                 <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
                     <span class="toc-page-number"></span>
@@ -27,7 +28,8 @@
             {{ for item in group.col2 }}
             <tr class="toc-item">
                 <td style="padding: 2px; text-align: left; font-size: 6pt;">
-                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong> {{ item.short_name }}</a>
+                    <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">
+                        {{ if !item.hide_unit_number }}<strong>{{ item.unit_number }}</strong> {{ end }}{{ item.short_name }}</a>
                 </td>
                 <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
                     <span class="toc-page-number"></span>

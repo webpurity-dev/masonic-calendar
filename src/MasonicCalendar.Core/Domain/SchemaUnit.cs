@@ -20,6 +20,8 @@ public class SchemaUnit
     public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
     public string? What3Words { get; set; }  // What3Words location code (e.g., "///word.word.word")
     public SchemaLocation? Location { get; set; }
+    public bool HideUnitNumber { get; set; } = false;  // When true, unit number is hidden in templates
+    public bool HideUnitName { get; set; } = false;    // When true, unit name is hidden in templates
     
     // Related data, loaded based on section configuration
     public List<SchemaOfficer> Officers { get; set; } = [];

@@ -452,6 +452,13 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/ros_data_source.yaml"
+  - section_id: "ros_units"
+    section_title: "Royal Order of Scotland Lodges"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/ros_data_source.yaml"
+    hide_from_parent_toc: true
+    override_break_before: true
 
   # Royal and Select Masters
   - section_id: "rsm_officers"
@@ -464,7 +471,8 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/rsm_data_source.yaml"
-    hide_from_parent_toc: true 
+    hide_from_parent_toc: true
+    override_break_before: true
 
   # Societas Rosicruciana in Anglia
   - section_id: "sria_officers"

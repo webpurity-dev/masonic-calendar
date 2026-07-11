@@ -73,9 +73,11 @@ public static class UnitModelBuilder
                 {
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
+                    { "hideUnitNumber", unit.HideUnitNumber },
+                    { "hideUnitName", unit.HideUnitName },
                     { "contact", unit.Contact },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
-                    { "lastInstallationDate", unit.LastInstallationDate ?? "" },
+                    { "lastInstallationDate", unit.LastInstallationDate },
                     { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.Warrant)) },
                     { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.MeetingDates)) },
                     { "hall", unit.Hall },
@@ -185,10 +187,10 @@ public static class UnitModelBuilder
         var headings = new Dictionary<string, object?>
         {
             { "members", overrides?.TryGetValue("members", out var m) == true ? m : "Members" },  // v1.9: Support override with default "Members"
-            { "pastMasters", overrides?.TryGetValue("pastMasters", out var pm) == true ? pm : "Past Masters" },
-            { "joiningPastMasters", overrides?.TryGetValue("joiningPastMasters", out var jpm) == true ? jpm : "Joining Past Masters" },
-            { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },
-            { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },
+            { "pastMasters", overrides?.TryGetValue("pastMasters", out var pm) == true ? pm : "Past Masters" },  // Supports null/empty/space values from override_heading
+            { "joiningPastMasters", overrides?.TryGetValue("joiningPastMasters", out var jpm) == true ? jpm : "Joining Past Masters" },  // Supports null/empty/space values
+            { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },  // Supports null/empty/space values
+            { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },  // Supports null/empty/space values
             { "installationHeading", overrides?.TryGetValue("installationHeading", out var ih) == true ? ih : "Installation" },  // v1.9: Support override (e.g., "Enthronement" for RC)
             { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" }  // v1.9: Optional caption under member table
         };

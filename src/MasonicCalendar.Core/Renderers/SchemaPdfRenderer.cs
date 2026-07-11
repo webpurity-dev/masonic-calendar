@@ -434,7 +434,16 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     var anchorId = GenerateAnchorId(unit);
                     var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings);
-                    output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'>");
+                    
+                    // For the first unit in the section, respect override_break_before:
+                    // If true, add inline style to disable the break-before CSS rule
+                    var styleAttr = "";
+                    if (unitIndex == 0 && section.OverrideBreakBefore == true)
+                    {
+                        styleAttr = " style=\"break-before: auto;\"";
+                    }
+                    
+                    output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'{styleAttr}>");
                     output.Append(unitHtml);
                     output.AppendLine("</div>");
                     

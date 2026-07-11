@@ -146,6 +146,7 @@ unit_joining_past_heads:
       filter_value: "RAM"
     - filter_field: "Mem Type"
       filter_value: "PMI"
+  override_heading: "Joining Past Commanders"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

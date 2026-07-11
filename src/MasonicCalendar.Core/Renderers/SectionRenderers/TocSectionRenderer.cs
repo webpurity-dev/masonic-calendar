@@ -112,6 +112,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 .Select(u => (object?)new Dictionary<string, object?>
                 {
                     { "unit_number", u.Number },
+                    { "hide_unit_number", u.HideUnitNumber },
                     { "unit_name", CleanName(u.Name) },
                     { "short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
                     { "anchor_id", GenerateAnchorId(u) }
@@ -214,6 +215,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 items.Add(new Dictionary<string, object?>
                 {
                     { "unit_number", u.Number },
+                    { "hide_unit_number", u.HideUnitNumber },
                     { "unit_name", CleanName(u.Name) },
                     { "short_name", CleanName(u.ShortName ?? u.Name) },
                     { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
@@ -279,6 +281,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             items.Add(new Dictionary<string, object?>
             {
                 { "unit_number", u.Number },
+                { "hide_unit_number", u.HideUnitNumber },
                 { "unit_name", CleanName(u.Name) },
                 { "short_name", CleanName(u.ShortName ?? u.Name) },
                 { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
@@ -336,6 +339,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             items.Add(new Dictionary<string, object?>
             {
                 { "unit_number", u.Number },
+                { "hide_unit_number", u.HideUnitNumber },
                 { "unit_name", CleanName(u.Name) },
                 { "short_name", CleanName(u.ShortName ?? u.Name) },
                 { "super_short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },

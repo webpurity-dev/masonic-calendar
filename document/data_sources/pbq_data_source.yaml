@@ -35,6 +35,7 @@ units:
   source: "units.csv"
   filter_field: "Unit Type"
   filter_value: "PBQ"
+  hide_unit_number: true
   fields:
     - name: "Number"
       csv_column: "Unit No"

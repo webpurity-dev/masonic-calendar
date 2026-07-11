@@ -1,9 +1,17 @@
 <div style="text-align: center; padding: 1px; font-size: 7.5pt;">
     <!-- Header Section -->
     <div style="margin-bottom: 2px;">
-        <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">
-            {{ unit.name }} {{ unit.number }}
-        </h1>
+        {{ if unit.hideUnitName }}
+            &nbsp;
+        {{ else }}
+            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">            
+                {{ if unit.hideUnitNumber }}
+                    {{ unit.name }}
+                {{ else }}
+                    {{ unit.name }} {{ unit.number }} 
+                {{ end }}
+            </h1>
+        {{ end }}
         <!-- Contact email -->
         {{ if unit.contact }}
             <p style="font-size: 7pt; margin: 1px 0;">
@@ -67,7 +75,15 @@
     <!-- Past Masters Table -->
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.pastMasters }} ({{ unit.number }})</h2>
+        {{ if sectionHeadings.pastMasters }}
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+            {{ if unit.hideUnitNumber }}
+                {{ sectionHeadings.pastMasters }}
+            {{ else }}
+                {{ sectionHeadings.pastMasters }} ({{ unit.number }})
+            {{ end }}
+        </h2>
+        {{ end }}
         <div style="display: flex; gap: 2px; justify-content: center; align-items: flex-start; break-inside: auto; width: 100%;">
             <table style="border-collapse: collapse; font-size: 6.5pt; width: 99%; margin-left: auto; margin-right: auto;">
                 <thead>
@@ -94,7 +110,13 @@
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: avoid;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.joiningPastMasters }} ({{ unit.number }}) </h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+            {{ if unit.hideUnitNumber }}
+                {{ sectionHeadings.joiningPastMasters }}
+            {{ else }}
+                {{ sectionHeadings.joiningPastMasters }} ({{ unit.number }})
+            {{ end }}
+        </h2>
         <div style="width: 100%;">
             <table style="border-collapse: collapse; font-size: 6pt; width: 99%; margin-left: auto; margin-right: auto; break-inside: auto;">
                 <thead>
@@ -123,7 +145,13 @@
     <!-- Members Table - 3 explicit inline-block tables to avoid CSS column-count PDF reflow -->
     {{ if members && members.size > 0 && (!groupedMembers || groupedMembers.size == 0) }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.members }} ({{ unit.number }})</h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+            {{ if unit.hideUnitNumber }}
+                {{ sectionHeadings.members }}
+            {{ else }}
+                {{ sectionHeadings.members }} ({{ unit.number }})
+            {{ end }}
+        </h2>
         <div style="font-size: 0; width: 100%; break-inside: auto;">
             {{ for col in memberColumns }}
             <table style="display: inline-block; vertical-align: top; width: 33.333%; border-collapse: collapse; font-size: 6pt; box-sizing: border-box;">
@@ -144,7 +172,13 @@
     <!-- Grouped Members Table (for units with degree/level grouping like RC) -->
     {{ if groupedMembers && groupedMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.members }} ({{ unit.number }})</h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+            {{ if unit.hideUnitNumber }}
+                {{ sectionHeadings.members }}
+            {{ else }}
+                {{ sectionHeadings.members }} ({{ unit.number }})
+            {{ end }}
+        </h2>
         <!-- CSS Grid: groups flow top-to-bottom in left column, then right column. Groups with >4 members span full width -->
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; width: 100%; break-inside: auto;">
             {{ for group in groupedMembers }}
@@ -207,7 +241,13 @@
     <!-- Honorary Members Table - 3 per row with conditional alignment -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">{{ sectionHeadings.honoraryMembers }} ({{ unit.number }})</h2>
+        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+            {{ if unit.hideUnitNumber }}
+                {{ sectionHeadings.honoraryMembers }}
+            {{ else }}
+                {{ sectionHeadings.honoraryMembers }} ({{ unit.number }})
+            {{ end }}
+        </h2>
         <!-- Display members 3 per row with smart alignment -->
         {{ totalMembers = honoraryMembers.size }}
         {{ membersInLastRow = totalMembers % 3 }}

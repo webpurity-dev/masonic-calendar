@@ -91,6 +91,7 @@ unit_past_heads:
       filter_value: "STOA"
     - filter_field: "Mem Type"
       filter_value: "PMO"
+  override_heading: "Past Worthy Masters"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -121,6 +122,7 @@ unit_joining_past_heads:
       filter_value: "STOA"
     - filter_field: "Mem Type"
       filter_value: "PMI"
+  override_heading: "Joining Past Worthy Masters"
   units_column_heading: "Chapels"
   fields:
     - name: "Reference"

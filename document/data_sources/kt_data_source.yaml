@@ -96,7 +96,7 @@ unit_past_heads:
       filter_value: "KT"
     - filter_field: "Mem Type"
       filter_value: "PMO"
-  override_heading: "Past Preceptors"
+  override_heading: "Past Eminent Preceptors"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -130,8 +130,8 @@ unit_joining_past_heads:
       filter_value: "KT"
     - filter_field: "Mem Type"
       filter_value: "PMI"
-  override_heading: "Joining Past Preceptors"
-  units_column_heading: "Tabernacles"
+  override_heading: "Joining Past Eminent Preceptors"
+  units_column_heading: "Preceptories"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

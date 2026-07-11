@@ -472,7 +472,6 @@ sections:
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/rsm_data_source.yaml"
     hide_from_parent_toc: true
-    override_break_before: true
 
   # Societas Rosicruciana in Anglia
   - section_id: "sria_officers"

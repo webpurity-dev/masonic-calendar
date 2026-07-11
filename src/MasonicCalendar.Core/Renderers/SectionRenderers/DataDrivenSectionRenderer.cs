@@ -68,14 +68,14 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings);
             
             // For the first unit in the section, respect override_break_before:
-            // If true, add inline style to disable the break-before CSS rule
-            var styleAttr = "";
+            // If true, add CSS class to disable the page break
+            var classAttr = "unit-page";
             if (unitIndex == 0 && section.OverrideBreakBefore == true)
             {
-                styleAttr = " style=\"break-before: auto;\"";
+                classAttr += " unit-page-no-break";
             }
             
-            output.AppendLine($"<div id=\"{anchorId}\" class='unit-page'{styleAttr}>");
+            output.AppendLine($"<div id=\"{anchorId}\" class='{classAttr}'>");
             output.Append(unitHtml);
             output.AppendLine("</div>");
             

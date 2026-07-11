@@ -31,6 +31,10 @@ img {
     break-before: always;
 }
 
+.unit-page-no-break {
+    break-before: avoid !important;
+}
+
 .toc-page {
     break-before: always;
 }

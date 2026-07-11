@@ -177,7 +177,7 @@ unit_joining_past_heads:
       csv_column: "Name"
       type: "string"
     - name: "PastUnits"
-      csv_column: "Origin Lodge"
+      csv_column: "Lodge"
       type: "string"
     - name: "Joined"
       csv_column: "Joined"

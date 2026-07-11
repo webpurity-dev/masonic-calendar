@@ -123,7 +123,9 @@
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">Joined</th>
+                        {{ if sectionHeadings.showPastUnitsColumn }}
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
+                        {{ end }}
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank & Date Accorded</th>
                     </tr>
                 </thead>
@@ -132,7 +134,9 @@
                     <tr data-id="{{ joiningPastMaster.dataId }}">
                         <td style="padding: 0.5px; text-align: left; min-width: 88px;">{{ joiningPastMaster.name }}</td>
                         <td style="padding: 0.5px; text-align: right; min-width: 77px;">{{ joiningPastMaster.joinedDate }}</td>
+                        {{ if sectionHeadings.showPastUnitsColumn }}
                         <td style="padding: 0.5px; text-align: right; min-width: 77px;">{{ joiningPastMaster.pastUnits }}</td>
+                        {{ end }}
                         <td style="padding: 0.5px; text-align: right; min-width: 110px; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
                     </tr>
                     {{ end }}

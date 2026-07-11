@@ -66,6 +66,9 @@ public static class UnitModelBuilder
     /// </summary>
     public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null)
     {
+        // v1.10: Check if any joining past master has PastUnits data
+        var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
+        
         var model = new Dictionary<string, object?>
         {
             {
@@ -172,7 +175,7 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
-                "sectionHeadings", BuildSectionHeadings(sectionHeadings)
+                "sectionHeadings", BuildSectionHeadings(sectionHeadings, hasPastUnitsData)
             }
         };
 
@@ -181,8 +184,9 @@ public static class UnitModelBuilder
 
     /// <summary>
     /// Build section heading overrides with defaults.
+    /// v1.10: Added showPastUnitsColumn flag to auto-hide empty units column
     /// </summary>
-    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null)
+    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null, bool hasPastUnitsData = true)
     {
         var headings = new Dictionary<string, object?>
         {
@@ -192,7 +196,8 @@ public static class UnitModelBuilder
             { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },  // Supports null/empty/space values
             { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },  // Supports null/empty/space values
             { "installationHeading", overrides?.TryGetValue("installationHeading", out var ih) == true ? ih : "Installation" },  // v1.9: Support override (e.g., "Enthronement" for RC)
-            { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" }  // v1.9: Optional caption under member table
+            { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" },  // v1.9: Optional caption under member table
+            { "showPastUnitsColumn", hasPastUnitsData }  // v1.10: Hide units column if no joining past masters have past units data
         };
         return headings;
     }

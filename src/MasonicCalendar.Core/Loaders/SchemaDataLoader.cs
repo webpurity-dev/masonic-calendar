@@ -346,11 +346,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     return (fieldMapWithMetadata, csv, unitNumber) =>
                     {
                         var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position");
                         var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PositionNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
-                        var memType = csv.GetField("Mem Type")?.Trim() ?? "";
-                        var office  = csv.GetField("Office")?.Trim()  ?? "";
 
                         // v1.6 fields
                         var grandRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
@@ -371,9 +371,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         {
                             Reference = reference,
                             MemType = memType,
-                            Office = office,
+                            Office = position,
                             Name = TextCleaner.CleanName(name),
-                            Position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position"),
+                            Position = position,
                             PosNo = positionNo
                         });
                     };
@@ -386,6 +386,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, pastHeadsConfig, "past master",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
 
                         var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
@@ -411,7 +412,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             YearInstalled = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInstalled")),
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
@@ -439,6 +440,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, joiningPastConfig, "joining past master",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
                         var pastUnits = TextCleaner.CleanPastUnits(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PastUnits"));
                         
@@ -465,7 +467,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             JoinedDate = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "JoinedDate"),
                             PastUnits = pastUnits,
@@ -495,6 +497,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, membersConfig, "member",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
 
                         // v1.6 fields
@@ -518,7 +521,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.Members.Add(new SchemaMember
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             YearInitiated = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated")),
                             Suffix = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Suffix"),  // v1.9: Optional suffix (e.g., "PM", "†") — ignore if blank or "0"
@@ -534,8 +537,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             {
                 await LoadPersonTypeAsync(units, honoraryConfig, "honorary member",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
-                    {
-                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                    {                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
                         var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
                         var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
@@ -560,7 +562,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
                             Reference = reference,
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             // v1.6
                             GrandRank = TextCleaner.CleanProvincialRank(grandRank),

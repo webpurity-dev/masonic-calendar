@@ -190,7 +190,7 @@ unit_officers:
       csv_column: "Name"
       type: "string"
     - name: "Position"
-      csv_column: "Off"
+      csv_column: "Office"
       type: "string"
     - name: "PositionNo"
       csv_column: "OffPos"

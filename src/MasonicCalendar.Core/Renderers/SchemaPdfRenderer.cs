@@ -859,6 +859,10 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.OverrideHeading))
                 headings["joiningPastMasters"] = mapping.UnitJoiningPastHeads.OverrideHeading;
 
+            // v1.10: Extract units_column_heading override for joining past heads table
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitJoiningPastHeads?.UnitsColumnHeading))
+                headings["joiningPastMastersUnitsColumn"] = mapping.UnitJoiningPastHeads.UnitsColumnHeading;
+
             if (!string.IsNullOrWhiteSpace(mapping?.UnitHonoraryMembers?.OverrideHeading))
                 headings["honoraryMembers"] = mapping.UnitHonoraryMembers.OverrideHeading;
 

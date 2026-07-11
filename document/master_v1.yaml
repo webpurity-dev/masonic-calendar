@@ -203,12 +203,12 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/amd_data_source.yaml"
-  - section_id: "amd_units"
-    section_title: "Allied Masonic Degree Councils in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/amd_data_source.yaml"
-    hide_from_parent_toc: true
+  # - section_id: "amd_units"
+  #   section_title: "Allied Masonic Degree Councils in Numerical Order"
+  #   type: "data-driven"
+  #   template: "_data-driven/unit-page.html"
+  #   data_mapping: "data_sources/amd_data_source.yaml"
+  #   hide_from_parent_toc: true
 
   # Ancient and Accepted Rite (Rose Croix)
   - section_id: "rc_officers"

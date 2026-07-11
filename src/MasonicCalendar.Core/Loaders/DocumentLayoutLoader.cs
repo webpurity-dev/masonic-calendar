@@ -115,6 +115,7 @@ public class DocumentLayout
 {
     public DocumentInfo? Document { get; set; }
     public GlobalStyling? GlobalStyling { get; set; }
+    public UiLabels? UiLabels { get; set; }
     public PageMargins? PageMargins { get; set; }  // Paged.js CSS @page margin configuration
     public PageNumbering? PageNumbering { get; set; }
     public Dictionary<string, object>? DataSources { get; set; }
@@ -161,6 +162,11 @@ public class FooterConfig
     public string? FontFamily { get; set; }
     public string? FontSize { get; set; }
     public string? TextAlign { get; set; }
+}
+
+public class UiLabels
+{
+    public string? NotAppointedLabel { get; set; }
 }
 
 public class PageNumbering

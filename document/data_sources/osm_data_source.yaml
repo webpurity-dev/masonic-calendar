@@ -132,12 +132,10 @@ unit_past_heads:
       type: "int"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "string"
-      
+      type: "string"      
     - name: "PosNo"
       csv_column: "Pos No"
       type: "int"
-    type: "int"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"

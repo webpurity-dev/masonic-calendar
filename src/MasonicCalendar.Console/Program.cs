@@ -1,4 +1,5 @@
 using MasonicCalendar.Core.Renderers;
+using MasonicCalendar.Core.Renderers.Utilities;
 using MasonicCalendar.Core.Loaders;
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Services;
@@ -297,6 +298,12 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         
         // Extract version for output filename (will be embedded in template name in output)
         var documentVersion = layoutResult.Data?.Document?.Version;
+
+        // Set up UnitModelBuilder with configuration from master YAML
+        if (!string.IsNullOrWhiteSpace(layoutResult.Data?.UiLabels?.NotAppointedLabel))
+        {
+            UnitModelBuilder.ConfiguredVacantOfficerLabel = layoutResult.Data.UiLabels.NotAppointedLabel;
+        }
 
         // Render using Scriban template
         var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds, noPrintMode);

@@ -13,6 +13,12 @@ using System.Text.RegularExpressions;
 public static class UnitModelBuilder
 {
     /// <summary>
+    /// Gets or sets the configured label for vacant officer positions.
+    /// Defaults to "Not appointed" if not set. Set from master YAML via Program.cs.
+    /// </summary>
+    public static string? ConfiguredVacantOfficerLabel { get; set; }
+
+    /// <summary>
     /// Format a DateOnly with ordinal day suffix (e.g., "21st January 2026")
     /// </summary>
     private static string FormatDateWithOrdinal(DateOnly date)
@@ -75,9 +81,10 @@ public static class UnitModelBuilder
                     {
                         { "reference", TextCleaner.CleanReference(o.Reference) },
                         { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
-                        { "name", TextCleaner.CleanName(o.Name) },
+                        { "name", CleanOfficerName(o.Name, ConfiguredVacantOfficerLabel) },
                         { "position", TextCleaner.CleanOfficePosition(o.Position) },
-                        { "posNo", o.PosNo }
+                        { "posNo", o.PosNo },
+                        { "isNotAppointed", IsVacantOfficer(o.Name) }
                     })
                     .ToList()
             },
@@ -105,7 +112,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
-                        { "pastUnits", jpm.PastUnits },
+                        { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
                         { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
@@ -191,9 +198,10 @@ public static class UnitModelBuilder
             {
                 { "reference", TextCleaner.CleanReference(o.Reference) },
                 { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
-                { "name", TextCleaner.CleanName(o.Name) },
+                { "name", CleanOfficerName(o.Name, ConfiguredVacantOfficerLabel) },
                 { "position", TextCleaner.CleanOfficePosition(o.Position) },
-                { "posNo", o.PosNo }
+                { "posNo", o.PosNo },
+                { "isNotAppointed", IsVacantOfficer(o.Name) }
             };
 
             if (i < splitAt) left.Add(dict);
@@ -449,5 +457,50 @@ public static class UnitModelBuilder
         }
 
         return [col0, col1];
+    }
+
+    /// <summary>
+    /// Check if officer is vacant/not appointed (empty or "Vacant" string)
+    /// </summary>
+    private static bool IsVacantOfficer(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return true;
+        return name.Equals("Vacant", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Clean officer name: if vacant/empty, return the configured label; otherwise clean and return.
+    /// </summary>
+    private static string CleanOfficerName(string? name, string? vacantLabel = null)
+    {
+        var label = vacantLabel ?? "Not appointed";
+        
+        if (string.IsNullOrWhiteSpace(name) || name.Equals("Vacant", StringComparison.OrdinalIgnoreCase))
+            return label;
+        
+        return TextCleaner.CleanName(name) ?? label;
+    }
+
+    /// <summary>
+    /// Format joining past master units display.
+    /// If more than 3 units, returns "X unit(s)"; otherwise returns the original list.
+    /// Example: "1895,6194,9660,9900,9689,9697" (6 units) → "6 unit(s)"
+    /// Example: "1895,6194,9660" (3 units) → "1895,6194,9660"
+    /// </summary>
+    private static string? FormatJoiningUnitsDisplay(string? pastUnits)
+    {
+        if (string.IsNullOrWhiteSpace(pastUnits))
+            return pastUnits;
+        
+        const int JOINING_UNITS_THRESHOLD = 3;
+        
+        // Count units by splitting on comma (handles spaces and commas)
+        var units = pastUnits.Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+        
+        if (units.Length > JOINING_UNITS_THRESHOLD)
+            return $"{units.Length} unit(s)";
+        
+        return pastUnits;
     }
 }

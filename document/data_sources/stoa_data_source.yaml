@@ -101,8 +101,7 @@ unit_past_heads:
       type: "string"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "string"
-    
+      type: "string"    
     - name: "PosNo"
       csv_column: "Pos No"
       type: "int"
@@ -189,13 +188,6 @@ unit_honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-    - name: "DateRankAccorded"
-      csv_column: "Date Accorded"
-      type: "int"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "GrandRankDateAccorded"
-      csv_column: "GR Date Accorded"
-      type: "int"
-

@@ -11,6 +11,10 @@ document:
       font_size: "6pt"
       text_align: "center"
 
+# UI Labels - configurable display text for document elements
+ui_labels:
+  not_appointed_label: "Not appointed"   # Display text for vacant officer positions
+
 # Paged.js CSS @page margins - used for actual PDF/print rendering
 # These are applied directly to the @page CSS rules
 # NOTE: Paged.js applies a 6mm bleed/margin by default around all pages.

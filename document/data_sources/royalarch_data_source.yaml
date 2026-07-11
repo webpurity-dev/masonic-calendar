@@ -57,7 +57,7 @@ order_regional_officers:
 order_succession_list:
   tables:
     - title: "GRAND SUPERINTENDENTS"
-      source: "data/royalarch_megs_succession.csv"
+      source: "royalarch_megs_succession.csv"
       font_size: "8pt"
       columns:
         - name: "Appointed"
@@ -73,7 +73,7 @@ order_succession_list:
           width: "12%"
           alignment: "left"
     - title: "DEPUTY GRAND SUPERINTENDENTS"
-      source: "data/royalarch_degs_succession.csv"
+      source: "royalarch_degs_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"

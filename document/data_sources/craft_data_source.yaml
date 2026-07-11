@@ -53,7 +53,7 @@ order_regional_officers:
 order_succession_list:
   tables:
     - title: "PROVINCIAL GRAND MASTERS"
-      source: "data/craft_pgm_succession.csv"
+      source: "craft_pgm_succession.csv"
       font_size: "8pt"
       columns:
         - name: "Appointed"
@@ -70,7 +70,7 @@ order_succession_list:
           alignment: "left"
       table_caption: "† Resigned from Office. ‡ Dismissed from Office by the Grand Master."
     - title: "DEPUTY PROVINCIAL GRAND MASTERS"
-      source: "data/craft_dpgm_succession.csv"
+      source: "craft_dpgm_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"
@@ -86,7 +86,7 @@ order_succession_list:
           width: "12%"
           alignment: "left"
     - title: "ASSISTANT PROVINCIAL GRAND MASTERS"
-      source: "data/craft_apgm_succession.csv"
+      source: "craft_apgm_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"

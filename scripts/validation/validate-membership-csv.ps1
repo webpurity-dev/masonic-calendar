@@ -265,7 +265,171 @@ else {
 }
 
 Write-Host ""
-Write-Host "[8] Data Quality Checks" -ForegroundColor Yellow
+Write-Host "[8] Comprehensive YAML to CSV Column Validation (All Sources)" -ForegroundColor Yellow
+
+# Helper function to extract all csv_column references from a YAML section
+function Get-YamlSectionColumns {
+    param(
+        [string]$YamlPath,
+        [string]$SectionName
+    )
+    
+    $content = Get-Content -Path $YamlPath -Raw
+    $columns = @{}  # hash of column -> source
+    
+    $lines = $content -split "`n"
+    $inSection = $false
+    $sectionIndent = $null
+    $currentSource = $null
+    
+    foreach ($line in $lines) {
+        # Skip comments and empty lines
+        if ($line -match '^\s*#' -or [string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+        
+        # Check if we found the target section
+        if ($line -match "^([a-z_]+):\s*$" -and $Matches[1] -eq $SectionName) {
+            $inSection = $true
+            $sectionIndent = 0
+            continue
+        }
+        
+        # If in our section
+        if ($inSection) {
+            # Check for a new top-level section (no indentation followed by colon)
+            if ($line -match '^([a-z_]+):\s*$') {
+                # We've hit the next section, so we're done
+                break
+            }
+            
+            # Extract source field (must be indented)
+            if ($line -match '^\s+source:\s*"([^"]+)"') {
+                $currentSource = $Matches[1]
+                continue
+            }
+            
+            # Extract csv_column references
+            if ($line -match 'csv_column:\s*"([^"]+)"') {
+                $col = $Matches[1]
+                if ($col -notin $columns) {
+                    $columns[$col] = $currentSource
+                }
+            }
+        }
+    }
+    
+    return @{
+        columns = $columns
+        source = $currentSource
+    }
+}
+
+# Scan all YAML data source files
+$yamlDir = "$PSScriptRoot\..\..\document\data_sources"
+$csvBaseDir = "$PSScriptRoot\..\..\document\data"
+$yamlFiles = Get-ChildItem -Path $yamlDir -Filter "*_data_source.yaml" | Sort-Object Name
+
+$yamlCsvValidationIssues = 0
+$yamlCsvValidationWarnings = 0
+$yamlSectionsChecked = @()
+
+foreach ($yamlFile in $yamlFiles) {
+    $content = Get-Content -Path $yamlFile.FullName -Raw
+    
+    # Extract all section names (lines starting with no whitespace, ending with colon)
+    $sectionMatches = [regex]::Matches($content, '^([a-z_]+):\s*$', 'Multiline')
+    
+    foreach ($match in $sectionMatches) {
+        $sectionName = $match.Groups[1].Value
+        
+        # Get columns and source for this section
+        $result = Get-YamlSectionColumns -YamlPath $yamlFile.FullName -SectionName $sectionName
+        $sectionColumns = $result.columns
+        $sourceFile = $result.source
+        
+        # Skip sections with no csv_column references or no source
+        if ($sectionColumns.Count -eq 0 -or [string]::IsNullOrWhiteSpace($sourceFile)) {
+            continue
+        }
+        
+        $yamlSectionsChecked += @{
+            file = $yamlFile.BaseName
+            section = $sectionName
+            source = $sourceFile
+            columnCount = $sectionColumns.Count
+        }
+        
+        # Try to load the CSV to get its headers
+        $csvPath = Join-Path $csvBaseDir $sourceFile
+        
+        # Special handling for no_officers.csv (placeholder file, not yet populated)
+        if ($sourceFile -eq "no_officers.csv") {
+            Write-Host "  [WARN] $($yamlFile.BaseName) section '$sectionName' uses no_officers.csv (not yet configured)" -ForegroundColor Yellow
+            $warnings += "Section $($yamlFile.BaseName):$sectionName references no_officers.csv which is not yet configured"
+            $yamlCsvValidationWarnings++
+            continue
+        }
+        
+        if (-not (Test-Path $csvPath)) {
+            Write-Host "  [FAIL] CSV not found: $sourceFile (referenced in $($yamlFile.BaseName):$sectionName)" -ForegroundColor Red
+            $issues += "YAML references non-existent CSV file: $sourceFile (in $($yamlFile.BaseName):$sectionName)"
+            $yamlCsvValidationIssues++
+            continue
+        }
+        
+        try {
+            $csvData = Import-Csv -Path $csvPath -ErrorAction Stop
+            
+            # Handle empty CSV files (only headers, no data)
+            if ($csvData.Count -eq 0) {
+                Write-Host "  [WARN] $($yamlFile.BaseName) section '$sectionName' references empty CSV: $sourceFile (contains headers only, no data)" -ForegroundColor Yellow
+                $warnings += "Section $($yamlFile.BaseName):$sectionName references empty CSV file $sourceFile"
+                $yamlCsvValidationWarnings++
+                continue
+            }
+            
+            $csvHeaders = $csvData[0].PSObject.Properties.Name
+        }
+        catch {
+            Write-Host "  [FAIL] Could not parse CSV: $sourceFile (referenced in $($yamlFile.BaseName):$sectionName)" -ForegroundColor Red
+            $issues += "Failed to parse CSV $sourceFile referenced in $($yamlFile.BaseName):$sectionName"
+            $yamlCsvValidationIssues++
+            continue
+        }
+        
+        # Check if all referenced columns exist in the CSV
+        $missingCols = @()
+        foreach ($col in $sectionColumns.Keys) {
+            if ($col -notin $csvHeaders) {
+                $missingCols += $col
+            }
+        }
+        
+        if ($missingCols.Count -gt 0) {
+            Write-Host "  [FAIL] $($yamlFile.BaseName) section '$sectionName' references missing columns:" -ForegroundColor Red
+            foreach ($col in $missingCols) {
+                Write-Host "    - '$col' (not found in $sourceFile)" -ForegroundColor Red
+            }
+            $issues += "YAML section $($yamlFile.BaseName):$sectionName references non-existent CSV columns: $($missingCols -join ', ') in $sourceFile"
+            $yamlCsvValidationIssues++
+        }
+    }
+}
+
+Write-Host "  Validated $($yamlSectionsChecked.Count) YAML section(s) with CSV references" -ForegroundColor Gray
+if ($yamlCsvValidationWarnings -gt 0) {
+    Write-Host "  [WARN] $yamlCsvValidationWarnings section(s) use placeholder/unconfigured files (warnings)" -ForegroundColor Yellow
+}
+if ($yamlCsvValidationIssues -eq 0) {
+    Write-Host "  [PASS] All YAML csv_column references are valid" -ForegroundColor Green
+}
+else {
+    Write-Host "  [$yamlCsvValidationIssues issue(s) found]" -ForegroundColor Red
+}
+
+Write-Host ""
+Write-Host "[9] Data Quality Checks" -ForegroundColor Yellow
 
 $emptyRefCount = ($csv | Where-Object { [string]::IsNullOrWhiteSpace($_."Unique Ref") }).Count
 $emptyNameCount = ($csv | Where-Object { [string]::IsNullOrWhiteSpace($_."Name") }).Count
@@ -297,7 +461,7 @@ if ($emptyMemTypeCount -gt 0) {
 }
 
 Write-Host ""
-Write-Host "[9] Data Summary" -ForegroundColor Yellow
+Write-Host "[10] Data Summary" -ForegroundColor Yellow
 
 $unitTypes = ($csv."Unit Type" | Sort-Object -Unique) -join ", "
 Write-Host "  Unit Types: $unitTypes" -ForegroundColor Gray

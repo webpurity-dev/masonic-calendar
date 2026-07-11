@@ -57,6 +57,7 @@ public class SchemaPastMaster
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInstalled { get; set; }  // FN01
+    public int? PosNo { get; set; }  // Position number for sorting (e.g., chronological order)
     public string? Rank { get; set; }  // Legacy: computed display rank (Grand > Provincial)
     public string? RankYear { get; set; }
     public bool IsGrandRank { get; set; }  // True if Rank is from GrandRank field (vs ProvincialRank)
@@ -87,6 +88,7 @@ public class SchemaJoinPastMaster
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? JoinedDate { get; set; }  // Year/date joined as joining past master
+    public int? PosNo { get; set; }  // Position number for sorting
     public string? PastUnits { get; set; } 
     public string? Rank { get; set; }  // Legacy: computed display rank
     public string? RankYear { get; set; }

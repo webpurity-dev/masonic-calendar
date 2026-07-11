@@ -1,4 +1,4 @@
-﻿# Data source mappings for Royal Arch section
+# Data source mappings for Royal Arch section
 # CSV files and column mappings that support royal arch related data
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
@@ -201,7 +201,10 @@ unit_past_heads:
       type: "string"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "string"
+      type: "string"    
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
@@ -249,6 +252,9 @@ unit_joining_past_heads:
     - name: "JoinedDate"
       csv_column: "Join Date"
       type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     - name: "PastUnits"
       csv_column: "Join Unit"
       type: "string"
@@ -318,3 +324,4 @@ unit_honorary_members:
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
+

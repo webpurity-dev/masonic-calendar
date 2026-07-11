@@ -132,8 +132,12 @@ unit_past_heads:
       type: "int"
     - name: "YearInstalled"
       csv_column: "Installed"
+      type: "string"
+      
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
-      type: "int"
+    type: "int"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
@@ -304,4 +308,6 @@ order_regional_officers:
       name: "V.Wy.Bro. Graham S. Franklin, G.V."
     - rank: "Provincial Grand Recorder"
       name: "Wy.Bro. Paul R. Gawler, P.G.Swd.B."
+
+
 

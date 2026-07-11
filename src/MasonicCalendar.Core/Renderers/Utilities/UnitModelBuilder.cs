@@ -29,39 +29,6 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Format a date-like string as just the year for display.
-    /// Falls back to the first 4-digit year if parsing fails.
-    /// </summary>
-    private static string FormatYearOnly(string? dateText)
-    {
-        if (string.IsNullOrWhiteSpace(dateText))
-            return string.Empty;
-
-        var trimmed = dateText.Split(',')[0].Trim();
-        if (string.IsNullOrWhiteSpace(trimmed))
-            return string.Empty;
-
-        var formats = new[]
-        {
-            "d/M/yyyy", "dd/MM/yyyy",
-            "d/M/yy", "dd/MM/yy",
-            "yyyy-MM-dd", "yyyy/M/d", "yyyy/MM/dd"
-        };
-
-        if (DateOnly.TryParseExact(trimmed, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
-            return parsedDate.Year.ToString(CultureInfo.InvariantCulture);
-
-        if (int.TryParse(trimmed, out var numericYear) && numericYear <= 0)
-            return string.Empty;
-
-        var yearMatch = Regex.Match(trimmed, @"\b(19|20)\d{2}\b");
-        if (yearMatch.Success)
-            return yearMatch.Value;
-
-        return trimmed;
-    }
-
-    /// <summary>
     /// Build a complete Scriban model dictionary for a unit.
     /// </summary>
     public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null)
@@ -124,7 +91,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(pm.Reference) },
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
-                        { "installed", FormatYearOnly(pm.YearInstalled) },
+                        { "installed", pm.YearInstalled?.Replace(" ", "") },
                         { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, pm.ProvincialRank, pm.DateRankAccorded, pm.ProvRankOtherProv, pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
@@ -137,7 +104,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(jpm.Reference) },
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
-                        { "joinedDate", jpm.JoinedDate },
+                        { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
                         { "pastUnits", jpm.PastUnits },
                         { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }

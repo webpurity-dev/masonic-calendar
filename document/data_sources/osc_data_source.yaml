@@ -135,7 +135,9 @@ unit_past_heads:
       type: "int"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "int"
+      type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
@@ -181,6 +183,9 @@ unit_joining_past_heads:
       type: "string"
     - name: "Joined"
       csv_column: "Joined"
+      type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
     - name: "Installed"
       csv_column: "Installed"
@@ -275,6 +280,7 @@ unit_honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
 
 
 

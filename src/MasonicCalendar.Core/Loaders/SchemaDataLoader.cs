@@ -764,7 +764,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.PastMasters = unit.PastMasters
             .GroupBy(p => !string.IsNullOrWhiteSpace(p.Reference) ? p.Reference : p.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(p => ExtractSortYear(p.YearInstalled) ?? int.MaxValue)
+            .OrderBy(p => p.PosNo ?? int.MaxValue)  // Sort by PosNo field (Pos No column)
             .ToList();
 
         // For Joining Past Masters: deduplicate by Reference or Name (keep last occurrence)
@@ -772,7 +772,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.JoinPastMasters = unit.JoinPastMasters
             .GroupBy(j => !string.IsNullOrWhiteSpace(j.Reference) ? j.Reference : j.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(j => ExtractFirstDate(j.JoinedDate))
+            .OrderBy(j => j.PosNo ?? int.MaxValue)  // Sort by PosNo field (Pos No column)
             .ToList();
 
         // For Members: deduplicate by Reference or Name (keep last occurrence)

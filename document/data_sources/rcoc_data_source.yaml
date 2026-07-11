@@ -109,6 +109,10 @@ unit_past_heads:
     - name: "YearInstalled"
       csv_column: "Installed"
       type: "string"
+    
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
@@ -170,3 +174,4 @@ unit_members:
     - name: "YearInitiated"
       csv_column: "Join Date"
       type: "string"
+

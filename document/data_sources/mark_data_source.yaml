@@ -112,6 +112,9 @@ unit_past_heads:
     - name: "YearInstalled"
       csv_column: "Installed"
       type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
@@ -160,6 +163,9 @@ unit_joining_past_heads:
     - name: "PastUnits"
       csv_column: "Lodge"
       type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"

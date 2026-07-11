@@ -126,6 +126,10 @@ unit_past_heads:
       type: "int"
     - name: "YearInstalled"
       csv_column: "Installed"
+      type: "string"
+    
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
     - name: "GrandRank"
       csv_column: "Grand Rank"
@@ -259,6 +263,8 @@ unit_honorary_members:
     - name: "LondonRankDateAccorded"
       csv_column: "LR Date Accorded"
       type: "int"
+
+
 
 
 

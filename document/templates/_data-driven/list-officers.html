@@ -43,13 +43,13 @@
 </table>
 {{ end }}
 
-{{ if district_heads.size > 0 }}
 {{ if district_heading != null && district_heading != "" }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h4 style="font-size: 9pt; margin: 4px 0;">{{ district_heading }}</h4>
 </div>
 {{ end }}
 
+{{ if district_heads.size > 0 }}
 <!-- District Heads -->
 <table style="margin: 8px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>

@@ -4,17 +4,20 @@ order_summary:
   website: "https://www.royalorderscotland.org"
   heads: 
     - rank: "Right Worshipful Provincial Grand Master"
+      title: "Bro."
       name: "Paul M. Muir"
   deputy_heads:
     - rank: "Worshipful Deputy Provincial Grand Master"
-      name: "tbc"
+      title: "Bro."
+      name: "Julian Mitchell"
     - rank: "Worshipful Substitute Provincial Grand Masters"
-      name: "tbc"
+      title: "Bro."
+      name: "Barry K. Hobbs"
   district_heads: []
 
 order_regional_officers:
-  district_heading: "Provincial Grand Lodge of Dorset"
-  source: "no_officers.csv"
+  district_heading: "Officers of the Royal Order of Scotland Province of Dorset"  
+  source: "ros_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"

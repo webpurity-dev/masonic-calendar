@@ -217,7 +217,7 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 <div></div>
                 {{ member = honoraryMembers[0] }}
-                <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.display_rank }}</div>
+                <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                 <div></div>
             </div>
         {{ else if totalMembers == 2 }}
@@ -225,7 +225,7 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ for i in (0..1) }}
                     {{ member = honoraryMembers[i] }}
-                    <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.display_rank }}</div>
+                    <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                 {{ end }}
                 <div></div>
             </div>
@@ -241,14 +241,14 @@
                     {{ if isLastRowMember && membersInLastRow == 1 && posInLastRow == 0 }}
                         <!-- Special handling: 1 member in last row goes to middle column -->
                         <div></div>
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.display_rank }}</div>
+                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                         <div></div>
                     {{ else if isLastRowMember && membersInLastRow == 2 && posInLastRow < 2 }}
                         <!-- 2 members in last row: render in left and middle (right stays empty) -->
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.display_rank }}</div>
+                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                     {{ else if !isLastRowMember || membersInLastRow == 3 }}
                         <!-- Full rows or case where all 3 spots in last row are filled -->
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.display_rank }}</div>
+                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                     {{ end }}
                 {{ end }}
                 

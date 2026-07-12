@@ -130,5 +130,3 @@ unit_honorary_members:
     - name: "Name"
       csv_column: "Name"
       type: "string"
-
-

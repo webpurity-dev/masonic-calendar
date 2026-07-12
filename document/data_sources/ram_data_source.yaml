@@ -110,8 +110,7 @@ unit_past_heads:
       type: "string"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "string"
-    
+      type: "string"    
     - name: "PosNo"
       csv_column: "Pos No"
       type: "int"

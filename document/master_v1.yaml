@@ -263,12 +263,13 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/kbhc_data_source.yaml"  
-  # - section_id: "kbhc_units"
-  #   section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
-  #   type: "data-driven"
-  #   template: "_data-driven/unit-page.html"
-  #   data_mapping: "data_sources/kbhc_data_source.yaml"
-  #   hide_from_parent_toc: true
+  - section_id: "kbhc_units"
+    section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/kbhc_data_source.yaml"
+    hide_from_parent_toc: true
+    override_break_before: true
 
   # Knights Templar
   - section_id: "kt_officers"

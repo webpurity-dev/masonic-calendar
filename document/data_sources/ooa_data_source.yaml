@@ -105,7 +105,7 @@ unit_past_heads:
     - name: "Name"
       csv_column: "Name"
       type: "string"
-    - name: "Joined"
+    - name: "JoinedDate"
       csv_column: "Joined"
       type: "int"
     - name: "YearInstalled"

@@ -68,7 +68,7 @@ foreach ($unit in $units) {
     
     # Show the command being executed
     Write-Host ""
-    Write-Host "  Command: dotnet run ... -unit $($unit.Number) -unittype $unitType -output pdf" -ForegroundColor DarkGray
+    Write-Host "  Command: dotnet run ... -unit $($unit.Number) -unittype $unitType -output pdf -outputfolder $unitType" -ForegroundColor DarkGray
     Write-Host "  " -NoNewline
 
     & dotnet run --project $consoleProject -- `
@@ -76,6 +76,7 @@ foreach ($unit in $units) {
         -unit $unit.Number `
         -unittype $unitType `
         -output pdf `
+        -outputfolder $unitType `
         2>&1 | Out-Null
 
     if ($LASTEXITCODE -eq 0) {

@@ -20,6 +20,7 @@ string? documentOutputFormat = null;
 string? sectionId = null;
 string? unitNumber = null;
 string? unitType = "craft";  // Default to craft units
+string? outputFolderName = null;  // Optional subfolder for organizing output
 bool debugMode = false;
 
 var templateIndex = Array.IndexOf(args, "-template");
@@ -50,6 +51,20 @@ var unitTypeIndex = Array.IndexOf(args, "-unittype");
 if (unitTypeIndex != -1 && unitTypeIndex + 1 < args.Length)
 {
     unitType = args[unitTypeIndex + 1];
+}
+
+var outputFolderIndex = Array.IndexOf(args, "-outputfolder");
+if (outputFolderIndex != -1 && outputFolderIndex + 1 < args.Length)
+{
+    outputFolderName = args[outputFolderIndex + 1];
+}
+
+// Create subfolder if specified (e.g., craft, mark, ra, ram)
+if (!string.IsNullOrWhiteSpace(outputFolderName))
+{
+    outputDir = Path.Combine(outputDir, outputFolderName);
+    if (!Directory.Exists(outputDir))
+        Directory.CreateDirectory(outputDir);
 }
 
 // Check for debug flag
@@ -113,12 +128,19 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
                 { "mark", ("mark_units", "mark") },
                 { "ram", ("ram_units", "ram") },
                 { "rcoc", ("rcoc_units", "rcoc") },
+                { "amd", ("amd_units", "amd") },
+                { "rc", ("rc_units", "rc") },
+                { "stoa", ("stoa_units", "stoa") },
+                { "kbhc", ("kbhc_units", "kbhc") },
                 { "kt", ("kt_units", "kt") },
                 { "ktp", ("ktp_units", "ktp") },
+                { "ooa", ("ooa_units", "ooa") },
                 { "osc", ("osc_units", "osc") },
                 { "osm", ("osm_units", "osm") },
                 { "pbq", ("pbq_units", "pbq") },
-                { "stoa", ("stoa_units", "stoa") }
+                { "ros", ("ros_units", "ros") },
+                { "rsm", ("rsm_units", "rsm") },
+                { "sria", ("sria_units", "sria") }
             };
             
             if (unitTypeToMapping.TryGetValue(unitType ?? "craft", out var mapping))
@@ -303,6 +325,21 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         if (!string.IsNullOrWhiteSpace(layoutResult.Data?.UiLabels?.NotAppointedLabel))
         {
             UnitModelBuilder.ConfiguredVacantOfficerLabel = layoutResult.Data.UiLabels.NotAppointedLabel;
+        }
+        
+        // Override with UiPreferences if present (takes priority over UiLabels)
+        if (layoutResult.Data?.UiPreferences != null)
+        {
+            if (!string.IsNullOrWhiteSpace(layoutResult.Data.UiPreferences.NotAppointedLabel))
+            {
+                UnitModelBuilder.ConfiguredVacantOfficerLabel = layoutResult.Data.UiPreferences.NotAppointedLabel;
+            }
+            
+            // Set rank display configuration
+            if (layoutResult.Data.UiPreferences.RankDisplay != null)
+            {
+                UnitModelBuilder.ConfiguredRankDisplay = layoutResult.Data.UiPreferences.RankDisplay;
+            }
         }
 
         // Render using Scriban template

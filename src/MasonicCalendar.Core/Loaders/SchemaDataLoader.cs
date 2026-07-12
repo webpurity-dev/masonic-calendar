@@ -339,6 +339,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             var membersConfig = mapping.UnitMembers;
             var honoraryConfig = mapping.UnitHonoraryMembers;
 
+            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig is null: {officersConfig == null}");
+            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig?.Source: {officersConfig?.Source}");
+            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig?.Fields?.Count: {officersConfig?.Fields?.Count}");
+
             // Load officers
             if (officersConfig != null)
             {
@@ -350,7 +354,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
                         var position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position");
-                        var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PositionNo");
+                        var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PosNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
 
                         // v1.6 fields
@@ -837,12 +841,23 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
     /// <summary>
     /// Assign posNo (position number) to officers and members for column splitting in templates.
+    /// Sorts by the original PosNo from CSV but does NOT reassign sequential indices.
+    /// Templates use the original PosNo values for proper display ordering.
     /// </summary>
     private void AssignColumnPositions(List<SchemaUnit> units)
     {
         foreach (var unit in units)
         {
-            // Sort by OffPos-derived PosNo before reindexing; nulls (no OffPos) go last
+            // Debug: Show officer order before sort
+            if (unit.Officers.Count > 0 && unit.Number == 137)
+            {
+                Console.WriteLine($"\n[DEBUG] Unit {unit.Number} officers BEFORE sort:");
+                for (int i = 0; i < Math.Min(5, unit.Officers.Count); i++)
+                    Console.WriteLine($"  [{i}] Name: {unit.Officers[i].Name}, PosNo: {unit.Officers[i].PosNo}, Office: {unit.Officers[i].Office}");
+            }
+
+            // Sort officers by original PosNo from CSV; nulls (no PosNo) go last
+            // IMPORTANT: Keep the original PosNo values for template use
             unit.Officers.Sort((a, b) =>
             {
                 if (a.PosNo == null && b.PosNo == null) return 0;
@@ -850,11 +865,24 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 if (b.PosNo == null) return -1;
                 return a.PosNo.Value.CompareTo(b.PosNo.Value);
             });
-            for (int i = 0; i < unit.Officers.Count; i++)
-                unit.Officers[i].PosNo = i;
 
-            for (int i = 0; i < unit.Members.Count; i++)
-                unit.Members[i].PosNo = i;
+            // Debug: Show officer order after sort
+            if (unit.Number == 137)
+            {
+                Console.WriteLine($"[DEBUG] Unit {unit.Number} officers AFTER sort:");
+                for (int i = 0; i < Math.Min(15, unit.Officers.Count); i++)
+                    Console.WriteLine($"  [{i}] Name: {unit.Officers[i].Name}, PosNo: {unit.Officers[i].PosNo}, Office: {unit.Officers[i].Office}");
+            }
+
+            // Sort members by original PosNo from CSV; nulls (no PosNo) go last
+            // IMPORTANT: Keep the original PosNo values for template use
+            unit.Members.Sort((a, b) =>
+            {
+                if (a.PosNo == null && b.PosNo == null) return 0;
+                if (a.PosNo == null) return 1;
+                if (b.PosNo == null) return -1;
+                return a.PosNo.Value.CompareTo(b.PosNo.Value);
+            });
         }
     }
 

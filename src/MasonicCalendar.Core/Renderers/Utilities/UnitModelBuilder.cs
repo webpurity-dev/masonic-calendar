@@ -1,6 +1,7 @@
 namespace MasonicCalendar.Core.Renderers.Utilities;
 
 using MasonicCalendar.Core.Domain;
+using MasonicCalendar.Core.Loaders;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,6 +18,12 @@ public static class UnitModelBuilder
     /// Defaults to "Not appointed" if not set. Set from master YAML via Program.cs.
     /// </summary>
     public static string? ConfiguredVacantOfficerLabel { get; set; }
+
+    /// <summary>
+    /// Gets or sets the rank display configuration for past masters and honorary members.
+    /// Defines priority order of ranks and when to include dates. Set from master YAML via Program.cs.
+    /// </summary>
+    public static RankDisplay? ConfiguredRankDisplay { get; set; }
 
     /// <summary>
     /// Format a DateOnly with ordinal day suffix (e.g., "21st January 2026")
@@ -268,10 +275,11 @@ public static class UnitModelBuilder
    
     /// <summary>
     /// Build a display rank string with dates in square brackets.
-    /// Format: "Rank [Year]" for each applicable rank, joined by ", "
-    /// If grand_rank exists: return "grand_rank [year]"
-    /// If no grand_rank: return "provincial_rank [year], prov_rank_other_prov [year], london_rank [year]" (all non-empty ranks with dates)
-    /// Example: "PProvAGReg (Hants. & IoW) [2021], LGR [2020]"
+    /// Uses cascading priority from configuration: priority_order defines which rank to show.
+    /// If grand_rank exists and is first in priority_order: return "grand_rank [year]"
+    /// Shows only the first non-empty rank in the priority order.
+    /// Example: "PProvAGReg (Hants. & IoW) [2021]"
+    /// Configuration loaded from master_v1.yaml ui_preferences.rank_display
     /// </summary>
     private static string? BuildDisplayRankWithDates(
         string? grandRank, int? grandRankDateAccorded,
@@ -279,49 +287,45 @@ public static class UnitModelBuilder
         string? provRankOtherProv, int? opDateAccorded,
         string? londonRank, int? londonRankDateAccorded)
     {
-        // If grand rank exists, show only that (highest priority)
-        if (!string.IsNullOrWhiteSpace(grandRank))
+        // Use default priority order if config not set
+        var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
+            new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
+        
+        var showDates = ConfiguredRankDisplay?.ShowDates?.PastMasters ?? true;
+
+        // Map field names to (rank value, date value) tuples
+        var rankMap = new Dictionary<string, (string?, int?)>
         {
-            if (grandRankDateAccorded.HasValue)
-                return $"{grandRank} [{grandRankDateAccorded}]";
-            return grandRank;
+            { "grand_rank", (grandRank, grandRankDateAccorded) },
+            { "provincial_rank", (provincialRank, dateRankAccorded) },
+            { "prov_rank_other_prov", (provRankOtherProv, opDateAccorded) },
+            { "london_rank", (londonRank, londonRankDateAccorded) }
+        };
+
+        // Find the first non-empty rank in priority order
+        foreach (var fieldName in priorityOrder)
+        {
+            if (rankMap.TryGetValue(fieldName, out var rankTuple))
+            {
+                var rankValue = rankTuple.Item1;
+                var dateValue = rankTuple.Item2;
+                
+                if (!string.IsNullOrWhiteSpace(rankValue))
+                {
+                    if (showDates && dateValue.HasValue)
+                        return $"{rankValue} [{dateValue}]";
+                    return rankValue;
+                }
+            }
         }
 
-        // Otherwise, collect all applicable ranks with their dates
-        var ranks = new List<string>();
-        
-        if (!string.IsNullOrWhiteSpace(provincialRank))
-        {
-            if (dateRankAccorded.HasValue)
-                ranks.Add($"{provincialRank} [{dateRankAccorded}]");
-            else
-                ranks.Add(provincialRank);
-        }
-        
-        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
-        {
-            if (opDateAccorded.HasValue)
-                ranks.Add($"{provRankOtherProv} [{opDateAccorded}]");
-            else
-                ranks.Add(provRankOtherProv);
-        }
-        
-        if (!string.IsNullOrWhiteSpace(londonRank))
-        {
-            if (londonRankDateAccorded.HasValue)
-                ranks.Add($"{londonRank} [{londonRankDateAccorded}]");
-            else
-                ranks.Add(londonRank);
-        }
-
-        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+        return null;
     }
 
     /// <summary>
     /// Build display rank string with comma prefix for honorary members (ranks only, no dates).
     /// If rank exists, returns ", Rank" format. If no rank, returns null (no trailing comma).
-    /// If grand_rank exists: return ", grand_rank"
-    /// If no grand_rank: return ", provincial_rank, prov_rank_other_prov, london_rank" (all non-empty ranks joined by ", ")
+    /// Uses cascading priority: grand_rank > provincial_rank > prov_rank_other_prov > london_rank
     /// </summary>
     private static string? BuildDisplayRankWithCommaSimple(string? grandRank, string? provincialRank, 
         string? provRankOtherProv, string? londonRank)
@@ -331,33 +335,41 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Build a comma-separated display rank string (ranks only, no dates).
-    /// If grand_rank exists: return only grand_rank (highest priority)
-    /// If no grand_rank: return all non-empty ranks joined by ", " (provincial, prov_rank_other_prov, london_rank)
+    /// Build a rank string for honorary members (ranks only, no dates).
+    /// Uses cascading priority from configuration: priority_order defines which rank to show.
+    /// Shows only the first non-empty rank in the priority order.
+    /// Configuration loaded from master_v1.yaml ui_preferences.rank_display
     /// </summary>
     private static string? BuildDisplayRankSimple(string? grandRank, string? provincialRank, 
         string? provRankOtherProv, string? londonRank)
     {
-        // If grand rank exists, show only that (highest priority)
-        if (!string.IsNullOrWhiteSpace(grandRank))
-            return grandRank;
+        // Use default priority order if config not set
+        var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
+            new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
 
-        // Otherwise, collect all applicable ranks
-        var ranks = new List<string>();
-        if (!string.IsNullOrWhiteSpace(provincialRank))
-            ranks.Add(provincialRank);
-        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
-            ranks.Add(provRankOtherProv);
-        if (!string.IsNullOrWhiteSpace(londonRank))
-            ranks.Add(londonRank);
+        // Map field names to rank values
+        var rankMap = new Dictionary<string, string?>
+        {
+            { "grand_rank", grandRank },
+            { "provincial_rank", provincialRank },
+            { "prov_rank_other_prov", provRankOtherProv },
+            { "london_rank", londonRank }
+        };
 
-        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+        // Find the first non-empty rank in priority order
+        foreach (var fieldName in priorityOrder)
+        {
+            if (rankMap.TryGetValue(fieldName, out var rankValue) && !string.IsNullOrWhiteSpace(rankValue))
+                return rankValue;
+        }
+
+        return null;
     }
 
     /// <summary>
     /// Build display rank string with comma prefix for past masters and joining past masters (with dates).
     /// If rank exists, returns ", Rank [Year]" format. If no rank, returns null (no trailing comma).
-    /// Uses same logic as BuildDisplayRankWithDates: grand_rank only, or all other ranks with dates
+    /// Uses cascading priority: grand_rank > provincial_rank > prov_rank_other_prov > london_rank
     /// </summary>
     private static string? BuildDisplayRankWithComma(string? grandRank, int? grandRankDateAccorded,
         string? provincialRank, int? dateRankAccorded,

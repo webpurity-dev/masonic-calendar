@@ -195,8 +195,8 @@ unit_officers:
     - name: "Position"
       csv_column: "Office"
       type: "string"
-    - name: "PositionNo"
-      csv_column: "OffPos"
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
 
 unit_past_heads:

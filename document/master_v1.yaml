@@ -11,9 +11,19 @@ document:
       font_size: "6pt"
       text_align: "center"
 
-# UI Labels - configurable display text for document elements
-ui_labels:
+# UI Preferences - configurable display behavior and labels
+ui_preferences:
   not_appointed_label: "Not appointed"   # Display text for vacant officer positions
+  rank_display:
+    priority_order:
+      - "grand_rank"                     # Grand Rank (highest priority)
+      - "provincial_rank"                # Provincial Rank
+      - "prov_rank_other_prov"           # Provincial Rank from Other Province
+      - "london_rank"                    # London Rank (lowest priority)
+    show_dates:
+      past_masters: true                 # Include dates with past master ranks
+      joining_past_masters: true         # Include dates with joining past master ranks
+      honorary_members: false            # Honorary members show rank only, no dates
 
 # Paged.js CSS @page margins - used for actual PDF/print rendering
 # These are applied directly to the @page CSS rules

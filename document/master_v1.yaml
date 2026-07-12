@@ -297,7 +297,7 @@ sections:
     data_mapping: "data_sources/ktp_data_source.yaml"
     hide_from_parent_toc: true
 
-  # MARK  
+  # Mark  
   - section_id: "mark_officers"
     section_title: "Mark Masonry"
     type: "list_officers"
@@ -340,6 +340,7 @@ sections:
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/ooa_data_source.yaml"
     hide_from_parent_toc: true
+    override_break_before: true
 
   # Order of the Scarlet Cord
   - section_id: "osc_officers"
@@ -384,7 +385,7 @@ sections:
     data_mapping: "data_sources/osm_data_source.yaml"
     hide_from_parent_toc: true
   
-  # RAM
+  # Royal Ark Mariners
   - section_id: "ram_officers"
     section_title: "Royal Ark Mariners"
     type: "list_officers"

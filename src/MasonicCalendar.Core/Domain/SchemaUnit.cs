@@ -19,6 +19,7 @@ public class SchemaUnit
     public string? UnitType { get; set; }
     public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
     public string? What3Words { get; set; }  // What3Words location code (e.g., "///word.word.word")
+    public string? UnitPostfix { get; set; }  // Display version for UI (e.g., "3 T.I." for unit 999); falls back to Number if empty
     public SchemaLocation? Location { get; set; }
     public bool HideUnitNumber { get; set; } = false;  // When true, unit number is hidden in templates
     public bool HideUnitName { get; set; } = false;    // When true, unit name is hidden in templates

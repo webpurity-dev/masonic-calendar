@@ -4,11 +4,11 @@
         {{ if unit.hideUnitName }}
             &nbsp;
         {{ else }}
-            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">            
+            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">
                 {{ if unit.hideUnitNumber }}
                     {{ unit.name }}
                 {{ else }}
-                    {{ unit.name }} {{ unit.number }} 
+                    {{ unit.name }} {{ unit.unitPostfixDisplay }}
                 {{ end }}
             </h1>
         {{ end }}
@@ -80,7 +80,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.pastMasters }}
             {{ else }}
-                {{ sectionHeadings.pastMasters }} ({{ unit.number }})
+                {{ sectionHeadings.pastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         {{ end }}
@@ -114,7 +114,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.joiningPastMasters }}
             {{ else }}
-                {{ sectionHeadings.joiningPastMasters }} ({{ unit.number }})
+                {{ sectionHeadings.joiningPastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <div style="width: 100%;">
@@ -153,7 +153,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
-                {{ sectionHeadings.members }} ({{ unit.number }})
+                {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <div style="font-size: 0; width: 100%; break-inside: auto;">
@@ -180,7 +180,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
-                {{ sectionHeadings.members }} ({{ unit.number }})
+                {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <!-- CSS Grid: groups flow top-to-bottom in left column, then right column. Groups with >4 members span full width -->

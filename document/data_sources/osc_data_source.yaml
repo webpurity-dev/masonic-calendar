@@ -52,6 +52,9 @@ units:
     - name: "Name"
       csv_column: "Unit Name"
       type: "string"
+    - name: "UnitPostfix"
+      csv_column: "Unit Postfix"
+      type: "string"
     - name: "ShortName"
       csv_column: "Short Name"
       type: "string"
@@ -205,17 +208,6 @@ unit_honorary_members:
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
       type: "string"
-    - name: "DateRankAccorded"
-      csv_column: "Date Accorded"
-      type: "int"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "GrandRankDateAccorded"
-      csv_column: "GR Date Accorded"
-      type: "int"
-
-
-
-
-

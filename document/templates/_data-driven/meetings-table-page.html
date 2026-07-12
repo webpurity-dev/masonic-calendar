@@ -26,7 +26,7 @@
                     {{ row.unit_name }}
                 </td>
                 <td rowspan="{{ row.row_span }}" style="width: 3%; margin: 0; text-align: center; vertical-align: middle;">
-                    {{ row.unit_number }}
+                    {{ row.unit_postfix_display }}
                 </td>
                 {{ end }}
                 {{ for cell in row.cells }}

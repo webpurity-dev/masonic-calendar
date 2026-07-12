@@ -49,6 +49,7 @@ public static class UnitModelBuilder
                 {
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
+                    { "unitPostfixDisplay", unit.UnitPostfix ?? unit.Number.ToString() },
                     { "hideUnitNumber", unit.HideUnitNumber },
                     { "hideUnitName", unit.HideUnitName },
                     { "contact", unit.Contact },

@@ -96,7 +96,9 @@ public class SuccessionListSectionRenderer(string templateRoot, SchemaDataLoader
                 if (string.IsNullOrWhiteSpace(tableConfig.Source))
                     continue;
 
-                var csvPath = Path.Combine(documentRoot, tableConfig.Source);
+                // Always look for CSV files in the data/ folder
+                var csvFileName = Path.GetFileName(tableConfig.Source);
+                var csvPath = Path.Combine(documentRoot, "data", csvFileName);
                 if (!File.Exists(csvPath))
                 {
                     if (DebugMode)

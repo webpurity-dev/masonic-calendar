@@ -140,6 +140,9 @@ units:
     - name: "Name"
       csv_column: "Unit Name"
       type: "string"
+    - name: "UnitPostfix"
+      csv_column: "Unit Postfix"
+      type: "string"
     - name: "ShortName"
       csv_column: "Short Name"
       type: "string"
@@ -324,18 +327,9 @@ unit_honorary_members:
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    # v1.7 NEW: Other Province Rank
     - name: "ProvRankOtherProv"
       csv_column: "Prov Rank Oth Prov"
       type: "string"
-    - name: "OpDateAccorded"
-      csv_column: "OP Date Accorded"
-      type: "string"
-    # v1.7 NEW: London Rank
     - name: "LondonRank"
       csv_column: "Lndn Rank"
       type: "string"
-    - name: "LondonRankDateAccorded"
-      csv_column: "LR Date Accorded"
-      type: "int"
-

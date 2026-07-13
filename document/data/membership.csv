@@ -4477,7 +4477,7 @@ KT 0595 PMI 028,KT,595,595,28,,,PMI,"Micklefield, R F",,ProvPrior,2020,,,,,,,,,2
 KT 0595 PMI 029,KT,595,595,29,,,PMI,Lound. M E,,GtStB(B) ProvSub-Prior 2020,2023,,,,,,,,,2009,,,,,,,,,,,,2023,,,,Returns
 KT 0595 PMI 030,KT,595,595,30,,,PMI,"Malins, T Q",,PGtA-de-C Prov2ndCon,2024,,,,,,,,,2008,,,,,,,,,,,,2023,,,,Returns
 KT 0595 PMI 031,KT,595,595,31,,,PMI,"Turner, S A",,"ProvHer 2026, CdrProvBgd",2023,,,,,,,,,2016,,,,,,,,,,,,2023,,,,Returns
-KT 0595 PMO 019,KT,595,595,19,,,PMO,"Hawking, G J",,PGtA-de-C,2017,,,,,,,,,2000 & 2013,,,,,,,,,,,,1994,,,,Returns
+KT 0595 PMO 019,KT,595,595,19,,,PMO,"Hawking, G J",,PGtA-de-C,2017,,,,,,,,,"2000,2013",,,,,,,,,,,,1994,,,,Returns
 KT 0595 PMO 020,KT,595,595,20,,,PMO,"Frostick, D J B",,PProvA-de-C,2013,,,,,,,,,2010,,,,,,,,,,,,2004,,,,Returns
 KT 0595 PMO 021,KT,595,595,21,,,PMO,"White, R W",,ProvStB(B),2021,,,,,,,,,2015,,,,,,,,,,,,2012,,,,Returns
 KT 0595 PMO 022,KT,595,595,22,,,PMO,"Lawery, D J",,PProvHer,2025,,,,,,,,,2016,,,,,,,,,,,,2011,,,,Returns

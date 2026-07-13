@@ -7,3 +7,4 @@
 # Change "n.)" & Hunts." to "n)"
 # Change "OSC 0999" to "OSC 999"
 # Change "PBQ 0998" to "PBQ 998"
+# Change "2000 & 2013" to "2000,2013"

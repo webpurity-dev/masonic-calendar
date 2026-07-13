@@ -784,11 +784,23 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         var membersGrouped = unit.Members
             .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name);
         
-        unit.Members = membersGrouped
+        var deduplicatedMembers = membersGrouped
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(m => m.YearInitiated ?? int.MaxValue)  // Sort by YearInitiated (int), fallback to PosNo
-            .ThenBy(m => m.PosNo ?? int.MaxValue)  // Secondary sort by PosNo if year is null
             .ToList();
+        
+        // Check if ALL members have null YearInitiated
+        var hasAnyYearData = deduplicatedMembers.Any(m => m.YearInitiated.HasValue);
+        
+        // Sort members: if all lack YearInitiated, use PosNo as primary sort; otherwise use YearInitiated first
+        unit.Members = hasAnyYearData
+            ? deduplicatedMembers
+                .OrderBy(m => m.YearInitiated ?? int.MaxValue)  // Sort by YearInitiated (int), fallback to PosNo
+                .ThenBy(m => m.PosNo ?? int.MaxValue)  // Secondary sort by PosNo if year is null
+                .ToList()
+            : deduplicatedMembers
+                .OrderBy(m => m.PosNo ?? int.MaxValue)  // Primary sort by PosNo when no year data available
+                .ThenBy(m => m.YearInitiated ?? int.MaxValue)  // Secondary sort by year (though all are null)
+                .ToList();
 
         // For Honorary Members: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication

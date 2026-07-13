@@ -5,26 +5,42 @@
     </div>
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 6pt; border: 0px; line-height: 1.2;">
         <colgroup>
-            <col style="width: 40px;">
             <col style="width: 50px;">
+            <col style="width: 50px;">
+            {{ if !columnHeadings.hideOfficers }}
             <col style="width: 40px;">
+            {{ end }}
+            {{ if !columnHeadings.hidePastMasters }}
             <col style="width: 40px;">
+            {{ end }}
+            {{ if !columnHeadings.hideHonorary }}
+            <col style="width: 40px;">
+            {{ end }}
             <col style="width: 40px;">
         </colgroup>
         <thead>
             <tr style="font-weight: 600; background: #f0f0f0;">
                 <th style="text-align: left;">
-                    2025-26
+                    &nbsp;
                 </th>
                 <th style="text-align: center;">
                     &nbsp;
                 </th>
+                {{ if !columnHeadings.hideOfficers }}
+                <th style="text-align: center;">
+                    {{ columnHeadings.officers }}
+                </th>
+                {{ end }}
+                {{ if !columnHeadings.hidePastMasters }}
                 <th style="text-align: center;">
                     {{ columnHeadings.pastMasters }}
                 </th>
+                {{ end }}
+                {{ if !columnHeadings.hideHonorary }}
                 <th style="text-align: center;">
-                    Honorary
+                    {{ columnHeadings.honorary }}
                 </th>
+                {{ end }}
                 <th style="text-align: center;">
                     Members
                 </th>
@@ -39,31 +55,26 @@
                 <td style="text-align: center;">
                     {{ unit.unitPostfixDisplay }}
                 </td>
+                {{ if !columnHeadings.hideOfficers }}
+                <td style="text-align: center;">
+                    {{ unit.officersCount }}
+                </td>
+                {{ end }}
+                {{ if !columnHeadings.hidePastMasters }}
                 <td style="text-align: center;">
                     {{ unit.pastMastersCount }}
                 </td>
+                {{ end }}
+                {{ if !columnHeadings.hideHonorary }}
                 <td style="text-align: center;">
                     {{ unit.honoraryMembersCount }}
                 </td>
+                {{ end }}
                 <td style="text-align: center;">
                     {{ unit.membersCount }}
                 </td>
             </tr>
             {{ end }}
-            <!--tr style="padding: 1px; font-weight: 600; background: #f0f0f0;">
-                <td colspan="2" style="text-align: left; overflow: hidden; white-space: nowrap;">
-                    Average
-                </td>                
-                <td style="text-align: center;">
-                    {{ averagePastMasters }}
-                </td>
-                <td style="text-align: center;">
-                    {{ averageHonoraryMembers }}
-                </td>
-                <td style="text-align: center;">
-                    {{ averageMembers }}
-                </td>
-            </tr-->
             <tr style="padding: 1px;font-weight: 600; background: #f0f0f0;">
                 <td style="text-align: left; overflow: hidden; white-space: nowrap;">
                     Totals
@@ -71,12 +82,21 @@
                 <td style="text-align: center;">
                     {{ totalUnits }}
                 </td>
+                {{ if !columnHeadings.hideOfficers }}
+                <td style="text-align: center;">
+                    {{ totalOfficers }}
+                </td>
+                {{ end }}
+                {{ if !columnHeadings.hidePastMasters }}
                 <td style="text-align: center;">
                     {{ totalPastMasters }}
                 </td>
+                {{ end }}
+                {{ if !columnHeadings.hideHonorary }}
                 <td style="text-align: center;">
                     {{ totalHonoraryMembers }}
                 </td>
+                {{ end }}
                 <td style="text-align: center;">
                     {{ totalMembers }}
                 </td>

@@ -49,18 +49,35 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
         }
 
         // Build the summary table model with all units at once
-        // Extract column heading overrides from section config
-        var pastMastersHeading = section.ColumnHeadings?.TryGetValue("past_masters", out var heading) == true ? heading : "Past Masters";
-        var joiningPmHeading = section.ColumnHeadings?.TryGetValue("joining_pm", out var joiningHeading) == true ? joiningHeading : "Joining P.M.";
+        // Extract column heading configuration from section config
+        // Support both "override_*" (new user preference) and direct heading labels from YAML
+        var pastMastersHeading = GetConfigValue(section.ColumnHeadings, "override_past_masters") 
+                                 ?? GetConfigValue(section.ColumnHeadings, "past_masters")
+                                 ?? "Past Masters";
+        var officersHeading = GetConfigValue(section.ColumnHeadings, "override_officers")
+                             ?? GetConfigValue(section.ColumnHeadings, "officers")
+                             ?? "Officers";
+        var honoraryHeading = GetConfigValue(section.ColumnHeadings, "override_honorary")
+                             ?? GetConfigValue(section.ColumnHeadings, "honorary")
+                             ?? "Honorary";
+        
+        var hidePastMasters = GetConfigBool(section.ColumnHeadings, "hide_past_masters", false);
+        var hideOfficers = GetConfigBool(section.ColumnHeadings, "hide_officers", false);
+        var hideHonorary = GetConfigBool(section.ColumnHeadings, "hide_honorary", false);
+        
         var includeOfficersAsMembers = section.IncludeOfficersAsMembers;
         
         // Calculate total and average members count (optionally including officers)
-        var totalMembers = unitsForSection.Sum(u => u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0));
+        var totalMembers = unitsForSection.Sum(u => u.Members.Count + (includeOfficersAsMembers ? CountActiveOfficers(u) : 0));
         var averageMembers = unitsForSection.Count > 0 ? Math.Round((double)totalMembers / unitsForSection.Count, 0) : 0;
         
         // Calculate average past masters count
         var totalPastMasters = unitsForSection.Sum(u => u.PastMasters.Count);
         var averagePastMasters = unitsForSection.Count > 0 ? Math.Round((double)totalPastMasters / unitsForSection.Count, 0) : 0;
+        
+        // Calculate total and average officers count (excluding vacant/not appointed)
+        var totalOfficers = unitsForSection.Sum(u => CountActiveOfficers(u));
+        var averageOfficers = unitsForSection.Count > 0 ? Math.Round((double)totalOfficers / unitsForSection.Count, 0) : 0;
         
         // Calculate total and average honorary members count
         var totalHonoraryMembers = unitsForSection.Sum(u => u.HonoraryMembers.Count);
@@ -72,13 +89,19 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
             { "columnHeadings", new Dictionary<string, object?>
             {
                 { "pastMasters", pastMastersHeading },
-                { "joiningPm", joiningPmHeading }
+                { "officers", officersHeading },
+                { "honorary", honoraryHeading },
+                { "hidePastMasters", hidePastMasters },
+                { "hideOfficers", hideOfficers },
+                { "hideHonorary", hideHonorary }
             }},
             { "averageMembers", averageMembers },
             { "averagePastMasters", averagePastMasters },
+            { "averageOfficers", averageOfficers },
             { "averageHonoraryMembers", averageHonoraryMembers },
             { "totalMembers", totalMembers },
             { "totalPastMasters", totalPastMasters },
+            { "totalOfficers", totalOfficers },
             { "totalHonoraryMembers", totalHonoraryMembers },
             { "totalUnits", unitsForSection.Count },
             { "units", unitsForSection
@@ -88,9 +111,10 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
                     { "superShortName", u.SuperShortName },
                     { "shortName", u.ShortName },
                     { "number", u.Number },
+                    { "unitPostfixDisplay", u.UnitPostfix ?? u.Number.ToString() },
                     { "pastMastersCount", u.PastMasters.Count },
-                    { "joiningPastMastersCount", u.JoinPastMasters.Count },
-                    { "membersCount", u.Members.Count + (includeOfficersAsMembers ? u.Officers.Count : 0) },
+                    { "officersCount", CountActiveOfficers(u) },
+                    { "membersCount", u.Members.Count + (includeOfficersAsMembers ? CountActiveOfficers(u) : 0) },
                     { "honoraryMembersCount", u.HonoraryMembers.Count }
                 })
                 .ToList()
@@ -101,4 +125,43 @@ public class MembershipSummarySectionRenderer(string templateRoot, SchemaDataLoa
         var summaryHtml = template.Render(summaryModel);
         WrapWithPageBreakAndAnchor(output, $"section_{section.SectionId}", summaryHtml, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
     }
+
+    /// <summary>
+    /// Extract a string value from column headings config, returning null if not found.
+    /// </summary>
+    private static string? GetConfigValue(Dictionary<string, string>? columnHeadings, string key)
+    {
+        if (columnHeadings == null || !columnHeadings.ContainsKey(key))
+            return null;
+        
+        var value = columnHeadings[key];
+        return !string.IsNullOrWhiteSpace(value) ? value : null;
+    }
+
+    /// <summary>
+    /// Extract a boolean value from column headings config with a default fallback.
+    /// </summary>
+    private static bool GetConfigBool(Dictionary<string, string>? columnHeadings, string key, bool defaultValue)
+    {
+        if (columnHeadings == null || !columnHeadings.ContainsKey(key))
+            return defaultValue;
+        
+        var value = columnHeadings[key];
+        if (bool.TryParse(value, out var parsedBool))
+            return parsedBool;
+        
+        return defaultValue;
+    }
+
+    /// <summary>
+    /// Count active officers in a unit, excluding vacant/not appointed entries.
+    /// An officer is considered vacant if their name is empty/whitespace or equals "Vacant".
+    /// </summary>
+    private static int CountActiveOfficers(SchemaUnit unit)
+    {
+        return unit.Officers.Count(o => 
+            !string.IsNullOrWhiteSpace(o.Name) && 
+            !o.Name.Equals("Vacant", StringComparison.OrdinalIgnoreCase));
+    }
 }
+

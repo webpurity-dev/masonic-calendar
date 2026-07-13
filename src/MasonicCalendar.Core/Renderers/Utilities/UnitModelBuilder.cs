@@ -230,31 +230,40 @@ public static class UnitModelBuilder
         var col0 = new List<Dictionary<string, object?>>();
         var col1 = new List<Dictionary<string, object?>>();
         var col2 = new List<Dictionary<string, object?>>();
+        var columns = new List<List<Dictionary<string, object?>>> { col0, col1, col2 };
 
         if (members.Count == 0)
-            return [col0, col1, col2];
+            return columns;
 
-        var colSize = (int)Math.Ceiling(members.Count / (double)numColumns);
+        // Balanced distribution: distribute members evenly across columns
+        var baseSize = members.Count / numColumns;
+        var remainder = members.Count % numColumns;
 
-        for (int i = 0; i < members.Count; i++)
+        int memberIndex = 0;
+        for (int colIndex = 0; colIndex < numColumns; colIndex++)
         {
-            var m = members[i];
-            var dict = new Dictionary<string, object?>
-            {
-                { "reference", TextCleaner.CleanReference(m.Reference) },
-                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
-                { "name", TextCleaner.CleanName(m.Name) },
-                { "joined", m.YearInitiated },
-                { "posNo", m.PosNo },
-                { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
-            };
+            // First 'remainder' columns get baseSize + 1 members
+            int colCapacity = baseSize + (colIndex < remainder ? 1 : 0);
 
-            if (i < colSize) col0.Add(dict);
-            else if (i < colSize * 2) col1.Add(dict);
-            else col2.Add(dict);
+            for (int j = 0; j < colCapacity && memberIndex < members.Count; j++)
+            {
+                var m = members[memberIndex];
+                var dict = new Dictionary<string, object?>
+                {
+                    { "reference", TextCleaner.CleanReference(m.Reference) },
+                    { "dataId", BuildDataId(m.Reference, m.MemType, null) },
+                    { "name", TextCleaner.CleanName(m.Name) },
+                    { "joined", m.YearInitiated },
+                    { "posNo", m.PosNo },
+                    { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
+                };
+
+                columns[colIndex].Add(dict);
+                memberIndex++;
+            }
         }
 
-        return [col0, col1, col2];
+        return columns;
     }
 
     /// <summary>

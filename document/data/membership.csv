@@ -5726,33 +5726,28 @@ OSC 0103 Hon 070,OSC,103,103,70,,,Hon,"Hambidge, G F - V PGI Dorset",,,,,,,,,,,,
 OSC 0103 Hon 071,OSC,103,103,71,,,Hon,"LE Bourne, JP V PGReg",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0103 Hon 072,OSC,103,103,72,,,Hon,"Weston, P F - IV ",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0103 Inst 001,OSC,103,103,1,,,Inst,,,,,,,,,,,,,,,April 8th 2026,,,,,,,,,,,,,,DBLodges
-OSC 0103 Mem 036,OSC,103,103,36,,,Mem,Fifth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0103 Mem 037,OSC,103,103,37,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,,,Returns
-OSC 0103 Mem 038,OSC,103,103,38,,,Mem,"Batchelor, R C W ",,,,,,,,,,,,,,,,,,,,,,,f,2015,,,,Returns
-OSC 0103 Mem 039,OSC,103,103,39,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,,,Returns
-OSC 0103 Mem 040,OSC,103,103,40,,,Mem,"Penrose, M S ",,,,,,,,,,,,,,,,,,,,,,,f,2015,,,,Returns
-OSC 0103 Mem 041,OSC,103,103,41,,,Mem,"Willcock, D J W ",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,,,Returns
-OSC 0103 Mem 042,OSC,103,103,42,,,Mem,Fourth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0103 Mem 043,OSC,103,103,43,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,,,Returns
-OSC 0103 Mem 044,OSC,103,103,44,,,Mem,"Phipps, P",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,,,Returns
-OSC 0103 Mem 045,OSC,103,103,45,,,Mem,"Bevan, A",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,,,Returns
-OSC 0103 Mem 046,OSC,103,103,46,,,Mem,"Chisholm,  B G",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,,,Returns
-OSC 0103 Mem 047,OSC,103,103,47,,,Mem,Third Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0103 Mem 048,OSC,103,103,48,,,Mem,"Franklin, G S",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,,,Returns
-OSC 0103 Mem 049,OSC,103,103,49,,,Mem,"Micklefield, R F",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,,,Returns
-OSC 0103 Mem 050,OSC,103,103,50,,,Mem,"Ballard, C T",,,,,,,,,,,,,,,,,,,,,†,,,2016,a,,,Returns
-OSC 0103 Mem 051,OSC,103,103,51,,,Mem,"Noke, P",,,,,,,,,,,,,,,,,,,,,,,,2019,,,,Returns
-OSC 0103 Mem 052,OSC,103,103,52,,,Mem,"Banin, D J ",,,,,,,,,,,,,,,,,,,,,,,,2021,,,,Returns
-OSC 0103 Mem 053,OSC,103,103,53,,,Mem,"Mackie, A B ",,,,,,,,,,,,,,,,,,,,,,,,2024,,,,Returns
-OSC 0103 Mem 054,OSC,103,103,54,,,Mem,"Eaton, D F ",,,,,,,,,,,,,,,,,,,,,,,,2022,,,,Returns
-OSC 0103 Mem 055,OSC,103,103,55,,,Mem,"Bull, M M ",,,,,,,,,,,,,,,,,,,,,,,,2025,,,,Returns
-OSC 0103 Mem 056,OSC,103,103,56,,,Mem,Second Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0103 Mem 057,OSC,103,103,57,,,Mem,"Muir, P M ",,,,,,,,,,,,,,,,,,,,,,,,2019,,,,Returns
-OSC 0103 Mem 058,OSC,103,103,58,,,Mem,"Donaghue, J",,,,,,,,,,,,,,,,,,,,,,,,2023,,,,Returns
-OSC 0103 Mem 059,OSC,103,103,59,,,Mem,First Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0103 Mem 060,OSC,103,103,60,,,Mem,"Merritt, R W ",,,,,,,,,,,,,,,,,,,,,,,,2024,,,,Returns
-OSC 0103 Mem 061,OSC,103,103,61,,,Mem,"Hann, D M ",,,,,,,,,,,,,,,,,,,,,,,,2026,,,,Returns
-OSC 0103 Mem 062,OSC,103,103,62,,,Mem,"Pike, A C ",,,,,,,,,,,,,,,,,,,,,,,,2026,,,,Returns
+OSC 0103 Mem 037,OSC,103,103,37,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,Fifth Grade,,Returns
+OSC 0103 Mem 038,OSC,103,103,38,,,Mem,"Batchelor, R C W ",,,,,,,,,,,,,,,,,,,,,,,f,2015,,Fifth Grade,,Returns
+OSC 0103 Mem 039,OSC,103,103,39,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,Fifth Grade,,Returns
+OSC 0103 Mem 040,OSC,103,103,40,,,Mem,"Penrose, M S ",,,,,,,,,,,,,,,,,,,,,,,f,2015,,Fifth Grade,,Returns
+OSC 0103 Mem 041,OSC,103,103,41,,,Mem,"Willcock, D J W ",,,,,,,,,,,,,,,,,,,,,†,,f,2015,a,Fifth Grade,,Returns
+OSC 0103 Mem 043,OSC,103,103,43,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,Fourth Grade,,Returns
+OSC 0103 Mem 044,OSC,103,103,44,,,Mem,"Phipps, P",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,Fourth Grade,,Returns
+OSC 0103 Mem 045,OSC,103,103,45,,,Mem,"Bevan, A",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,Fourth Grade,,Returns
+OSC 0103 Mem 046,OSC,103,103,46,,,Mem,"Chisholm,  B G",,,,,,,,,,,,,,,,,,,,,†,,f,2015,,Fourth Grade,,Returns
+OSC 0103 Mem 048,OSC,103,103,48,,,Mem,"Franklin, G S",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,Third Grade,,Returns
+OSC 0103 Mem 049,OSC,103,103,49,,,Mem,"Micklefield, R F",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,Third Grade,,Returns
+OSC 0103 Mem 050,OSC,103,103,50,,,Mem,"Ballard, C T",,,,,,,,,,,,,,,,,,,,,†,,,2016,a,Third Grade,,Returns
+OSC 0103 Mem 051,OSC,103,103,51,,,Mem,"Noke, P",,,,,,,,,,,,,,,,,,,,,,,,2019,,Third Grade,,Returns
+OSC 0103 Mem 052,OSC,103,103,52,,,Mem,"Banin, D J ",,,,,,,,,,,,,,,,,,,,,,,,2021,,Third Grade,,Returns
+OSC 0103 Mem 053,OSC,103,103,53,,,Mem,"Mackie, A B ",,,,,,,,,,,,,,,,,,,,,,,,2024,,Third Grade,,Returns
+OSC 0103 Mem 054,OSC,103,103,54,,,Mem,"Eaton, D F ",,,,,,,,,,,,,,,,,,,,,,,,2022,,Third Grade,,Returns
+OSC 0103 Mem 055,OSC,103,103,55,,,Mem,"Bull, M M ",,,,,,,,,,,,,,,,,,,,,,,,2025,,Third Grade,,Returns
+OSC 0103 Mem 057,OSC,103,103,57,,,Mem,"Muir, P M ",,,,,,,,,,,,,,,,,,,,,,,,2019,,Second Grade,,Returns
+OSC 0103 Mem 058,OSC,103,103,58,,,Mem,"Donaghue, J",,,,,,,,,,,,,,,,,,,,,,,,2023,,Second Grade,,Returns
+OSC 0103 Mem 060,OSC,103,103,60,,,Mem,"Merritt, R W ",,,,,,,,,,,,,,,,,,,,,,,,2024,,First Grade,,Returns
+OSC 0103 Mem 061,OSC,103,103,61,,,Mem,"Hann, D M ",,,,,,,,,,,,,,,,,,,,,,,,2026,,First Grade,,Returns
+OSC 0103 Mem 062,OSC,103,103,62,,,Mem,"Pike, A C ",,,,,,,,,,,,,,,,,,,,,,,,2026,,First Grade,,Returns
 OSC 0103 Off 002,OSC,103,103,2,President,,Off,"Micklefied, R F",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0103 Off 003,OSC,103,103,3,Primus (L),,Off,"Noke, P",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0103 Off 004,OSC,103,103,4,Primus (O),,Off,"Banin, D",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
@@ -5799,23 +5794,20 @@ OSC 0116 Hon 053,OSC,116,116,53,,,Hon,"Bourne, L E - JP V",,,,,,,,,,,,,,,,,,,,,,
 OSC 0116 Hon 054,OSC,116,116,54,,,Hon,"Roberts, J C - V",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0116 Hon 055,OSC,116,116,55,,,Hon,"Bowle, C J - V",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0116 Inst 001,OSC,116,116,1,,,Inst,,,,,,,,,,,,,,,November 3rd 2025,,,,,,,,,,,,,,DBLodges
-OSC 0116 Mem 029,OSC,116,116,29,,,Mem,Fifth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0116 Mem 030,OSC,116,116,30,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 031,OSC,116,116,31,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 032,OSC,116,116,32,,,Mem,"Burt, M R",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 033,OSC,116,116,33,,,Mem,Fourth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0116 Mem 034,OSC,116,116,34,,,Mem,"Bevan, A",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0116 Mem 035,OSC,116,116,35,,,Mem,"Burt, D B F",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0116 Mem 036,OSC,116,116,36,,,Mem,"Phipps, P",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0116 Mem 037,OSC,116,116,37,,,Mem,"Harvey, C",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 038,OSC,116,116,38,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0116 Mem 039,OSC,116,116,39,,,Mem,"Wills, T L",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 040,OSC,116,116,40,,,Mem,"Gawler, P R",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 041,OSC,116,116,41,,,Mem,Third Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0116 Mem 042,OSC,116,116,42,,,Mem,"Franklin, G S",,,,,,,,,,,,,,,,,,,,,†,,f,,a,,,Returns
-OSC 0116 Mem 043,OSC,116,116,43,,,Mem,"Cox, R",,,,,,,,,,,,,,,,,,,,,,,,2023,,,,Returns
-OSC 0116 Mem 044,OSC,116,116,44,,,Mem,"Banin, D",,,,,,,,,,,,,,,,,,,,,,,,2024,,,,Returns
-OSC 0116 Mem 045,OSC,116,116,45,,,Mem,"Maraspin, L",,,,,,,,,,,,,,,,,,,,,,,,2025,,,,Returns
+OSC 0116 Mem 030,OSC,116,116,30,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fifth Grade,,Returns
+OSC 0116 Mem 031,OSC,116,116,31,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fifth Grade,,Returns
+OSC 0116 Mem 032,OSC,116,116,32,,,Mem,"Burt, M R",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fifth Grade,,Returns
+OSC 0116 Mem 034,OSC,116,116,34,,,Mem,"Bevan, A",,,,,,,,,,,,,,,,,,,,,†,,f,2017,,Fourth Grade,,Returns
+OSC 0116 Mem 035,OSC,116,116,35,,,Mem,"Burt, D B F",,,,,,,,,,,,,,,,,,,,,†,,f,2017,,Fourth Grade,,Returns
+OSC 0116 Mem 036,OSC,116,116,36,,,Mem,"Phipps, P",,,,,,,,,,,,,,,,,,,,,†,,f,2017,,Fourth Grade,,Returns
+OSC 0116 Mem 037,OSC,116,116,37,,,Mem,"Harvey, C",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fourth Grade,,Returns
+OSC 0116 Mem 038,OSC,116,116,38,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,2017,,Fourth Grade,,Returns
+OSC 0116 Mem 039,OSC,116,116,39,,,Mem,"Wills, T L",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fourth Grade,,Returns
+OSC 0116 Mem 040,OSC,116,116,40,,,Mem,"Gawler, P R",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Fourth Grade,,Returns
+OSC 0116 Mem 042,OSC,116,116,42,,,Mem,"Franklin, G S",,,,,,,,,,,,,,,,,,,,,†,,f,2017,a,Third Grade,,Returns
+OSC 0116 Mem 043,OSC,116,116,43,,,Mem,"Cox, R",,,,,,,,,,,,,,,,,,,,,,,,2023,,Third Grade,,Returns
+OSC 0116 Mem 044,OSC,116,116,44,,,Mem,"Banin, D",,,,,,,,,,,,,,,,,,,,,,,,2024,,Third Grade,,Returns
+OSC 0116 Mem 045,OSC,116,116,45,,,Mem,"Maraspin, L",,,,,,,,,,,,,,,,,,,,,,,,2025,,Third Grade,,Returns
 OSC 0116 Off 002,OSC,116,116,2,President,,Off,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0116 Off 003,OSC,116,116,3,Primus (L),,Off,"Gawler, P R",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0116 Off 004,OSC,116,116,4,Primus (O),,Off,"Harvey, C",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
@@ -5848,36 +5840,30 @@ OSC 0999 Hon 062,OSC,999,3TI,62,,,Hon,"Hambidge, G F - V. P.G.Insp.",,,,,,,,,,,,
 OSC 0999 Hon 063,OSC,999,3TI,63,,,Hon,"Currans, I S - VI Grand Summus",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0999 Hon 064,OSC,999,3TI,64,,,Hon,"Slater, M E - VI P.G.Chanc",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0999 Inst 001,OSC,999,3TI,1,,,Inst,,,,,,,,,,,,,,,February 27th 2026,,,,,,,,,,,,,,DBLodges
-OSC 0999 Mem 032,OSC,999,3TI,32,,,Mem,Sixth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 033,OSC,999,3TI,33,,,Mem,"Aspinell, C J",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,,,Returns
-OSC 0999 Mem 034,OSC,999,3TI,34,,,Mem,Fifth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 035,OSC,999,3TI,35,,,Mem,"Campbell, I M",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,,,Returns
-OSC 0999 Mem 036,OSC,999,3TI,36,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,,,Returns
-OSC 0999 Mem 037,OSC,999,3TI,37,,,Mem,"Stock, D G",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,,,Returns
-OSC 0999 Mem 038,OSC,999,3TI,38,,,Mem,"Glister, I T C",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,,,Returns
-OSC 0999 Mem 039,OSC,999,3TI,39,,,Mem,"Burt, M R",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,,,Returns
-OSC 0999 Mem 040,OSC,999,3TI,40,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,,,Returns
-OSC 0999 Mem 041,OSC,999,3TI,41,,,Mem,"Willcock, D J W",,,,,,,,,,,,,,,,,,,,,†,,,2026,a,,,Returns
-OSC 0999 Mem 042,OSC,999,3TI,42,,,Mem,Fourth Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 043,OSC,999,3TI,43,,,Mem,"Carter, D E",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0999 Mem 044,OSC,999,3TI,44,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,,,,,Returns
-OSC 0999 Mem 045,OSC,999,3TI,45,,,Mem,"Burt, D B F",,,,,,,,,,,,,,,,,,,,,†,,,2012,,,,Returns
-OSC 0999 Mem 046,OSC,999,3TI,46,,,Mem,"Smart, D R         ",,,,,,,,,,,,,,,,,,,,,†,,,2010,a,,,Returns
-OSC 0999 Mem 047,OSC,999,3TI,47,,,Mem,"Bale, D W B",,,,,,,,,,,,,,,,,,,,,†,,,2012,a,,,Returns
-OSC 0999 Mem 048,OSC,999,3TI,48,,,Mem,"Frostick, D J B",,,,,,,,,,,,,,,,,,,,,†,,,2010,,,,Returns
-OSC 0999 Mem 049,OSC,999,3TI,49,,,Mem,"Harvey, C",,,,,,,,,,,,,,,,,,,,,†,,,2012,a,,,Returns
-OSC 0999 Mem 050,OSC,999,3TI,50,,,Mem,"Gawler, P R",,,,,,,,,,,,,,,,,,,,,†,,,2013,a,,,Returns
-OSC 0999 Mem 051,OSC,999,3TI,51,,,Mem,Third Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 052,OSC,999,3TI,52,,,Mem,"Shaw, F J",,,,,,,,,,,,,,,,,,,,,†,,,2011,,,,Returns
-OSC 0999 Mem 053,OSC,999,3TI,53,,,Mem,"Gillen, A D",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,,,Returns
-OSC 0999 Mem 054,OSC,999,3TI,54,,,Mem,"Parkes, M R",,,,,,,,,,,,,,,,,,,,,,,,2018,,,,Returns
-OSC 0999 Mem 055,OSC,999,3TI,55,,,Mem,"Diment-Davies, S",,,,,,,,,,,,,,,,,,,,,,,,2018,,,,Returns
-OSC 0999 Mem 056,OSC,999,3TI,56,,,Mem,"Williams,  T G",,,,,,,,,,,,,,,,,,,,,†,,,2019,,,,Returns
-OSC 0999 Mem 057,OSC,999,3TI,57,,,Mem,"Fairlie, R",,,,,,,,,,,,,,,,,,,,,,,,2023,,,,Returns
-OSC 0999 Mem 058,OSC,999,3TI,58,,,Mem,Second Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 059,OSC,999,3TI,59,,,Mem,First Grade,,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
-OSC 0999 Mem 060,OSC,999,3TI,60,,,Mem,"Paul, A",,,,,,,,,,,,,,,,,,,,,,,,2025,,,,Returns
-OSC 0999 Mem 061,OSC,999,3TI,61,,,Mem,"Latham, K F",,,,,,,,,,,,,,,,,,,,,,,,2025,,,,Returns
+OSC 0999 Mem 033,OSC,999,3TI,33,,,Mem,"Aspinell, C J",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Sixth Grade,,Returns
+OSC 0999 Mem 035,OSC,999,3TI,35,,,Mem,"Campbell, I M",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Fifth Grade,,Returns
+OSC 0999 Mem 036,OSC,999,3TI,36,,,Mem,"Sullivan, I R",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Fifth Grade,,Returns
+OSC 0999 Mem 037,OSC,999,3TI,37,,,Mem,"Stock, D G",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Fifth Grade,,Returns
+OSC 0999 Mem 038,OSC,999,3TI,38,,,Mem,"Glister, I T C",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,Fifth Grade,,Returns
+OSC 0999 Mem 039,OSC,999,3TI,39,,,Mem,"Burt, M R",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,Fifth Grade,,Returns
+OSC 0999 Mem 040,OSC,999,3TI,40,,,Mem,"Brookes, L T",,,,,,,,,,,,,,,,,,,,,†,,f,2010,a,Fifth Grade,,Returns
+OSC 0999 Mem 041,OSC,999,3TI,41,,,Mem,"Willcock, D J W",,,,,,,,,,,,,,,,,,,,,†,,,2026,a,Fifth Grade,,Returns
+OSC 0999 Mem 043,OSC,999,3TI,43,,,Mem,"Carter, D E",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Fourth Grade,,Returns
+OSC 0999 Mem 044,OSC,999,3TI,44,,,Mem,"Parkes, B E",,,,,,,,,,,,,,,,,,,,,†,,f,2010,,Fourth Grade,,Returns
+OSC 0999 Mem 045,OSC,999,3TI,45,,,Mem,"Burt, D B F",,,,,,,,,,,,,,,,,,,,,†,,,2012,,Fourth Grade,,Returns
+OSC 0999 Mem 046,OSC,999,3TI,46,,,Mem,"Smart, D R         ",,,,,,,,,,,,,,,,,,,,,†,,,2010,a,Fourth Grade,,Returns
+OSC 0999 Mem 047,OSC,999,3TI,47,,,Mem,"Bale, D W B",,,,,,,,,,,,,,,,,,,,,†,,,2012,a,Fourth Grade,,Returns
+OSC 0999 Mem 048,OSC,999,3TI,48,,,Mem,"Frostick, D J B",,,,,,,,,,,,,,,,,,,,,†,,,2010,,Fourth Grade,,Returns
+OSC 0999 Mem 049,OSC,999,3TI,49,,,Mem,"Harvey, C",,,,,,,,,,,,,,,,,,,,,†,,,2012,a,Fourth Grade,,Returns
+OSC 0999 Mem 050,OSC,999,3TI,50,,,Mem,"Gawler, P R",,,,,,,,,,,,,,,,,,,,,†,,,2013,a,Fourth Grade,,Returns
+OSC 0999 Mem 052,OSC,999,3TI,52,,,Mem,"Shaw, F J",,,,,,,,,,,,,,,,,,,,,†,,,2011,,Third Grade,,Returns
+OSC 0999 Mem 053,OSC,999,3TI,53,,,Mem,"Gillen, A D",,,,,,,,,,,,,,,,,,,,,†,,,2015,a,Third Grade,,Returns
+OSC 0999 Mem 054,OSC,999,3TI,54,,,Mem,"Parkes, M R",,,,,,,,,,,,,,,,,,,,,,,,2018,,Third Grade,,Returns
+OSC 0999 Mem 055,OSC,999,3TI,55,,,Mem,"Diment-Davies, S",,,,,,,,,,,,,,,,,,,,,,,,2018,,Third Grade,,Returns
+OSC 0999 Mem 056,OSC,999,3TI,56,,,Mem,"Williams,  T G",,,,,,,,,,,,,,,,,,,,,†,,,2019,,Third Grade,,Returns
+OSC 0999 Mem 057,OSC,999,3TI,57,,,Mem,"Fairlie, R",,,,,,,,,,,,,,,,,,,,,,,,2023,,Third Grade,,Returns
+OSC 0999 Mem 060,OSC,999,3TI,60,,,Mem,"Paul, A",,,,,,,,,,,,,,,,,,,,,,,,2025,,First Grade,,Returns
+OSC 0999 Mem 061,OSC,999,3TI,61,,,Mem,"Latham, K F",,,,,,,,,,,,,,,,,,,,,,,,2025,,First Grade,,Returns
 OSC 0999 Off 002,OSC,999,3TI,2,President,,Off,"Williams, T G QGM",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0999 Off 003,OSC,999,3TI,3,Primus (L),,Off,"Parkes, M R",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns
 OSC 0999 Off 004,OSC,999,3TI,4,Primus (O),,Off,"Diment-Davies, S",,,,,,,,,,,,,,,,,,,,,,,,,,,,Returns

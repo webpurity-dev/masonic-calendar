@@ -8,3 +8,5 @@
 # Change "OSC 0999" to "OSC 999"
 # Change "PBQ 0998" to "PBQ 998"
 # Change "2000 & 2013" to "2000,2013"
+
+# Grouped 3 x OSC and set Joined dates for Founders

@@ -193,6 +193,13 @@ unit_members:
     - name: "PosNo"
       csv_column: "Pos No"
       type: "int"
+    - name: "Suffix"
+      csv_column: "Suffix"
+      type: "string"
+    - name: "Grouping"
+      csv_column: "Grouping"
+      type: "string"
+  caption: "Those marked † are Past Presidents"
 
 unit_honorary_members:
   source: "membership.csv"

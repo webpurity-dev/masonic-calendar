@@ -7,5 +7,5 @@ param(
     [int]$Limit = 0
 )
 
-& "$PSScriptRoot\render-units.ps1" -FilterUnitType "OOA" -Limit $Limit
+& "$PSScriptRoot\render-units.ps1" -FilterUnitType "Athel" -Limit $Limit
 exit $LASTEXITCODE

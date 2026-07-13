@@ -429,14 +429,9 @@ public static class UnitModelBuilder
     /// <summary>
     /// Extract sortable year from year initiated string (e.g., "1996" → 1996)
     /// </summary>
-    private static int GetSortableYear(string? year)
+    private static int GetSortableYear(int? year)
     {
-        if (string.IsNullOrWhiteSpace(year))
-            return int.MaxValue; // Sort nulls to the end
-        
-        // Extract digits and convert to int
-        var numericPart = new string(year.TakeWhile(char.IsDigit).ToArray());
-        return int.TryParse(numericPart, out var num) ? num : int.MaxValue;
+        return year ?? int.MaxValue;  // Return year if set, otherwise max value to sort to end
     }
 
     /// <summary>

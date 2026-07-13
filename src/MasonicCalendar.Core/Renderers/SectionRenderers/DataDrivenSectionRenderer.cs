@@ -162,6 +162,14 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
                     Console.WriteLine($"    [LoadSectionHeadings] installationHeading: {(mapping.Units.OverrideInstallationHeading == " " ? "(space)" : mapping.Units.OverrideInstallationHeading)}");
             }
 
+            // v1.10: Extract caption from unit_members section
+            if (!string.IsNullOrWhiteSpace(mapping?.UnitMembers?.Caption))
+            {
+                headings["memberCaption"] = mapping.UnitMembers.Caption;
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadSectionHeadings] memberCaption: {mapping.UnitMembers.Caption}");
+            }
+
             if (DebugMode && headings.Count == 0)
                 Console.WriteLine($"    [LoadSectionHeadings] No headings found in {section.DataMapping}");
 

@@ -237,6 +237,10 @@
             {{ end }}
         </div>
     </div>
+    {{ end }}
+
+    <!-- Member Caption - renders for both regular and grouped members -->
+    {{ if (members && members.size > 0) || (groupedMembers && groupedMembers.size > 0) }}
     {{ if sectionHeadings.memberCaption && sectionHeadings.memberCaption != "" }}
     <div style="font-size: 5pt; margin-top: 2px; text-align: center; break-inside: auto; color: #333;">{{ sectionHeadings.memberCaption }}</div>
     {{ end }}

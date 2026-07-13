@@ -339,10 +339,6 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             var membersConfig = mapping.UnitMembers;
             var honoraryConfig = mapping.UnitHonoraryMembers;
 
-            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig is null: {officersConfig == null}");
-            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig?.Source: {officersConfig?.Source}");
-            Console.WriteLine($"[DEBUG LoadHermesDataAsync] officersConfig?.Fields?.Count: {officersConfig?.Fields?.Count}");
-
             // Load officers
             if (officersConfig != null)
             {
@@ -504,6 +500,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     {
                         var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var yearInitiatedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated");
+                        var yearInitiated = ParseOptionalPositiveInt(yearInitiatedStr);
 
                         // v1.6 fields
                         var provRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
@@ -528,7 +526,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
                             MemType = memType,
                             Name = TextCleaner.CleanName(name),
-                            YearInitiated = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated")),
+                            YearInitiated = yearInitiated,
                             Suffix = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Suffix"),  // v1.9: Optional suffix (e.g., "PM", "†") — ignore if blank or "0"
                             Grouping = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
                         });
@@ -769,7 +767,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.PastMasters = unit.PastMasters
             .GroupBy(p => !string.IsNullOrWhiteSpace(p.Reference) ? p.Reference : p.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(p => p.PosNo ?? int.MaxValue)  // Sort by PosNo field (Pos No column)
+            .OrderBy(p => ExtractYearAsInt(p.YearInstalled))  // Sort by YearInstalled (first year as int)
             .ToList();
 
         // For Joining Past Masters: deduplicate by Reference or Name (keep last occurrence)
@@ -777,15 +775,19 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.JoinPastMasters = unit.JoinPastMasters
             .GroupBy(j => !string.IsNullOrWhiteSpace(j.Reference) ? j.Reference : j.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(j => j.PosNo ?? int.MaxValue)  // Sort by PosNo field (Pos No column)
+            .OrderBy(j => ExtractYearAsInt(j.JoinedDate))  // Sort by JoinedDate (first year as int)
             .ToList();
 
         // For Members: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication
-        unit.Members = unit.Members
-            .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name)
+        var membersBefore = unit.Members.Count;
+        var membersGrouped = unit.Members
+            .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name);
+        
+        unit.Members = membersGrouped
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(m => ExtractFirstDate(m.YearInitiated))
+            .OrderBy(m => m.YearInitiated ?? int.MaxValue)  // Sort by YearInitiated (int), fallback to PosNo
+            .ThenBy(m => m.PosNo ?? int.MaxValue)  // Secondary sort by PosNo if year is null
             .ToList();
 
         // For Honorary Members: deduplicate by Reference or Name (keep last occurrence)
@@ -797,16 +799,37 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     }
 
     /// <summary>
-    /// Extract the first date from a potentially comma-separated date string.
-    /// Examples: "2021" -> "2021", "2021, 2022, 2023" -> "2021"
+    /// Extract the first date/year from a potentially multi-date string and return as integer for numeric sorting.
+    /// Examples: "2021" -> 2021, "2021,2022,2023" -> 2021, "2010/12" -> 2010, "2001/2002/2003" -> 2001, "2020-21" -> 2020
+    /// Handles comma, slash, and dash separators.
+    /// Returns int.MaxValue if no valid year found, so nulls/empty sort to the end.
+    /// </summary>
+    private static int ExtractYearAsInt(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return int.MaxValue;  // Null/empty sorts to end
+
+        // Split on comma, slash, or dash (to handle "2001,2005", "2010/12", and "2020-21" formats) and take the first part, trimmed
+        var firstDate = dateString.Split(new[] { ',', '/', '-' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        
+        if (int.TryParse(firstDate, out int year))
+            return year;
+        
+        return int.MaxValue;  // If not a valid number, sort to end
+    }
+
+    /// <summary>
+    /// Extract the first date/year from a potentially multi-date string.
+    /// Examples: "2021" -> "2021", "2021,2022,2023" -> "2021", "2010/12" -> "2010", "2001/2002/2003" -> "2001", "2020-21" -> "2020"
+    /// Handles comma, slash, and dash separators.
     /// </summary>
     private static string? ExtractFirstDate(string? dateString)
     {
         if (string.IsNullOrWhiteSpace(dateString))
             return null;
 
-        // Split on comma and take the first part, trimmed
-        var firstDate = dateString.Split(',')[0].Trim();
+        // Split on comma, slash, or dash (to handle "2001,2005", "2010/12", and "2020-21" formats) and take the first part, trimmed
+        var firstDate = dateString.Split(new[] { ',', '/', '-' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
         return string.IsNullOrWhiteSpace(firstDate) ? null : firstDate;
     }
 
@@ -848,14 +871,6 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     {
         foreach (var unit in units)
         {
-            // Debug: Show officer order before sort
-            if (unit.Officers.Count > 0 && unit.Number == 137)
-            {
-                Console.WriteLine($"\n[DEBUG] Unit {unit.Number} officers BEFORE sort:");
-                for (int i = 0; i < Math.Min(5, unit.Officers.Count); i++)
-                    Console.WriteLine($"  [{i}] Name: {unit.Officers[i].Name}, PosNo: {unit.Officers[i].PosNo}, Office: {unit.Officers[i].Office}");
-            }
-
             // Sort officers by original PosNo from CSV; nulls (no PosNo) go last
             // IMPORTANT: Keep the original PosNo values for template use
             unit.Officers.Sort((a, b) =>
@@ -866,23 +881,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 return a.PosNo.Value.CompareTo(b.PosNo.Value);
             });
 
-            // Debug: Show officer order after sort
-            if (unit.Number == 137)
-            {
-                Console.WriteLine($"[DEBUG] Unit {unit.Number} officers AFTER sort:");
-                for (int i = 0; i < Math.Min(15, unit.Officers.Count); i++)
-                    Console.WriteLine($"  [{i}] Name: {unit.Officers[i].Name}, PosNo: {unit.Officers[i].PosNo}, Office: {unit.Officers[i].Office}");
-            }
-
-            // Sort members by original PosNo from CSV; nulls (no PosNo) go last
-            // IMPORTANT: Keep the original PosNo values for template use
-            unit.Members.Sort((a, b) =>
-            {
-                if (a.PosNo == null && b.PosNo == null) return 0;
-                if (a.PosNo == null) return 1;
-                if (b.PosNo == null) return -1;
-                return a.PosNo.Value.CompareTo(b.PosNo.Value);
-            });
+            // NOTE: Members are already sorted by YearInitiated in LoadHermesDataAsync.
+            // DO NOT re-sort members here; that would destroy the chronological ordering.
+            // The PosNo values are preserved for template use but sorting should NOT be by PosNo.
         }
     }
 

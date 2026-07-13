@@ -314,7 +314,7 @@ unit_members:
       type: "string"
     - name: "YearInitiated"
       csv_column: "Join Date"
-      type: "int"
+      type: "string"
     - name: "PosNo"
       csv_column: "Pos No"
       type: "int"

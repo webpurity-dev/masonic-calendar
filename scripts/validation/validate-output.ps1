@@ -19,6 +19,24 @@ $rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataDir       = Join-Path $rootDir "document\data"
 $dataSourceDir = Join-Path $rootDir "document\data_sources"
 $consoleDir    = Join-Path $rootDir "src\MasonicCalendar.Console"
+$masterYamlPath = Join-Path $rootDir "document\master_v1.yaml"
+
+# ============================================================
+# Get version from master_v1.yaml
+# ============================================================
+function Get-DocumentVersion([string]$yamlPath) {
+    if (Test-Path $yamlPath) {
+        $lines = Get-Content $yamlPath
+        foreach ($line in $lines) {
+            if ($line -match '^\s*version\s*:\s*(.+)$') {
+                return $Matches[1].Trim().Trim('"\"')
+            }
+        }
+    }
+    return "unknown"
+}
+
+$documentVersion = Get-DocumentVersion $masterYamlPath
 
 # ============================================================
 # Read-DataSourceConfig: line-by-line YAML parser (PS 5.1 safe)
@@ -249,7 +267,7 @@ function Get-CsvData([string]$source) {
 # Validate
 # ============================================================
 $timestamp  = Get-Date -Format "yyyy-MM-dd-HHmmss"
-$csvOutPath = Join-Path $PSScriptRoot "validation-${timestamp}.csv"
+$csvOutPath = Join-Path $PSScriptRoot "validation-output-${documentVersion}-${timestamp}.csv"
 $issues     = [System.Collections.Generic.List[PSCustomObject]]::new()
 $grandTotal = 0
 $grandFail  = 0

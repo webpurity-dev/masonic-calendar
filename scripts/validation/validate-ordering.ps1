@@ -19,6 +19,26 @@ param(
     [switch]$Verbose
 )
 
+$rootDir = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$masterYamlPath = Join-Path $rootDir "document\master_v1.yaml"
+
+# ============================================================
+# Get version from master_v1.yaml
+# ============================================================
+function Get-DocumentVersion([string]$yamlPath) {
+    if (Test-Path $yamlPath) {
+        $lines = Get-Content $yamlPath
+        foreach ($line in $lines) {
+            if ($line -match '^\s*version\s*:\s*(.+)$') {
+                return $Matches[1].Trim().Trim('"\"')
+            }
+        }
+    }
+    return "unknown"
+}
+
+$documentVersion = Get-DocumentVersion $masterYamlPath
+
 # Helper function to extract first year from date string (same logic as C# ExtractYearAsInt)
 # Examples: "2021" → 2021, "2025, 2026" → 2025, "2021/2022" → 2021, "2020-21" → 2020
 function Get-SortableYear([string]$dateString) {
@@ -68,7 +88,7 @@ $allRecords = Import-Csv $CsvPath
 $units = $allRecords | Group-Object -Property @("Unit Type", "Unit Number")
 $totalIssues = 0
 $totalUnits = $units.Count
-
+$allIssues = [System.Collections.Generic.List[PSCustomObject]]::new()
 Write-Host "[1] Checking ordering within each unit and category..." -ForegroundColor Yellow
 Write-Host ""
 
@@ -178,8 +198,15 @@ foreach ($unitGroup in $units) {
             $totalIssues += $orderingIssues.Count
             Write-Host "    ⚠️  ISSUES FOUND ($($orderingIssues.Count)):" -ForegroundColor Red
             foreach ($issue in $orderingIssues) {
-                Write-Host "      - $issue" -ForegroundColor Red
-            }
+                Write-Host "      - $issue" -ForegroundColor Red                # Add to issues list
+                [void]$allIssues.Add([PSCustomObject]@{
+                    Timestamp = (Get-Date -Format 'yyyy-MM-dd-HHmmss')
+                    CsvFile = (Split-Path $CsvPath -Leaf)
+                    UnitType = $unitType
+                    UnitNo = $unitNo
+                    Category = $category
+                    Issue = $issue
+                })            }
         }
     }
 }
@@ -191,7 +218,17 @@ Write-Host "==================================================================="
 Write-Host "Total units checked: $totalUnits" -ForegroundColor Yellow
 Write-Host "Total ordering issues found: $totalIssues" -ForegroundColor $(if ($totalIssues -eq 0) { "Green" } else { "Red" })
 Write-Host ""
+# Export to CSV
+if ($allIssues.Count -gt 0) {
+    $timestamp = Get-Date -Format 'yyyy-MM-dd-HHmmss'
+    $csvOutPath = Join-Path $PSScriptRoot "validation-ordering-${documentVersion}-${timestamp}.csv"
+    $allIssues | Export-Csv -Path $csvOutPath -NoTypeInformation -Encoding UTF8
+    Write-Host "Report: $csvOutPath ($($allIssues.Count) issue(s))" -ForegroundColor Yellow
+} else {
+    Write-Host "Report: No issues - CSV not written." -ForegroundColor Green
+}
 
+Write-Host \"\"
 if ($totalIssues -eq 0) {
     Write-Host "✅ All orderings are correct!" -ForegroundColor Green
     exit 0

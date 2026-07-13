@@ -314,7 +314,10 @@ unit_members:
       type: "string"
     - name: "YearInitiated"
       csv_column: "Join Date"
-      type: "string"
+      type: "int"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
 
 unit_honorary_members:
   source: "membership.csv"

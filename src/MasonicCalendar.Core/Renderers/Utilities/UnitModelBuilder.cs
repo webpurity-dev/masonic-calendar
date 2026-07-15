@@ -44,8 +44,9 @@ public static class UnitModelBuilder
     /// <summary>
     /// Build a complete Scriban model dictionary for a unit.
     /// v1.11: Supports hideNotAppointedRules to limit vacant officer positions per office type.
+    /// v1.11: Supports rankFixes to apply order-specific rank transformations (e.g., fixing PP abbreviations).
     /// </summary>
-    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null)
+    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null)
     {
         // v1.10: Check if any joining past master has PastUnits data
         var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
@@ -111,7 +112,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled?.Replace(" ", "") },
-                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, pm.ProvincialRank, pm.DateRankAccorded, pm.ProvRankOtherProv, pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, ApplyRankFixes(pm.ProvincialRank, rankFixes), pm.DateRankAccorded, ApplyRankFixes(pm.ProvRankOtherProv, rankFixes), pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
                     .ToList()
@@ -125,7 +126,7 @@ public static class UnitModelBuilder
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
                         { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
-                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyRankFixes(jpm.ProvRankOtherProv, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
                     .ToList()
@@ -155,7 +156,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, hm.ProvincialRank, hm.ProvRankOtherProv, hm.LondonRank) },
+                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyRankFixes(hm.ProvRankOtherProv, rankFixes), hm.LondonRank) },
                         { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
@@ -580,6 +581,21 @@ public static class UnitModelBuilder
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// v1.11: Apply rank fixes configured in the data source (e.g., fixing PP abbreviations).
+    /// If rankFixes is null or disabled, returns the rank unchanged.
+    /// </summary>
+    private static string? ApplyRankFixes(string? rank, RankFixes? rankFixes)
+    {
+        if (rankFixes == null || string.IsNullOrWhiteSpace(rank))
+            return rank;
+
+        if (rankFixes.FixPpAbbreviations)
+            return TextCleaner.CleanRankAbbreviations(rank);
+
+        return rank;
     }
 }
 

@@ -2,6 +2,9 @@
 # CSV files and column mappings that support royal arch related data
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
+rank_fixes:
+  fix_pp_abbreviations: true
+
 order_summary:
   title: "The Provincial Grand Chapter of Dorset"
   crest: "../../images/ra-logo.png"

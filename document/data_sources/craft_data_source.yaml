@@ -1,4 +1,7 @@
-﻿order_summary:
+﻿rank_fixes:
+  fix_pp_abbreviations: true
+
+order_summary:
   title: "The Provincial Grand Lodge of Dorset"
   crest: "../../images/provincial-crest-sml.jpg"
   website: "https://dorset-freemasonry.org"

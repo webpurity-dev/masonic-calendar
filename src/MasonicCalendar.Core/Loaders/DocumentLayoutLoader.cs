@@ -238,6 +238,7 @@ public class SectionStyling
 /// </summary>
 public class DataSourceMapping
 {
+    public RankFixes? RankFixes { get; set; }  // v1.11: Configuration for rank abbreviation fixing
     public DataSourceDefinition? Units { get; set; }
     public OrderSummaryConfig? OrderSummary { get; set; }
     
@@ -297,6 +298,15 @@ public class HideNotAppointedRule
 {
     public string? Position { get; set; }        // Officer position name (e.g., "Steward", "Guest Organist")
     public int Count { get; set; } = 0;          // Max number of vacant instances to show (0 = hide all)
+}
+
+/// <summary>
+/// v1.11: Configuration for rank abbreviation fixes applied during data loading.
+/// Enables order-specific transformations of rank strings (e.g., fixing PP abbreviations).
+/// </summary>
+public class RankFixes
+{
+    public bool FixPpAbbreviations { get; set; } = false;  // If true, fix PP[non-r] → PPr[non-r] for all rank fields
 }
 
 /// <summary>

@@ -63,12 +63,15 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         
         // v1.11: Load hide_not_appointed configuration from data source mapping
         var hideNotAppointedRules = await LoadHideNotAppointedRulesAsync(section);
+        
+        // v1.11: Load rank fixes configuration from data source mapping
+        var rankFixes = await LoadRankFixesAsync(section);
 
         var unitIndex = 0;
         foreach (var unit in unitsForSection)
         {
             var anchorId = GenerateAnchorId(unit);
-            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules);
+            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules, rankFixes);
             
             // For the first unit in the section, respect override_break_before:
             // If true, add CSS class to disable the page break
@@ -92,9 +95,9 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null)
     {
-        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules);
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules, rankFixes);
         return template.Render(model);
     }
 
@@ -236,6 +239,52 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             if (DebugMode)
                 Console.WriteLine($"    [LoadHideNotAppointedRules] Exception: {ex.Message}");
             return Task.FromResult<List<HideNotAppointedRule>?>(null);
+        }
+    }
+
+    /// <summary>
+    /// v1.11: Load rank fixes configuration from data source mapping.
+    /// </summary>
+    private Task<RankFixes?> LoadRankFixesAsync(SectionConfig section)
+    {
+        if (DataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadRankFixes] Skipping: DataLoader={DataLoader != null}, DataMapping={section.DataMapping}");
+            return Task.FromResult<RankFixes?>(null);
+        }
+
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(TemplateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? TemplateRoot;
+            
+            // Load data source mapping to extract rank fixes configuration
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
+            {
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadRankFixes] Failed to load mapping: {mappingResult.Error}");
+                return Task.FromResult<RankFixes?>(null);
+            }
+
+            var mapping = mappingResult.Data;
+            var rankFixes = mapping?.RankFixes;
+            
+            if (DebugMode && rankFixes != null && rankFixes.FixPpAbbreviations)
+            {
+                Console.WriteLine($"    [LoadRankFixes] Enabled: PP abbreviation fixing");
+            }
+
+            return Task.FromResult(rankFixes);
+        }
+        catch (Exception ex)
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadRankFixes] Exception: {ex.Message}");
+            return Task.FromResult<RankFixes?>(null);
         }
     }
 }

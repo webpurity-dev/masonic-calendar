@@ -90,6 +90,30 @@ public static class TextCleaner
     }
 
     /// <summary>
+    /// Fix PP abbreviations: if rank starts with "PP" and next char is NOT "r", insert "r" after "PP".
+    /// Examples: "PPSGD" → "PPrSGD", "PPJGW" → "PPrJGW", "PPDepGDC" → "PPrDepGDC"
+    /// Already correct ranks like "PPrSGD" are unchanged.
+    /// </summary>
+    public static string CleanRankAbbreviations(string? rank)
+    {
+        if (string.IsNullOrWhiteSpace(rank))
+            return "";
+
+        var cleaned = rank.Trim();
+        
+        // Source files use "0" as an empty placeholder in some rank columns.
+        if (cleaned == "0")
+            return "";
+
+        // Fix PP abbreviations: PP followed by non-r, non-P character → insert r after PP
+        // Regex: ^PP([^rP]) matches "PP" at start followed by any char except r or P
+        // Replace with PPr$1 (insert the r)
+        cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"^PP([^rP])", "PPr$1");
+        
+        return cleaned;
+    }
+
+    /// <summary>
     /// Clean reference/ID by trimming whitespace.
     /// </summary>
     public static string CleanReference(string? reference)

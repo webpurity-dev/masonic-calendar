@@ -93,7 +93,7 @@ unit_officers:
       csv_column: "Office"
       type: "string"
     - name: "PosNo"
-      csv_column: "OffPos"
+      csv_column: "Pos No"
       type: "int"
 
 unit_past_heads:

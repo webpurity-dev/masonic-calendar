@@ -60,12 +60,15 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
 
         // Load section heading overrides from data source mapping
         var sectionHeadings = await LoadSectionHeadingsAsync(section);
+        
+        // v1.11: Load hide_not_appointed configuration from data source mapping
+        var hideNotAppointedRules = await LoadHideNotAppointedRulesAsync(section);
 
         var unitIndex = 0;
         foreach (var unit in unitsForSection)
         {
             var anchorId = GenerateAnchorId(unit);
-            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings);
+            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules);
             
             // For the first unit in the section, respect override_break_before:
             // If true, add CSS class to disable the page break
@@ -89,9 +92,9 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null)
     {
-        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings);
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules);
         return template.Render(model);
     }
 
@@ -180,6 +183,59 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             if (DebugMode)
                 Console.WriteLine($"    [LoadSectionHeadings] Exception: {ex.Message}");
             return Task.FromResult<Dictionary<string, string>?>(null);
+        }
+    }
+
+    /// <summary>
+    /// v1.11: Load hide_not_appointed configuration from data source mapping.
+    /// Returns the list of HideNotAppointedRule objects for controlling vacant officer display.
+    /// </summary>
+    private Task<List<HideNotAppointedRule>?> LoadHideNotAppointedRulesAsync(SectionConfig section)
+    {
+        if (DataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadHideNotAppointedRules] Skipping: DataLoader={DataLoader != null}, DataMapping={section.DataMapping}");
+            return Task.FromResult<List<HideNotAppointedRule>?>(null);
+        }
+
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(TemplateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? TemplateRoot;
+            
+            // Load data source mapping to extract hide_not_appointed rules
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
+            {
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadHideNotAppointedRules] Failed to load mapping: {mappingResult.Error}");
+                return Task.FromResult<List<HideNotAppointedRule>?>(null);
+            }
+
+            var mapping = mappingResult.Data;
+            
+            // Get hide_not_appointed rules from unit_officers section
+            var rules = mapping?.UnitOfficers?.HideNotAppointed;
+            
+            if (DebugMode && rules != null)
+            {
+                Console.WriteLine($"    [LoadHideNotAppointedRules] Found {rules.Count} rule(s):");
+                foreach (var rule in rules)
+                {
+                    Console.WriteLine($"      - {rule.Position}: max {rule.Count} vacant");
+                }
+            }
+
+            return Task.FromResult(rules);
+        }
+        catch (Exception ex)
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadHideNotAppointedRules] Exception: {ex.Message}");
+            return Task.FromResult<List<HideNotAppointedRule>?>(null);
         }
     }
 }

@@ -73,6 +73,9 @@ unit_officers:
       filter_value: "STOA"
     - filter_field: "Mem Type"
       filter_value: "Off"
+  hide_not_appointed:
+    - position: "Cellarer"
+      count: 2
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

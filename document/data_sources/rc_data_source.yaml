@@ -79,6 +79,11 @@ unit_officers:
       filter_value: "RC"
     - filter_field: "Mem Type"
       filter_value: "Off"
+  hide_not_appointed:
+    - position: "Steward"
+      count: 1
+    - position: Guest Organist
+      count: 0
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

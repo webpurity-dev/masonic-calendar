@@ -43,11 +43,15 @@ public static class UnitModelBuilder
 
     /// <summary>
     /// Build a complete Scriban model dictionary for a unit.
+    /// v1.11: Supports hideNotAppointedRules to limit vacant officer positions per office type.
     /// </summary>
-    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null)
+    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null)
     {
         // v1.10: Check if any joining past master has PastUnits data
         var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
+        
+        // v1.11: Apply officer filtering based on hide_not_appointed configuration
+        var filteredOfficers = ApplyHideNotAppointedFiltering(unit.Officers, hideNotAppointedRules);
         
         var model = new Dictionary<string, object?>
         {
@@ -83,7 +87,7 @@ public static class UnitModelBuilder
                 } : null
             },
             {
-                "officers", unit.Officers
+                "officers", filteredOfficers
                     .Where(o => o.Office != "0")  // Filter out placeholder rows
                     .Select(o => new Dictionary<string, object?>
                     {
@@ -97,7 +101,7 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
-                "officerColumns", SplitOfficersIntoColumns(unit.Officers.Where(o => o.Office != "0").ToList())
+                "officerColumns", SplitOfficersIntoColumns(filteredOfficers.Where(o => o.Office != "0").ToList())
             },
             {
                 "pastMasters", unit.PastMasters
@@ -530,4 +534,52 @@ public static class UnitModelBuilder
         
         return pastUnits;
     }
+
+    /// <summary>
+    /// v1.11: Apply hide_not_appointed filtering to officer list.
+    /// Groups officers by position, limits vacant instances per the configuration rules,
+    /// and returns filtered list while preserving all appointed officers.
+    /// 
+    /// Logic:
+    /// - All appointed officers are always shown
+    /// - Vacant officers are limited per position based on hideNotAppointedRules
+    /// - First vacant officer is shown when limit > 0
+    /// - Positions without rules show all vacant instances (backward compatible)
+    /// </summary>
+    private static List<SchemaOfficer> ApplyHideNotAppointedFiltering(List<SchemaOfficer> officers, List<HideNotAppointedRule>? hideNotAppointedRules)
+    {
+        if (hideNotAppointedRules == null || hideNotAppointedRules.Count == 0)
+            return officers;  // No filtering rules, return all officers
+
+        var result = new List<SchemaOfficer>();
+        var groupedByPosition = officers.GroupBy(o => o.Position, StringComparer.OrdinalIgnoreCase).ToList();
+
+        foreach (var positionGroup in groupedByPosition)
+        {
+            var appointed = positionGroup.Where(o => !IsVacantOfficer(o.Name)).ToList();
+            var vacant = positionGroup.Where(o => IsVacantOfficer(o.Name)).ToList();
+
+            // Find rule for this position
+            var rule = hideNotAppointedRules.FirstOrDefault(r => 
+                r.Position?.Equals(positionGroup.Key, StringComparison.OrdinalIgnoreCase) == true);
+
+            // Add all appointed officers (always shown)
+            result.AddRange(appointed);
+
+            // Add vacant officers limited by the rule (or all if no rule)
+            if (rule != null)
+            {
+                // Limit vacant to count specified in rule, taking first N vacant
+                result.AddRange(vacant.Take(rule.Count));
+            }
+            else
+            {
+                // No rule for this position, show all vacant
+                result.AddRange(vacant);
+            }
+        }
+
+        return result;
+    }
 }
+

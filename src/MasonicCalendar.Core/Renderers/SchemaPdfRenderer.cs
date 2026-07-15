@@ -887,9 +887,9 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null)
     {
-        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings);
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules);
         return template.Render(model);
     }
 

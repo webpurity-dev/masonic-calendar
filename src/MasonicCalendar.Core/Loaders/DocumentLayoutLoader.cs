@@ -275,6 +275,7 @@ public class DataSourceDefinition
     public int? CalendarStartMonth { get; set; }         // Meetings calendar: first month to render (1=Jan … 12=Dec); runs 12 months from this point
     public bool HideUnitNumber { get; set; } = false;   // When true, unit number is hidden in templates
     public bool HideUnitName { get; set; } = false;     // When true, unit name is hidden in templates
+    public List<HideNotAppointedRule>? HideNotAppointed { get; set; }  // v1.11: Limit vacant officer positions per office type
     public List<FieldMapping>? Fields { get; set; }
 }
 
@@ -286,6 +287,16 @@ public class DataSourceFilter
 {
     public string? FilterField { get; set; }
     public string? FilterValue { get; set; }
+}
+
+/// <summary>
+/// v1.11: Controls rendering of vacant (not appointed) officer positions per office type.
+/// Allows per-order configuration (e.g., RC units hide some vacant positions).
+/// </summary>
+public class HideNotAppointedRule
+{
+    public string? Position { get; set; }        // Officer position name (e.g., "Steward", "Guest Organist")
+    public int Count { get; set; } = 0;          // Max number of vacant instances to show (0 = hide all)
 }
 
 /// <summary>

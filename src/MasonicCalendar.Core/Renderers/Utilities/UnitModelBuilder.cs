@@ -1,6 +1,7 @@
 namespace MasonicCalendar.Core.Renderers.Utilities;
 
 using MasonicCalendar.Core.Domain;
+using MasonicCalendar.Core.Loaders;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,6 +13,18 @@ using System.Text.RegularExpressions;
 /// </summary>
 public static class UnitModelBuilder
 {
+    /// <summary>
+    /// Gets or sets the configured label for vacant officer positions.
+    /// Defaults to "Not appointed" if not set. Set from master YAML via Program.cs.
+    /// </summary>
+    public static string? ConfiguredVacantOfficerLabel { get; set; }
+
+    /// <summary>
+    /// Gets or sets the rank display configuration for past masters and honorary members.
+    /// Defines priority order of ranks and when to include dates. Set from master YAML via Program.cs.
+    /// </summary>
+    public static RankDisplay? ConfiguredRankDisplay { get; set; }
+
     /// <summary>
     /// Format a DateOnly with ordinal day suffix (e.g., "21st January 2026")
     /// </summary>
@@ -29,43 +42,13 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Format a date-like string as just the year for display.
-    /// Falls back to the first 4-digit year if parsing fails.
-    /// </summary>
-    private static string FormatYearOnly(string? dateText)
-    {
-        if (string.IsNullOrWhiteSpace(dateText))
-            return string.Empty;
-
-        var trimmed = dateText.Split(',')[0].Trim();
-        if (string.IsNullOrWhiteSpace(trimmed))
-            return string.Empty;
-
-        var formats = new[]
-        {
-            "d/M/yyyy", "dd/MM/yyyy",
-            "d/M/yy", "dd/MM/yy",
-            "yyyy-MM-dd", "yyyy/M/d", "yyyy/MM/dd"
-        };
-
-        if (DateOnly.TryParseExact(trimmed, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
-            return parsedDate.Year.ToString(CultureInfo.InvariantCulture);
-
-        if (int.TryParse(trimmed, out var numericYear) && numericYear <= 0)
-            return string.Empty;
-
-        var yearMatch = Regex.Match(trimmed, @"\b(19|20)\d{2}\b");
-        if (yearMatch.Success)
-            return yearMatch.Value;
-
-        return trimmed;
-    }
-
-    /// <summary>
     /// Build a complete Scriban model dictionary for a unit.
     /// </summary>
     public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null)
     {
+        // v1.10: Check if any joining past master has PastUnits data
+        var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
+        
         var model = new Dictionary<string, object?>
         {
             {
@@ -73,6 +56,7 @@ public static class UnitModelBuilder
                 {
                     { "name", TextCleaner.CleanName(unit.Name) },
                     { "number", unit.Number },
+                    { "unitPostfixDisplay", unit.UnitPostfix ?? unit.Number.ToString() },
                     { "hideUnitNumber", unit.HideUnitNumber },
                     { "hideUnitName", unit.HideUnitName },
                     { "contact", unit.Contact },
@@ -105,9 +89,10 @@ public static class UnitModelBuilder
                     {
                         { "reference", TextCleaner.CleanReference(o.Reference) },
                         { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
-                        { "name", TextCleaner.CleanName(o.Name) },
+                        { "name", CleanOfficerName(o.Name, ConfiguredVacantOfficerLabel) },
                         { "position", TextCleaner.CleanOfficePosition(o.Position) },
-                        { "posNo", o.PosNo }
+                        { "posNo", o.PosNo },
+                        { "isNotAppointed", IsVacantOfficer(o.Name) }
                     })
                     .ToList()
             },
@@ -121,7 +106,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(pm.Reference) },
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
-                        { "installed", FormatYearOnly(pm.YearInstalled) },
+                        { "installed", pm.YearInstalled?.Replace(" ", "") },
                         { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, pm.ProvincialRank, pm.DateRankAccorded, pm.ProvRankOtherProv, pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
@@ -134,8 +119,8 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(jpm.Reference) },
                         { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
                         { "name", TextCleaner.CleanName(jpm.Name) },
-                        { "joinedDate", jpm.JoinedDate },
-                        { "pastUnits", jpm.PastUnits },
+                        { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
+                        { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
                         { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, jpm.ProvincialRank, jpm.DateRankAccorded, jpm.ProvRankOtherProv, jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
@@ -172,7 +157,7 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
-                "sectionHeadings", BuildSectionHeadings(sectionHeadings)
+                "sectionHeadings", BuildSectionHeadings(sectionHeadings, hasPastUnitsData)
             }
         };
 
@@ -181,8 +166,9 @@ public static class UnitModelBuilder
 
     /// <summary>
     /// Build section heading overrides with defaults.
+    /// v1.10: Added showPastUnitsColumn flag to auto-hide empty units column
     /// </summary>
-    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null)
+    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null, bool hasPastUnitsData = true)
     {
         var headings = new Dictionary<string, object?>
         {
@@ -192,7 +178,8 @@ public static class UnitModelBuilder
             { "joiningPastMastersUnitsColumn", overrides?.TryGetValue("joiningPastMastersUnitsColumn", out var jpmuc) == true ? jpmuc : "Lodges" },  // Supports null/empty/space values
             { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },  // Supports null/empty/space values
             { "installationHeading", overrides?.TryGetValue("installationHeading", out var ih) == true ? ih : "Installation" },  // v1.9: Support override (e.g., "Enthronement" for RC)
-            { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" }  // v1.9: Optional caption under member table
+            { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" },  // v1.9: Optional caption under member table
+            { "showPastUnitsColumn", hasPastUnitsData }  // v1.10: Hide units column if no joining past masters have past units data
         };
         return headings;
     }
@@ -219,9 +206,10 @@ public static class UnitModelBuilder
             {
                 { "reference", TextCleaner.CleanReference(o.Reference) },
                 { "dataId", BuildDataId(o.Reference, o.MemType, o.Office) },
-                { "name", TextCleaner.CleanName(o.Name) },
+                { "name", CleanOfficerName(o.Name, ConfiguredVacantOfficerLabel) },
                 { "position", TextCleaner.CleanOfficePosition(o.Position) },
-                { "posNo", o.PosNo }
+                { "posNo", o.PosNo },
+                { "isNotAppointed", IsVacantOfficer(o.Name) }
             };
 
             if (i < splitAt) left.Add(dict);
@@ -242,31 +230,40 @@ public static class UnitModelBuilder
         var col0 = new List<Dictionary<string, object?>>();
         var col1 = new List<Dictionary<string, object?>>();
         var col2 = new List<Dictionary<string, object?>>();
+        var columns = new List<List<Dictionary<string, object?>>> { col0, col1, col2 };
 
         if (members.Count == 0)
-            return [col0, col1, col2];
+            return columns;
 
-        var colSize = (int)Math.Ceiling(members.Count / (double)numColumns);
+        // Balanced distribution: distribute members evenly across columns
+        var baseSize = members.Count / numColumns;
+        var remainder = members.Count % numColumns;
 
-        for (int i = 0; i < members.Count; i++)
+        int memberIndex = 0;
+        for (int colIndex = 0; colIndex < numColumns; colIndex++)
         {
-            var m = members[i];
-            var dict = new Dictionary<string, object?>
-            {
-                { "reference", TextCleaner.CleanReference(m.Reference) },
-                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
-                { "name", TextCleaner.CleanName(m.Name) },
-                { "joined", m.YearInitiated },
-                { "posNo", m.PosNo },
-                { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
-            };
+            // First 'remainder' columns get baseSize + 1 members
+            int colCapacity = baseSize + (colIndex < remainder ? 1 : 0);
 
-            if (i < colSize) col0.Add(dict);
-            else if (i < colSize * 2) col1.Add(dict);
-            else col2.Add(dict);
+            for (int j = 0; j < colCapacity && memberIndex < members.Count; j++)
+            {
+                var m = members[memberIndex];
+                var dict = new Dictionary<string, object?>
+                {
+                    { "reference", TextCleaner.CleanReference(m.Reference) },
+                    { "dataId", BuildDataId(m.Reference, m.MemType, null) },
+                    { "name", TextCleaner.CleanName(m.Name) },
+                    { "joined", m.YearInitiated },
+                    { "posNo", m.PosNo },
+                    { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
+                };
+
+                columns[colIndex].Add(dict);
+                memberIndex++;
+            }
         }
 
-        return [col0, col1, col2];
+        return columns;
     }
 
     /// <summary>
@@ -287,10 +284,11 @@ public static class UnitModelBuilder
    
     /// <summary>
     /// Build a display rank string with dates in square brackets.
-    /// Format: "Rank [Year]" for each applicable rank, joined by ", "
-    /// If grand_rank exists: return "grand_rank [year]"
-    /// If no grand_rank: return "provincial_rank [year], prov_rank_other_prov [year], london_rank [year]" (all non-empty ranks with dates)
-    /// Example: "PProvAGReg (Hants. & IoW) [2021], LGR [2020]"
+    /// Uses cascading priority from configuration: priority_order defines which rank to show.
+    /// If grand_rank exists and is first in priority_order: return "grand_rank [year]"
+    /// Shows only the first non-empty rank in the priority order.
+    /// Example: "PProvAGReg (Hants. & IoW) [2021]"
+    /// Configuration loaded from master_v1.yaml ui_preferences.rank_display
     /// </summary>
     private static string? BuildDisplayRankWithDates(
         string? grandRank, int? grandRankDateAccorded,
@@ -298,49 +296,45 @@ public static class UnitModelBuilder
         string? provRankOtherProv, int? opDateAccorded,
         string? londonRank, int? londonRankDateAccorded)
     {
-        // If grand rank exists, show only that (highest priority)
-        if (!string.IsNullOrWhiteSpace(grandRank))
+        // Use default priority order if config not set
+        var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
+            new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
+        
+        var showDates = ConfiguredRankDisplay?.ShowDates?.PastMasters ?? true;
+
+        // Map field names to (rank value, date value) tuples
+        var rankMap = new Dictionary<string, (string?, int?)>
         {
-            if (grandRankDateAccorded.HasValue)
-                return $"{grandRank} [{grandRankDateAccorded}]";
-            return grandRank;
+            { "grand_rank", (grandRank, grandRankDateAccorded) },
+            { "provincial_rank", (provincialRank, dateRankAccorded) },
+            { "prov_rank_other_prov", (provRankOtherProv, opDateAccorded) },
+            { "london_rank", (londonRank, londonRankDateAccorded) }
+        };
+
+        // Find the first non-empty rank in priority order
+        foreach (var fieldName in priorityOrder)
+        {
+            if (rankMap.TryGetValue(fieldName, out var rankTuple))
+            {
+                var rankValue = rankTuple.Item1;
+                var dateValue = rankTuple.Item2;
+                
+                if (!string.IsNullOrWhiteSpace(rankValue))
+                {
+                    if (showDates && dateValue.HasValue)
+                        return $"{rankValue} [{dateValue}]";
+                    return rankValue;
+                }
+            }
         }
 
-        // Otherwise, collect all applicable ranks with their dates
-        var ranks = new List<string>();
-        
-        if (!string.IsNullOrWhiteSpace(provincialRank))
-        {
-            if (dateRankAccorded.HasValue)
-                ranks.Add($"{provincialRank} [{dateRankAccorded}]");
-            else
-                ranks.Add(provincialRank);
-        }
-        
-        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
-        {
-            if (opDateAccorded.HasValue)
-                ranks.Add($"{provRankOtherProv} [{opDateAccorded}]");
-            else
-                ranks.Add(provRankOtherProv);
-        }
-        
-        if (!string.IsNullOrWhiteSpace(londonRank))
-        {
-            if (londonRankDateAccorded.HasValue)
-                ranks.Add($"{londonRank} [{londonRankDateAccorded}]");
-            else
-                ranks.Add(londonRank);
-        }
-
-        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+        return null;
     }
 
     /// <summary>
     /// Build display rank string with comma prefix for honorary members (ranks only, no dates).
     /// If rank exists, returns ", Rank" format. If no rank, returns null (no trailing comma).
-    /// If grand_rank exists: return ", grand_rank"
-    /// If no grand_rank: return ", provincial_rank, prov_rank_other_prov, london_rank" (all non-empty ranks joined by ", ")
+    /// Uses cascading priority: grand_rank > provincial_rank > prov_rank_other_prov > london_rank
     /// </summary>
     private static string? BuildDisplayRankWithCommaSimple(string? grandRank, string? provincialRank, 
         string? provRankOtherProv, string? londonRank)
@@ -350,33 +344,41 @@ public static class UnitModelBuilder
     }
 
     /// <summary>
-    /// Build a comma-separated display rank string (ranks only, no dates).
-    /// If grand_rank exists: return only grand_rank (highest priority)
-    /// If no grand_rank: return all non-empty ranks joined by ", " (provincial, prov_rank_other_prov, london_rank)
+    /// Build a rank string for honorary members (ranks only, no dates).
+    /// Uses cascading priority from configuration: priority_order defines which rank to show.
+    /// Shows only the first non-empty rank in the priority order.
+    /// Configuration loaded from master_v1.yaml ui_preferences.rank_display
     /// </summary>
     private static string? BuildDisplayRankSimple(string? grandRank, string? provincialRank, 
         string? provRankOtherProv, string? londonRank)
     {
-        // If grand rank exists, show only that (highest priority)
-        if (!string.IsNullOrWhiteSpace(grandRank))
-            return grandRank;
+        // Use default priority order if config not set
+        var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
+            new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
 
-        // Otherwise, collect all applicable ranks
-        var ranks = new List<string>();
-        if (!string.IsNullOrWhiteSpace(provincialRank))
-            ranks.Add(provincialRank);
-        if (!string.IsNullOrWhiteSpace(provRankOtherProv))
-            ranks.Add(provRankOtherProv);
-        if (!string.IsNullOrWhiteSpace(londonRank))
-            ranks.Add(londonRank);
+        // Map field names to rank values
+        var rankMap = new Dictionary<string, string?>
+        {
+            { "grand_rank", grandRank },
+            { "provincial_rank", provincialRank },
+            { "prov_rank_other_prov", provRankOtherProv },
+            { "london_rank", londonRank }
+        };
 
-        return ranks.Count > 0 ? string.Join(", ", ranks) : null;
+        // Find the first non-empty rank in priority order
+        foreach (var fieldName in priorityOrder)
+        {
+            if (rankMap.TryGetValue(fieldName, out var rankValue) && !string.IsNullOrWhiteSpace(rankValue))
+                return rankValue;
+        }
+
+        return null;
     }
 
     /// <summary>
     /// Build display rank string with comma prefix for past masters and joining past masters (with dates).
     /// If rank exists, returns ", Rank [Year]" format. If no rank, returns null (no trailing comma).
-    /// Uses same logic as BuildDisplayRankWithDates: grand_rank only, or all other ranks with dates
+    /// Uses cascading priority: grand_rank > provincial_rank > prov_rank_other_prov > london_rank
     /// </summary>
     private static string? BuildDisplayRankWithComma(string? grandRank, int? grandRankDateAccorded,
         string? provincialRank, int? dateRankAccorded,
@@ -436,14 +438,9 @@ public static class UnitModelBuilder
     /// <summary>
     /// Extract sortable year from year initiated string (e.g., "1996" → 1996)
     /// </summary>
-    private static int GetSortableYear(string? year)
+    private static int GetSortableYear(int? year)
     {
-        if (string.IsNullOrWhiteSpace(year))
-            return int.MaxValue; // Sort nulls to the end
-        
-        // Extract digits and convert to int
-        var numericPart = new string(year.TakeWhile(char.IsDigit).ToArray());
-        return int.TryParse(numericPart, out var num) ? num : int.MaxValue;
+        return year ?? int.MaxValue;  // Return year if set, otherwise max value to sort to end
     }
 
     /// <summary>
@@ -454,28 +451,83 @@ public static class UnitModelBuilder
         const int numColumns = 2;
         var col0 = new List<Dictionary<string, object?>>();
         var col1 = new List<Dictionary<string, object?>>();
+        var columns = new List<List<Dictionary<string, object?>>> { col0, col1 };
 
         if (members.Count == 0)
-            return [col0, col1];
+            return columns;
 
-        var colSize = (int)Math.Ceiling(members.Count / (double)numColumns);
+        // Balanced distribution: distribute members evenly across columns
+        var baseSize = members.Count / numColumns;
+        var remainder = members.Count % numColumns;
 
-        for (int i = 0; i < members.Count; i++)
+        int memberIndex = 0;
+        for (int colIndex = 0; colIndex < numColumns; colIndex++)
         {
-            var m = members[i];
-            var dict = new Dictionary<string, object?>
-            {
-                { "reference", TextCleaner.CleanReference(m.Reference) },
-                { "dataId", BuildDataId(m.Reference, m.MemType, null) },
-                { "name", TextCleaner.CleanName(m.Name) },
-                { "joined", m.YearInitiated },
-                { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
-            };
+            // First 'remainder' columns get baseSize + 1 members
+            int colCapacity = baseSize + (colIndex < remainder ? 1 : 0);
 
-            if (i < colSize) col0.Add(dict);
-            else col1.Add(dict);
+            for (int j = 0; j < colCapacity && memberIndex < members.Count; j++)
+            {
+                var m = members[memberIndex];
+                var dict = new Dictionary<string, object?>
+                {
+                    { "reference", TextCleaner.CleanReference(m.Reference) },
+                    { "dataId", BuildDataId(m.Reference, m.MemType, null) },
+                    { "name", TextCleaner.CleanName(m.Name) },
+                    { "joined", m.YearInitiated },
+                    { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
+                };
+
+                columns[colIndex].Add(dict);
+                memberIndex++;
+            }
         }
 
-        return [col0, col1];
+        return columns;
+    }
+
+    /// <summary>
+    /// Check if officer is vacant/not appointed (empty or "Vacant" string)
+    /// </summary>
+    private static bool IsVacantOfficer(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return true;
+        return name.Equals("Vacant", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Clean officer name: if vacant/empty, return the configured label; otherwise clean and return.
+    /// </summary>
+    private static string CleanOfficerName(string? name, string? vacantLabel = null)
+    {
+        var label = vacantLabel ?? "Not appointed";
+        
+        if (string.IsNullOrWhiteSpace(name) || name.Equals("Vacant", StringComparison.OrdinalIgnoreCase))
+            return label;
+        
+        return TextCleaner.CleanName(name) ?? label;
+    }
+
+    /// <summary>
+    /// Format joining past master units display.
+    /// If more than 3 units, returns "X unit(s)"; otherwise returns the original list.
+    /// Example: "1895,6194,9660,9900,9689,9697" (6 units) → "6 unit(s)"
+    /// Example: "1895,6194,9660" (3 units) → "1895,6194,9660"
+    /// </summary>
+    private static string? FormatJoiningUnitsDisplay(string? pastUnits)
+    {
+        if (string.IsNullOrWhiteSpace(pastUnits))
+            return pastUnits;
+        
+        const int JOINING_UNITS_THRESHOLD = 3;
+        
+        // Count units by splitting on comma (handles spaces and commas)
+        var units = pastUnits.Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+        
+        if (units.Length > JOINING_UNITS_THRESHOLD)
+            return $"{units.Length} unit(s)";
+        
+        return pastUnits;
     }
 }

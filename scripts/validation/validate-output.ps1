@@ -19,6 +19,24 @@ $rootDir       = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $dataDir       = Join-Path $rootDir "document\data"
 $dataSourceDir = Join-Path $rootDir "document\data_sources"
 $consoleDir    = Join-Path $rootDir "src\MasonicCalendar.Console"
+$masterYamlPath = Join-Path $rootDir "document\master_v1.yaml"
+
+# ============================================================
+# Get version from master_v1.yaml
+# ============================================================
+function Get-DocumentVersion([string]$yamlPath) {
+    if (Test-Path $yamlPath) {
+        $lines = Get-Content $yamlPath
+        foreach ($line in $lines) {
+            if ($line -match '^\s*version\s*:\s*(.+)$') {
+                return $Matches[1].Trim().Trim('"\"')
+            }
+        }
+    }
+    return "unknown"
+}
+
+$documentVersion = Get-DocumentVersion $masterYamlPath
 
 # ============================================================
 # Read-DataSourceConfig: line-by-line YAML parser (PS 5.1 safe)
@@ -249,7 +267,7 @@ function Get-CsvData([string]$source) {
 # Validate
 # ============================================================
 $timestamp  = Get-Date -Format "yyyy-MM-dd-HHmmss"
-$csvOutPath = Join-Path $PSScriptRoot "validation-${timestamp}.csv"
+$csvOutPath = Join-Path $PSScriptRoot "validation-output-${documentVersion}-${timestamp}.csv"
 $issues     = [System.Collections.Generic.List[PSCustomObject]]::new()
 $grandTotal = 0
 $grandFail  = 0
@@ -325,7 +343,8 @@ foreach ($cfg in $targetConfigs) {
                     UnitType   = $cfg.UnitType
                     UnitNo     = $unitNo
                     UnitName   = $unitName
-                    IssueType  = "DuplicateRef-MembershipCsv"
+                    IssueType  = "WARNING"
+                    Issue      = "DuplicateRef-MembershipCsv"
                     Section    = $sec.Name
                     MemType    = if ($row.PSObject.Properties['MemType']) { $row.MemType.Trim() } else { $sec.Name }
                     MemberName = $name
@@ -350,7 +369,8 @@ foreach ($cfg in $targetConfigs) {
                 UnitType   = $cfg.UnitType
                 UnitNo     = $unitNo
                 UnitName   = $unitName
-                IssueType  = "MissingAnchor"
+                IssueType  = "ERROR"
+                Issue      = "MissingAnchor"
                 Section    = ""
                 MemType    = ""
                 MemberName = ""
@@ -362,26 +382,132 @@ foreach ($cfg in $targetConfigs) {
     # Check for units with no membership data
     $unitsWithMembers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $unitsWithOfficers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unitsWithValidOfficers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unitsWithMinimalOfficers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $unitsWithPastMasters = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $unitsWithHonoraryMembers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    
+    # Count officers with valid names per unit (for majority check)
+    $officerNameCounts = @{}  # unitNo -> { total, withNames }
+    
+    # Track past master data quality (years, ranks)
+    $pastMasterYearsCount = @{}  # unitNo -> { total, withYears }
+    $pastMasterRanksCount = @{}  # unitNo -> { total, withRanks }
+    
+    # Track joining past master data quality
+    $joiningPastMasterYearsCount = @{}  # unitNo -> { total, withYears }
+    $joiningPastMasterRanksCount = @{}  # unitNo -> { total, withRanks }
+    
+    # Track honorary member ranks
+    $honoraryMemberRanksCount = @{}  # unitNo -> { total, withRanks }
 
     foreach ($sec in $cfg.MemSections) {
-        # Skip optional sections (honorary members, joining past masters)
-        if ($sec.Name -match "honorary|joining") {
-            continue
-        }
-
         foreach ($row in $secData[$sec.Name]) {
             $unitNo = $row.($sec.UnitIdField).Trim()
             if (-not [string]::IsNullOrWhiteSpace($unitNo)) {
                 # Track by section type
                 if ($sec.Name -match "officers") {
                     [void]$unitsWithOfficers.Add($unitNo)
+                    # Count officers with names
+                    $name = $row.($sec.NameColumn).Trim()
+                    if (-not $officerNameCounts.ContainsKey($unitNo)) {
+                        $officerNameCounts[$unitNo] = @{ total = 0; withNames = 0 }
+                    }
+                    $officerNameCounts[$unitNo]['total']++
+                    if (-not [string]::IsNullOrWhiteSpace($name) -and $name -ne "Vacant") {
+                        $officerNameCounts[$unitNo]['withNames']++
+                    }
                 } elseif ($sec.Name -match "past_heads|past_masters") {
                     [void]$unitsWithPastMasters.Add($unitNo)
-                } elseif ($sec.Name -match "members" -and $sec.Name -notmatch "past") {
+                    # Track past master years and ranks
+                    if (-not $pastMasterYearsCount.ContainsKey($unitNo)) {
+                        $pastMasterYearsCount[$unitNo] = @{ total = 0; withYears = 0 }
+                        $pastMasterRanksCount[$unitNo] = @{ total = 0; withRanks = 0 }
+                    }
+                    $pastMasterYearsCount[$unitNo]['total']++
+                    $pastMasterRanksCount[$unitNo]['total']++
+                    
+                    # Check for YearInstalled
+                    $yearField = $row.PSObject.Properties | Where-Object { $_.Name -match "Installed|YearInstalled" } | Select-Object -First 1
+                    if ($yearField -and -not [string]::IsNullOrWhiteSpace($yearField.Value)) {
+                        $pastMasterYearsCount[$unitNo]['withYears']++
+                    }
+                    
+                    # Check for any rank (Provincial Rank, Grand Rank, Prov Rank Oth Prov, Lndn Rank)
+                    $hasRank = $false
+                    foreach ($prop in $row.PSObject.Properties) {
+                        if ($prop.Name -match "Rank" -and -not [string]::IsNullOrWhiteSpace($prop.Value)) {
+                            $hasRank = $true
+                            break
+                        }
+                    }
+                    if ($hasRank) {
+                        $pastMasterRanksCount[$unitNo]['withRanks']++
+                    }
+                } elseif ($sec.Name -match "joining_past") {
+                    # Track joining past master years and ranks
+                    if (-not $joiningPastMasterYearsCount.ContainsKey($unitNo)) {
+                        $joiningPastMasterYearsCount[$unitNo] = @{ total = 0; withYears = 0 }
+                        $joiningPastMasterRanksCount[$unitNo] = @{ total = 0; withRanks = 0 }
+                    }
+                    $joiningPastMasterYearsCount[$unitNo]['total']++
+                    $joiningPastMasterRanksCount[$unitNo]['total']++
+                    
+                    # Check for JoinedDate
+                    $joinedField = $row.PSObject.Properties | Where-Object { $_.Name -match "JoinedDate|Join" } | Select-Object -First 1
+                    if ($joinedField -and -not [string]::IsNullOrWhiteSpace($joinedField.Value)) {
+                        $joiningPastMasterYearsCount[$unitNo]['withYears']++
+                    }
+                    
+                    # Check for any rank
+                    $hasRank = $false
+                    foreach ($prop in $row.PSObject.Properties) {
+                        if ($prop.Name -match "Rank" -and -not [string]::IsNullOrWhiteSpace($prop.Value)) {
+                            $hasRank = $true
+                            break
+                        }
+                    }
+                    if ($hasRank) {
+                        $joiningPastMasterRanksCount[$unitNo]['withRanks']++
+                    }
+                } elseif ($sec.Name -match "honorary") {
+                    [void]$unitsWithHonoraryMembers.Add($unitNo)
+                    # Track honorary member ranks
+                    if (-not $honoraryMemberRanksCount.ContainsKey($unitNo)) {
+                        $honoraryMemberRanksCount[$unitNo] = @{ total = 0; withRanks = 0 }
+                    }
+                    $honoraryMemberRanksCount[$unitNo]['total']++
+                    
+                    # Check for any rank (multiple rank types)
+                    $hasRank = $false
+                    foreach ($prop in $row.PSObject.Properties) {
+                        if ($prop.Name -match "Rank" -and -not [string]::IsNullOrWhiteSpace($prop.Value)) {
+                            $hasRank = $true
+                            break
+                        }
+                    }
+                    if ($hasRank) {
+                        $honoraryMemberRanksCount[$unitNo]['withRanks']++
+                    }
+                } elseif ($sec.Name -match "members" -and $sec.Name -notmatch "past|honorary") {
                     [void]$unitsWithMembers.Add($unitNo)
                 }
             }
+        }
+    }
+    
+    # Check officers: distinguish between 0 officers (ERROR) vs. mostly vacant (WARNING)
+    foreach ($unitNo in $officerNameCounts.Keys) {
+        $counts = $officerNameCounts[$unitNo]
+        if ($counts['total'] -eq 0) {
+            # No officers at all = ERROR
+            # Don't add to any valid set
+        } elseif ($counts['withNames'] -lt [math]::Ceiling($counts['total'] / 2.0)) {
+            # Majority have no names = WARNING (MinimalOfficerData)
+            [void]$unitsWithMinimalOfficers.Add($unitNo)
+        } else {
+            # Majority have names = valid
+            [void]$unitsWithValidOfficers.Add($unitNo)
         }
     }
 
@@ -389,37 +515,59 @@ foreach ($cfg in $targetConfigs) {
         $unitNo   = $unit.($cfg.UnitNoColumn).Trim()
         $unitName = $unit.($cfg.UnitNameColumn).Trim()
         
-        # Check for missing officers
-        if (-not $unitsWithOfficers.Contains($unitNo)) {
-            $typeFail++
-            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
-            Write-Host "       No officer data found" -ForegroundColor Red
-            [void]$issues.Add([PSCustomObject]@{
-                Timestamp  = $timestamp
-                HtmlFile   = (Split-Path $HtmlFile -Leaf)
-                UnitType   = $cfg.UnitType
-                UnitNo     = $unitNo
-                UnitName   = $unitName
-                IssueType  = "NoOfficerData"
-                Section    = ""
-                MemType    = ""
-                MemberName = ""
-                DataId     = ""
-            })
+        # Check for missing or invalid officers
+        if (-not $unitsWithValidOfficers.Contains($unitNo)) {
+            # Distinguish between no officers (ERROR) vs. mostly vacant (WARNING)
+            # ERROR: Unit not in $officerNameCounts (zero officer rows) OR has 0 total officers
+            if (-not $officerNameCounts.ContainsKey($unitNo) -or $officerNameCounts[$unitNo]['total'] -eq 0) {
+                # 0 officers = ERROR
+                Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       No officer data found" -ForegroundColor Red
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "ERROR"
+                    Issue      = "NoOfficerData"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            } elseif ($unitsWithMinimalOfficers.Contains($unitNo)) {
+                # Majority vacant = WARNING
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       Minimal officer data found (majority vacant)" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "MinimalOfficerData"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
         }
 
-        # Check for missing past masters
+        # Check for missing past masters (WARNING)
         if (-not $unitsWithPastMasters.Contains($unitNo)) {
-            $typeFail++
-            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
-            Write-Host "       No past master data found" -ForegroundColor Red
+            Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No past master data found" -ForegroundColor Yellow
             [void]$issues.Add([PSCustomObject]@{
                 Timestamp  = $timestamp
                 HtmlFile   = (Split-Path $HtmlFile -Leaf)
                 UnitType   = $cfg.UnitType
                 UnitNo     = $unitNo
                 UnitName   = $unitName
-                IssueType  = "NoPastMasterData"
+                IssueType  = "WARNING"
+                Issue      = "NoPastMasterData"
                 Section    = ""
                 MemType    = ""
                 MemberName = ""
@@ -427,18 +575,147 @@ foreach ($cfg in $targetConfigs) {
             })
         }
 
-        # Check for missing members
+        # Check for missing members (WARNING)
         if (-not $unitsWithMembers.Contains($unitNo)) {
-            $typeFail++
-            Write-Host "  FAIL $unitNo  $unitName" -ForegroundColor Yellow
-            Write-Host "       No member data found" -ForegroundColor Red
+            Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No member data found" -ForegroundColor Yellow
             [void]$issues.Add([PSCustomObject]@{
                 Timestamp  = $timestamp
                 HtmlFile   = (Split-Path $HtmlFile -Leaf)
                 UnitType   = $cfg.UnitType
                 UnitNo     = $unitNo
                 UnitName   = $unitName
-                IssueType  = "NoMemberData"
+                IssueType  = "WARNING"
+                Issue      = "NoMemberData"
+                Section    = ""
+                MemType    = ""
+                MemberName = ""
+                DataId     = ""
+            })
+        }
+
+        # Check for past masters without years (WARNING)
+        if ($pastMasterYearsCount.ContainsKey($unitNo)) {
+            $counts = $pastMasterYearsCount[$unitNo]
+            if ($counts['total'] -gt 0 -and $counts['withYears'] -eq 0) {
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       No past master installation years found" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "NoPastMasterYears"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
+        }
+
+        # Check for past masters without ranks (WARNING)
+        if ($pastMasterRanksCount.ContainsKey($unitNo)) {
+            $counts = $pastMasterRanksCount[$unitNo]
+            if ($counts['total'] -gt 0 -and $counts['withRanks'] -eq 0) {
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       No past master ranks found" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "NoPastMasterRanks"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
+        }
+
+        # Check for joining past masters without join years (WARNING)
+        if ($joiningPastMasterYearsCount.ContainsKey($unitNo)) {
+            $counts = $joiningPastMasterYearsCount[$unitNo]
+            if ($counts['total'] -gt 0 -and $counts['withYears'] -eq 0) {
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       No joining past master join dates found" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "NoJoiningPastMasterYears"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
+        }
+
+        # Check for joining past masters without ranks (WARNING)
+        if ($joiningPastMasterRanksCount.ContainsKey($unitNo)) {
+            $counts = $joiningPastMasterRanksCount[$unitNo]
+            if ($counts['total'] -gt 0 -and $counts['withRanks'] -eq 0) {
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       No joining past master ranks found" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "NoJoiningPastMasterRanks"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
+        }
+
+        # Check for honorary members without ranks (WARNING)
+        if ($honoraryMemberRanksCount.ContainsKey($unitNo)) {
+            $counts = $honoraryMemberRanksCount[$unitNo]
+            if ($counts['total'] -gt 0 -and $counts['withRanks'] -eq 0) {
+                Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+                Write-Host "       Honorary members have no ranks found" -ForegroundColor Yellow
+                [void]$issues.Add([PSCustomObject]@{
+                    Timestamp  = $timestamp
+                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                    UnitType   = $cfg.UnitType
+                    UnitNo     = $unitNo
+                    UnitName   = $unitName
+                    IssueType  = "WARNING"
+                    Issue      = "NoHonoraryRanks"
+                    Section    = ""
+                    MemType    = ""
+                    MemberName = ""
+                    DataId     = ""
+                })
+            }
+        }
+
+        # Check for units with no honorary members (WARNING)
+        if (-not $unitsWithHonoraryMembers.Contains($unitNo)) {
+            Write-Host "  WARN $unitNo  $unitName" -ForegroundColor Yellow
+            Write-Host "       No honorary members found" -ForegroundColor Yellow
+            [void]$issues.Add([PSCustomObject]@{
+                Timestamp  = $timestamp
+                HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                UnitType   = $cfg.UnitType
+                UnitNo     = $unitNo
+                UnitName   = $unitName
+                IssueType  = "WARNING"
+                Issue      = "NoHonoraryMembers"
                 Section    = ""
                 MemType    = ""
                 MemberName = ""
@@ -450,6 +727,9 @@ foreach ($cfg in $targetConfigs) {
     # b) Check EVERY row in EVERY CSV section directly.
     #    CSV (filtered by YAML section rules) is the single source of truth.
     #    No per-unit filtering, no skipping - every row must have a matching data-id in HTML.
+    #    Track units not in units CSV to report only one warning per unit.
+    $unitsNotInCsv = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    
     foreach ($sec in $cfg.MemSections) {
         foreach ($row in $secData[$sec.Name]) {
             $dataId = $row.($sec.RefColumn).Trim()
@@ -459,25 +739,51 @@ foreach ($cfg in $targetConfigs) {
             # Check if any HTML data-id contains this reference (as a substring)
             $found = $htmlDataIds | Where-Object { $_.StartsWith($dataId) } | Select-Object -First 1
             if (-not $found) {
-                $typeFail++
                 $name     = $row.($sec.NameColumn).Trim()
                 $unitNo   = $row.($sec.UnitIdField).Trim()
                 $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }
                 $label    = if ($name) { $name } else { '(vacant)' }
-                Write-Host "  FAIL $unitNo $unitName" -ForegroundColor Yellow
-                Write-Host "       MISSING $label (dataId=$dataId)" -ForegroundColor Red
-                [void]$issues.Add([PSCustomObject]@{
-                    Timestamp  = $timestamp
-                    HtmlFile   = (Split-Path $HtmlFile -Leaf)
-                    UnitType   = $cfg.UnitType
-                    UnitNo     = $unitNo
-                    UnitName   = $unitName
-                    IssueType  = "MissingMember"
-                    Section    = $sec.Name
-                    MemType    = ""
-                    MemberName = $name
-                    DataId     = $dataId
-                })
+                
+                # Check if unit is in units CSV
+                if ($unitName -eq '(not in units CSV)') {
+                    # Only report once per unit
+                    if (-not $unitsNotInCsv.Contains($unitNo)) {
+                        [void]$unitsNotInCsv.Add($unitNo)
+                        Write-Host "  WARN $unitNo $unitName" -ForegroundColor Yellow
+                        Write-Host "       Found in membership CSV but not in units CSV" -ForegroundColor Yellow
+                        [void]$issues.Add([PSCustomObject]@{
+                            Timestamp  = $timestamp
+                            HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                            UnitType   = $cfg.UnitType
+                            UnitNo     = $unitNo
+                            UnitName   = $unitName
+                            IssueType  = "WARNING"
+                            Issue      = "NotInUnitsCsv"
+                            Section    = $sec.Name
+                            MemType    = ""
+                            MemberName = ""
+                            DataId     = ""
+                        })
+                    }
+                } else {
+                    # Unit is in units CSV but member/officer is missing from HTML
+                    $typeFail++
+                    Write-Host "  FAIL $unitNo $unitName" -ForegroundColor Yellow
+                    Write-Host "       MISSING $label (dataId=$dataId)" -ForegroundColor Red
+                    [void]$issues.Add([PSCustomObject]@{
+                        Timestamp  = $timestamp
+                        HtmlFile   = (Split-Path $HtmlFile -Leaf)
+                        UnitType   = $cfg.UnitType
+                        UnitNo     = $unitNo
+                        UnitName   = $unitName
+                        IssueType  = "ERROR"
+                        Issue      = "MissingMember"
+                        Section    = $sec.Name
+                        MemType    = ""
+                        MemberName = $name
+                        DataId     = $dataId
+                    })
+                }
             }
         }
     }

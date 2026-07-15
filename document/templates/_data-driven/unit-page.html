@@ -4,11 +4,11 @@
         {{ if unit.hideUnitName }}
             &nbsp;
         {{ else }}
-            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">            
+            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">
                 {{ if unit.hideUnitNumber }}
                     {{ unit.name }}
                 {{ else }}
-                    {{ unit.name }} {{ unit.number }} 
+                    {{ unit.name }} {{ unit.unitPostfixDisplay }}
                 {{ end }}
             </h1>
         {{ end }}
@@ -51,7 +51,7 @@
                 <tbody>
                     {{ for officer in officerColumns[0] }}
                     <tr data-id="{{ officer.dataId }}">
-                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ if officer.name && officer.name != "" && officer.name != "Vacant"}}{{ officer.name }}{{ else }}<i>Not appointed</i>{{ end }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;{{ if officer.isNotAppointed }} font-style: italic;{{ end }}">{{ officer.name }}</td>
                         <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                     {{ end }}
@@ -62,7 +62,7 @@
                 <tbody>
                     {{ for officer in officerColumns[1] }}
                     <tr data-id="{{ officer.dataId }}">
-                        <td style="padding: 0px; text-align: left; min-width: 80px;">{{ if officer.name && officer.name != "" && officer.name != "Vacant"}}{{ officer.name }}{{ else }}<i>Not appointed</i>{{ end }}</td>
+                        <td style="padding: 0px; text-align: left; min-width: 80px;{{ if officer.isNotAppointed }} font-style: italic;{{ end }}">{{ officer.name }}</td>
                         <td style="padding: 0px; text-align: right; min-width: 60px; font-weight: 800;">{{ officer.position }}</td>
                     </tr>
                     {{ end }}
@@ -80,7 +80,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.pastMasters }}
             {{ else }}
-                {{ sectionHeadings.pastMasters }} ({{ unit.number }})
+                {{ sectionHeadings.pastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         {{ end }}
@@ -114,7 +114,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.joiningPastMasters }}
             {{ else }}
-                {{ sectionHeadings.joiningPastMasters }} ({{ unit.number }})
+                {{ sectionHeadings.joiningPastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <div style="width: 100%;">
@@ -123,17 +123,21 @@
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800;">Name</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">Joined</th>
+                        {{ if sectionHeadings.showPastUnitsColumn }}
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
+                        {{ end }}
                         <th style="padding: 0.5px; text-align: right; font-weight: 800;">Rank & Date Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for joiningPastMaster in joiningPastMasters }}
                     <tr data-id="{{ joiningPastMaster.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; min-width: 88px;">{{ joiningPastMaster.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 77px;">{{ joiningPastMaster.joinedDate }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 77px;">{{ joiningPastMaster.pastUnits }}</td>
-                        <td style="padding: 0.5px; text-align: right; min-width: 110px; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
+                        <td style="padding: 0.5px; text-align: left; min-width: 80px;">{{ joiningPastMaster.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; min-width: 35px;">{{ joiningPastMaster.joinedDate }}</td>
+                        {{ if sectionHeadings.showPastUnitsColumn }}
+                        <td style="padding: 0.5px; text-align: right; min-width: 65px;">{{ joiningPastMaster.pastUnits }}</td>
+                        {{ end }}
+                        <td style="padding: 0.5px; text-align: right; min-width: 150px; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -149,7 +153,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
-                {{ sectionHeadings.members }} ({{ unit.number }})
+                {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <div style="font-size: 0; width: 100%; break-inside: auto;">
@@ -176,7 +180,7 @@
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
-                {{ sectionHeadings.members }} ({{ unit.number }})
+                {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
         <!-- CSS Grid: groups flow top-to-bottom in left column, then right column. Groups with >4 members span full width -->
@@ -189,19 +193,19 @@
                     {{ memberCount = memberCount + col.size }}
                 {{ end }}
             {{ end }}
-            <!-- If >4 members, span full width. Otherwise single column -->
-            <div style="break-inside: avoid;{{ if memberCount > 4 }} grid-column: 1 / -1;{{ end }}">
+            <!-- If >2 members, show two tables side-by-side. Otherwise single table -->
+            <div style="break-inside: avoid;{{ if memberCount > 2 }} grid-column: 1 / -1;{{ end }}">
                 <div style="font-size: 6pt; font-weight: bold; margin-bottom: 2px; text-align: left;">{{ group.groupKey }}</div>
-                {{ if memberCount > 4 }}
-                <!-- Wide group: show left and right columns side-by-side -->
-                <div style="display: flex; gap: 2px; width: 100%; break-inside: avoid;">
+                {{ if memberCount > 2 }}
+                <!-- Show left and right columns side-by-side -->
+                <div style="display: flex; gap: 2px; width: 100%; break-inside: avoid; align-items: flex-start;">
                     {{ for colIndex in (0..1) }}
                         {{ $col = group.columns[colIndex] }}
                         {{ if $col && $col.size > 0 }}
                         <table style="border-collapse: collapse; font-size: 6pt; flex: 1; margin: 0; padding: 0; break-inside: avoid;">
                             <tbody>
                                 {{ for member in $col }}
-                                <tr data-id="{{ member.dataId }}">
+                                <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
                                     <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                                     <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
                                 </tr>
@@ -212,14 +216,14 @@
                     {{ end }}
                 </div>
                 {{ else }}
-                <!-- Compact group: single table -->
+                <!-- Compact group: single table with balanced member distribution -->
                 <table style="border-collapse: collapse; font-size: 6pt; width: 100%; margin: 0; padding: 0; break-inside: avoid;">
                     <tbody>
                         {{ for colIndex in (0..1) }}
                             {{ $col = group.columns[colIndex] }}
                             {{ if $col && $col.size > 0 }}
                                 {{ for member in $col }}
-                                <tr data-id="{{ member.dataId }}">
+                                <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
                                     <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                                     <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
                                 </tr>
@@ -233,6 +237,10 @@
             {{ end }}
         </div>
     </div>
+    {{ end }}
+
+    <!-- Member Caption - renders for both regular and grouped members -->
+    {{ if (members && members.size > 0) || (groupedMembers && groupedMembers.size > 0) }}
     {{ if sectionHeadings.memberCaption && sectionHeadings.memberCaption != "" }}
     <div style="font-size: 5pt; margin-top: 2px; text-align: center; break-inside: auto; color: #333;">{{ sectionHeadings.memberCaption }}</div>
     {{ end }}
@@ -270,25 +278,27 @@
                 <div></div>
             </div>
         {{ else }}
-            <!-- 3+ members: normal 3-column grid with smart last row handling -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid; text-align: left;">
+            <!-- 3+ members: normal 3-column grid with smart last row handling and column-specific alignment -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ lastRowStartIdx = totalMembers - membersInLastRow }}
                 {{ for i in (0..(totalMembers - 1)) }}
                     {{ member = honoraryMembers[i] }}
                     {{ isLastRowMember = i >= lastRowStartIdx }}
                     {{ posInLastRow = i - lastRowStartIdx }}
+                    {{ colNum = i % 3 }}
+                    {{ colAlignment = colNum == 0 ? "left" : (colNum == 1 ? "center" : "right") }}
                     
                     {{ if isLastRowMember && membersInLastRow == 1 && posInLastRow == 0 }}
                         <!-- Special handling: 1 member in last row goes to middle column -->
                         <div></div>
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: 6pt; padding: 0.5px; text-align: center; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                         <div></div>
                     {{ else if isLastRowMember && membersInLastRow == 2 && posInLastRow < 2 }}
                         <!-- 2 members in last row: render in left and middle (right stays empty) -->
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: 6pt; padding: 0.5px; text-align: {{ colAlignment }}; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                     {{ else if !isLastRowMember || membersInLastRow == 3 }}
                         <!-- Full rows or case where all 3 spots in last row are filled -->
-                        <div style="font-size: 6pt; padding: 0.5px; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: 6pt; padding: 0.5px; text-align: {{ colAlignment }}; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt;">{{ member.display_rank }}</span></div>
                     {{ end }}
                 {{ end }}
                 

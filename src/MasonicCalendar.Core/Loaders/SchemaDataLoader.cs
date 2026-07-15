@@ -183,6 +183,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 {
                     Number = ParseInt(GetFieldValueWithComposite(csv, fieldMap, "Number")),
                     Name = GetFieldValueWithComposite(csv, fieldMap, "Name") ?? "",
+                    UnitPostfix = GetFieldValueWithComposite(csv, fieldMap, "UnitPostfix"),
                     ShortName = GetFieldValueWithComposite(csv, fieldMap, "ShortName"),
                     SuperShortName = GetFieldValueWithComposite(csv, fieldMap, "SuperShortName"),
                     Contact = GetFieldValueWithComposite(csv, fieldMap, "Contact"),
@@ -346,11 +347,11 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     return (fieldMapWithMetadata, csv, unitNumber) =>
                     {
                         var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
-                        var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PositionNo");
+                        var position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position");
+                        var rawPos = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PosNo");
                         var positionNo = int.TryParse(rawPos, out var pn) ? (int?)pn : null;
-                        var memType = csv.GetField("Mem Type")?.Trim() ?? "";
-                        var office  = csv.GetField("Office")?.Trim()  ?? "";
 
                         // v1.6 fields
                         var grandRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
@@ -371,9 +372,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         {
                             Reference = reference,
                             MemType = memType,
-                            Office = office,
+                            Office = position,
                             Name = TextCleaner.CleanName(name),
-                            Position = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Position"),
+                            Position = position,
                             PosNo = positionNo
                         });
                     };
@@ -386,6 +387,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, pastHeadsConfig, "past master",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
 
                         var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
@@ -411,7 +413,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.PastMasters.Add(new SchemaPastMaster
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             YearInstalled = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInstalled")),
                             Rank = TextCleaner.CleanProvincialRank(displayRank),
@@ -439,6 +441,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, joiningPastConfig, "joining past master",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
                         var pastUnits = TextCleaner.CleanPastUnits(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "PastUnits"));
                         
@@ -465,7 +468,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.JoinPastMasters.Add(new SchemaJoinPastMaster
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             JoinedDate = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "JoinedDate"),
                             PastUnits = pastUnits,
@@ -495,7 +498,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 await LoadPersonTypeAsync(units, membersConfig, "member",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
                     {
+                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
+                        var yearInitiatedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated");
+                        var yearInitiated = ParseOptionalPositiveInt(yearInitiatedStr);
 
                         // v1.6 fields
                         var provRankStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvincialRank");
@@ -518,9 +524,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.Members.Add(new SchemaMember
                         {
                             Reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference"),
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
-                            YearInitiated = TextCleaner.CleanDateIssued(GetFieldValueWithComposite(csv, fieldMapWithMetadata, "YearInitiated")),
+                            YearInitiated = yearInitiated,
                             Suffix = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Suffix"),  // v1.9: Optional suffix (e.g., "PM", "†") — ignore if blank or "0"
                             Grouping = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
                         });
@@ -534,8 +540,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             {
                 await LoadPersonTypeAsync(units, honoraryConfig, "honorary member",
                     schemaUnit => (fieldMapWithMetadata, csv, unitNumber) =>
-                    {
-                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
+                    {                        var memType = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "MemType") ?? "";                        var reference = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Reference");
                         var name = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Name");
                         var grandRank = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRank");
                         var grandRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "GrandRankDateAccorded");
@@ -560,7 +565,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         schemaUnit.HonoraryMembers.Add(new SchemaHonoraryMember
                         {
                             Reference = reference,
-                            MemType = csv.GetField("Mem Type")?.Trim() ?? "",
+                            MemType = memType,
                             Name = TextCleaner.CleanName(name),
                             // v1.6
                             GrandRank = TextCleaner.CleanProvincialRank(grandRank),
@@ -762,7 +767,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.PastMasters = unit.PastMasters
             .GroupBy(p => !string.IsNullOrWhiteSpace(p.Reference) ? p.Reference : p.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(p => ExtractSortYear(p.YearInstalled) ?? int.MaxValue)
+            .OrderBy(p => ExtractYearAsInt(p.YearInstalled))  // Sort by YearInstalled (first year as int)
             .ToList();
 
         // For Joining Past Masters: deduplicate by Reference or Name (keep last occurrence)
@@ -770,16 +775,32 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
         unit.JoinPastMasters = unit.JoinPastMasters
             .GroupBy(j => !string.IsNullOrWhiteSpace(j.Reference) ? j.Reference : j.Name)
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(j => ExtractFirstDate(j.JoinedDate))
+            .OrderBy(j => ExtractYearAsInt(j.JoinedDate))  // Sort by JoinedDate (first year as int)
             .ToList();
 
         // For Members: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication
-        unit.Members = unit.Members
-            .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name)
+        var membersBefore = unit.Members.Count;
+        var membersGrouped = unit.Members
+            .GroupBy(m => !string.IsNullOrWhiteSpace(m.Reference) ? m.Reference : m.Name);
+        
+        var deduplicatedMembers = membersGrouped
             .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(m => ExtractFirstDate(m.YearInitiated))
             .ToList();
+        
+        // Check if ALL members have null YearInitiated
+        var hasAnyYearData = deduplicatedMembers.Any(m => m.YearInitiated.HasValue);
+        
+        // Sort members: if all lack YearInitiated, use PosNo as primary sort; otherwise use YearInitiated first
+        unit.Members = hasAnyYearData
+            ? deduplicatedMembers
+                .OrderBy(m => m.YearInitiated ?? int.MaxValue)  // Sort by YearInitiated (int), fallback to PosNo
+                .ThenBy(m => m.PosNo ?? int.MaxValue)  // Secondary sort by PosNo if year is null
+                .ToList()
+            : deduplicatedMembers
+                .OrderBy(m => m.PosNo ?? int.MaxValue)  // Primary sort by PosNo when no year data available
+                .ThenBy(m => m.YearInitiated ?? int.MaxValue)  // Secondary sort by year (though all are null)
+                .ToList();
 
         // For Honorary Members: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication
@@ -790,16 +811,37 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     }
 
     /// <summary>
-    /// Extract the first date from a potentially comma-separated date string.
-    /// Examples: "2021" -> "2021", "2021, 2022, 2023" -> "2021"
+    /// Extract the first date/year from a potentially multi-date string and return as integer for numeric sorting.
+    /// Examples: "2021" -> 2021, "2021,2022,2023" -> 2021, "2010/12" -> 2010, "2001/2002/2003" -> 2001, "2020-21" -> 2020
+    /// Handles comma, slash, and dash separators.
+    /// Returns int.MaxValue if no valid year found, so nulls/empty sort to the end.
+    /// </summary>
+    private static int ExtractYearAsInt(string? dateString)
+    {
+        if (string.IsNullOrWhiteSpace(dateString))
+            return int.MaxValue;  // Null/empty sorts to end
+
+        // Split on comma, slash, or dash (to handle "2001,2005", "2010/12", and "2020-21" formats) and take the first part, trimmed
+        var firstDate = dateString.Split(new[] { ',', '/', '-' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        
+        if (int.TryParse(firstDate, out int year))
+            return year;
+        
+        return int.MaxValue;  // If not a valid number, sort to end
+    }
+
+    /// <summary>
+    /// Extract the first date/year from a potentially multi-date string.
+    /// Examples: "2021" -> "2021", "2021,2022,2023" -> "2021", "2010/12" -> "2010", "2001/2002/2003" -> "2001", "2020-21" -> "2020"
+    /// Handles comma, slash, and dash separators.
     /// </summary>
     private static string? ExtractFirstDate(string? dateString)
     {
         if (string.IsNullOrWhiteSpace(dateString))
             return null;
 
-        // Split on comma and take the first part, trimmed
-        var firstDate = dateString.Split(',')[0].Trim();
+        // Split on comma, slash, or dash (to handle "2001,2005", "2010/12", and "2020-21" formats) and take the first part, trimmed
+        var firstDate = dateString.Split(new[] { ',', '/', '-' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
         return string.IsNullOrWhiteSpace(firstDate) ? null : firstDate;
     }
 
@@ -834,12 +876,15 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
     /// <summary>
     /// Assign posNo (position number) to officers and members for column splitting in templates.
+    /// Sorts by the original PosNo from CSV but does NOT reassign sequential indices.
+    /// Templates use the original PosNo values for proper display ordering.
     /// </summary>
     private void AssignColumnPositions(List<SchemaUnit> units)
     {
         foreach (var unit in units)
         {
-            // Sort by OffPos-derived PosNo before reindexing; nulls (no OffPos) go last
+            // Sort officers by original PosNo from CSV; nulls (no PosNo) go last
+            // IMPORTANT: Keep the original PosNo values for template use
             unit.Officers.Sort((a, b) =>
             {
                 if (a.PosNo == null && b.PosNo == null) return 0;
@@ -847,11 +892,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                 if (b.PosNo == null) return -1;
                 return a.PosNo.Value.CompareTo(b.PosNo.Value);
             });
-            for (int i = 0; i < unit.Officers.Count; i++)
-                unit.Officers[i].PosNo = i;
 
-            for (int i = 0; i < unit.Members.Count; i++)
-                unit.Members[i].PosNo = i;
+            // NOTE: Members are already sorted by YearInitiated in LoadHermesDataAsync.
+            // DO NOT re-sort members here; that would destroy the chronological ordering.
+            // The PosNo values are preserved for template use but sorting should NOT be by PosNo.
         }
     }
 

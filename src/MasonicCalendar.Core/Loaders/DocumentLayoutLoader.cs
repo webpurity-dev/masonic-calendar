@@ -115,6 +115,8 @@ public class DocumentLayout
 {
     public DocumentInfo? Document { get; set; }
     public GlobalStyling? GlobalStyling { get; set; }
+    public UiLabels? UiLabels { get; set; }
+    public UiPreferences? UiPreferences { get; set; }
     public PageMargins? PageMargins { get; set; }  // Paged.js CSS @page margin configuration
     public PageNumbering? PageNumbering { get; set; }
     public Dictionary<string, object>? DataSources { get; set; }
@@ -161,6 +163,30 @@ public class FooterConfig
     public string? FontFamily { get; set; }
     public string? FontSize { get; set; }
     public string? TextAlign { get; set; }
+}
+
+public class UiLabels
+{
+    public string? NotAppointedLabel { get; set; }
+}
+
+public class UiPreferences
+{
+    public string? NotAppointedLabel { get; set; }  // Override for NotAppointedLabel (for convenience)
+    public RankDisplay? RankDisplay { get; set; }
+}
+
+public class RankDisplay
+{
+    public List<string>? PriorityOrder { get; set; }  // Ordered list of rank field names to check (e.g., ["grand_rank", "provincial_rank", ...])
+    public RankDisplayShowDates? ShowDates { get; set; }  // When to include dates with rank display
+}
+
+public class RankDisplayShowDates
+{
+    public bool PastMasters { get; set; } = true;
+    public bool JoiningPastMasters { get; set; } = true;
+    public bool HonoraryMembers { get; set; } = false;
 }
 
 public class PageNumbering

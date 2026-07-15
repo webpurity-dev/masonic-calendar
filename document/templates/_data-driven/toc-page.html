@@ -11,7 +11,7 @@
                     {{ for item in section.items }}
                         <tr class="toc-item">
                             <td style="padding: 1px; font-size: 7pt; width: 30px;">
-                                <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_number }}</strong></a>
+                                <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_postfix_display }}</strong></a>
                             </td>
                             <td style="padding: 1px 6px; font-size: 7pt;">
                                 <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">{{ item.display_name }}</a>

@@ -153,6 +153,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                     rows.Add(new Dictionary<string, object?>
                     {
                         { "unit_number", unitId },
+                        { "unit_postfix_display", unitId },
                         { "unit_name",   unitName },
                         { "unit_type",   group.Key.UnitType },
                         { "row_span",    rowIndex == 0 ? rowCount : 0 },

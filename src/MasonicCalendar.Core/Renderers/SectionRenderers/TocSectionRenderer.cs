@@ -112,6 +112,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 .Select(u => (object?)new Dictionary<string, object?>
                 {
                     { "unit_number", u.Number },
+                    { "unit_postfix_display", u.UnitPostfix ?? u.Number.ToString() },
                     { "hide_unit_number", u.HideUnitNumber },
                     { "unit_name", CleanName(u.Name) },
                     { "short_name", CleanName(u.SuperShortName ?? u.ShortName ?? u.Name) },
@@ -215,6 +216,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
                 items.Add(new Dictionary<string, object?>
                 {
                     { "unit_number", u.Number },
+                    { "unit_postfix_display", u.UnitPostfix ?? u.Number.ToString() },
                     { "hide_unit_number", u.HideUnitNumber },
                     { "unit_name", CleanName(u.Name) },
                     { "short_name", CleanName(u.ShortName ?? u.Name) },
@@ -281,6 +283,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             items.Add(new Dictionary<string, object?>
             {
                 { "unit_number", u.Number },
+                { "unit_postfix_display", u.UnitPostfix ?? u.Number.ToString() },
                 { "hide_unit_number", u.HideUnitNumber },
                 { "unit_name", CleanName(u.Name) },
                 { "short_name", CleanName(u.ShortName ?? u.Name) },
@@ -339,6 +342,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             items.Add(new Dictionary<string, object?>
             {
                 { "unit_number", u.Number },
+                { "unit_postfix_display", u.UnitPostfix ?? u.Number.ToString() },
                 { "hide_unit_number", u.HideUnitNumber },
                 { "unit_name", CleanName(u.Name) },
                 { "short_name", CleanName(u.ShortName ?? u.Name) },
@@ -394,6 +398,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
     /// </summary>
     private string GetDisplayField(SchemaUnit unit, string? displayField)
     {
+        // Respect the toc_display_field setting from YAML configuration
         if (string.IsNullOrWhiteSpace(displayField) || displayField.Equals("short_name", StringComparison.OrdinalIgnoreCase))
         {
             return CleanName(unit.ShortName ?? unit.Name);
@@ -405,6 +410,10 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         else if (displayField.Equals("super_short_name", StringComparison.OrdinalIgnoreCase))
         {
             return CleanName(unit.SuperShortName ?? unit.ShortName ?? unit.Name);
+        }
+        else if (displayField.Equals("unit_postfix", StringComparison.OrdinalIgnoreCase))
+        {
+            return CleanName(unit.UnitPostfix ?? unit.Number.ToString());
         }
 
         return CleanName(unit.ShortName ?? unit.Name);

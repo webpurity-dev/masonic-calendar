@@ -22,6 +22,7 @@ A .NET console application for generating professionally formatted, print-ready 
 - ✅ **Section filtering** — `-section <id>` to render one section only
 - ✅ **Bleed visualisation** — `-showbleeds` flag for debugging page boundaries
 - ✅ **CSV export** — `-output csv` produces `{template}-meetings.csv` and `{template}-members.csv`
+- ✅ **Batch rendering scripts** — PowerShell automation for rendering all 18 order types (PDF or HTML) with timing information
 - ✅ **Lunar season meetings** — full moon date calculation with `LunarSeason` and `LunarSeasonBefore` strategies
 - ✅ **Name shortening** — surnames longer than 3 words automatically shortened to last 2 words
 - ✅ **Lodge list normalisation** — joining past master lodge lists stripped of spaces (`1895,6194,9660`)
@@ -174,7 +175,78 @@ dotnet run -- -template master_v1 -output pdf -debug
 dotnet run -- -template master_v1 -output csv
 ```
 
-## 📋 CLI Parameters
+## � PowerShell Batch Rendering Scripts
+
+The `scripts/unit-render/` directory contains PowerShell scripts for automated rendering of all 18 Masonic order types. Each script supports batch rendering to both PDF and HTML formats.
+
+### Available Order-Specific Scripts
+
+| Order | Script | Unit Type |
+|-------|--------|-----------|
+| Craft Lodges | `render-all-craft-units.ps1` | `Craft` |
+| Royal Arch Chapters | `render-all-ra-units.ps1` | `RA` |
+| Mark Lodges | `render-all-mark-units.ps1` | `Mark` |
+| Royal Ark Mariners | `render-all-ram-units.ps1` | `RAM` |
+| RCOC (Companion Masons) | `render-all-rcoc-units.ps1` | `RCOC` |
+| Allied Masonic Degrees | `render-all-amd-units.ps1` | `AMD` |
+| Rose Croix (A&AR) | `render-all-rc-units.ps1` | `RC` |
+| St Thomas of Acon | `render-all-stoa-units.ps1` | `STOA` |
+| Knights Beneficent | `render-all-kbhc-units.ps1` | `KBHC` |
+| Knights Templar | `render-all-kt-units.ps1` | `KT` |
+| Knight Templar Priests | `render-all-ktp-units.ps1` | `KTP` |
+| Order of Athelstan | `render-all-ooa-units.ps1` | `OOA` |
+| Order of Scarlet Cord | `render-all-osc-units.ps1` | `OSC` |
+| Order of Secret Monitor | `render-all-osm-units.ps1` | `OSM` |
+| Royal Order of Scotland | `render-all-ros-units.ps1` | `ROS` |
+| Royal & Select Masters | `render-all-rsm-units.ps1` | `RSM` |
+| Societas Rosicruciana | `render-all-sria-units.ps1` | `SRIA` |
+| The Operatives (Purbeck) | `render-all-pbq-units.ps1` | `PBQ` |
+
+### Usage
+
+```powershell
+# Render all Craft units to HTML (default)
+.\scripts\unit-render\render-all-craft-units.ps1
+
+# Render first 5 Royal Arch units to HTML
+.\scripts\unit-render\render-all-ra-units.ps1 -Limit 5
+
+# Render all AMD units to PDF
+.\scripts\unit-render\render-all-amd-units.ps1 -Limit 0  # -Limit 0 = no limit
+
+# Batch render ALL 18 order types as HTML
+.\scripts\unit-render\render-all-unit-sections.ps1
+
+# Batch render ALL sections as PDF
+.\scripts\unit-render\render-all-unit-sections.ps1 -OutputFormat pdf
+```
+
+### Script Parameters
+
+| Order-Specific Scripts (`render-all-*-units.ps1`) | | |
+|---|---|---|
+| Parameter | Type | Description |
+| `-Limit` | int | Max units to render (0 = no limit; default: 0) |
+
+| Master Batch Script (`render-all-unit-sections.ps1`) | | |
+|---|---|---|
+| Parameter | Type | Description |
+| `-OutputFormat` | string | `pdf` or `html` (default: `html`) |
+| `-TemplateDir` | string | Path to document templates (default: `e:\Development\repos\masonic-calendar\document`) |
+| `-ConsoleDir` | string | Path to console project (default: `e:\Development\repos\masonic-calendar\src\MasonicCalendar.Console`) |
+
+### Output Files
+
+All renders output to the `output/` directory with naming convention:
+- **HTML:** `master_v1.X.Y-[section]-[optional unit].html`
+- **PDF:** `master_v1.X.Y-[section]-[optional unit].pdf`
+
+Each render includes timing information to help identify performance considerations:
+- Single unit: ~30–60 seconds
+- Full order (50+ units): ~5–15 minutes
+- All sections: ~30–60 minutes
+
+## �📋 CLI Parameters
 
 | Parameter | Required | Values | Description |
 |-----------|----------|--------|-------------|
@@ -306,6 +378,15 @@ The full moon calculation uses the mean synodic period (29.530588853 days) from 
 | YAML config | YamlDotNet | latest |
 
 ## 📝 Version History
+
+### v1.10 (Updated July 12, 2026)
+- **New:** Comprehensive PowerShell batch rendering scripts for all 18 Masonic order types
+  - Individual scripts for each order (e.g., `render-all-craft-units.ps1`, `render-all-amd-units.ps1`, etc.)
+  - Master batch script `render-all-unit-sections.ps1` to render all sections at once
+  - Support for both PDF and HTML output formats via `-OutputFormat` parameter
+- **Enhanced:** Rendering pipeline with timing information per section (helps identify performance considerations)
+- **Documentation:** Updated README with PowerShell script reference and usage examples
+- **Status:** v1.10 production-ready with full order type coverage and automation support
 
 ### v1.7 (Updated May 24, 2026)
 - **New:** Extended rank fields — 4 new rank columns per person (Provincial Rank, London Rank, Prov Rank Other Prov, with associated date fields)

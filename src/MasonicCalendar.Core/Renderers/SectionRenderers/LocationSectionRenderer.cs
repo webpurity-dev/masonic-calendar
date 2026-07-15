@@ -61,6 +61,8 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
                 {
                     { "super_short_name", u.SuperShortName ?? u.ShortName ?? u.Name },
                     { "unit_no", u.Number },
+                    { "unit_postfix", u.UnitPostfix },  // Don't fall back to number; let template decide
+                    { "hide_unit_number", u.HideUnitNumber },
                     { "unit_type", u.UnitType ?? "Unknown" }
                 })
                 .ToList();

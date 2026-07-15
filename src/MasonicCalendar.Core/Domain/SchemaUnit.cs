@@ -19,6 +19,7 @@ public class SchemaUnit
     public string? UnitType { get; set; }
     public string? LocationId { get; set; }  // Reference to location from CSV (e.g., "Weymouth")
     public string? What3Words { get; set; }  // What3Words location code (e.g., "///word.word.word")
+    public string? UnitPostfix { get; set; }  // Display version for UI (e.g., "3 T.I." for unit 999); falls back to Number if empty
     public SchemaLocation? Location { get; set; }
     public bool HideUnitNumber { get; set; } = false;  // When true, unit number is hidden in templates
     public bool HideUnitName { get; set; } = false;    // When true, unit name is hidden in templates
@@ -57,6 +58,7 @@ public class SchemaPastMaster
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? YearInstalled { get; set; }  // FN01
+    public int? PosNo { get; set; }  // Position number for sorting (e.g., chronological order)
     public string? Rank { get; set; }  // Legacy: computed display rank (Grand > Provincial)
     public string? RankYear { get; set; }
     public bool IsGrandRank { get; set; }  // True if Rank is from GrandRank field (vs ProvincialRank)
@@ -87,6 +89,7 @@ public class SchemaJoinPastMaster
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
     public string? JoinedDate { get; set; }  // Year/date joined as joining past master
+    public int? PosNo { get; set; }  // Position number for sorting
     public string? PastUnits { get; set; } 
     public string? Rank { get; set; }  // Legacy: computed display rank
     public string? RankYear { get; set; }
@@ -117,7 +120,7 @@ public class SchemaMember
     public string? Surname { get; set; }
     public string? Initials { get; set; }
     public required string Name { get; set; }  // Combined display name (Surname, Initials)
-    public string? YearInitiated { get; set; } // FN01
+    public int? YearInitiated { get; set; } // v1.10: Converted from string to int for proper sorting; year joined
     public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
     public string? Grouping { get; set; }  // v1.9: Grouping identifier (e.g., "33°", "32°" for RC units)
     public string? Suffix { get; set; }  // v1.9: Optional suffix to display after name (e.g., "PM", "PGM"); ignore if blank or "0"

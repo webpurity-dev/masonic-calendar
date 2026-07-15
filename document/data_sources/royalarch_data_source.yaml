@@ -1,4 +1,4 @@
-﻿# Data source mappings for Royal Arch section
+# Data source mappings for Royal Arch section
 # CSV files and column mappings that support royal arch related data
 # v1.4 format: units_v1.5.csv + membership_v1.5.csv
 
@@ -57,7 +57,7 @@ order_regional_officers:
 order_succession_list:
   tables:
     - title: "GRAND SUPERINTENDENTS"
-      source: "data/royalarch_megs_succession.csv"
+      source: "royalarch_megs_succession.csv"
       font_size: "8pt"
       columns:
         - name: "Appointed"
@@ -73,7 +73,7 @@ order_succession_list:
           width: "12%"
           alignment: "left"
     - title: "DEPUTY GRAND SUPERINTENDENTS"
-      source: "data/royalarch_degs_succession.csv"
+      source: "royalarch_degs_succession.csv"
       font_size: "7pt"
       columns:
         - name: "Appointed"
@@ -140,6 +140,9 @@ units:
     - name: "Name"
       csv_column: "Unit Name"
       type: "string"
+    - name: "UnitPostfix"
+      csv_column: "Unit Postfix"
+      type: "string"
     - name: "ShortName"
       csv_column: "Short Name"
       type: "string"
@@ -178,9 +181,9 @@ unit_officers:
       csv_column: "Name"
       type: "string"
     - name: "Position"
-      csv_column: "Off"
+      csv_column: "Office"
       type: "string"
-    - name: "PositionNo"
+    - name: "PosNo"
       csv_column: "OffPos"
       type: "int"
 
@@ -201,7 +204,10 @@ unit_past_heads:
       type: "string"
     - name: "YearInstalled"
       csv_column: "Installed"
-      type: "string"
+      type: "string"    
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     # v1.6 fields
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"
@@ -249,6 +255,9 @@ unit_joining_past_heads:
     - name: "JoinedDate"
       csv_column: "Join Date"
       type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
     - name: "PastUnits"
       csv_column: "Join Unit"
       type: "string"
@@ -297,6 +306,9 @@ unit_members:
     - name: "YearInitiated"
       csv_column: "Join Date"
       type: "string"
+    - name: "PosNo"
+      csv_column: "Pos No"
+      type: "int"
 
 unit_honorary_members:
   source: "membership.csv"
@@ -312,9 +324,15 @@ unit_honorary_members:
     - name: "Name"
       csv_column: "Name"
       type: "string"
+    - name: "ProvincialRank"
+      csv_column: "Provincial Rank"
+      type: "string"
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-    - name: "ProvincialRank"
-      csv_column: "Provincial Rank"
+    - name: "ProvRankOtherProv"
+      csv_column: "Prov Rank Oth Prov"
+      type: "string"
+    - name: "LondonRank"
+      csv_column: "Lndn Rank"
       type: "string"

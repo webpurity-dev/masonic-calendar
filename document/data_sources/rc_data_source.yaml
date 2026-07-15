@@ -47,6 +47,9 @@ units:
     - name: "Name"
       csv_column: "Unit Name"
       type: "string"
+    - name: "UnitPostfix"
+      csv_column: "Unit Postfix"
+      type: "string"
     - name: "ShortName"
       csv_column: "Short Name"
       type: "string"
@@ -70,40 +73,37 @@ units:
       type: "string"
 
 unit_officers:
-  source: "companion_membership.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"
-    - filter_field: "Type"
+    - filter_field: "Mem Type"
       filter_value: "Off"
   fields:
     - name: "Reference"
-      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
       type: "string"
-    - name: "Office"
-      csv_column: "Office"
-      type: "string"
     - name: "Position"
       csv_column: "Office"
       type: "string"
-    - name: "PositionNo"
+    - name: "PosNo"
       csv_column: "Pos No"
       type: "int"
 
 unit_members:
-  source: "companion_membership.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"
-    - filter_field: "Type"
+    - filter_field: "Mem Type"
       filter_value: "Mem"
   override_heading: "Members - With year of joining"
   fields:
     - name: "Reference"
-      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
@@ -120,18 +120,16 @@ unit_members:
   caption: "Those marked † have passed this Chair"
 
 unit_honorary_members:
-  source: "companion_membership.csv"
+  source: "membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"
-    - filter_field: "Type"
+    - filter_field: "Mem Type"
       filter_value: "Hon"
   fields:
     - name: "Reference"
-      csv_columns: ["Unique Ref", "ConCatLu", "Name"]  # v1.9: Fallback chain — tries each column in order, uses first non-empty value
+      csv_column: "Unique Ref"
       type: "string"
     - name: "Name"
       csv_column: "Name"
       type: "string"
-
-

@@ -1,5 +1,42 @@
 ﻿# Masonic Calendar - AI Coding Instructions
 
+## 🚨 CRITICAL RULES — NO HARDCODING
+
+**This project is YAML-configuration-driven. Hardcoding is FORBIDDEN unless explicitly approved by the user.**
+
+### Rule #1: Configuration-First Approach
+- **BEFORE** hardcoding ANY value, label, constant, or parameter:
+  1. Ask where it should be stored (master_v1.yaml? data_source.yaml? domain class? TextCleaner?)
+  2. Show two options: (a) YAML config approach, (b) hardcoded approach with justification
+  3. **WAIT for user approval** — do not assume hardcoding is acceptable
+- **Examples of things that MUST be config-driven:**
+  - UI labels ("Not appointed", "Vacant", etc.)
+  - Display strings and formats
+  - Default values for optional fields
+  - Thresholds, flags, or conditional logic parameters
+  - Any value that might differ between documents or degrees
+
+### Rule #2: Multi-File Changes Require Explicit Approval
+- Changes affecting **≥3 files** REQUIRE:
+  1. Explicit plan document (markdown, in repo)
+  2. Summary of each file being modified and WHY
+  3. **EXPLICIT USER APPROVAL** before any code is written
+- Do NOT assume you should fix architectural issues across multiple files without asking
+- Do NOT cascade parameter changes through the entire renderer pipeline without approval
+
+### Rule #3: Always Plan First
+- Create a written plan BEFORE coding ANY non-trivial change
+- **Trivial = ≤1 file, ≤10 lines, isolated logic**
+- **Non-trivial = any change to architecture, configuration, or >1 file**
+- Plan must include:
+  - What config value/class/parameter is needed
+  - Where it will be stored (YAML file path, class name, etc.)
+  - Which files will change (specific paths + line ranges where possible)
+  - Why each file needs to change
+  - Approval status: ✅ Approved | ⏳ Awaiting User Input
+
+---
+
 ## Project Context
 A C# .NET 8.0 console application for a non-profit Masonic organisation. Reads lodge/chapter data from CSV files and generates print-ready A6 booklet PDFs and proofing HTML via Scriban templating and Puppeteer/Paged.js rendering. All libraries must be open-source (MIT/Apache 2.0) or free for non-profits.
 
@@ -16,11 +53,15 @@ A C# .NET 8.0 console application for a non-profit Masonic organisation. Reads l
    - Timeline/priority (immediate vs phased)
    - Rollback strategy (commits exist?)
    - Validation criteria (tests, manual checks)
+   - **NEW:** Where should this value/config be stored? (not hardcoded)
+   - **NEW:** How many files will change? (if ≥3, needs approval)
 
-2. **Create Plan Document**:
+2. **Create Plan Document** (for non-trivial changes):
    - File: `_work-plan-[YYYYMMDD].md` (e.g., `_work-plan-20260530.md`)
-   - Sections: Scope | Approach | Files | Risks | Rollback
+   - Sections: Configuration Strategy | Files Affected | Scope | Approach | Risks | Rollback
+   - **Include:** Where config is stored, why each file changes, approval status
    - Place in workspace root for visibility
+   - **WAIT for approval before writing code**
 
 3. **Execute & Document**:
    - Update plan with actual changes as work progresses

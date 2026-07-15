@@ -1,7 +1,7 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
-  version: "1.9"
-  data_corrected_date: "15th June 2026"
+  version: "1.10.2"
+  data_corrected_date: "10th July 2026"
   orientation: "portrait"
   global_styling:
     fonts:
@@ -10,6 +10,20 @@ document:
       font_family: "Tahoma, Arial, sans-serif"
       font_size: "6pt"
       text_align: "center"
+
+# UI Preferences - configurable display behavior and labels
+ui_preferences:
+  not_appointed_label: "Not appointed"   # Display text for vacant officer positions
+  rank_display:
+    priority_order:
+      - "grand_rank"                     # Grand Rank (highest priority)
+      - "provincial_rank"                # Provincial Rank
+      - "prov_rank_other_prov"           # Provincial Rank from Other Province
+      - "london_rank"                    # London Rank (lowest priority)
+    show_dates:
+      past_masters: true                 # Include dates with past master ranks
+      joining_past_masters: true         # Include dates with joining past master ranks
+      honorary_members: false            # Honorary members show rank only, no dates
 
 # Paged.js CSS @page margins - used for actual PDF/print rendering
 # These are applied directly to the @page CSS rules
@@ -217,13 +231,12 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/rc_data_source.yaml"
   - section_id: "rc_membership_summary"
-    section_title: "Ancient and Accepted Rite Membership Summary 2026"
+    section_title: "Ancient and Accepted Rite Membership Summary"
     type: "membership-summary"
     template: "_data-driven/membership-summary-page.html"
     data_mapping: "data_sources/rc_data_source.yaml"
     column_headings:
-      past_masters: "Past Sovereigns"
-    include_officers_as_members: true
+      hide_past_masters: true
     hide_from_parent_toc: true
   - section_id: "rc_meetings_table"
     section_title: "Ancient and Accepted Rite Chapter Meeting Dates"
@@ -259,19 +272,36 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/kbhc_data_source.yaml"  
-  # - section_id: "kbhc_units"
-  #   section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
-  #   type: "data-driven"
-  #   template: "_data-driven/unit-page.html"
-  #   data_mapping: "data_sources/kbhc_data_source.yaml"
-  #   hide_from_parent_toc: true
+  - section_id: "kbhc_units"
+    section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/kbhc_data_source.yaml"
+    hide_from_parent_toc: true
+    override_break_before: true
 
   # Knights Templar
   - section_id: "kt_officers"
     section_title: "Knights Templar"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/kt_data_source.yaml"  
+    data_mapping: "data_sources/kt_data_source.yaml"    
+  - section_id: "kt_membership_summary"
+    section_title: "Knights Templar Membership Summary"
+    type: "membership-summary"
+    template: "_data-driven/membership-summary-page.html"
+    data_mapping: "data_sources/kt_data_source.yaml"
+    column_headings:
+      hide_past_masters: true
+    hide_from_parent_toc: true
+  - section_id: "kt_meetings_table"
+    section_title: "Knights Templar Meeting Dates"
+    type: "meetings-table"
+    template: "_data-driven/meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["KT"]
+    override_break_before: true
+    hide_from_parent_toc: true
   - section_id: "kt_units"
     section_title: "Knights Templar Preceptories in Numerical Order"
     type: "data-driven"
@@ -292,20 +322,19 @@ sections:
     data_mapping: "data_sources/ktp_data_source.yaml"
     hide_from_parent_toc: true
 
-  # MARK  
+  # Mark  
   - section_id: "mark_officers"
     section_title: "Mark Masonry"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/mark_data_source.yaml"
   - section_id: "mark_membership_summary"
-    section_title: "Mark Masonry Membership Summary 2026"
+    section_title: "Mark Masonry Membership Summary"
     type: "membership-summary"
     template: "_data-driven/membership-summary-page.html"
     data_mapping: "data_sources/mark_data_source.yaml"
     column_headings:
       past_masters: "Past Mark Masters"
-    include_officers_as_members: true
     hide_from_parent_toc: true
   - section_id: "mark_meetings_table"
     section_title: "Mark Lodge Meeting Dates"
@@ -335,6 +364,7 @@ sections:
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/ooa_data_source.yaml"
     hide_from_parent_toc: true
+    override_break_before: true
 
   # Order of the Scarlet Cord
   - section_id: "osc_officers"
@@ -356,13 +386,12 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/osm_data_source.yaml"
   - section_id: "osm_membership_summary"
-    section_title: "Secret Monitor Membership Summary 2026"
+    section_title: "Secret Monitor Membership Summary"
     type: "membership-summary"
     template: "_data-driven/membership-summary-page.html"
     data_mapping: "data_sources/osm_data_source.yaml"
     column_headings:
-      past_masters: "Past Masters"
-    include_officers_as_members: true
+      hide_past_masters: true
     hide_from_parent_toc: true
   - section_id: "osm_meetings_table"
     section_title: "Secret Monitor Conclave Meeting Dates"
@@ -379,7 +408,7 @@ sections:
     data_mapping: "data_sources/osm_data_source.yaml"
     hide_from_parent_toc: true
   
-  # RAM
+  # Royal Ark Mariners
   - section_id: "ram_officers"
     section_title: "Royal Ark Mariners"
     type: "list_officers"
@@ -427,6 +456,7 @@ sections:
     template: "_data-driven/membership-summary-page.html"
     data_mapping: "data_sources/rcoc_data_source.yaml"
     column_headings:
+      hide_honorary: true
       past_masters: "Past Sovereigns"
     include_officers_as_members: true
     hide_from_parent_toc: true

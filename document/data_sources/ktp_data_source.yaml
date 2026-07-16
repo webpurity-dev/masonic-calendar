@@ -22,7 +22,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "District of Dorset and Wiltshire (No. 53)"
-  source: "no_officers.csv"
+  source: "ktp_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"

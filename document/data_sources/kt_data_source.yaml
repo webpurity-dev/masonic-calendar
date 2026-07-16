@@ -23,7 +23,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "Province of Dorset and Wiltshire"
-  source: "no_officers.csv"
+  source: "kt_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"

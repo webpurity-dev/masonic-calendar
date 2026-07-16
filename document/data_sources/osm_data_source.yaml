@@ -25,7 +25,7 @@ order_summary:
       name: "Paul R. Gawler, P.G.Swd.B."
 
 order_regional_officers:
-  source: "no_officers.csv"
+  source: "osm_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -38,7 +38,7 @@ order_regional_officers:
       type: "string"
   heading1: "The Order of the Secret Monitor or Brotherhood of David and Jonathan"  
   crest: "../../images/osm-logo.png"
-  website: "hhttps://www.markmasonshall.org/orders/osm"
+  website: "https://www.markmasonshall.org/orders/osm"
   heads: 
     - rank: "Grand Supreme Ruler"
       name: "M.Wy.Bro. Andrew C. Sweeney"

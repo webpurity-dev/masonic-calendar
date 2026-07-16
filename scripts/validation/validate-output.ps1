@@ -311,7 +311,7 @@ foreach ($cfg in $targetConfigs) {
     # Check for duplicate UniqueRef values within each section
     foreach ($sec in $cfg.MemSections) {
         # Skip duplicate check for Officers section - officers can legitimately appear multiple times
-        # with different Office values (same person in multiple positions)
+        # with different Office values (same person in multiple positions). Also skip vacant officers.
         if ($sec.Name -eq "officers") {
             continue
         }
@@ -407,9 +407,16 @@ foreach ($cfg in $targetConfigs) {
             if (-not [string]::IsNullOrWhiteSpace($unitNo)) {
                 # Track by section type
                 if ($sec.Name -match "officers") {
+                    $name = $row.($sec.NameColumn).Trim()
+                    $office = if ($sec.PositionColumn) { $row.($sec.PositionColumn).Trim() } else { "" }
+                    
+                    # Skip vacant officers (empty name, contains "vacant", or empty office) 
+                    if ([string]::IsNullOrWhiteSpace($name) -or $name -ilike "*vacant*" -or [string]::IsNullOrWhiteSpace($office)) {
+                        continue
+                    }
+                    
                     [void]$unitsWithOfficers.Add($unitNo)
                     # Count officers with names
-                    $name = $row.($sec.NameColumn).Trim()
                     if (-not $officerNameCounts.ContainsKey($unitNo)) {
                         $officerNameCounts[$unitNo] = @{ total = 0; withNames = 0 }
                     }
@@ -732,6 +739,18 @@ foreach ($cfg in $targetConfigs) {
     
     foreach ($sec in $cfg.MemSections) {
         foreach ($row in $secData[$sec.Name]) {
+            $name = $row.($sec.NameColumn).Trim()
+            
+            # Skip officers where name contains "vacant" (case-insensitive), is empty, or office is empty
+            if ($sec.Name -match "officers") {
+                $office = if ($sec.PositionColumn) { $row.($sec.PositionColumn).Trim() } else { "" }
+                
+                # Skip if name is empty, contains "vacant" (any case), or office is empty
+                if ([string]::IsNullOrWhiteSpace($name) -or $name -ilike "*vacant*" -or [string]::IsNullOrWhiteSpace($office)) {
+                    continue
+                }
+            }
+            
             $dataId = $row.($sec.RefColumn).Trim()
 
             $typeRowsChecked++

@@ -23,7 +23,7 @@ order_summary:
 order_regional_officers:
   heading2: "Members of the Supreme Council 33°"
   district_heading: "District of Dorset"
-  source: "no_officers.csv"
+  source: "rc_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"

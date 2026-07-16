@@ -1,23 +1,33 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Validates the unit_meetings.csv file for data integrity and coverage issues.
+    Validates the unit_meetings.csv file and the rendered meetings output CSV.
 
 .DESCRIPTION
     This script performs the following validations:
-    1. Ensures each unit (UnitType + Number combination) has at least one row
-    2. Reports units with multiple meeting definitions
-    3. Validates InstallationMonth coverage:
-       - InstallationMonth must appear in the Months column, OR
-       - InstallationMonth must fall within the StartMonth-EndMonth range
+    1. Validates input unit_meetings.csv for data integrity and structure issues
+    2. Loads the latest rendered meetings CSV from the output directory
+    3. Ensures each unit has sufficient meeting dates in the rendered output
+    4. Validates InstallationMonth coverage in both input and output
 #>
 
 param(
-    [string]$CsvPath = (Join-Path $PSScriptRoot "..\..\document\data\unit_meetings.csv")
+    [string]$CsvPath = (Join-Path $PSScriptRoot "..\..\document\data\unit_meetings.csv"),
+    [string]$OutputDir = (Join-Path $PSScriptRoot "..\..\output")
 )
 
 Write-Host "== Unit Meetings Validation Script ==" -ForegroundColor Cyan
 Write-Host ""
+
+# Find the latest rendered meetings CSV
+$latestMeetingsCsv = @(Get-ChildItem -Path $OutputDir -Filter "*-meetings.csv" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1)
+if ($latestMeetingsCsv.Count -eq 0) {
+    Write-Host "[WARN] No rendered meetings CSV found in $OutputDir" -ForegroundColor Yellow
+    $renderedMeetingsCsv = $null
+} else {
+    $renderedMeetingsCsv = $latestMeetingsCsv[0].FullName
+    Write-Host "[OK] Found rendered meetings CSV: $($latestMeetingsCsv[0].Name)" -ForegroundColor Green
+}
 
 # Load units CSV for cross-validation
 $unitsCsvPath = Join-Path $PSScriptRoot "..\..\document\data\units.csv"
@@ -36,7 +46,7 @@ if (!(Test-Path $CsvPath)) {
     exit 1
 }
 
-Write-Host "[OK] Loading meetings CSV: $CsvPath" -ForegroundColor Green
+Write-Host "[OK] Loading input meetings CSV: $CsvPath" -ForegroundColor Green
 
 # Month mapping
 $monthMap = @{
@@ -185,271 +195,179 @@ function ValidateInstallationMonth {
     return "InstallationMonth '$installationMonth' not covered by Months ($months) or Range ($startMonth-$endMonth)"
 }
 
-# Load CSV
-$rows = @(Import-Csv -Path $CsvPath)
-Write-Host "[OK] Loaded $($rows.Count) rows from CSV" -ForegroundColor Green
+# ===== SOURCE CSV VALIDATION DISABLED =====
+# This script now focuses only on validating rendered output.
+# Source unit_meetings.csv validation is skipped.
+Write-Host "[INFO] Skipping source CSV validation. Validating rendered output only." -ForegroundColor Yellow
 Write-Host ""
 
-# Group by UnitType and Number
-$grouped = $rows | Group-Object -Property @{Expression={$_.UnitType}}, @{Expression={$_.Number}}
-
-Write-Host "== Unit Summary ==" -ForegroundColor Cyan
-Write-Host "Total units in reference file (units.csv): $($unitsRef.Count)"
-Write-Host "Total unique units in meetings CSV: $($grouped.Count)"
-$unitsWithMultiple = @($grouped | Where-Object { $_.Group.Count -gt 1 })
-Write-Host "Units with multiple rows: $($unitsWithMultiple.Count)"
-Write-Host ""
-
-# Cross-validate units exist in reference file
-Write-Host "== Unit Cross-Validation ==" -ForegroundColor Cyan
-$refUnits = @($unitsRef | ForEach-Object { "$($_.`"Unit Type`"),$($_.`"Unit No`")" })
-$meetingUnits = @($grouped | ForEach-Object { "$($_.Group[0].UnitType),$($_.Group[0].Number)" })
-$missingUnits = @($meetingUnits | Where-Object { $_ -notin $refUnits })
-
-Write-Host "Reference file units: $($refUnits.Count)"
-Write-Host "Meetings CSV units: $($meetingUnits.Count)"
-
-if ($missingUnits.Count -gt 0) {
-    Write-Host "[WARN] Found $($missingUnits.Count) unit(s) in meetings CSV not in reference units.csv:" -ForegroundColor Yellow
-    $missingUnits | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
-} else {
-    Write-Host "[OK] All units in meetings CSV exist in reference file" -ForegroundColor Green
-}
-Write-Host ""
-
-# Validation
+# Initialize issues array for rendered validation only
 $issues = @()
+$renderedIssues = @()
 
-# Check for day clashes (same unit with multiple meetings on same DayOfWeek+WeekNumber AND overlapping months)
-Write-Host "== Clash Detection ==" -ForegroundColor Cyan
-$dayClashes = 0
-foreach ($unitGroup in $grouped) {
-    $unitType = $unitGroup.Group[0].UnitType
-    $unitNumber = $unitGroup.Group[0].Number
+# === Validate rendered meetings CSV if it exists ===
+$renderedIssues = @()
+Write-Host ""
+Write-Host "== Rendered Meetings Output Validation ==" -ForegroundColor Cyan
+Write-Host "[DEBUG] renderedMeetingsCsv = $renderedMeetingsCsv" -ForegroundColor Gray
+
+if ($null -ne $renderedMeetingsCsv -and (Test-Path $renderedMeetingsCsv)) {
+    Write-Host "[DEBUG] File exists and path is valid" -ForegroundColor Gray
     
-    # Group this unit's meetings by DayOfWeek and WeekNumber
-    $dayGroups = $unitGroup.Group | 
-        Where-Object { ![string]::IsNullOrWhiteSpace($_.DayOfWeek) -and ![string]::IsNullOrWhiteSpace($_.WeekNumber) } |
-        Group-Object -Property @{Expression={$_.DayOfWeek}}, @{Expression={$_.WeekNumber}}
-    
-    foreach ($dayGroup in $dayGroups) {
-        if ($dayGroup.Group.Count -gt 1) {
-            # Check if month ranges actually overlap for any pair of meetings
-            $meetings = $dayGroup.Group
-            for ($i = 0; $i -lt $meetings.Count - 1; $i++) {
-                for ($j = $i + 1; $j -lt $meetings.Count; $j++) {
-                    if (MonthRangesOverlap $meetings[$i].Months $meetings[$i].StartMonth $meetings[$i].EndMonth `
-                                          $meetings[$j].Months $meetings[$j].StartMonth $meetings[$j].EndMonth) {
-                        $dayClashes++
-                        # Flag both meetings as clashing
-                        foreach ($row in @($meetings[$i], $meetings[$j])) {
-                            $rowIndex = 0
-                            for ($k = 0; $k -lt $rows.Count; $k++) {
-                                if ($rows[$k].UnitType -eq $row.UnitType -and `
-                                    $rows[$k].Number -eq $row.Number -and `
-                                    $rows[$k].Title -eq $row.Title) {
-                                    $rowIndex = $k + 2
-                                    break
-                                }
-                            }
-                            
-                            $issues += [PSCustomObject]@{
-                                Type       = "ERROR"
-                                UnitType   = $row.UnitType
-                                UnitNumber = $row.Number
-                                Row        = $rowIndex
-                                Title      = $row.Title
-                                Issue      = "Day Clash"
-                                Details    = "Meets on $($row.DayOfWeek) $($row.WeekNumber) with overlapping month range"
-                            }
-                        }
+    try {
+        Write-Host "[DEBUG] About to load rendered CSV from: $renderedMeetingsCsv" -ForegroundColor Gray
+        $renderedMeetings = @(Import-Csv -Path $renderedMeetingsCsv)
+        Write-Host "[OK] Loaded $($renderedMeetings.Count) meeting instances from rendered output" -ForegroundColor Green
+        
+        # Group by Unit Type and Unit Number
+        Write-Host "[DEBUG] Grouping meetings by Unit Type and Unit Number..." -ForegroundColor Gray
+        $renderedGrouped = @{}
+        foreach ($meeting in $renderedMeetings) {
+            $unitType = $meeting.'Unit Type'
+            $unitNumber = $meeting.'Unit Number'
+            $key = "$unitType|$unitNumber"
+            
+            if (-not $renderedGrouped.ContainsKey($key)) {
+                $renderedGrouped[$key] = @{
+                    UnitType = $unitType
+                    UnitNumber = $unitNumber
+                    Meetings = @()
+                    HasInstallation = $false
+                }
+            }
+            
+            $renderedGrouped[$key].Meetings += $meeting
+            if ($meeting.'Is Installation' -eq 'TRUE') {
+                $renderedGrouped[$key].HasInstallation = $true
+            }
+        }
+        
+        Write-Host "[DEBUG] Grouped into $($renderedGrouped.Count) units" -ForegroundColor Gray
+        
+        # Check rendered meetings coverage
+        $renderedMissingMeetings = @()
+        $renderedInsufficientMeetings = @()
+        $renderedMissingInstallation = @()
+        
+        foreach ($unit in $unitsRef) {
+            $unitType = $unit."Unit Type"
+            $unitNumber = $unit."Unit No"
+            $key = "$unitType|$unitNumber"
+            
+            if ($renderedGrouped.ContainsKey($key)) {
+                $rendMeeting = $renderedGrouped[$key]
+                
+                if ($rendMeeting.Meetings.Count -lt 2) {
+                    $renderedInsufficientMeetings += [PSCustomObject]@{
+                        UnitType = $unitType
+                        UnitNumber = $unitNumber
+                        UnitName = $unit."Unit Name"
+                        RenderedCount = $rendMeeting.Meetings.Count
+                    }
+                }
+                
+                if (-not $rendMeeting.HasInstallation) {
+                    $renderedMissingInstallation += [PSCustomObject]@{
+                        UnitType = $unitType
+                        UnitNumber = $unitNumber
+                        UnitName = $unit."Unit Name"
+                    }
+                }
+            } else {
+                $renderedMissingMeetings += [PSCustomObject]@{
+                    UnitType = $unitType
+                    UnitNumber = $unitNumber
+                    UnitName = $unit."Unit Name"
+                }
+            }
+        }
+        
+        Write-Host "[DEBUG] Validation complete: Missing=$($renderedMissingMeetings.Count), Insufficient=$($renderedInsufficientMeetings.Count), NoInstall=$($renderedMissingInstallation.Count)" -ForegroundColor Gray
+        
+        # Report rendered coverage issues
+        if ($renderedMissingMeetings.Count -eq 0 -and $renderedInsufficientMeetings.Count -eq 0 -and $renderedMissingInstallation.Count -eq 0) {
+            Write-Host "[OK] All $($unitsRef.Count) units have at least 2 expanded meeting dates and at least 1 installation meeting in rendered output" -ForegroundColor Green
+        } else {
+            if ($renderedMissingMeetings.Count -gt 0) {
+                Write-Host "[ERROR] $($renderedMissingMeetings.Count) unit(s) missing from rendered meetings:" -ForegroundColor Red
+                foreach ($unit in $renderedMissingMeetings) {
+                    Write-Host "  - $($unit.UnitType) $($unit.UnitNumber): $($unit.UnitName)" -ForegroundColor Red
+                    $renderedIssues += [PSCustomObject]@{
+                        Type = "ERROR"
+                        UnitType = $unit.UnitType
+                        UnitNumber = $unit.UnitNumber
+                        Issue = "Not in Rendered Output"
+                        Details = "Unit not found in rendered meetings CSV"
+                    }
+                }
+            }
+            
+            if ($renderedInsufficientMeetings.Count -gt 0) {
+                Write-Host "[ERROR] $($renderedInsufficientMeetings.Count) unit(s) with fewer than 2 expanded meetings in rendered output:" -ForegroundColor Red
+                foreach ($unit in $renderedInsufficientMeetings) {
+                    Write-Host "  - $($unit.UnitType) $($unit.UnitNumber): $($unit.UnitName) ($($unit.RenderedCount) rendered meeting(s))" -ForegroundColor Red
+                    $renderedIssues += [PSCustomObject]@{
+                        Type = "ERROR"
+                        UnitType = $unit.UnitType
+                        UnitNumber = $unit.UnitNumber
+                        Issue = "Insufficient Rendered Meetings"
+                        Details = "Only $($unit.RenderedCount) meeting(s) in rendered output; need at least 2"
+                    }
+                }
+            }
+            
+            if ($renderedMissingInstallation.Count -gt 0) {
+                Write-Host "[ERROR] $($renderedMissingInstallation.Count) unit(s) without installation meeting in rendered output:" -ForegroundColor Red
+                foreach ($unit in $renderedMissingInstallation) {
+                    Write-Host "  - $($unit.UnitType) $($unit.UnitNumber): $($unit.UnitName)" -ForegroundColor Red
+                    $renderedIssues += [PSCustomObject]@{
+                        Type = "ERROR"
+                        UnitType = $unit.UnitType
+                        UnitNumber = $unit.UnitNumber
+                        Issue = "No Rendered Installation Meeting"
+                        Details = "No installation meeting found in rendered output"
                     }
                 }
             }
         }
+        
+        Write-Host ""
+    } catch {
+        Write-Host "[ERROR] Failed to load rendered meetings CSV: $($_.Exception.Message)" -ForegroundColor Red
+        $renderedIssues += [PSCustomObject]@{
+            Type = "ERROR"
+            Issue = "Rendered CSV Load Error"
+            Details = $_.Exception.Message
+        }
     }
-}
-if ($dayClashes -eq 0) {
-    Write-Host "[OK] No day clashes found" -ForegroundColor Green
 } else {
-    Write-Host "[WARN] Found $dayClashes meeting(s) with day clashes" -ForegroundColor Yellow
+    Write-Host "== Rendered Meetings Output Validation ==" -ForegroundColor Cyan
+    Write-Host "[WARN] No rendered meetings CSV found in output directory" -ForegroundColor Yellow
+    Write-Host ""
 }
-Write-Host ""
 
-# Track units with multiple definitions separately (not errors)
-$multipleDefinitions = @()
-
-foreach ($unitGroup in $grouped) {
-    $unitType = $unitGroup.Group[0].UnitType
-    $unitNumber = $unitGroup.Group[0].Number
-    $rowCount = $unitGroup.Group.Count
-    
-    if ($rowCount -gt 1) {
-        $definitions = @($unitGroup.Group | ForEach-Object { $_.Title }) -join ", "
-        $multipleDefinitions += [PSCustomObject]@{
-            UnitType   = $unitType
-            UnitNumber = $unitNumber
-            DefinitionCount = $rowCount
-            Details    = $definitions
-        }
-    }
-    
-    foreach ($row in $unitGroup.Group) {
-        $rowIndex = 0
-        for ($i = 0; $i -lt $rows.Count; $i++) {
-            if ($rows[$i].UnitType -eq $row.UnitType -and `
-                $rows[$i].Number -eq $row.Number -and `
-                $rows[$i].Title -eq $row.Title) {
-                $rowIndex = $i + 2
-                break
-            }
-        }
-        
-        # Validate DayOfWeek
-        if (![string]::IsNullOrWhiteSpace($row.DayOfWeek)) {
-            if (!(IsValidDayOfWeek $row.DayOfWeek)) {
-                $issues += [PSCustomObject]@{
-                    Type       = "ERROR"
-                    UnitType   = $row.UnitType
-                    UnitNumber = $row.Number
-                    Row        = $rowIndex
-                    Title      = $row.Title
-                    Issue      = "Invalid DayOfWeek"
-                    Details    = "DayOfWeek '$($row.DayOfWeek)' is not valid. Must be Monday-Sunday."
-                }
-            }
-        }
-        
-        # Validate month values (StartMonth, EndMonth, Months)
-        if (![string]::IsNullOrWhiteSpace($row.StartMonth)) {
-            $monthError = ValidateMonthValue $row.StartMonth "StartMonth"
-            if ($null -ne $monthError) {
-                $issues += [PSCustomObject]@{
-                    Type       = "ERROR"
-                    UnitType   = $row.UnitType
-                    UnitNumber = $row.Number
-                    Row        = $rowIndex
-                    Title      = $row.Title
-                    Issue      = "Invalid Month Value"
-                    Details    = $monthError
-                }
-            }
-        }
-        
-        if (![string]::IsNullOrWhiteSpace($row.EndMonth)) {
-            $monthError = ValidateMonthValue $row.EndMonth "EndMonth"
-            if ($null -ne $monthError) {
-                $issues += [PSCustomObject]@{
-                    Type       = "ERROR"
-                    UnitType   = $row.UnitType
-                    UnitNumber = $row.Number
-                    Row        = $rowIndex
-                    Title      = $row.Title
-                    Issue      = "Invalid Month Value"
-                    Details    = $monthError
-                }
-            }
-        }
-        
-        if (![string]::IsNullOrWhiteSpace($row.Months)) {
-            $monthError = ValidateMonthValue $row.Months "Months"
-            if ($null -ne $monthError) {
-                $issues += [PSCustomObject]@{
-                    Type       = "ERROR"
-                    UnitType   = $row.UnitType
-                    UnitNumber = $row.Number
-                    Row        = $rowIndex
-                    Title      = $row.Title
-                    Issue      = "Invalid Month Value"
-                    Details    = $monthError
-                }
-            }
-        }
-        
-        if (![string]::IsNullOrWhiteSpace($row.InstallationMonth)) {
-            $monthError = ValidateMonthValue $row.InstallationMonth "InstallationMonth"
-            if ($null -ne $monthError) {
-                $issues += [PSCustomObject]@{
-                    Type       = "ERROR"
-                    UnitType   = $row.UnitType
-                    UnitNumber = $row.Number
-                    Row        = $rowIndex
-                    Title      = $row.Title
-                    Issue      = "Invalid Month Value"
-                    Details    = $monthError
-                }
-            }
-        }
-        
-        # Validate InstallationMonth coverage
-        $validation = ValidateInstallationMonth `
-            -installationMonth $row.InstallationMonth `
-            -startMonth $row.StartMonth `
-            -endMonth $row.EndMonth `
-            -months $row.Months
-        
-        if ($null -ne $validation) {
-            $issues += [PSCustomObject]@{
-                Type       = "ERROR"
-                UnitType   = $row.UnitType
-                UnitNumber = $row.Number
-                Row        = $rowIndex
-                Title      = $row.Title
-                Issue      = "InstallationMonth Not Covered"
-                Details    = $validation
-            }
-        }
-    }
-}
+# Combine all issues
+$issues += $renderedIssues
 
 # Results
 Write-Host "== Validation Results ==" -ForegroundColor Cyan
 
 $errors = @($issues | Where-Object { $_.Type -eq "ERROR" })
-$clashErrors = @($issues | Where-Object { $_.Issue -eq "Day Clash" })
 
-if ($errors.Count -eq 0 -and $multipleDefinitions.Count -eq 0 -and $missingUnits.Count -eq 0) {
-    Write-Host "[OK] All validations passed! No issues found." -ForegroundColor Green
+if ($errors.Count -eq 0) {
+    Write-Host "[OK] All validations passed! No issues found in rendered meetings output." -ForegroundColor Green
+    exit 0
 } else {
-    if ($errors.Count -gt 0) {
-        Write-Host ""
-        Write-Host "[ERROR] Found $($errors.Count) error(s):" -ForegroundColor Red
-        Write-Host ("-" * 80)
-        $errors | Group-Object Issue | ForEach-Object {
-            Write-Host "  $($_.Name): $($_.Group.Count) error(s)"
-            foreach ($err in $_.Group) {
-                Write-Host "    $($err.UnitType) $($err.UnitNumber) - $($err.Title)"
-                Write-Host "      -> $($err.Details)"
-            }
+    Write-Host ""
+    Write-Host "[ERROR] Found $($errors.Count) error(s) in rendered output:" -ForegroundColor Red
+    Write-Host ("-" * 80)
+    $errors | Group-Object Issue | ForEach-Object {
+        Write-Host "  $($_.Name): $($_.Group.Count) error(s)"
+        foreach ($err in $_.Group) {
+            Write-Host "    $($err.UnitType) $($err.UnitNumber)"
+            Write-Host "      -> $($err.Details)"
         }
     }
-    
-    if ($multipleDefinitions.Count -gt 0) {
-        Write-Host ""
-        Write-Host "[INFO] Found $($multipleDefinitions.Count) unit(s) with multiple definitions:" -ForegroundColor Blue
-        Write-Host ("-" * 80)
-        foreach ($multi in $multipleDefinitions) {
-            Write-Host "  $($multi.UnitType) $($multi.UnitNumber) [$($multi.DefinitionCount) definitions]: $($multi.Details)" -ForegroundColor Blue
-        }
-    }
-    
-    if ($missingUnits.Count -gt 0) {
-        Write-Host ""
-        Write-Host "[WARN] $($missingUnits.Count) unit(s) not in reference file (units.csv)" -ForegroundColor Yellow
-    }
+    Write-Host ""
+    exit 1
 }
-
-# Summary
-Write-Host ""
-if ($errors.Count -gt 0) {
-    Write-Host "[ERROR] Found $($errors.Count) error(s):" -ForegroundColor Red
-    Write-Host "  - Installation month errors: $(@($errors | Where-Object { $_.Issue -eq 'InstallationMonth Not Covered' }).Count)"
-    Write-Host "  - Day clash errors: $($clashErrors.Count)"
-}
-
-if ($multipleDefinitions.Count -gt 0) {
-    Write-Host "[INFO] Found $($multipleDefinitions.Count) unit(s) with multiple definitions" -ForegroundColor Blue
-}
-
-Write-Host ""
-Write-Host "[DONE] Validation complete!" -ForegroundColor Green

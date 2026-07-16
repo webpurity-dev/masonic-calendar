@@ -45,8 +45,9 @@ public static class UnitModelBuilder
     /// Build a complete Scriban model dictionary for a unit.
     /// v1.11: Supports hideNotAppointedRules to limit vacant officer positions per office type.
     /// v1.11: Supports rankFixes to apply order-specific rank transformations (e.g., fixing PP abbreviations).
+    /// v2.0: Supports groupingSortOrder to customize grouped member display order.
     /// </summary>
-    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null)
+    public static Dictionary<string, object?> BuildModel(SchemaUnit unit, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null, List<string>? groupingSortOrder = null)
     {
         // v1.10: Check if any joining past master has PastUnits data
         var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
@@ -147,7 +148,7 @@ public static class UnitModelBuilder
                 "memberColumns", SplitMembersIntoColumns(unit.Members)
             },
             {
-                "groupedMembers", BuildGroupedMembers(unit.Members)  // v1.9: Support grouped members (e.g., RC degrees)
+                "groupedMembers", BuildGroupedMembers(unit.Members, groupingSortOrder)  // v2.0: Support custom grouping sort order (e.g., RC: 33°, 32°, 31°)
             },
             {
                 "honoraryMembers", unit.HonoraryMembers
@@ -396,10 +397,12 @@ public static class UnitModelBuilder
 
     /// <summary>
     /// Build grouped members structure for units with grouping (e.g., RC degrees like "33°", "32°", etc).
+    /// v2.0: Sorts groups by custom sort order if provided (e.g., RC: "33°", "32°", "31°"), otherwise sorts by grouping key.
+    /// Sorts members within each group by Joined date (YearInitiated ascending).
     /// Returns a list of groups, each with a groupKey and list of members in that group.
     /// If no members have a Grouping value, returns empty list.
     /// </summary>
-    private static List<Dictionary<string, object?>> BuildGroupedMembers(List<SchemaMember> members)
+    private static List<Dictionary<string, object?>> BuildGroupedMembers(List<SchemaMember> members, List<string>? groupingSortOrder = null)
     {
         // Check if any members have grouping
         if (members.All(m => string.IsNullOrWhiteSpace(m.Grouping)))
@@ -409,11 +412,15 @@ public static class UnitModelBuilder
         var grouped = members
             .Where(m => !string.IsNullOrWhiteSpace(m.Grouping))
             .GroupBy(m => m.Grouping ?? "")
-            // Sort groups by numeric value in descending order (33°, 32°, 31°, etc.)
-            .OrderByDescending(g => ExtractNumericFromGrouping(g.Key))
+            // v2.0: Sort groups using custom sort order if provided, otherwise use grouping key
+            // IndexOf returns -1 if not found, so we map that to int.MaxValue to sort items after the list
+            .OrderBy(g => groupingSortOrder != null 
+                ? (groupingSortOrder.IndexOf(g.Key) >= 0 ? groupingSortOrder.IndexOf(g.Key) : int.MaxValue)
+                : 0)
+            .ThenBy(g => g.Key)
             .Select(g => 
             {
-                // Sort members within each group by year initiated (ascending)
+                // v2.0: Sort members within each group by Joined date (YearInitiated ascending)
                 var sortedMembers = g.OrderBy(m => GetSortableYear(m.YearInitiated)).ToList();
                 
                 return new Dictionary<string, object?>
@@ -425,19 +432,6 @@ public static class UnitModelBuilder
             .ToList();
 
         return grouped;
-    }
-
-    /// <summary>
-    /// Extract numeric value from grouping string (e.g., "33°" → 33)
-    /// </summary>
-    private static int ExtractNumericFromGrouping(string grouping)
-    {
-        if (string.IsNullOrWhiteSpace(grouping))
-            return 0;
-        
-        // Extract digits from the beginning of the string
-        var numericPart = new string(grouping.TakeWhile(char.IsDigit).ToArray());
-        return int.TryParse(numericPart, out var num) ? num : 0;
     }
 
     /// <summary>
@@ -482,6 +476,12 @@ public static class UnitModelBuilder
                     { "joined", m.YearInitiated },
                     { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
                 };
+
+                // v2.0: Only add title if it has a value (for ROS units)
+                if (!string.IsNullOrWhiteSpace(m.Title))
+                {
+                    dict.Add("title", m.Title);
+                }
 
                 columns[colIndex].Add(dict);
                 memberIndex++;

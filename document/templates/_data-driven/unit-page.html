@@ -207,7 +207,7 @@
                                 {{ for member in $col }}
                                 <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
                                     <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
-                                    <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
+                                    <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap; font-style: italic;">{{ if member.title }}{{ member.title }}{{ else }}{{ member.joined }}{{ end }}</td>
                                 </tr>
                                 {{ end }}
                             </tbody>
@@ -225,7 +225,7 @@
                                 {{ for member in $col }}
                                 <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
                                     <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
-                                    <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
+                                    <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap; font-style: italic;">{{ if member.title }}{{ member.title }}{{ else }}{{ member.joined }}{{ end }}</td>
                                 </tr>
                                 {{ end }}
                             {{ end }}

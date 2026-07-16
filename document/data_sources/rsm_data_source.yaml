@@ -82,6 +82,9 @@ unit_officers:
       filter_value: "RSM"
     - filter_field: "Mem Type"
       filter_value: "Off"
+  hide_not_appointed:
+    - position: "Manciple"
+      count: 1
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

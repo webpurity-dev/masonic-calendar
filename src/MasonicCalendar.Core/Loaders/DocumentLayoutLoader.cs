@@ -277,6 +277,7 @@ public class DataSourceDefinition
     public bool HideUnitNumber { get; set; } = false;   // When true, unit number is hidden in templates
     public bool HideUnitName { get; set; } = false;     // When true, unit name is hidden in templates
     public List<HideNotAppointedRule>? HideNotAppointed { get; set; }  // v1.11: Limit vacant officer positions per office type
+    public List<string>? GroupingSortOrder { get; set; }  // v2.0: Custom sort order for grouped members (e.g., ["33°", "32°", "31°"] for RC)
     public List<FieldMapping>? Fields { get; set; }
 }
 

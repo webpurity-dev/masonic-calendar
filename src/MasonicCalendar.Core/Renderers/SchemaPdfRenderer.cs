@@ -432,11 +432,17 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // v1.11: Load rank fixes configuration from data source mapping
                 var rankFixes = await LoadRankFixesAsync(section, masterTemplateKey);
 
+                // v1.11: Load hide_not_appointed rules from data source mapping
+                var hideNotAppointedRules = await LoadHideNotAppointedRulesAsync(section, masterTemplateKey);
+
+                // v2.0: Load grouping sort order from data source mapping
+                var groupingSortOrder = await LoadGroupingSortOrderAsync(section, masterTemplateKey);
+
                 var unitIndex = 0;
                 foreach (var unit in unitsToRender)
                 {
                     var anchorId = GenerateAnchorId(unit);
-                    var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, null, rankFixes);
+                    var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules, rankFixes, groupingSortOrder);
                     
                     // For the first unit in the section, respect override_break_before:
                     // If true, add CSS class to disable the page break
@@ -890,9 +896,9 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null, List<string>? groupingSortOrder = null)
     {
-        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules, rankFixes);
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules, rankFixes, groupingSortOrder);
         return template.Render(model);
     }
 
@@ -939,6 +945,100 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             if (_debugMode)
                 Console.WriteLine($"    [LoadRankFixes] Exception: {ex.Message}");
             return Task.FromResult<RankFixes?>(null);
+        }
+    }
+
+    /// <summary>
+    /// v1.11: Load hide_not_appointed rules from data source mapping.
+    /// Returns the list of HideNotAppointedRule objects for controlling vacant officer display.
+    /// </summary>
+    private Task<List<HideNotAppointedRule>?> LoadHideNotAppointedRulesAsync(SectionConfig section, string masterTemplateKey)
+    {
+        if (_dataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            if (_debugMode)
+                Console.WriteLine($"    [LoadHideNotAppointed] Skipping: DataLoader={_dataLoader != null}, DataMapping={section.DataMapping}");
+            return Task.FromResult<List<HideNotAppointedRule>?>(null);
+        }
+
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(_templateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? _templateRoot;
+            
+            // Load data source mapping to extract hide_not_appointed configuration
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
+            {
+                if (_debugMode)
+                    Console.WriteLine($"    [LoadHideNotAppointed] Failed to load mapping: {mappingResult.Error}");
+                return Task.FromResult<List<HideNotAppointedRule>?>(null);
+            }
+
+            var mapping = mappingResult.Data;
+            var rules = mapping?.UnitOfficers?.HideNotAppointed;
+            
+            if (_debugMode && rules != null && rules.Count > 0)
+            {
+                Console.WriteLine($"    [LoadHideNotAppointed] Found {rules.Count} rule(s):");
+                foreach (var rule in rules)
+                {
+                    Console.WriteLine($"      - Position: {rule.Position}, MaxShow: {rule.Count}");
+                }
+            }
+
+            return Task.FromResult(rules);
+        }
+        catch (Exception ex)
+        {
+            if (_debugMode)
+                Console.WriteLine($"    [LoadHideNotAppointed] Exception: {ex.Message}");
+            return Task.FromResult<List<HideNotAppointedRule>?>(null);
+        }
+    }
+
+    /// <summary>
+    /// v2.0: Load grouping sort order from data source mapping.
+    /// Returns the list of grouping values in the desired sort order for grouped members.
+    /// </summary>
+    private Task<List<string>?> LoadGroupingSortOrderAsync(SectionConfig section, string masterTemplateKey)
+    {
+        if (_dataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            return Task.FromResult<List<string>?>(null);
+        }
+
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(_templateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? _templateRoot;
+            
+            // Load data source mapping to extract grouping sort order configuration
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
+            {
+                return Task.FromResult<List<string>?>(null);
+            }
+
+            var mapping = mappingResult.Data;
+            var sortOrder = mapping?.UnitMembers?.GroupingSortOrder;
+            
+            if (_debugMode && sortOrder != null && sortOrder.Count > 0)
+            {
+                Console.WriteLine($"    [LoadGroupingSortOrder] Found {sortOrder.Count} group(s): {string.Join(", ", sortOrder)}");
+            }
+
+            return Task.FromResult(sortOrder);
+        }
+        catch (Exception ex)
+        {
+            if (_debugMode)
+                Console.WriteLine($"    [LoadGroupingSortOrder] Exception: {ex.Message}");
+            return Task.FromResult<List<string>?>(null);
         }
     }
 

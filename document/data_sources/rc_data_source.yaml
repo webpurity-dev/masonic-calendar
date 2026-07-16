@@ -106,6 +106,12 @@ unit_members:
     - filter_field: "Mem Type"
       filter_value: "Mem"
   override_heading: "Members - With year of joining"
+  grouping_sort_order:
+    - "33°"
+    - "32°"
+    - "31°"
+    - "30°"
+    - "18°"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -115,6 +121,9 @@ unit_members:
       type: "string"
     - name: "YearInitiated"
       csv_column: "Joined"
+      type: "int"
+    - name: "PosNo"
+      csv_column: "Pos No"
       type: "int"
     - name: "Suffix"
       csv_column: "Suffix"

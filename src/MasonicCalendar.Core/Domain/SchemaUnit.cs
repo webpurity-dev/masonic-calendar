@@ -124,6 +124,7 @@ public class SchemaMember
     public int? PosNo { get; set; }  // Position number for column splitting (0-based index)
     public string? Grouping { get; set; }  // v1.9: Grouping identifier (e.g., "33°", "32°" for RC units)
     public string? Suffix { get; set; }  // v1.9: Optional suffix to display after name (e.g., "PM", "PGM"); ignore if blank or "0"
+    public string? Title { get; set; }  // v2.0: Optional title to override joined date in grouped members display (ROS)
 }
 
 /// <summary>

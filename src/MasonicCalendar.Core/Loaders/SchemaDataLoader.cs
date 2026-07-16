@@ -528,7 +528,8 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             Name = TextCleaner.CleanName(name),
                             YearInitiated = yearInitiated,
                             Suffix = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Suffix"),  // v1.9: Optional suffix (e.g., "PM", "†") — ignore if blank or "0"
-                            Grouping = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Grouping")  // v1.9: Support grouping (e.g. for RC degrees)
+                            Grouping = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Grouping"),  // v1.9: Support grouping (e.g. for RC degrees)
+                            Title = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "Title")  // v2.0: Optional title to override joined date (ROS)
                         });
                     });
                 int membersAfter = units.Sum(u => u.Members.Count);

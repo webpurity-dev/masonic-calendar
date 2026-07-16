@@ -84,6 +84,9 @@ unit_officers:
       filter_value: "OSC"
     - filter_field: "Mem Type"
       filter_value: "Off"
+  hide_not_appointed:
+    - position: "Steward"
+      count: 1
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -180,6 +183,13 @@ unit_members:
       filter_value: "OSC"
     - filter_field: "Mem Type"
       filter_value: "Mem"
+  grouping_sort_order:
+    - "Sixth Grade"
+    - "Fifth Grade"
+    - "Fourth Grade"
+    - "Third Grade"
+    - "Second Grade"
+    - "First Grade"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

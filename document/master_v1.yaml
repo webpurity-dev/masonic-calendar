@@ -158,7 +158,7 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     hide_from_parent_toc: true  
 
-  # ROYAL ARCH
+  # Royal Arch
   - section_id: "ra_executive_officers"
     section_title: "Provincial Grand Chapter of Dorset"
     type: "list_executive_officers"
@@ -353,16 +353,16 @@ sections:
     hide_from_parent_toc: true
 
   # Order of Athelstan
-  - section_id: "ooa_officers"
+  - section_id: "athel_officers"
     section_title: "Masonic Order of Athelstan"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/ooa_data_source.yaml"
-  - section_id: "ooa_units"
+    data_mapping: "data_sources/athel_data_source.yaml"
+  - section_id: "athel_units"
     section_title: "Order of Athelstan Courts in Numerical Order"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/ooa_data_source.yaml"
+    data_mapping: "data_sources/athel_data_source.yaml"
     hide_from_parent_toc: true
     override_break_before: true
 

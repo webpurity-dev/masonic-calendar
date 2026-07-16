@@ -73,7 +73,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership.csv"
+  source: "rc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"
@@ -99,7 +99,7 @@ unit_officers:
       type: "int"
 
 unit_members:
-  source: "membership.csv"
+  source: "rc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"
@@ -134,7 +134,7 @@ unit_members:
   caption: "Those marked † have passed this Chair"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "rc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RC"

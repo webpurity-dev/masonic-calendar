@@ -170,7 +170,7 @@ units:
     # Location and What3Words now loaded from unit_locations.csv via location join
 
 unit_officers:
-  source: "membership.csv"
+  source: "ra_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -191,7 +191,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "ra_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -240,7 +240,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "ra_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -293,7 +293,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership.csv"
+  source: "ra_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"
@@ -314,7 +314,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "ra_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RA"

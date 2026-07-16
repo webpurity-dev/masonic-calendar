@@ -69,7 +69,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership.csv"
+  source: "pbq_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "PBQ"
@@ -90,7 +90,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "pbq_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "PBQ"
@@ -123,7 +123,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "pbq_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "PBQ"
@@ -162,7 +162,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership.csv"
+  source: "pbq_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "PBQ"
@@ -183,7 +183,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "pbq_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "PBQ"

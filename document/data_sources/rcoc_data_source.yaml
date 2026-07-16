@@ -71,7 +71,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership.csv"
+  source: "rcoc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RCOC"
@@ -95,7 +95,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "rcoc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RCOC"
@@ -130,7 +130,7 @@ unit_past_heads:
       type: "string"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "rcoc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RCOC"
@@ -161,7 +161,7 @@ unit_joining_past_heads:
       type: "string"
 
 unit_members:
-  source: "membership.csv"
+  source: "rcoc_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RCOC"

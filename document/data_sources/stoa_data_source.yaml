@@ -67,7 +67,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership.csv"
+  source: "stoa_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "STOA"
@@ -75,7 +75,7 @@ unit_officers:
       filter_value: "Off"
   hide_not_appointed:
     - position: "Cellarer"
-      count: 2
+      count: 1
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -91,7 +91,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "stoa_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "STOA"
@@ -125,7 +125,7 @@ unit_past_heads:
       type: "int"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "stoa_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "STOA"
@@ -160,7 +160,7 @@ unit_joining_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership.csv"
+  source: "stoa_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "STOA"
@@ -181,7 +181,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "stoa_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "STOA"

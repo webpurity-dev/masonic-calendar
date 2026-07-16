@@ -24,7 +24,7 @@ order_summary:
 order_regional_officers:
   district_heading: "Province of Dumnonia"
   officers_heading: "Active Provincial Officers 2026-27"
-  source: "ooa_officers.csv"
+  source: "athel_officers.csv"
   fields:
     - name: "Office"
       csv_column: "Office"
@@ -74,7 +74,7 @@ units:
       type: "string"
 
 unit_officers:
-  source: "membership.csv"
+  source: "athel_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Athel"
@@ -95,7 +95,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "athel_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Athel"
@@ -131,7 +131,7 @@ unit_past_heads:
       type: "int"
 
 unit_members:
-  source: "membership.csv"
+  source: "athel_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Athel"

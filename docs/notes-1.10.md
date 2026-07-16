@@ -16,5 +16,3 @@
 
 # Removed RA 7986 Off ChStwd Vacant (Dup)
 # Removed RA 7986 Off ADC Vacant (Dup)
-
-# Removed Blank Stewards from RC units - left one per unit

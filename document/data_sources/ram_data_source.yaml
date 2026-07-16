@@ -70,10 +70,9 @@ units:
     - name: "Contact"
       csv_column: "Email"
       type: "string"
-    # Location and What3Words now loaded from unit_locations.csv via location join
 
 unit_officers:
-  source: "membership.csv"
+  source: "ram_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RAM"
@@ -97,7 +96,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "ram_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RAM"
@@ -131,7 +130,7 @@ unit_past_heads:
       type: "string"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "ram_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RAM"
@@ -168,7 +167,7 @@ unit_joining_past_heads:
       type: "string"
 
 unit_members:
-  source: "membership.csv"
+  source: "ram_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RAM"
@@ -189,7 +188,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "ram_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "RAM"

@@ -74,7 +74,7 @@ units:
     # Location and What3Words now loaded from unit_locations.csv via location join
 
 unit_officers:
-  source: "membership.csv"
+  source: "mark_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -95,7 +95,7 @@ unit_officers:
       type: "int"
 
 unit_past_heads:
-  source: "membership.csv"
+  source: "mark_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -129,7 +129,7 @@ unit_past_heads:
       type: "string"
 
 unit_joining_past_heads:
-  source: "membership.csv"
+  source: "mark_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -165,7 +165,7 @@ unit_joining_past_heads:
       type: "string"
 
 unit_members:
-  source: "membership.csv"
+  source: "mark_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"
@@ -186,7 +186,7 @@ unit_members:
       type: "int"
 
 unit_honorary_members:
-  source: "membership.csv"
+  source: "mark_membership.csv"
   filters:
     - filter_field: "Unit Type"
       filter_value: "Mark"

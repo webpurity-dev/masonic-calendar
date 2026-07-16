@@ -472,3 +472,107 @@ The PDF pipeline uses Puppeteer with these settings to ensure HTML and PDF outpu
 - `--disable-font-subpixel-positioning` — eliminates sub-pixel font placement differences
 - `DeviceScaleFactor = 1` on viewport — matches scale factor to PDF output
 
+## 📦 Data Splitting Scripts
+
+The `scripts/split/` directory contains utility scripts for splitting the consolidated membership CSV into per-order files.
+
+### `split-membership-by-order.ps1`
+
+Splits `document/data/membership.csv` into 17 separate files, one per Masonic order:
+
+```powershell
+# Run from scripts/split/ directory
+.\split-membership-by-order.ps1
+```
+
+**Output Files** (in `document/data/`):
+- `membership_amd.csv` — Allied Masonic Degrees
+- `membership_athel.csv` — Order of Athelstan
+- `membership_craft.csv` — Craft Freemasonry
+- `membership_kt.csv` — Knights Templar
+- `membership_ktp.csv` — Knight Templar Priests
+- `membership_mark.csv` — Mark Masonry
+- `membership_ooa.csv` — Order of Athelstan
+- `membership_osc.csv` — Order of the Scarlet Cord
+- `membership_osm.csv` — Order of the Secret Monitor
+- `membership_pbq.csv` — The Operatives (Purbeck Quarriers)
+- `membership_ra.csv` — Royal Arch Freemasonry
+- `membership_ram.csv` — Royal Ark Mariners
+- `membership_rc.csv` — Rose Croix (Ancient & Accepted Rite)
+- `membership_rcoc.csv` — RCOC (Royal Ark Mariners Companion Masons)
+- `membership_ros.csv` — Royal Order of Scotland
+- `membership_rsm.csv` — Royal & Select Masters
+- `membership_sria.csv` — Societas Rosicruciana in Anglia
+- `membership_stoa.csv` — St Thomas of Acon
+
+All column structure and headers are preserved in each output file.
+
+## ⚙️ Advanced Configuration Features
+
+### Grouped Member Sorting (v2.0)
+
+For orders with grouped members (RC degrees, OSC grades, ROS founder/cohorts), the rendering order is controlled via YAML configuration.
+
+**Configuration** — In each order's `data_sources/{order}_data_source.yaml`, under `unit_members`:
+
+```yaml
+unit_members:
+  source: "membership.csv"
+  filters:
+    - filter_field: "Unit Type"
+      filter_value: "RC"
+    - filter_field: "Mem Type"
+      filter_value: "Mem"
+  grouping_sort_order:
+    - "33°"
+    - "32°"
+    - "31°"
+    - "30°"
+    - "18°"
+  fields:
+    # ... field mappings ...
+```
+
+**Rendering Order:**
+- **RC (Rose Croix):** 33°, 32°, 31°, 30°, 18° (descending degree order)
+- **OSC (Scarlet Cord):** Sixth Grade, Fifth Grade, Fourth Grade, Third Grade, Second Grade, First Grade (descending)
+- **ROS (Royal Order of Scotland):** Founder, 2001–2026 (founder first, then by year ascending)
+
+**Implementation:**
+- Grouping order is loaded from the data source YAML during rendering
+- Groups appear in the specified order on unit pages
+- Members within each group are sorted by `YearInitiated` (joined date) in ascending order
+- Unlisted groups (e.g., new groupings not in the sort order) are sorted alphabetically after configured groups
+
+### Hidden Officer Positions (v1.11)
+
+Limit the display of vacant ("Not appointed") positions per office type using `hide_not_appointed` rules.
+
+**Configuration** — In each order's `data_sources/{order}_data_source.yaml`, under `unit_officers`:
+
+```yaml
+unit_officers:
+  source: "membership.csv"
+  filters:
+    - filter_field: "Unit Type"
+      filter_value: "RC"
+    - filter_field: "Mem Type"
+      filter_value: "Off"
+  hide_not_appointed:
+    - position: "Steward"
+      count: 1      # Show max 1 vacant Steward position per unit
+    - position: "Guest Organist"
+      count: 0      # Hide all vacant Guest Organist positions
+  fields:
+    # ... field mappings ...
+```
+
+**Behavior:**
+- If an office has multiple vacant positions (no officer assigned), only the first `count` are displayed
+- Useful for reducing clutter on pages with many unfilled positions
+- Rules are applied automatically during rendering when the section has a `data_mapping`
+
+**Available in:**
+- Craft, Royal Arch, Mark, RAM, RCOC, and all other order data sources
+- Applies to both full-document and single-section renders
+

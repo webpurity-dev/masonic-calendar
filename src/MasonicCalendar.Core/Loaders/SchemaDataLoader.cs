@@ -368,6 +368,10 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         var londonRankDateStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "LondonRankDateAccorded");
                         var londonRankDate = ParseOptionalPositiveInt(londonRankDateStr);
 
+                        // v2.0: Skip officers with no position (empty Office field)
+                        if (string.IsNullOrWhiteSpace(position))
+                            return;
+
                         schemaUnit.Officers.Add(new SchemaOfficer
                         {
                             Reference = reference,

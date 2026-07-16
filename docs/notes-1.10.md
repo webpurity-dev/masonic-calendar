@@ -7,6 +7,8 @@
 # Change "d.)" & Hunts." to "d)"
 # Change "n.)" & Hunts." to "n)"
 # Change "2000 & 2013" to "2000,2013"
+# Change KT	733	733	17	Organist		Off	"Vacant," to "Vacant"
+
 
 # Grouped 3 x OSC and set Joined dates for Founders
 # Grouped ROS by Joined and set Joined dates for Founders
@@ -16,3 +18,5 @@
 
 # Removed RA 7986 Off ChStwd Vacant (Dup)
 # Removed RA 7986 Off ADC Vacant (Dup)
+
+# Pulled † for RC 1162 from template in sharepoint

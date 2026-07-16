@@ -66,12 +66,15 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         
         // v1.11: Load rank fixes configuration from data source mapping
         var rankFixes = await LoadRankFixesAsync(section);
+        
+        // v2.0: Load grouping sort order from data source mapping (for custom member grouping like RC degrees)
+        var groupingSortOrder = await LoadGroupingSortOrderAsync(section);
 
         var unitIndex = 0;
         foreach (var unit in unitsForSection)
         {
             var anchorId = GenerateAnchorId(unit);
-            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules, rankFixes);
+            var unitHtml = RenderUnitWithScriban(unit, template, sectionHeadings, hideNotAppointedRules, rankFixes, groupingSortOrder);
             
             // For the first unit in the section, respect override_break_before:
             // If true, add CSS class to disable the page break
@@ -95,9 +98,9 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
         }
     }
 
-    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null)
+    private string RenderUnitWithScriban(SchemaUnit unit, Template template, Dictionary<string, string>? sectionHeadings = null, List<HideNotAppointedRule>? hideNotAppointedRules = null, RankFixes? rankFixes = null, List<string>? groupingSortOrder = null)
     {
-        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules, rankFixes);
+        var model = UnitModelBuilder.BuildModel(unit, sectionHeadings, hideNotAppointedRules, rankFixes, groupingSortOrder);
         return template.Render(model);
     }
 
@@ -285,6 +288,53 @@ public class DataDrivenSectionRenderer(string templateRoot, SchemaDataLoader? da
             if (DebugMode)
                 Console.WriteLine($"    [LoadRankFixes] Exception: {ex.Message}");
             return Task.FromResult<RankFixes?>(null);
+        }
+    }
+
+    /// <summary>
+    /// v2.0: Load grouping sort order from data source mapping.
+    /// Returns the custom sort order for grouped members (e.g., RC: 33°, 32°, 31° or ROS: Founder, 2001, 2002, ...)
+    /// </summary>
+    private Task<List<string>?> LoadGroupingSortOrderAsync(SectionConfig section)
+    {
+        if (DataLoader == null || string.IsNullOrWhiteSpace(section.DataMapping))
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadGroupingSortOrder] Skipping: DataLoader={DataLoader != null}, DataMapping={section.DataMapping}");
+            return Task.FromResult<List<string>?>(null);
+        }
+
+        try
+        {
+            // Get document root (parent of templates folder)
+            var documentRoot = Path.GetDirectoryName(TemplateRoot)?.TrimEnd(Path.DirectorySeparatorChar) 
+                ?? TemplateRoot;
+            
+            // Load data source mapping to extract grouping sort order
+            var layoutLoader = new DocumentLayoutLoader(documentRoot);
+            var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+            if (!mappingResult.Success)
+            {
+                if (DebugMode)
+                    Console.WriteLine($"    [LoadGroupingSortOrder] Failed to load mapping: {mappingResult.Error}");
+                return Task.FromResult<List<string>?>(null);
+            }
+
+            var mapping = mappingResult.Data;
+            var sortOrder = mapping?.UnitMembers?.GroupingSortOrder;
+            
+            if (DebugMode && sortOrder != null && sortOrder.Count > 0)
+            {
+                Console.WriteLine($"    [LoadGroupingSortOrder] Found {sortOrder.Count} custom sort order(s): {string.Join(", ", sortOrder.Take(3))}{(sortOrder.Count > 3 ? "..." : "")}");
+            }
+
+            return Task.FromResult(sortOrder);
+        }
+        catch (Exception ex)
+        {
+            if (DebugMode)
+                Console.WriteLine($"    [LoadGroupingSortOrder] Exception: {ex.Message}");
+            return Task.FromResult<List<string>?>(null);
         }
     }
 }

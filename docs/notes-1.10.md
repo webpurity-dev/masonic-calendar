@@ -9,6 +9,8 @@
 # Change "s. &" to "s &"
 # Change "2000 & 2013" to "2000,2013"
 # Change KT	733	733	17	Organist Off "Vacant," to "Vacant"
+# Change Craft 7873 PMO 026 Hogben, M L "2015,2015" to "2015"
+# Change RA 2689 PMEZ 022 Legg, T R H  "2025,2025" to "2025"
 
 # Removed Craft 1266 Off 017 (Dup IG) Ward, M T  
 

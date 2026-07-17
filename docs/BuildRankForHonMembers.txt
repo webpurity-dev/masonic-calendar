@@ -1,0 +1,53 @@
+/// <summary>
+    /// Build display rank string with comma prefix for honorary members with special logic:
+    /// - If grand_rank exists: display grand_rank + comma + next available rank from priority order, e.g., ", Grand Rank, Provincial Rank"
+    /// - If no grand_rank: display single rank from priority order using cascade: provincial_rank > prov_rank_other_prov > london_rank, e.g., ", Provincial Rank"
+    /// Returns comma-prefixed rank if rank(s) exist, null otherwise (no trailing comma).
+    /// </summary>
+    private static string? BuildDisplayRankForHonoraryMembers(string? grandRank, string? provincialRank, 
+        string? provRankOtherProv, string? londonRank)
+    {
+        // If has grand rank, display grand rank + next available rank from priority order
+        if (!string.IsNullOrWhiteSpace(grandRank))
+        {
+            var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
+                new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
+
+            // Skip grand_rank in the priority list and find the next available rank
+            var nextRank = GetNextRankFromPriority(priorityOrder, provincialRank, provRankOtherProv, londonRank);
+            
+            if (!string.IsNullOrWhiteSpace(nextRank))
+                return $", {grandRank}, {nextRank}";
+            else
+                return $", {grandRank}";
+        }
+
+        // If no grand rank, display single rank using cascade: provincial > other prov > london
+        var displayRank = BuildDisplayRankSimple(null, provincialRank, provRankOtherProv, londonRank);
+        return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
+    }
+
+    /// <summary>
+    /// Get the next available rank from the priority order, skipping grand_rank.
+    /// Returns the first non-empty rank found after grand_rank in the priority order.
+    /// </summary>
+    private static string? GetNextRankFromPriority(List<string> priorityOrder, string? provincialRank, 
+        string? provRankOtherProv, string? londonRank)
+    {
+        var rankMap = new Dictionary<string, string?>
+        {
+            { "provincial_rank", provincialRank },
+            { "prov_rank_other_prov", provRankOtherProv },
+            { "london_rank", londonRank }
+        };
+
+        // Find first non-empty rank (excluding grand_rank) in priority order
+        foreach (var fieldName in priorityOrder)
+        {
+            if (fieldName == "grand_rank") continue;  // Skip grand rank
+            if (rankMap.TryGetValue(fieldName, out var rankValue) && !string.IsNullOrWhiteSpace(rankValue))
+                return rankValue;
+        }
+
+        return null;
+    }

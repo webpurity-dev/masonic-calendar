@@ -43,27 +43,7 @@
 </table>
 {{ end }}
 
-{{ if district_heading != null && district_heading != "" }}
-<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h4 style="font-size: 8pt; margin: 4px 0;">{{ district_heading }}</h4>
-</div>
-{{ end }}
-
-{{ if district_heads.size > 0 }}
-<!-- District Heads -->
-<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
-    <tbody>
-        {{ for district in district_heads }}
-        <tr style="margin: 1px; padding: 0;">
-            <td style="font-weight: 600; text-align: center;">{{ district.rank }}</td>
-        </tr>
-        <tr style="margin: 1px; padding: 0;">
-            <td style="text-align: center;">{{ if district.title }}{{ district.title }} {{ end }}{{ district.name }}</td>
-        </tr>
-        {{ end }}
-    </tbody>
-</table>
-{{ end }}
+<p><br/><br/><br/></p>
 
 {{ if officers_heading != null && officers_heading != "" }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
@@ -80,6 +60,28 @@
             <td style="text-align: left; width: 50%; font-weight: 600;">{{ officer.office }}</td>
             <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}35%{{ else }}45%{{ end }};">{{ officer.name }}</td>
             {{ if officer.unit != null && officer.unit != "" }}<td style="text-align: right; width: 10%;">{{ officer.unit }}</td>{{ end }}
+        </tr>
+        {{ end }}
+    </tbody>
+</table>
+{{ end }}
+
+{{ if district_heading != null && district_heading != "" }}
+<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h4 style="font-size: 8pt; margin: 4px 0;">{{ district_heading }}</h4>
+</div>
+{{ end }}
+
+{{ if district_heads.size > 0 }}
+<!-- District Heads -->
+<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+    <tbody>
+        {{ for district in district_heads }}
+        <tr style="margin: 1px; padding: 0;">
+            <td style="font-weight: 600; text-align: center;">{{ district.rank }}</td>
+        </tr>
+        <tr style="margin: 1px; padding: 0;">
+            <td style="text-align: center;">{{ if district.title }}{{ district.title }} {{ end }}{{ district.name }}</td>
         </tr>
         {{ end }}
     </tbody>

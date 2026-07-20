@@ -106,6 +106,7 @@ unit_past_heads:
       filter_value: "RSM"
     - filter_field: "Mem Type"
       filter_value: "PMO"
+  override_heading: "Past Thrice Illustrious Masters"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -139,6 +140,7 @@ unit_joining_past_heads:
       filter_value: "RSM"
     - filter_field: "Mem Type"
       filter_value: "PMI"
+  override_heading: "Joining Past Thrice Illustrious Masters"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -209,4 +211,3 @@ unit_honorary_members:
     - name: "GrandRank"
       csv_column: "Grand Rank"
       type: "string"
-

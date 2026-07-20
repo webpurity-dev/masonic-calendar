@@ -228,7 +228,7 @@ sections:
   - section_id: "rc_officers"
     section_title: "Ancient and Accepted Rite"
     type: "list_officers"
-    template: "_data-driven/list-officers.html"
+    template: "_data-driven/list-officers-district-after.html"
     data_mapping: "data_sources/rc_data_source.yaml"
   - section_id: "rc_membership_summary"
     section_title: "Ancient and Accepted Rite Membership Summary"

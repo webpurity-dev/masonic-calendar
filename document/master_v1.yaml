@@ -1,6 +1,6 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
-  version: "2.0.1"
+  version: "2.0.2"
   data_corrected_date: "15th July 2026"
   orientation: "portrait"
   global_styling:
@@ -33,15 +33,15 @@ ui_preferences:
 page_margins:
   #page_size: "105mm 148mm" # A6 format - configurable, or omit to infer from document.format
   right_page:               # Odd pages (Recto)
-    top: 5mm
-    bottom: 15mm            # Larger optical bottom margin plus footer space
-    left: 15mm              # Inner margin (gutter + crease allowance)
-    right: 5mm              # Outer margin
+    top: 8mm
+    bottom: 8mm            # Larger optical bottom margin plus footer space
+    left: 8mm              # Inner margin (gutter + crease allowance)
+    right: 8mm              # Outer margin
   left_page:                # Even pages (Verso)
-    top: 5mm
-    bottom: 15mm            # Larger optical bottom margin plus footer space
-    left: 5mm               # Outer margin
-    right: 15mm             # Inner margin (gutter + crease allowance)
+    top: 8mm
+    bottom: 8mm            # Larger optical bottom margin plus footer space
+    left: 8mm               # Outer margin
+    right: 8mm             # Inner margin (gutter + crease allowance)
   first_page:               # Cover page - no page number, no margins
     top: 0mm
     bottom: 0mm

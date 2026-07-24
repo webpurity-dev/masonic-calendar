@@ -1,15 +1,25 @@
 # Split membership.csv by Unit Type into separate CSV files
 # Usage: .\split-membership-by-order.ps1
+#        .\split-membership-by-order.ps1 -Types Craft,royalarch
 
 param(
     [string]$MembershipFile = "../../document/data/membership.csv",
-    [string]$OutputFolder = "../../document/data"
+    [string]$OutputFolder = "../../document/data",
+    [string]$DataSourcesFolder = "../../document/data_sources",
+    [string[]]$Types = @()
 )
+
+function Get-NormalizedUnitTypeName {
+    param([string]$Value)
+
+    return ($Value -replace '[^a-zA-Z0-9]', '').ToLower()
+}
 
 # Resolve paths to absolute
 $scriptDir = Split-Path -Parent (Get-Item $PSCommandPath).FullName
 $membershipPath = Join-Path $scriptDir $MembershipFile
 $outputPath = Join-Path $scriptDir $OutputFolder
+$dataSourcesPath = Join-Path $scriptDir $DataSourcesFolder
 
 # Validate input file exists
 if (-not (Test-Path $membershipPath)) {
@@ -31,8 +41,31 @@ try {
     $csv = Import-Csv -Path $membershipPath
     Write-Host "Total rows: $($csv.Count)" -ForegroundColor Yellow
     
+    $requestedTypes = @($Types | Where-Object { $_ -and $_.Trim() } | ForEach-Object { Get-NormalizedUnitTypeName $_ })
+    $requestedFilterValues = @($requestedTypes)
+
+    if ($requestedTypes.Count -gt 0 -and (Test-Path $dataSourcesPath)) {
+        Get-ChildItem -Path $dataSourcesPath -Filter "*_data_source.yaml" | ForEach-Object {
+            $dataSourceName = Get-NormalizedUnitTypeName ($_.BaseName -replace '_data_source$', '')
+            if ($requestedTypes -contains $dataSourceName) {
+                $content = Get-Content -Path $_.FullName -Raw
+                $matches = [regex]::Matches($content, 'filter_value:\s*"?([^"\r\n]+)"?')
+                foreach ($match in $matches) {
+                    $requestedFilterValues += Get-NormalizedUnitTypeName $match.Groups[1].Value.Trim()
+                }
+            }
+        }
+
+        $requestedFilterValues = @($requestedFilterValues | Select-Object -Unique)
+    }
+    
     # Get unique Unit Types
     $unitTypes = $csv | Select-Object -ExpandProperty "Unit Type" -Unique | Where-Object { $_ -and $_.Trim() } | Sort-Object
+    if ($requestedTypes.Count -gt 0) {
+        $unitTypes = $unitTypes | Where-Object { $requestedFilterValues -contains (Get-NormalizedUnitTypeName $_) }
+        Write-Host "Filtering to requested unit type(s): $($Types -join ', ')" -ForegroundColor Yellow
+    }
+
     Write-Host "Found $($unitTypes.Count) unit type(s): $($unitTypes -join ', ')" -ForegroundColor Yellow
     
     # Split and write each unit type to its own file
@@ -41,7 +74,7 @@ try {
         $rowCount = @($filtered).Count
         
         # Standardize unit type name for filename (lowercase, no special chars)
-        $fileName = $unitType -replace '[^a-zA-Z0-9]', '' | ForEach-Object { $_.ToLower() }
+        $fileName = Get-NormalizedUnitTypeName $unitType
         $outputFile = Join-Path $outputPath "${fileName}_membership.csv"
         
         # Export to CSV

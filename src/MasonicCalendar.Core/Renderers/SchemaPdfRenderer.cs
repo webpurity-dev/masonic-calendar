@@ -124,9 +124,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     output.AppendLine("/* Bleed visualization */");
                     output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed grey; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                     output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                 }
                 
                 output.AppendLine("</style>");
@@ -303,9 +303,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
                     output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                     output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                 }
                 
                 output.AppendLine("</style>");
@@ -575,9 +575,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 {
                     output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
                     output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid red; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                     output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid blue; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
                 }
                 
                 output.AppendLine("</style>");

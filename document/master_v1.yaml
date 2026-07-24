@@ -1,7 +1,7 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
-  version: "2.0.1"
-  data_corrected_date: "10th July 2026"
+  version: "2.0.2"
+  data_corrected_date: "15th July 2026"
   orientation: "portrait"
   global_styling:
     fonts:
@@ -25,23 +25,23 @@ ui_preferences:
       joining_past_masters: true         # Include dates with joining past master ranks
       honorary_members: false            # Honorary members show rank only, no dates
 
-# Paged.js CSS @page margins - used for actual PDF/print rendering
+# Page margins for HTML rendering and proofing
 # These are applied directly to the @page CSS rules
-# NOTE: Paged.js applies a 6mm bleed/margin by default around all pages.
-#       The margins specified here are ADDITIONAL to that default bleed.
+# The HTML output serves as a proof before final PDF generation in Scribus.
+# Page size: A6 (105mm × 148mm) with print-safe binding margins on alternating sides.
 
 page_margins:
   #page_size: "105mm 148mm" # A6 format - configurable, or omit to infer from document.format
   right_page:               # Odd pages (Recto)
-    top: 0mm
-    bottom: 10mm            # Space for page number in footer
-    left: 10mm              # Inner margin (gutter)
-    right: 1mm              # Outer margin
+    top: 8mm
+    bottom: 8mm            # Larger optical bottom margin plus footer space
+    left: 8mm              # Inner margin (gutter + crease allowance)
+    right: 8mm              # Outer margin
   left_page:                # Even pages (Verso)
-    top: 0mm
-    bottom: 10mm            # Space for page number in footer
-    left: 1mm               # Outer margin
-    right: 10mm             # Inner margin (gutter)
+    top: 8mm
+    bottom: 8mm            # Larger optical bottom margin plus footer space
+    left: 8mm               # Outer margin
+    right: 8mm             # Inner margin (gutter + crease allowance)
   first_page:               # Cover page - no page number, no margins
     top: 0mm
     bottom: 0mm
@@ -51,7 +51,7 @@ page_margins:
 sections:
   - section_id: "cover"
     type: "static"
-    template: "cover-page.html"  
+    template: "cover-front.html"  
   - section_id: "pgm_photo"
     type: "static"
     template: "craft/photo-pgm.html"
@@ -70,7 +70,7 @@ sections:
   - section_id: "master_foreword"
     section_title: "Foreword"
     type: "static"
-    template: "foreword-page.html"
+    template: "foreword.html"
 
   # GRAND LODGE
   - section_id: "ugle_officers"
@@ -88,7 +88,7 @@ sections:
   - section_id: "freemasons_charity"
     section_title: "Freemason's Charity"
     type: "static"
-    template: "freemasons-charity-page.html"
+    template: "freemasons-charity.html"
     is_child: true
 
   # PROVINCIAL GRAND LODGE OF DORSET
@@ -228,7 +228,7 @@ sections:
   - section_id: "rc_officers"
     section_title: "Ancient and Accepted Rite"
     type: "list_officers"
-    template: "_data-driven/list-officers.html"
+    template: "_data-driven/list-officers-district-after.html"
     data_mapping: "data_sources/rc_data_source.yaml"
   - section_id: "rc_membership_summary"
     section_title: "Ancient and Accepted Rite Membership Summary"
@@ -547,4 +547,10 @@ sections:
     section_title: "Copyright"
     type: "static"
     template: "copyright.html"
+    hide_from_parent_toc: true
+
+  # BACK COVER
+  - section_id: "back_cover"
+    type: "static"
+    template: "cover-back.html"  
     hide_from_parent_toc: true

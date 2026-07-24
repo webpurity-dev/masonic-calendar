@@ -4,16 +4,24 @@ order_summary:
   website: "https://sc33.org.uk"
   heads: 
     - rank: "Sovereign Grand Commander"
-      name: "tbc"
+      name: "M P Bro John Boyington CBE 33°"
   deputy_heads:
     - rank: "Lieutenant Grand Commander"
-      name: "tbc"
-    - rank: "Grand Prior"
-      name: "tbc"
-    - rank: "Grand Marshal"
-      name: "tbc"
+      name: "V P Bro D K Williamson 33°"
+    - rank: "Grand Chamberlain"
+      name: "M Ill Bro J A F Thom KC 33°"
     - rank: "Grand Chancellor"
-      name: "tbc"
+      name: "M Ill Bro N G I Bosanquet 33°"
+    - rank: "Grand Prior"
+      name: "M Ill Bro the Revd Dr S A Thorn 33°"
+    - rank: "Grand Treasurer General H E"
+      name: "M Ill Bro Gareth Jones OBE 33°"
+    - rank: "Grand Marshal"
+      name: "M Ill Bro H I Sabin FRCS 33°"
+    - rank: "Grand Captain General"
+      name: "M Ill Bro Sir Andrew Parmley PhD FRCO 33°"
+    - rank: "Grand Secretary General H E"
+      name: "M Ill Bro Dr G R E Shilson OBE 33°"
   district_heads:
     - rank: "Inspector General"
       name: "tbc"
@@ -22,6 +30,7 @@ order_summary:
 
 order_regional_officers:
   heading2: "Members of the Supreme Council 33°"
+  officers_heading: "Officials of the Supreme Council"
   district_heading: "District of Dorset"
   source: "rc_officers.csv"
   fields:

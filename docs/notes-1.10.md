@@ -13,6 +13,7 @@
 # Change RA 2689 PMEZ 022 Legg, T R H  "2025,2025" to "2025"
 
 # Removed Craft 1266 Off 017 (Dup IG) Ward, M T  
+# Removed Craft 1266 Off 019 (Dup Stwd) Fischer, W A  
 
 # Grouped 3 x OSC and set Joined dates for Founders
 # Grouped ROS by Joined and set Founders for 1999

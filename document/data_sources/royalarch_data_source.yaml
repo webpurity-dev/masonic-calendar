@@ -61,7 +61,7 @@ order_succession_list:
   tables:
     - title: "GRAND SUPERINTENDENTS"
       source: "royalarch_megs_succession.csv"
-      font_size: "8pt"
+      font_size: "7pt"
       columns:
         - name: "Appointed"
           csv_column: "Appointed"
@@ -77,7 +77,7 @@ order_succession_list:
           alignment: "left"
     - title: "DEPUTY GRAND SUPERINTENDENTS"
       source: "royalarch_degs_succession.csv"
-      font_size: "7pt"
+      font_size: "6pt"
       columns:
         - name: "Appointed"
           csv_column: "Appointed"

@@ -261,21 +261,18 @@
         {{ membersInLastRow = totalMembers % 3 }}
         
         {{ if totalMembers == 1 }}
-            <!-- Single member: center in middle column -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
-                <div></div>
+            <!-- Single member: full width, centered -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1px; width: 100%; break-inside: avoid;">
                 {{ member = honoraryMembers[0] }}
-                <div style="font-size: 5pt; padding: 0.5px; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="display: block; font-size: 5pt; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
-                <div></div>
+                <div style="font-size: 5pt; padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: inherit; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
             </div>
         {{ else if totalMembers == 2 }}
-            <!-- Two members: left and middle columns -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
+            <!-- Two members: two columns, centered -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ for i in (0..1) }}
                     {{ member = honoraryMembers[i] }}
-                    <div style="font-size: 5pt; padding: 0.5px; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="display: block; font-size: 5pt; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                    <div style="font-size: 5pt; padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: inherit; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
                 {{ end }}
-                <div></div>
             </div>
         {{ else }}
             <!-- 3+ members: normal 3-column grid with smart last row handling and column-specific alignment -->

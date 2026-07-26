@@ -2,19 +2,19 @@
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="font-size: 14pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
-    <img src="{{ crest }}" style="max-width: 20%; height: auto; margin: 10px 0;"/>
+    <img src="{{ crest }}" style="max-width: 20%; height: auto; margin: 8px 0;"/>
     {{ end }}
     {{ if website != null && website != "" }}
-    <a href="{{ website }}" target="_blank" style="font-size: 9pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
+    <a href="{{ website }}" target="_blank" style="font-size: 7pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
     {{ end }}
     {{ if heading2 != null && heading2 != "" }}
-    <h3 style="font-size: 12pt; margin: 4px 0;">{{ heading2 }}</h3>
+    <h3 style="font-size: 10pt; margin: 4px 0;">{{ heading2 }}</h3>
     {{ end }}
 </div>
 
 {{ if heads && heads.size > 0 }}
 <!-- Head (PGM/GS) -->
-<table style="margin: 8px 0; font-size: 9pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 6px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for head in heads }}
         <tr style="margin: 8px 6px; padding: 4px 0;">
@@ -22,7 +22,7 @@
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="font-weight: 600; line-height: 1;">{{ head.name }}</div>
-                    {{ if head.contact }}<div style="font-size: 9pt; margin-top: 0;"><a href="mailto:{{ head.contact }}">{{ head.contact }}</a></div>{{ end }}
+                    {{ if head.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ head.contact }}">{{ head.contact }}</a></div>{{ end }}
                 </div>
             </td>
         </tr>
@@ -33,7 +33,7 @@
 
 {{ if deputy_heads && deputy_heads.size > 0 }}
 <!-- Deputy and Assistant Heads -->
-<table style="margin: 2px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for deputy in deputy_heads }}
         <tr style="margin: 2px 6px; padding: 2px 0;">
@@ -41,7 +41,7 @@
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="font-weight: 600; line-height: 1;">{{ deputy.name }}</div>
-                    {{ if deputy.contact }}<div style="font-size: 8pt; margin-top: 0;"><a href="mailto:{{ deputy.contact }}">{{ deputy.contact }}</a></div>{{ end }}
+                    {{ if deputy.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ deputy.contact }}">{{ deputy.contact }}</a></div>{{ end }}
                 </div>
             </td>
         </tr>
@@ -52,7 +52,7 @@
 
 {{ if executive_officers && executive_officers.size > 0 }}
 <!-- Executive Officers -->
-<table style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 2px 0; font-size: 6pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in executive_officers }}
         <tr style="margin: 2px 6px; padding: 2px 0;">
@@ -60,7 +60,7 @@
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
                     <div style="font-weight: 600; line-height: 1;">{{ officer.name }}</div>
-                    {{ if officer.contact }}<div style="font-size: 7pt; margin-top: 0;"><a href="mailto:{{ officer.contact }}">{{ officer.contact }}</a></div>{{ end }}
+                    {{ if officer.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ officer.contact }}">{{ officer.contact }}</a></div>{{ end }}
                 </div>
             </td>
         </tr>

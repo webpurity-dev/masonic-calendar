@@ -70,7 +70,7 @@ img {
 a {
     color: #808080;
     text-decoration: none;
-    font-size: 7pt;
+    font-size: inherit;
 }
 
 /* ========================================
@@ -84,6 +84,10 @@ a {
     text-align: right;
     color: #000;
     flex-shrink: 0;
+}
+
+.toc-item a {
+    font-size: inherit;
 }
 
 /* ========================================

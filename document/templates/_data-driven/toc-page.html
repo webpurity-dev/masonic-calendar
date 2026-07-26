@@ -1,4 +1,4 @@
-<table style="width: 100%; border-collapse: collapse;">
+<table style="font-size: 6pt; width: 100%; border-collapse: collapse;">
     <thead>
         <tr>
             <th colspan="3" style="font-size: 10pt; margin: 0; font-weight: bold; padding: 2px; text-align: center;">{{ section_title }}</th>
@@ -10,24 +10,24 @@
                 {{ if section.items && section.items.size > 0 }}
                     {{ for item in section.items }}
                         <tr class="toc-item">
-                            <td style="padding: 1px; font-size: 7pt; width: 30px;">
-                                <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_postfix_display }}</strong></a>
+                            <td style="padding: 1px; width: 30px; font-size: inherit;">
+                                <a style="color: #000; text-decoration: none; font-size: inherit;" href="#{{ item.anchor_id }}"><strong>{{ item.unit_postfix_display }}</strong></a>
                             </td>
-                            <td style="padding: 1px 6px; font-size: 7pt;">
-                                <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">{{ item.display_name }}</a>
+                            <td style="padding: 1px 6px; font-size: inherit;">
+                                <a style="color: #000; text-decoration: none; font-size: inherit;" href="#{{ item.anchor_id }}">{{ item.display_name }}</a>
                             </td>
-                            <td style="padding: 1px; text-align: right; font-size: 7pt;">
-                                <span class="toc-page-number"></span>
+                            <td style="padding: 1px; text-align: right; font-size: inherit;">
+                                <span class="toc-page-number" style="font-size: inherit;"></span>
                             </td>
                         </tr>
                     {{ end }}
                 {{ else }}
                     <tr class="toc-item">
-                        <td style="padding: 1px; {{ if section.is_child }}padding-left: 14px;{{ end }} font-size: 7pt;">
-                            <a style="color: #000; text-decoration: none;" href="#section_{{ section.section_id }}">{{ section.section_title }}</a>
+                        <td style="padding: 1px; font-size: inherit; {{ if section.is_child }}padding-left: 14px;{{ end }}">
+                            <a style="color: #000; text-decoration: none; font-size: inherit;" href="#section_{{ section.section_id }}">{{ section.section_title }}</a>
                         </td>
-                        <td style="padding: 1px; text-align: right; font-size: 7pt;">
-                            <span class="toc-page-number"></span>
+                        <td style="padding: 1px; text-align: right; font-size: inherit;">
+                            <span class="toc-page-number" style="font-size: inherit;"></span>
                         </td>
                     </tr>
                 {{ end }}

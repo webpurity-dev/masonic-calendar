@@ -20,6 +20,13 @@
         </thead>
         <tbody>
             {{ for row in rows }}
+            {{ if row.is_group_header }}
+            <tr style="border-left: none; border-right: none; border-top: 1px solid #000; background-color: #f2f2f2;">
+                <td colspan="{{ table_colspan }}" style="padding: 1px 0; text-align: left; font-weight: bold;">
+                    {{ row.group_title }}
+                </td>
+            </tr>
+            {{ else }}
             <tr style="padding: 1px; border-left: none; border-right: none; border-top: 1px solid #000;">
                 {{ if row.row_span > 0 }}
                 <td rowspan="{{ row.row_span }}" style="width: 25%; margin-left: 2px; text-align: left; overflow: hidden; white-space: nowrap; vertical-align: middle;">
@@ -41,6 +48,7 @@
                     </td>
                 {{ end }}
             </tr>
+            {{ end }}
             {{ end }}
         </tbody>
     </table>

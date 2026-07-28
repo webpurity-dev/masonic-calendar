@@ -14,7 +14,7 @@
         {{ end }}
         <!-- Contact email -->
         {{ if unit.contact }}
-            <p style="font-size: 7pt; margin: 1px 0;">
+            <p style="font-size: 6.5pt; margin: 1px 0;">
                 Email: <a href="mailto:{{ unit.contact }}">{{ unit.contact }}</a>
             </p>
         {{ end }}
@@ -22,7 +22,7 @@
     
     <!-- Summary Section -->
     <div style="margin-bottom: 2px; text-align: left;">
-        <p style="font-size: 7pt; margin: 1px 0;">
+        <p style="font-size: 6.5pt; margin: 1px 0;">
             {{ if unit.warrant }}
                 {{ unit.warrant }}     
             {{ end }}
@@ -38,7 +38,7 @@
     <!-- Last Installation Section -->
     <div style="margin-bottom: 2px; text-align: center;">            
         {{ if unit.lastInstallationDate }}
-            <p style="font-size: 9pt; margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
+            <p style="font-size: 8pt; margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
         {{ end }}   
     </div>
     
@@ -76,7 +76,7 @@
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: auto;">
         {{ if sectionHeadings.pastMasters }}
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.pastMasters }}
             {{ else }}
@@ -110,7 +110,7 @@
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; width: 100%; break-inside: avoid; overflow: hidden;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.joiningPastMasters }}
             {{ else }}
@@ -118,7 +118,7 @@
             {{ end }}
         </h2>
         <div style="width: 100%; overflow: hidden;">
-            <table style="border-collapse: collapse; font-size: 5.5pt; width: 97%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
+            <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 25%; overflow-wrap: anywhere;">Name</th>
@@ -149,7 +149,7 @@
     <!-- Members Table - 3 explicit inline-block tables to avoid CSS column-count PDF reflow -->
     {{ if members && members.size > 0 && (!groupedMembers || groupedMembers.size == 0) }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
@@ -176,7 +176,7 @@
     <!-- Grouped Members Table (for units with degree/level grouping like RC) -->
     {{ if groupedMembers && groupedMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
@@ -257,7 +257,7 @@
     <!-- Honorary Members Table - 3 per row with conditional alignment -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
     <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 8pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.honoraryMembers }}
             {{ else }}
@@ -284,7 +284,7 @@
             </div>
         {{ else }}
             <!-- 3+ members: normal 3-column grid with smart last row handling and column-specific alignment -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 97%; break-inside: avoid;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ lastRowStartIdx = totalMembers - membersInLastRow }}
                 {{ for i in (0..(totalMembers - 1)) }}
                     {{ member = honoraryMembers[i] }}

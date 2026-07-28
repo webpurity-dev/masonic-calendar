@@ -90,24 +90,71 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                     .ToList();
             }
 
+            var orderedUnitTypes = section.UnitTypes?
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList() ?? [];
+            var shouldGroupByUnitType = orderedUnitTypes.Count > 1;
+
+            var unitTypeTitles = BuildUnitTypeTitleLookup(allSections, orderedUnitTypes);
+
             // Resolve unit display names (SuperShortName preferred) from data-driven sections
             var unitNameLookup = await BuildUnitNameLookupAsync(allSections, masterTemplateKey);
+            var unitPostfixLookup = await BuildUnitPostfixLookupAsync(allSections, masterTemplateKey);
 
-            // One row per (UnitType, UnitId), sorted numerically by unit number
+            // One row per (UnitType, UnitId), sorted numerically by unit number.
+            // When multiple unit types are provided, group rows by the explicit unit_types order.
             var unitGroups = expanded
-                .GroupBy(e => new { e.UnitType, e.UnitId })
-                .OrderBy(g => { int.TryParse(g.Key.UnitId, out int n); return n; })
-                .ThenBy(g => g.Key.UnitType)
+                .GroupBy(e => (UnitType: e.UnitType ?? string.Empty, UnitId: e.UnitId ?? string.Empty))
                 .ToList();
 
+            int GetUnitSortValue(string unitId)
+            {
+                return int.TryParse(unitId, out int n) ? n : int.MaxValue;
+            }
+
+            var orderedGroups = new List<IGrouping<(string UnitType, string UnitId), EventInstance>>();
+            if (shouldGroupByUnitType)
+            {
+                foreach (var unitType in orderedUnitTypes)
+                {
+                    orderedGroups.AddRange(unitGroups
+                        .Where(g => g.Key.UnitType.Equals(unitType, StringComparison.OrdinalIgnoreCase))
+                        .OrderBy(g => GetUnitSortValue(g.Key.UnitId))
+                        .ThenBy(g => g.Key.UnitId, StringComparer.OrdinalIgnoreCase));
+                }
+            }
+            else
+            {
+                orderedGroups.AddRange(unitGroups
+                    .OrderBy(g => GetUnitSortValue(g.Key.UnitId))
+                    .ThenBy(g => g.Key.UnitType, StringComparer.OrdinalIgnoreCase));
+            }
+
             var rows = new List<object?>();
-            foreach (var group in unitGroups)
+            string? currentUnitType = null;
+            foreach (var group in orderedGroups)
             {
                 var unitId = group.Key.UnitId;
                 var unitType = group.Key.UnitType;
+
+                if (shouldGroupByUnitType && !unitType.Equals(currentUnitType, StringComparison.OrdinalIgnoreCase))
+                {
+                    rows.Add(new Dictionary<string, object?>
+                    {
+                        { "is_group_header", true },
+                        { "group_title", unitTypeTitles.TryGetValue(unitType, out var groupTitle) ? groupTitle : unitType },
+                        { "group_row_span", monthColumns.Count + 2 }
+                    });
+                    currentUnitType = unitType;
+                }
+
                 var lookupKey = $"{unitType}:{unitId}";
                 unitNameLookup.TryGetValue(lookupKey, out var unitName);
                 unitName ??= unitId;
+                unitPostfixLookup.TryGetValue(lookupKey, out var unitPostfixDisplay);
+                unitPostfixDisplay ??= string.Empty;
 
                 var byMonthYear = group
                     .GroupBy(e => (e.Year, e.Month))
@@ -130,8 +177,8 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 {
                     var cells = monthColumns.Select(col =>
                     {
-                        if (!byMonthYear.TryGetValue((col.Year, col.Month), out var dayEvents)
-                            || rowIndex >= dayEvents.Count)
+                            if (!byMonthYear.TryGetValue((col.Year, col.Month), out var dayEvents)
+                                || rowIndex >= dayEvents.Count())
                         {
                             return (object?)new Dictionary<string, object?>
                             {
@@ -152,8 +199,9 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
 
                     rows.Add(new Dictionary<string, object?>
                     {
+                        { "is_group_header", false },
                         { "unit_number", unitId },
-                        { "unit_postfix_display", unitId },
+                        { "unit_postfix_display", unitPostfixDisplay },
                         { "unit_name",   unitName },
                         { "unit_type",   group.Key.UnitType },
                         { "row_span",    rowIndex == 0 ? rowCount : 0 },
@@ -179,6 +227,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 { "section_title", section.SectionTitle },
                 { "year_label", yearLabel },
                 { "months", monthsModel },
+                { "table_colspan", monthColumns.Count + 2 },
                 { "rows", rows },
                 { "font_size", fontSize },
                 { "line_height", lineHeight },
@@ -225,6 +274,58 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             }
         }
         return lookup;
+    }
+
+    /// <summary>
+    /// Builds a unit number -> display postfix lookup from every data-driven section,
+    /// preserving blank postfix values when the source data leaves them empty.
+    /// </summary>
+    private async Task<Dictionary<string, string>> BuildUnitPostfixLookupAsync(
+        List<SectionConfig> allSections, string masterTemplateKey)
+    {
+        var lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (DataLoader == null)
+            return lookup;
+
+        foreach (var s in allSections.Where(s =>
+            s.Type?.Equals("data-driven", StringComparison.OrdinalIgnoreCase) == true &&
+            !string.IsNullOrWhiteSpace(s.DataMapping)))
+        {
+            var result = await DataLoader.LoadUnitsWithDataAsync(masterTemplateKey, s.SectionId);
+            if (!result.Success || result.Data == null)
+                continue;
+
+            foreach (var unit in result.Data)
+            {
+                var key = $"{unit.UnitType}:{unit.Number}";
+                if (!lookup.ContainsKey(key))
+                    lookup[key] = unit.UnitPostfix ?? string.Empty;
+            }
+        }
+
+        return lookup;
+    }
+
+    /// <summary>
+    /// Build a lookup from unit type codes (e.g. AMD, RC) to human-readable section titles.
+    /// Uses the first matching section title for the unit type, falling back to the code.
+    /// </summary>
+    private static Dictionary<string, string> BuildUnitTypeTitleLookup(List<SectionConfig> allSections, List<string> orderedUnitTypes)
+    {
+        var titles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var unitType in orderedUnitTypes)
+        {
+            var normalizedUnitType = unitType.Trim();
+            var matchingSection = allSections.FirstOrDefault(s =>
+                !string.IsNullOrWhiteSpace(s.SectionTitle) &&
+                s.SectionId?.StartsWith(normalizedUnitType, StringComparison.OrdinalIgnoreCase) == true &&
+                !s.SectionId.EndsWith("_meetings_table", StringComparison.OrdinalIgnoreCase));
+
+            titles[normalizedUnitType] = matchingSection?.SectionTitle ?? normalizedUnitType;
+        }
+
+        return titles;
     }
 
     private List<EventInstance> ExpandMeetings(

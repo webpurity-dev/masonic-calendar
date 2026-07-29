@@ -16,6 +16,9 @@
 - Change RA 2689 PMEZ 022 Legg, T R H  "2025,2025" to "2025"
 - Added "De Alfonso Ortega, O" Grand Rank "Past Grand Master (Spain)","2000"
 
+## Manual Amendments
+- RA 5331 PMEZ 017 "Delaney, J" changed "2019" to "2019,2020"
+
 # Companion Order Amendments
 ## Manual Amendments
 - Grouped 3 x OSC and set Joined dates for Founders

@@ -109,7 +109,7 @@
 
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
-    <div style="margin-top: 3px; text-align: center; width: 100%; break-inside: avoid; overflow: hidden;">
+    <div style="margin-top: 3px; text-align: center; width: 100%; break-inside: auto; overflow: visible;">
         <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.joiningPastMasters }}
@@ -117,7 +117,7 @@
                 {{ sectionHeadings.joiningPastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
-        <div style="width: 100%; overflow: hidden;">
+        <div style="width: 100%; overflow: visible;">
             <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>

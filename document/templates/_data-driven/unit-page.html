@@ -162,7 +162,7 @@
                 <tbody>
                     {{ for member in memberColumns[colIndex] }}
                     <tr data-id="{{ member.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;{{ if colIndex > 0 }} padding-left: 10px;{{ end }}">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;{{ if colIndex > 0 }} padding-left: 8px;{{ end }}">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                         <td style="padding: 0.5px; padding-left: 6px; text-align: right; width: 25%; white-space: nowrap;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}

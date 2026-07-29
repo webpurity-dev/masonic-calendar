@@ -85,7 +85,7 @@
         </h2>
         {{ end }}
         <div style="display: block; break-inside: auto; width: 100%;">
-            <table style="border-collapse: collapse; font-size: 5.5pt; width: 99%; margin-left: auto; margin-right: auto; table-layout: fixed;">
+            <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; table-layout: fixed;">
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 34%;">Name</th>
@@ -157,12 +157,12 @@
             {{ end }}
         </h2>
         <div style="font-size: 0; width: 100%; margin: 0; break-inside: auto;">
-            {{ for col in memberColumns }}
+            {{ for colIndex in 0..(memberColumns.size - 1) }}
             <table style="font-size: 5.5pt; display: inline-table; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box; table-layout: fixed;">
                 <tbody>
-                    {{ for member in col }}
+                    {{ for member in memberColumns[colIndex] }}
                     <tr data-id="{{ member.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;{{ if colIndex > 0 }} padding-left: 10px;{{ end }}">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                         <td style="padding: 0.5px; padding-left: 6px; text-align: right; width: 25%; white-space: nowrap;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}

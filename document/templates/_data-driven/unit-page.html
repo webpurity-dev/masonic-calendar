@@ -1,4 +1,4 @@
-<div style="text-align: center; padding: 1px; font-size: 7.5pt;">
+<div style="text-align: center; padding: 0px; font-size: 7.5pt;">
     <!-- Header Section -->
     <div style="margin-bottom: 2px;">
         {{ if unit.hideUnitName }}
@@ -148,22 +148,22 @@
 
     <!-- Members Table - 3 explicit inline-block tables to avoid CSS column-count PDF reflow -->
     {{ if members && members.size > 0 && (!groupedMembers || groupedMembers.size == 0) }}
-    <div style="margin-top: 5px; text-align: center; width: 107%; break-inside: auto;">
-        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+    <div style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
+        <h2 style="font-size: 7pt; font-weight: bold; text-align: center; margin: 0; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
                 {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
-        <div style="font-size: 5.5pt; width: 100%; break-inside: auto;">
+        <div style="font-size: 0; width: 100%; margin: 0; break-inside: auto;">
             {{ for col in memberColumns }}
-            <table style="font-size: 5.5pt; display: inline-block; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box;">
+            <table style="font-size: 5.5pt; display: inline-table; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box; table-layout: fixed;">
                 <tbody>
                     {{ for member in col }}
                     <tr data-id="{{ member.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 75%;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
-                        <td style="padding: 0.5px; padding-left: 6px; text-align: right; white-space: nowrap;">{{ member.joined }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
+                        <td style="padding: 0.5px; padding-left: 6px; text-align: right; width: 25%; white-space: nowrap;">{{ member.joined }}</td>
                     </tr>
                     {{ end }}
                 </tbody>

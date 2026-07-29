@@ -33,12 +33,12 @@ ui_preferences:
 page_margins:
   #page_size: "105mm 148mm" # A6 format - configurable, or omit to infer from document.format
   right_page:               # Odd pages (Recto)
-    top: 8mm
+    top: 5mm
     bottom: 8mm            # Larger optical bottom margin plus footer space
     left: 8mm              # Inner margin (gutter + crease allowance)
     right: 8mm              # Outer margin
   left_page:                # Even pages (Verso)
-    top: 8mm
+    top: 5mm
     bottom: 8mm            # Larger optical bottom margin plus footer space
     left: 8mm               # Outer margin
     right: 8mm             # Inner margin (gutter + crease allowance)

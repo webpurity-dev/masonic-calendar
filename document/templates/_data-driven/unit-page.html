@@ -4,7 +4,7 @@
         {{ if unit.hideUnitName }}
             &nbsp;
         {{ else }}
-            <h1 style="font-size: 13pt; margin: 0; font-weight: bold; text-align: center;">
+            <h1 style="font-size: 12pt; margin: 0; font-weight: bold; text-align: center;">
                 {{ if unit.hideUnitNumber }}
                     {{ unit.name }}
                 {{ else }}
@@ -14,7 +14,7 @@
         {{ end }}
         <!-- Contact email -->
         {{ if unit.contact }}
-            <p style="font-size: 6.5pt; margin: 1px 0;">
+            <p style="font-size: 6pt; margin: 1px 0;">
                 Email: <a href="mailto:{{ unit.contact }}">{{ unit.contact }}</a>
             </p>
         {{ end }}
@@ -22,7 +22,7 @@
     
     <!-- Summary Section -->
     <div style="margin-bottom: 2px; text-align: left;">
-        <p style="font-size: 6.5pt; margin: 1px 0;">
+        <p style="font-size: 6pt; margin: 1px 0;">
             {{ if unit.warrant }}
                 {{ unit.warrant }}     
             {{ end }}
@@ -38,7 +38,7 @@
     <!-- Last Installation Section -->
     <div style="margin-bottom: 2px; text-align: center;">            
         {{ if unit.lastInstallationDate }}
-            <p style="font-size: 8pt; margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
+            <p style="font-size: 7pt; margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
         {{ end }}   
     </div>
     
@@ -156,9 +156,9 @@
                 {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
-        <div style="font-size: 0; width: 100%; break-inside: auto;">
+        <div style="font-size: 5.5pt; width: 100%; break-inside: auto;">
             {{ for col in memberColumns }}
-            <table style="display: inline-block; vertical-align: top; width: 33.333%; border-collapse: collapse; font-size: 6pt; box-sizing: border-box;">
+            <table style="font-size: 5.5pt; display: inline-block; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box;">
                 <tbody>
                     {{ for member in col }}
                     <tr data-id="{{ member.dataId }}">
@@ -195,14 +195,14 @@
             {{ end }}
             <!-- If >2 members, show two tables side-by-side. Otherwise single table -->
             <div style="break-inside: avoid;{{ if memberCount > 2 }} grid-column: 1 / -1;{{ end }}">
-                <div style="font-size: 6pt; font-weight: bold; margin-bottom: 2px; text-align: left;">{{ group.groupKey }}</div>
+                <div style="font-size: 5.5pt; font-weight: bold; margin-bottom: 2px; text-align: left;">{{ group.groupKey }}</div>
                 {{ if memberCount > 2 }}
                 <!-- Show left and right columns side-by-side -->
                 <div style="display: flex; gap: 2px; width: 100%; break-inside: avoid; align-items: flex-start;">
                     {{ for colIndex in (0..1) }}
                         {{ $col = group.columns[colIndex] }}
                         {{ if $col && $col.size > 0 }}
-                        <table style="border-collapse: collapse; font-size: 6pt; flex: 1; margin: 0; padding: 0; break-inside: avoid;">
+                        <table style="border-collapse: collapse; font-size: 5.5pt; flex: 1; margin: 0; padding: 0; break-inside: avoid;">
                             <tbody>
                                 {{ for member in $col }}
                                 <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
@@ -221,7 +221,7 @@
                 </div>
                 {{ else }}
                 <!-- Compact group: single table with balanced member distribution -->
-                <table style="border-collapse: collapse; font-size: 6pt; width: 100%; margin: 0; padding: 0; break-inside: avoid;">
+                <table style="font-size: 5.5pt; border-collapse: collapse; width: 100%; margin: 0; padding: 0; break-inside: avoid;">
                     <tbody>
                         {{ for colIndex in (0..1) }}
                             {{ $col = group.columns[colIndex] }}

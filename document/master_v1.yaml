@@ -194,7 +194,6 @@ sections:
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RA"]
     style: "medium"
-    override_break_before: true
     is_child: true
   - section_id: "royalarch_units_toc"
     section_title: "Chapters in Numerical Order"

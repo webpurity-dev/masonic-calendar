@@ -44,7 +44,7 @@ order_executive_officers:
       type: "string"
 
 order_regional_officers:
-  officers_heading: "Provincial Grand Chapter Officers 2025-26"
+  officers_heading: "Provincial Grand Chapter Officers 2026-27"
   source: "royalarch_officers.csv"
   fields:
     - name: "Office"
@@ -56,6 +56,47 @@ order_regional_officers:
     - name: "Unit"
       csv_column: "Unit"
       type: "string"
+
+order_regional_officer_sets:
+  provincial:
+    officers_heading: "Provincial Grand Chapter Officers 2026-27"
+    source: "royalarch_officers.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
+  promotions:
+    officers_heading: "Promotions 2026"
+    source: "royalarch_promotions.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
+  appointments:
+    officers_heading: "Appointments to Past Rank 2026"
+    source: "royalarch_appointments.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
 
 order_succession_list:
   tables:

@@ -49,6 +49,7 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
                 { "deputy_heads", metadata["deputy_heads"] },
                 { "district_heads", metadata["district_heads"] },
                 { "officers", metadata["officers"] },
+                { "display_officers_only", section.DisplayOfficersOnly },
                 { "override_break_before", section.OverrideBreakBefore }
             };
 
@@ -102,8 +103,8 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
             return data;
         }
         
-        // v1.7: Use OrderRegionalOfficers (order_ prefix for order-level data)
-        var config = mapping.OrderRegionalOfficers;
+        // Resolve section-specific regional officers config when requested, with fallback to legacy single config.
+        var config = ResolveRegionalOfficersConfig(mapping, section);
 
         // v1.7: Load branding from order_summary (consolidated metadata)
         var orderSummary = mapping.OrderSummary;
@@ -163,6 +164,43 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         data["officers"] = officers;
 
         return data;
+    }
+
+    private ProvincialOfficersConfig? ResolveRegionalOfficersConfig(DataSourceMapping mapping, SectionConfig section)
+    {
+        if (!string.IsNullOrWhiteSpace(section.OfficersConfigKey) &&
+            mapping.OrderRegionalOfficerSets != null)
+        {
+            // Try exact key first, then case-insensitive match for resilience in YAML.
+            if (mapping.OrderRegionalOfficerSets.TryGetValue(section.OfficersConfigKey, out var selected))
+            {
+                if (DebugMode)
+                    Console.WriteLine($"    ✓ Using order_regional_officer_sets['{section.OfficersConfigKey}']");
+                return selected;
+            }
+
+            string? matchedKey = null;
+            foreach (var key in mapping.OrderRegionalOfficerSets.Keys)
+            {
+                if (string.Equals(key, section.OfficersConfigKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    matchedKey = key;
+                    break;
+                }
+            }
+
+            if (matchedKey != null)
+            {
+                if (DebugMode)
+                    Console.WriteLine($"    ✓ Using order_regional_officer_sets['{matchedKey}'] (case-insensitive match)");
+                return mapping.OrderRegionalOfficerSets[matchedKey];
+            }
+
+            if (DebugMode)
+                Console.WriteLine($"    ⚠ officers_config_key '{section.OfficersConfigKey}' not found; falling back to order_regional_officers");
+        }
+
+        return mapping.OrderRegionalOfficers;
     }
 
     private async Task<List<ProvinceOfficer>> LoadOfficersFromCsvAsync(string? csvSource, string documentRoot)

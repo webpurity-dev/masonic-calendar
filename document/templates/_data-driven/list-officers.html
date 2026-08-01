@@ -1,3 +1,4 @@
+{{ if display_officers_only != true }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h2 style="font-size: 12pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
@@ -63,6 +64,7 @@
         {{ end }}
     </tbody>
 </table>
+{{ end }}
 {{ end }}
 
 {{ if officers_heading != null && officers_heading != "" }}

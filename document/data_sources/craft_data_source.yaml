@@ -40,7 +40,7 @@ order_executive_officers:
       type: "string"
 
 order_regional_officers:
-  officers_heading: "Provincial Grand Lodge Officers 2025-26"
+  officers_heading: "Provincial Grand Lodge Officers 2026-27"
   source: "craft_officers.csv"
   fields:
     - name: "Office"
@@ -52,6 +52,47 @@ order_regional_officers:
     - name: "Unit"
       csv_column: "Unit"
       type: "string"
+
+order_regional_officer_sets:
+  provincial:
+    officers_heading: "Provincial Grand Lodge Officers 2026-27"
+    source: "craft_officers.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
+  promotions:
+    officers_heading: "Promotions 2026"
+    source: "craft_promotions.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
+  appointments:
+    officers_heading: "Appointments to Past Rank 2026"
+    source: "craft_appointments.csv"
+    fields:
+      - name: "Office"
+        csv_column: "Office"
+        type: "string"
+      - name: "Name"
+        csv_column: "Name"
+        type: "string"
+      - name: "Unit"
+        csv_column: "Unit"
+        type: "string"
 
 order_succession_list:
   tables:

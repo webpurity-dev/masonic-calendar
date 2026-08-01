@@ -208,6 +208,8 @@ public class SectionConfig
     public string? Template { get; set; }
     public string? DataSource { get; set; }
     public string? DataMapping { get; set; }
+    public string? OfficersConfigKey { get; set; }  // Optional list_officers selector for keyed regional officers config sets
+    public bool DisplayOfficersOnly { get; set; } = false;  // For list_officers pages: render only officers_heading + officers table
     public string? UnitType { get; set; }
     public List<string>? UnitTypes { get; set; }  // Optional filter: one or more unit types (e.g. ["Craft", "RoyalArch"])
     public string? ForSection { get; set; }
@@ -254,6 +256,7 @@ public class DataSourceMapping
     
     // v1.7 order-level sections (with order_ prefix)
     public ProvincialOfficersConfig? OrderRegionalOfficers { get; set; }
+    public Dictionary<string, ProvincialOfficersConfig>? OrderRegionalOfficerSets { get; set; }  // Optional keyed variants for list_officers pages (e.g., provincial/promotions/appointments)
     public ProvincialOfficersConfig? OrderExecutiveOfficers { get; set; }
     public DataSourceDefinition? OrderMemberStats { get; set; }
     public SuccessionListConfig? OrderSuccessionList { get; set; }

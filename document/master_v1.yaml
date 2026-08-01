@@ -98,11 +98,30 @@ sections:
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/craft_data_source.yaml"
   - section_id: "craft_provincial_officers"
-    section_title: "Provincial Officers 2025/26"
+    section_title: "Provincial Officers 2026/27"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/craft_data_source.yaml"
+    officers_config_key: "provincial"
     is_child: true
+  - section_id: "craft_promotions"
+    section_title: "Promotions 2026/27"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
+    officers_config_key: "promotions"
+    display_officers_only: true
+    hide_from_parent_toc: true
+    override_break_before: true
+  - section_id: "craft_appointments"
+    section_title: "Appointments to Past Rank 2026/27"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
+    officers_config_key: "appointments"
+    display_officers_only: true
+    hide_from_parent_toc: true
+    override_break_before: true
   - section_id: "craft_succession_lists"
     section_title: "Succession Lists"
     type: "succession-list"
@@ -156,7 +175,7 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/craft_data_source.yaml"
-    hide_from_parent_toc: true  
+    hide_from_parent_toc: true
 
   # Royal Arch
   - section_id: "ra_executive_officers"
@@ -165,11 +184,30 @@ sections:
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
   - section_id: "ra_provincial_officers"
-    section_title: "Provincial Officers 2025/26"
+    section_title: "Provincial Officers 2026/27"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
+    officers_config_key: "provincial"
     is_child: true
+  - section_id: "ra_promotions"
+    section_title: "Promotions 2026/27"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
+    officers_config_key: "promotions"
+    display_officers_only: true
+    hide_from_parent_toc: true
+    override_break_before: true
+  - section_id: "ra_appointments"
+    section_title: "Appointments to Past Rank 2026/27"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/royalarch_data_source.yaml"
+    officers_config_key: "appointments"
+    display_officers_only: true
+    hide_from_parent_toc: true
+    override_break_before: true
   - section_id: "ra_reasons"
     section_title: "Reasons to be Exalted"
     type: "static"

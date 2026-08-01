@@ -4,16 +4,16 @@
     <img src="{{ crest }}" style="max-width: 25%; height: auto; margin: 5px 0;"/>
     {{ end }}
     {{ if website != null && website != "" }}
-    <a href="{{ website }}" target="_blank" style="font-size: 7pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
+    <a href="{{ website }}" target="_blank" style="font-size: 6pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
     {{ end }}
     {{ if heading2 != null && heading2 != "" }}
-    <h3 style="font-size: 10pt; margin: 4px 0;">{{ heading2 }}</h3>
+    <h3 style="font-size: 9%; margin: 4px 0;">{{ heading2 }}</h3>
     {{ end }}
 </div>
 
 {{ if heads.size > 0 }}
 <!-- Order/Province Heads (PGM, etc.) -->
-<table style="margin: 8px 0; font-size: 9pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="order_heads" style="margin: 6px 0; font-size: 9pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for head in heads }}
         <tr style="margin: 2px; padding: 0;">
@@ -29,7 +29,7 @@
 
 {{ if deputy_heads.size > 0 }}
 <!-- Deputy and Assistant Heads -->
-<table style="margin: 8px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="deputy_heads" style="margin: 2px 0; font-size: 8pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for deputy in deputy_heads }}
         <tr style="margin: 1px; padding: 0;">
@@ -51,7 +51,7 @@
 
 {{ if district_heads.size > 0 }}
 <!-- District Heads -->
-<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="district_heads" style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for district in district_heads }}
         <tr style="margin: 1px; padding: 0;">
@@ -73,7 +73,7 @@
 
 {{ if officers.size > 0 }}
 <!-- Officers -->
-<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="officers" style="margin: 2px 0 20px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in officers }}
         <tr style="margin: 2px; padding: 0;">

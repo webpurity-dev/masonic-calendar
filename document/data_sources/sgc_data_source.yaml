@@ -1,0 +1,35 @@
+# Data source mappings for UGLE
+
+order_summary:
+  title: "The Supreme Grand Chapter of England"
+  crest: "../../images/sgc-logo.png"
+  website: "https://www.ugle.org.uk/about-us/royal-arch/supreme-grand-chapter"
+  heads: 
+    - rank: "FIRST GRAND PRINCIPAL"
+      name: "HRH THE DUKE OF KENT KG, GCMG, GCVO, ADC"
+  deputy_heads:
+    - rank: "Pro First Grand Principal"
+      name: "JONATHAN SPENCE, DL"
+    - rank: "Second Grand Principal"
+      name: "SIR DAVID WOOTTON"
+    - rank: "Third Grand Principal"
+      name: "GARETH JONES, OBE"
+    - rank: "President of the Committee of General Purposes"
+      name: "MATT HAMPSON"
+    - rank: "Grand Scribe Ezra"
+      name: "ADRIAN MARSH"
+  district_heads: []
+
+order_regional_officers:
+  officers_heading: ""
+  source: "sgc_officers.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"

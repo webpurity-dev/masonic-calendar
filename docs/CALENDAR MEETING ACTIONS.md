@@ -25,11 +25,15 @@
 - Reply to Terry regarding unit issues - DONE
 - Remove email addresses for executives (Craft and Royal Arch) - DONE
 - Update executive officers (Craft and Royal Arch) - DONE
-- Email Kevin for active officers in companion orders
-- Email Terry for Craft Dorset Grand Officers CSV
-- Email Terry for Chapter Dorset Grand Officers CSV 
-- Appointed on 10th October 2026 for Prov active officers
-- Add Associated lodges pages (3 units)
+- Email Kevin for active officers in companion orders - DONE
+- Email Terry for Craft Dorset Grand Officers CSV - DONE
+  - Add craft grand officers - DONE
+- Email Terry for Chapter Dorset Grand Officers CSV - DONE
+  - Add chapter grand officers - DONE
+- Email Terry for UGLE Grand Officers CSV - DONE
+  - Add supreme grand chapter officers - DONE
+- Appointed on 10th October 2026 for Prov active officers - DONE
+- Add Associated lodges pages (3 units) - DONE
 - Notes pages to balance the cover pages
 
 ## LESSONS LEARNT

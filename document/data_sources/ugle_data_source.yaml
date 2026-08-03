@@ -19,7 +19,7 @@ order_summary:
   district_heads: []
 
 order_regional_officers:
-  officers_heading: "Officers of The United Grand Lodge of England"
+  officers_heading: ""
   source: "ugle_officers.csv"
   fields:
     - name: "Office"

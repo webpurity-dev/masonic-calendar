@@ -1,0 +1,18 @@
+# Data source mappings for Grand Officers
+
+order_regional_officers:
+  source: "royalarch_grand_officers.csv"
+  fields:
+    - name: "Office"
+      csv_column: "Office"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Unit"
+      csv_column: "Unit"
+      type: "string"
+  heading1: "Grand Officers"
+  district_heading: "Members Of The Province Who Have Received Grand Rank"
+  heads: []
+  deputy_heads: []

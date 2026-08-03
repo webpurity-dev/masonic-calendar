@@ -85,7 +85,8 @@ $textReplacementRules = @(
     @{ Old = "2000 & 2013"; New = "2000,2013" },
     @{ Old = "2025, 2025"; New = "2025" },
     @{ Old = "2015, 2015"; New = "2015" },
-    @{ Old = "Vacant,"; New = "Vacant" }
+    @{ Old = "Vacant,"; New = "Vacant" },
+    @{ Old = "Comms Officer"; New = "Comms" }
 )
 
 $membershipPath = Resolve-FromScriptDir -Path $MembershipFile

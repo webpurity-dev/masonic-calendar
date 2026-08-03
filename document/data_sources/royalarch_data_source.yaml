@@ -13,20 +13,20 @@ order_summary:
     - rank: "Grand Superintendent"
       title: "E Comp"
       name: "Stephen Andrew James"
-      contact: "gsupt@dorsetfreemasonry.info"
+      contact: ""
   deputy_heads:
     - rank: "Deputy Grand Superintendent"
       title: "E Comp"
       name: "Mark Christopher Hinsley, PAGDC"
-      contact: "dpgsupt@dorsetfreemasonry.info"
+      contact: ""
     - rank: "Second Grand Principal"
       title: "E Comp"
       name: "Kevin Abbiss, PAGDC"
-      contact: "2ndprgprinc@dorsetfreemasonry.info"
+      contact: ""
     - rank: "Third Grand Principal"
       title: "E Comp"
       name: "Nigel Melville Douglas House, PAGDC"
-      contact: "3rdprgprinc@dorsetfreemasonry.info"
+      contact: ""
   district_heads: []
 
 order_executive_officers:
@@ -44,7 +44,7 @@ order_executive_officers:
       type: "string"
 
 order_regional_officers:
-  officers_heading: "Provincial Grand Chapter Officers 2026-27"
+  officers_heading: "Provincial Grand Chapter Officers 2026-27. Appointed on Saturday 10th October 2026."
   source: "royalarch_officers.csv"
   fields:
     - name: "Office"
@@ -59,7 +59,7 @@ order_regional_officers:
 
 order_regional_officer_sets:
   provincial:
-    officers_heading: "Provincial Grand Chapter Officers 2026-27"
+    officers_heading: "Provincial Grand Chapter Officers 2026-27. Appointed on Saturday 10th October 2026."
     source: "royalarch_officers.csv"
     fields:
       - name: "Office"

@@ -9,20 +9,20 @@ order_summary:
     - rank: "Provincial Grand Master"
       title: "RWBro"
       name: "Stephen Andrew James"
-      contact: "pgm@dorsetfreemasonry.info"
+      contact: ""
   deputy_heads:
     - rank: "Deputy Grand Master"
       title: "VWBro"
       name: "Mark David Burstow, PGSwdB"
-      contact: "dpgm@dorsetfreemasonry.info"
+      contact: ""
     - rank: "Assistant Grand Master"
       title: "WBro"
       name: "Micheal Richard Parkes, PSGD"
-      contact: "apgm@dorsetfreemasonry.info"
+      contact: ""
     - rank: "Assistant Grand Master"
       title: "WBro"
       name: "Leon Anthony Matthews, PJGD"
-      contact: "apgm2@dorsetfreemasonry.info"
+      contact: ""
   district_heads: []
 
 order_executive_officers:
@@ -40,7 +40,7 @@ order_executive_officers:
       type: "string"
 
 order_regional_officers:
-  officers_heading: "Provincial Grand Lodge Officers 2026-27"
+  officers_heading: "Provincial Grand Lodge Officers 2026-27. Appointed on Saturday 10th October 2026."
   source: "craft_officers.csv"
   fields:
     - name: "Office"
@@ -55,7 +55,7 @@ order_regional_officers:
 
 order_regional_officer_sets:
   provincial:
-    officers_heading: "Provincial Grand Lodge Officers 2026-27"
+    officers_heading: "Provincial Grand Lodge Officers 2026-27. Appointed on Saturday 10th October 2026."
     source: "craft_officers.csv"
     fields:
       - name: "Office"

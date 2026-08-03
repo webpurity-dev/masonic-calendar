@@ -360,6 +360,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opPastActive = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpPastActive");
                         var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
@@ -406,6 +407,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opPastActive = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpPastActive");
                         var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
@@ -430,6 +432,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             GrandRankDateAccorded = grandRankDate,
                             // v1.7 NEW
                             ProvRankOtherProv = TextCleaner.CleanProvincialRank(provRankOtherProv),
+                            OpPastActive = TextCleaner.CleanText(opPastActive),
                             OpDateAccorded = opDateAccordedStr,
                             OpDateStartYear = opDateStart,
                             OpDateEndYear = opDateEnd,
@@ -461,6 +464,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opPastActive = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpPastActive");
                         var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
@@ -486,6 +490,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             GrandRankDateAccorded = grandRankDate,
                             // v1.7 NEW
                             ProvRankOtherProv = TextCleaner.CleanProvincialRank(provRankOtherProv),
+                            OpPastActive = TextCleaner.CleanText(opPastActive),
                             OpDateAccorded = opDateAccordedStr,
                             OpDateStartYear = opDateStart,
                             OpDateEndYear = opDateEnd,
@@ -517,6 +522,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opPastActive = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpPastActive");
                         var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
@@ -559,6 +565,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                         
                         // v1.7 NEW: Other Province Rank
                         var provRankOtherProv = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "ProvRankOtherProv");
+                        var opPastActive = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpPastActive");
                         var opDateAccordedStr = GetFieldValueWithComposite(csv, fieldMapWithMetadata, "OpDateAccorded");
                         var (opDateStart, opDateEnd) = ParseDateRange(opDateAccordedStr);
                         
@@ -581,6 +588,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                             IsGrandRank = !string.IsNullOrWhiteSpace(grandRank),
                             // v1.7 NEW
                             ProvRankOtherProv = TextCleaner.CleanProvincialRank(provRankOtherProv),
+                            OpPastActive = TextCleaner.CleanText(opPastActive),
                             OpDateAccorded = opDateAccordedStr,
                             OpDateStartYear = opDateStart,
                             OpDateEndYear = opDateEnd,

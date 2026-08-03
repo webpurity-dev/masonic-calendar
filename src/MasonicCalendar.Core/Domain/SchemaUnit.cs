@@ -71,6 +71,7 @@ public class SchemaPastMaster
     
     // v1.7 NEW fields
     public string? ProvRankOtherProv { get; set; }
+    public string? OpPastActive { get; set; }
     public string? OpDateAccorded { get; set; }
     public int? OpDateStartYear { get; set; }
     public int? OpDateEndYear { get; set; }
@@ -103,6 +104,7 @@ public class SchemaJoinPastMaster
     
     // v1.7 NEW fields
     public string? ProvRankOtherProv { get; set; }
+    public string? OpPastActive { get; set; }
     public string? OpDateAccorded { get; set; }
     public int? OpDateStartYear { get; set; }
     public int? OpDateEndYear { get; set; }
@@ -148,6 +150,7 @@ public class SchemaHonoraryMember
     
     // v1.7 NEW: Other Province Rank
     public string? ProvRankOtherProv { get; set; }     // Provincial rank from different province
+    public string? OpPastActive { get; set; }         // Y/N flag indicating active other-province grand rank
     public string? OpDateAccorded { get; set; }       // OP date accorded (raw format: "2021" or "1993-15")
     public int? OpDateStartYear { get; set; }        // Parsed start year from date range
     public int? OpDateEndYear { get; set; }          // Parsed end year from date range

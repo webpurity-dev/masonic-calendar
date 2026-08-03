@@ -113,7 +113,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled?.Replace(" ", "") },
-                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, ApplyRankFixes(pm.ProvincialRank, rankFixes), pm.DateRankAccorded, ApplyRankFixes(pm.ProvRankOtherProv, rankFixes), pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, ApplyRankFixes(pm.ProvincialRank, rankFixes), pm.DateRankAccorded, ApplyOtherProvinceRankFixes(pm.ProvRankOtherProv, pm.OpPastActive, rankFixes), pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
                     .ToList()
@@ -127,7 +127,7 @@ public static class UnitModelBuilder
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
                         { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
-                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyRankFixes(jpm.ProvRankOtherProv, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyOtherProvinceRankFixes(jpm.ProvRankOtherProv, jpm.OpPastActive, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
                     .ToList()
@@ -157,7 +157,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyRankFixes(hm.ProvRankOtherProv, rankFixes), hm.LondonRank) },
+                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyOtherProvinceRankFixes(hm.ProvRankOtherProv, hm.OpPastActive, rankFixes), hm.LondonRank) },
                         { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
@@ -596,6 +596,18 @@ public static class UnitModelBuilder
             return TextCleaner.CleanRankAbbreviations(rank);
 
         return rank;
+    }
+
+    private static string? ApplyOtherProvinceRankFixes(string? rank, string? opPastActive, RankFixes? rankFixes)
+    {
+        var cleanedRank = ApplyRankFixes(rank, rankFixes);
+        if (string.IsNullOrWhiteSpace(cleanedRank))
+            return cleanedRank;
+
+        if (!string.Equals(opPastActive?.Trim(), "N", StringComparison.OrdinalIgnoreCase))
+            return cleanedRank;
+
+        return cleanedRank.Replace("PProv", "PPr", StringComparison.Ordinal);
     }
 }
 

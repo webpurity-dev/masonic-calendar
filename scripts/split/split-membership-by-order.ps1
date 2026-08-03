@@ -37,6 +37,15 @@ Write-Host "Reading membership.csv from: $membershipPath" -ForegroundColor Cyan
 Write-Host "Output folder: $outputPath" -ForegroundColor Cyan
 
 try {
+    $headerLine = Get-Content -Path $membershipPath -TotalCount 1
+    if ([string]::IsNullOrWhiteSpace($headerLine)) {
+        throw "Membership CSV appears empty: $membershipPath"
+    }
+
+    $sourceHeaders = @(
+        ($headerLine -split ",") | ForEach-Object { $_.Trim().Trim('"') }
+    )
+
     # Read all data
     $csv = Import-Csv -Path $membershipPath
     Write-Host "Total rows: $($csv.Count)" -ForegroundColor Yellow
@@ -49,8 +58,8 @@ try {
             $dataSourceName = Get-NormalizedUnitTypeName ($_.BaseName -replace '_data_source$', '')
             if ($requestedTypes -contains $dataSourceName) {
                 $content = Get-Content -Path $_.FullName -Raw
-                $matches = [regex]::Matches($content, 'filter_value:\s*"?([^"\r\n]+)"?')
-                foreach ($match in $matches) {
+                $filterMatches = [regex]::Matches($content, 'filter_value:\s*"?([^"\r\n]+)"?')
+                foreach ($match in $filterMatches) {
                     $requestedFilterValues += Get-NormalizedUnitTypeName $match.Groups[1].Value.Trim()
                 }
             }
@@ -78,7 +87,9 @@ try {
         $outputFile = Join-Path $outputPath "${fileName}_membership.csv"
         
         # Export to CSV
-        $filtered | Export-Csv -Path $outputFile -NoTypeInformation -Encoding UTF8
+        $filtered |
+            Select-Object -Property $sourceHeaders |
+            Export-Csv -Path $outputFile -NoTypeInformation -Encoding UTF8
         Write-Host "[OK] $unitType ($rowCount rows) -> ${fileName}_membership.csv" -ForegroundColor Green
     }
     

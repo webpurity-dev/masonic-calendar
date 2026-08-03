@@ -525,6 +525,13 @@ sections:
     for_section: "all_units"
     template: "_data-driven/unit-index-page.html"
 
+  # NOTES #1
+  - section_id: "notes_1"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
+    hide_from_parent_toc: true
+
   # COPYRIGHT
   - section_id: "copyright"
     section_title: "Copyright"

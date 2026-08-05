@@ -22,6 +22,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "Division of Dorset and Wiltshire"
+  officers_heading: "Divisional Officers 2025-26"
   source: "rcoc_officers.csv"
   fields:
     - name: "Office"

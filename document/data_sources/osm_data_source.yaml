@@ -19,7 +19,7 @@ order_summary:
       name: "Ian R. Sullivan"
     - rank: "Deputy Provincial Grand Supreme Ruler"
       title: "V.Wy.Bro."
-      name: "Graham S. Franklin, G.V."
+      name: "Graham S. Franklin, P.G.V."
     - rank: "Provincial Grand Recorder"
       title: "Wy.Bro."
       name: "Paul R. Gawler, P.G.Swd.B."
@@ -52,9 +52,10 @@ order_regional_officers:
     - rank: "Provincial Grand Supreme Ruler"
       name: "R.Wy.Bro. Ian R. Sullivan"
     - rank: "Deputy Provincial Grand Supreme Ruler"
-      name: "V.Wy.Bro. Graham S. Franklin, G.V."
+      name: "V.Wy.Bro. Graham S. Franklin, P.G.V."
     - rank: "Provincial Grand Recorder"
-      name: "Wy.Bro. Paul R. Gawler, P.G.Swd.B."
+      name: "Wy.Bro. Paul R. Gawler, P.A.G.D.C."
+  officers_heading: "Provincial Grand Officers appointed 28th March 2026."
 
 units:
   source: "units.csv"

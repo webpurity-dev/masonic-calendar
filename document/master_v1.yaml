@@ -1,6 +1,6 @@
 document:
   format: "A6"              # Will infer 105mm 148mm
-  version: "2.3.1"
+  version: "2.4"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
   global_styling:

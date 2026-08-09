@@ -5,21 +5,25 @@ order_summary:
   heads: 
     - rank: "Grand Master"
       title: "M.W.Bro."
-      name: "Thomas F. Jackson"
+      name: "Thomas F. Jackson"    
   deputy_heads:
     - rank: "Deputy Grand Master"
       title: "R.W.Bro."
-      name: "James M. Birrell"
+      name: "Colin R. Woodcock, MBE"
+    - rank: "Grand Secretary"
+      title: "V.W.Bro."
+      name: "Daniel M. Heath"
   district_heads:
     - rank: "District Grand Prefect"
-      name: "R.W.Bro. Anthony J. Green"
+      title: "R.W.Bro."
+      name: "Anthony J. Green"
     - rank: "Deputy District Grand Prefect"
-      name: "V.W.Bro. Laurence T. Brookes, P.G.Reg."
-    - rank: "District Grand Secretary"
-      name: "W.Bro. Malcolm E. W. Stevens"
+      title: "W.Bro."
+      name: "Mark E. Gannaway"
 
 order_regional_officers:  
   district_heading: "District of the Southern Counties"
+  officers_heading: "District Officers"
   source: "amd_officers.csv"
   fields:
     - name: "Office"

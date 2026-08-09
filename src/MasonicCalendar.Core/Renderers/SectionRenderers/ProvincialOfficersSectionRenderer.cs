@@ -85,7 +85,8 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         {
             if (DebugMode)
                 Console.WriteLine($"    ❌ Failed to load mapping: {mappingResult.Error}");
-            return data;
+            throw new InvalidOperationException(
+                $"Cannot render section '{section.SectionId}': failed to load data mapping '{section.DataMapping}'. {mappingResult.Error}");
         }
 
         var mapping = mappingResult.Data;

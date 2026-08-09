@@ -12,12 +12,13 @@ order_summary:
       name: "tbc"
   district_heads:
     - rank: "Grand Preceptor"
-      name: "tbc"
+      name: "A S Clapp"
     - rank: "Provincial Grand Prior"
-      name: "tbc"
+      name: "G MacKenzie"
 
 order_regional_officers:
   district_heading: "Province of Wessex"
+  officers_heading: "Provincial Officers"
   source: "stoa_officers.csv"
   fields:
     - name: "Office"

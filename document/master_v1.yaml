@@ -1,5 +1,9 @@
 document:
-  format: "A6"              # Will infer 105mm 148mm
+  format: "A6"              
+    # A6 trim size is 105 × 148 mm.
+    # The PDF’s 117 × 160 mm size is A6 plus 6 mm bleed on every edge:
+    # 105 + 12 = 117 mm
+    # 148 + 12 = 160 mm
   version: "2.4"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"

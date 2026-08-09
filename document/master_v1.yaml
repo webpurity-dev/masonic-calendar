@@ -370,7 +370,6 @@ sections:
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["Mark"]
     style: "medium"
-    override_break_before: true
     hide_from_parent_toc: true
   - section_id: "mark_units"
     section_title: "Mark Lodges in Numerical Order"

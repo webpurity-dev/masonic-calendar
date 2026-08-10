@@ -1,9 +1,9 @@
 document:
   format: "A6"              
     # A6 trim size is 105 × 148 mm.
-    # The PDF’s 117 × 160 mm size is A6 plus 6 mm bleed on every edge:
-    # 105 + 12 = 117 mm
-    # 148 + 12 = 160 mm
+    # The 111 × 154 mm media page is A6 plus 3 mm bleed on every edge:
+    # 105 + 6 = 111 mm
+    # 148 + 6 = 154 mm
   version: "2.4"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
@@ -35,17 +35,17 @@ ui_preferences:
 # Page size: A6 (105mm × 148mm) with print-safe binding margins on alternating sides.
 
 page_margins:
-  #page_size: "105mm 148mm" # A6 format - configurable, or omit to infer from document.format
+  page_size: "111mm 154mm"  # A6 trim (105 x 148mm) plus 3mm bleed on every edge
   right_page:               # Odd pages (Recto)
-    top: 5mm
-    bottom: 5mm            # Larger optical bottom margin plus footer space
-    left: 8mm              # Inner margin (gutter + crease allowance)
-    right: 8mm              # Outer margin
+    top: 8mm                # 3mm bleed + 5mm trim-relative margin
+    bottom: 8mm             # 3mm bleed + 5mm trim-relative margin
+    left: 11mm              # 3mm bleed + 8mm inner margin
+    right: 11mm             # 3mm bleed + 8mm outer margin
   left_page:                # Even pages (Verso)
-    top: 5mm
-    bottom: 5mm            # Larger optical bottom margin plus footer space
-    left: 8mm               # Outer margin
-    right: 8mm             # Inner margin (gutter + crease allowance)
+    top: 8mm                # 3mm bleed + 5mm trim-relative margin
+    bottom: 8mm             # 3mm bleed + 5mm trim-relative margin
+    left: 11mm              # 3mm bleed + 8mm outer margin
+    right: 11mm             # 3mm bleed + 8mm inner margin
   first_page:               # Cover page - no page number, no margins
     top: 0mm
     bottom: 0mm

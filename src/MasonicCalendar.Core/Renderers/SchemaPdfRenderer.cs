@@ -122,11 +122,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 
                 if (_showBleeds)
                 {
-                    output.AppendLine("/* Bleed visualization */");
-                    output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed grey; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
-                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(GenerateBleedVisualizationCss());
                 }
                 
                 output.AppendLine("</style>");
@@ -201,7 +197,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             }
             else
             {
-                // HTML output - just return bytes, let caller handle file writing
+                htmlContent = ConvertRelativeImagesToDataUrls(htmlContent);
                 return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(htmlContent));
             }
         }
@@ -301,11 +297,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
-                    output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
-                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(GenerateBleedVisualizationCss());
                 }
                 
                 output.AppendLine("</style>");
@@ -573,11 +565,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine("/* Bleed visualization - ::after overlays paint above all child stacking contexts */");
-                    output.AppendLine(".pagedjs_sheet { position: relative; }");
-                    output.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
-                    output.AppendLine(".pagedjs_pagebox { position: relative; }");
-                    output.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+                    output.AppendLine(GenerateBleedVisualizationCss());
                 }
                 
                 output.AppendLine("</style>");
@@ -1575,6 +1563,17 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         css.AppendLine($"  font-family: {globalStyling.Fonts.DefaultFamily};");
         css.AppendLine("}");
 
+        return css.ToString();
+    }
+
+    private string GenerateBleedVisualizationCss()
+    {
+        var css = new StringBuilder();
+        css.AppendLine("/* Bleed visualization: media edge plus A6 trim boundary 3mm inward */");
+        css.AppendLine(".pagedjs_sheet { position: relative; }");
+        css.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; inset: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+        css.AppendLine(".pagedjs_pagebox { position: relative; }");
+        css.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; inset: 3mm; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
         return css.ToString();
     }
 }

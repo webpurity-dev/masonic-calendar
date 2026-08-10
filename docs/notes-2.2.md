@@ -24,3 +24,6 @@
 - Grouped 3 x OSC and set Joined dates for Founders
 - Grouped ROS by Joined and set Founders for 1999
 - Pulled † for RC 1162 from template in sharepoint
+
+# Photos
+- Dimensions in pixels: 814 x 1230

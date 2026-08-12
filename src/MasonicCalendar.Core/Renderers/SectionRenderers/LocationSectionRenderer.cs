@@ -53,10 +53,19 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
             var imagePath = unit.Location?.ImageFile != null 
                 ? GenerateLocationImagePath(unit.Location.ImageFile)
                 : GenerateLocationImagePath(hallName);
+
+            var unitTypePriorities = section.UnitTypeSortPriority?
+                .Select((unitType, index) => new { UnitType = unitType.Trim(), Priority = index })
+                .Where(item => !string.IsNullOrWhiteSpace(item.UnitType))
+                .GroupBy(item => item.UnitType, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(group => group.Key, group => group.First().Priority, StringComparer.OrdinalIgnoreCase)
+                ?? new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            var fallbackPriority = section.UnitTypeSortPriority?.Count ?? 0;
             
-            // Sort units by Number and build unit dicts
+            // Sort configured unit-type groups first, then sort each group by number.
             var sortedUnits = hallGroup
-                .OrderBy(u => u.Number)
+                .OrderBy(u => GetUnitTypePriority(u.UnitType, unitTypePriorities, fallbackPriority))
+                .ThenBy(u => u.Number)
                 .Select(u => new Dictionary<string, object?>
                 {
                     { "super_short_name", u.SuperShortName ?? u.ShortName ?? u.Name },
@@ -127,6 +136,16 @@ public class LocationSectionRenderer(string templateRoot, SchemaDataLoader? data
         }
 
         return columns;
+    }
+
+    private static int GetUnitTypePriority(
+        string? unitType,
+        IReadOnlyDictionary<string, int> unitTypePriorities,
+        int fallbackPriority)
+    {
+        return !string.IsNullOrWhiteSpace(unitType) && unitTypePriorities.TryGetValue(unitType, out var priority)
+            ? priority
+            : fallbackPriority;
     }
 
     /// <summary>

@@ -212,6 +212,7 @@ public class SectionConfig
     public bool DisplayOfficersOnly { get; set; } = false;  // For list_officers pages: render only officers_heading + officers table
     public string? UnitType { get; set; }
     public List<string>? UnitTypes { get; set; }  // Optional filter: one or more unit types (e.g. ["Craft", "RoyalArch"])
+    public List<string>? UnitTypeSortPriority { get; set; }  // Optional ordered unit-type groups, followed by unlisted types
     public string? ForSection { get; set; }
     public int? PagesPerUnit { get; set; }
     public bool HideFromParentToc { get; set; } = false;

@@ -168,6 +168,7 @@ sections:
     section_title: "Dorset Masonic Halls"
     type: "locations"
     template: "_data-driven/location-page.html"
+    unit_type_sort_priority: ["Craft", "RA"]
     is_child: true
   - section_id: "craft_units_toc"
     section_title: "Lodges in Numerical Order"

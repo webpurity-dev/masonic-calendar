@@ -52,7 +52,7 @@
 
 {{ if district_heads.size > 0 }}
 <!-- District Heads -->
-<table data-id="district_heads" style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="district_heads"{{ if break_before_officers && officers.size > 0 }} class="officers-page-break-after"{{ end }} style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for district in district_heads }}
         <tr style="margin: 1px; padding: 0;">
@@ -67,15 +67,15 @@
 {{ end }}
 {{ end }}
 
+{{ if officers.size > 0 }}
 {{ if officers_heading != null && officers_heading != "" }}
-<div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+<div{{ if break_before_officers && district_heads.size == 0 }} class="officers-page-break-before"{{ end }} style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
     <h4 style="font-size: 8pt; font-weight: 600; margin: 8px 0;">{{ officers_heading }}</h4>
 </div>
 {{ end }}
 
-{{ if officers.size > 0 }}
 <!-- Officers -->
-<table data-id="officers" style="margin: 2px 0 20px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="officers"{{ if break_before_officers && district_heads.size == 0 && (officers_heading == null || officers_heading == "") }} class="officers-page-break-before"{{ end }} style="margin: 2px 0 20px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in officers }}
         <tr style="margin: 2px; padding: 0;">

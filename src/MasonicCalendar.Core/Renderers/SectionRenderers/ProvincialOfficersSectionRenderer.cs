@@ -50,6 +50,7 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
                 { "district_heads", metadata["district_heads"] },
                 { "officers", metadata["officers"] },
                 { "display_officers_only", section.DisplayOfficersOnly },
+                { "break_before_officers", section.BreakBeforeOfficers },
                 { "override_break_before", section.OverrideBreakBefore }
             };
 

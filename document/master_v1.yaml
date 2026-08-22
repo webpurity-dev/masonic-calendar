@@ -287,6 +287,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/mark_data_source.yaml"
+    break_before_officers: true
   - section_id: "ram_intro"
     section_title: "Introduction to Mark Masonry"
     type: "static"

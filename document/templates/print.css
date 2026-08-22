@@ -59,6 +59,16 @@ img {
     page-break-after: always;
 }
 
+.officers-page-break-before {
+    break-before: always;
+    page-break-before: always;
+}
+
+.officers-page-break-after {
+    break-after: always;
+    page-break-after: always;
+}
+
 .page-break-avoid {
     page-break-inside: avoid;
 }

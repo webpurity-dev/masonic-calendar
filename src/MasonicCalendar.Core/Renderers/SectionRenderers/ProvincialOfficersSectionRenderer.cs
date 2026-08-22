@@ -48,7 +48,7 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
                 { "heads", metadata["heads"] },
                 { "deputy_heads", metadata["deputy_heads"] },
                 { "district_heads", metadata["district_heads"] },
-                { "officers", metadata["officers"] },
+                { "officers", BuildOfficersModel((List<ProvinceOfficer>)metadata["officers"]!, section.BoldOfficerNameSuffix) },
                 { "display_officers_only", section.DisplayOfficersOnly },
                 { "break_before_officers", section.BreakBeforeOfficers },
                 { "override_break_before", section.OverrideBreakBefore }
@@ -203,6 +203,39 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
         }
 
         return mapping.OrderRegionalOfficers;
+    }
+
+    private static List<Dictionary<string, object?>> BuildOfficersModel(
+        List<ProvinceOfficer> officers,
+        bool boldNameSuffix)
+    {
+        return officers.Select(officer =>
+        {
+            var name = officer.Name ?? "";
+            string? nameSuffix = null;
+
+            if (boldNameSuffix)
+            {
+                var commaIndex = name.IndexOf(',');
+                if (commaIndex >= 0)
+                {
+                    var suffix = name[(commaIndex + 1)..].Trim();
+                    if (!string.IsNullOrWhiteSpace(suffix))
+                    {
+                        name = name[..commaIndex].TrimEnd();
+                        nameSuffix = suffix;
+                    }
+                }
+            }
+
+            return new Dictionary<string, object?>
+            {
+                { "office", officer.Office },
+                { "name", name },
+                { "name_suffix", nameSuffix },
+                { "unit", officer.Unit }
+            };
+        }).ToList();
     }
 
     private async Task<List<ProvinceOfficer>> LoadOfficersFromCsvAsync(string? csvSource, string documentRoot)

@@ -80,7 +80,7 @@
         {{ for officer in officers }}
         <tr style="margin: 2px; padding: 0;">
             <td style="text-align: left; width: 50%; font-weight: 600;">{{ officer.office }}</td>
-            <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}35%{{ else }}45%{{ end }};">{{ officer.name }}</td>
+            <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}35%{{ else }}45%{{ end }};">{{ officer.name }}{{ if officer.name_suffix != null && officer.name_suffix != "" }}, <strong>{{ officer.name_suffix }}</strong>{{ end }}</td>
             {{ if officer.unit != null && officer.unit != "" }}<td style="text-align: right; width: 10%;">{{ officer.unit }}</td>{{ end }}
         </tr>
         {{ end }}

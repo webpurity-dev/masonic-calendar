@@ -5,17 +5,17 @@ order_summary:
   crest: "../../images/ugle-logo.png"
   website: "https://www.ugle.org.uk"
   heads: 
-    - rank: "GRAND MASTER"
+    - rank: "THE MOST WORSHIPFUL THE GRAND MASTER"
       name: "HRH THE DUKE OF KENT KG, GCMG, GCVO, ADC"
   deputy_heads:
-    - rank: "Pro Grand Master"
+    - rank: "The Most Worshipful Pro Grand Master"
       name: "JONATHAN SPENCE, DL"
-    - rank: "Deputy Grand Master"
-      name: "SIR MICHAEL SNYDER"
-    - rank: "Assistant Grand Masters"
-      name: "STEVEN VARLEY"
+    - rank: "The Right Worshipful Deputy Grand Master"
+      name: "SIR MICHAEL JOHN SNYDER"
+    - rank: "The Right Worshipful Assistant Grand Masters"
+      name: "ARTHUR STEVEN VARLEY"
     - name: "JOHN PAUL THOMPSON"
-    - name: "CHARLES HOPKINSON-WOOLLEY"
+    - name: "CHARLES BERTRAM HOPKINSON-WOOLLEY"
   district_heads: []
 
 order_regional_officers:

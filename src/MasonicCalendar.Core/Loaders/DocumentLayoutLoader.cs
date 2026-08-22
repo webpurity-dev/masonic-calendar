@@ -211,6 +211,7 @@ public class SectionConfig
     public string? OfficersConfigKey { get; set; }  // Optional list_officers selector for keyed regional officers config sets
     public bool DisplayOfficersOnly { get; set; } = false;  // For list_officers pages: render only officers_heading + officers table
     public bool BreakBeforeOfficers { get; set; } = false;  // For list_officers pages: start officers_heading + officers table on a new page
+    public bool BoldOfficerNameSuffix { get; set; } = false;  // For list_officers pages: bold name text after the first comma
     public string? UnitType { get; set; }
     public List<string>? UnitTypes { get; set; }  // Optional filter: one or more unit types (e.g. ["Craft", "RoyalArch"])
     public List<string>? UnitTypeSortPriority { get; set; }  // Optional ordered unit-type groups, followed by unlisted types

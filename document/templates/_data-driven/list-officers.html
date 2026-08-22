@@ -1,11 +1,11 @@
 {{ if display_officers_only != true }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="font-size: 12pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
+    <h2 style="font-size: 14pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
     <img src="{{ crest }}" style="max-width: 25%; height: auto; margin: 5px 0;"/>
     {{ end }}
     {{ if website != null && website != "" }}
-    <a href="{{ website }}" target="_blank" style="font-size: 6pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
+    <a href="{{ website }}" target="_blank" style="font-size: 5pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
     {{ end }}
     {{ if heading2 != null && heading2 != "" }}
     <h3 style="font-size: 9%; margin: 4px 0;">{{ heading2 }}</h3>

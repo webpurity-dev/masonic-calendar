@@ -5,12 +5,14 @@ using System.Text;
 using CsvHelper;
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Loaders;
+using MasonicCalendar.Core.Renderers.Utilities;
 
 /// <summary>
 /// Exports expanded meeting dates and unit membership data to CSV files.
-/// Produces two files per run:
+/// Produces three files per run:
 ///   {template}-meetings.csv  — one row per expanded meeting instance
 ///   {template}-members.csv   — one row per person across all unit member categories
+///   {template}-unit-row-counts.csv — one row per unit with logical display-row counts
 /// </summary>
 public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoader dataLoader, string documentRoot)
 {
@@ -34,12 +36,27 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
             .ToList();
 
         var allUnits = new List<SchemaUnit>();
-        foreach (var section in dataDrivenSections)
+        var unitExportContexts = new List<UnitExportContext>();
+        for (var sectionIndex = 0; sectionIndex < dataDrivenSections.Count; sectionIndex++)
         {
+            var section = dataDrivenSections[sectionIndex];
             Console.WriteLine($"  Loading units for section: {section.SectionId}");
             var result = await dataLoader.LoadUnitsWithDataAsync(templateName, section.SectionId);
             if (result.Success && result.Data != null)
+            {
                 allUnits.AddRange(result.Data);
+
+                List<HideNotAppointedRule>? hideNotAppointedRules = null;
+                if (!string.IsNullOrWhiteSpace(section.DataMapping))
+                {
+                    var mappingResult = layoutLoader.LoadDataSourceMapping(section.DataMapping);
+                    if (mappingResult.Success)
+                        hideNotAppointedRules = mappingResult.Data?.UnitOfficers?.HideNotAppointed;
+                }
+
+                unitExportContexts.AddRange(result.Data.Select(unit =>
+                    new UnitExportContext(sectionIndex, section.SectionId ?? "", unit, hideNotAppointedRules)));
+            }
         }
 
         Console.WriteLine($"  ✓ Loaded {allUnits.Count} units total");
@@ -69,6 +86,11 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         var membersPath = Path.Combine(outputDir, $"{outputTemplateName}-members.csv");
         WriteMembersCsv(membersPath, allUnits);
         Console.WriteLine($"  ✓ Members:  {membersPath}");
+
+        // --- Write unit display-row counts CSV ---
+        var rowCountsPath = Path.Combine(outputDir, $"{outputTemplateName}-unit-row-counts.csv");
+        WriteUnitRowCountsCsv(rowCountsPath, unitExportContexts);
+        Console.WriteLine($"  ✓ Unit rows: {rowCountsPath}");
     }
 
     // -------------------------------------------------------------------------
@@ -195,6 +217,31 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
         }
     }
 
+    private static void WriteUnitRowCountsCsv(string path, List<UnitExportContext> contexts)
+    {
+        using var writer = new StreamWriter(path, false, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+
+        writer.WriteLine(
+            "Section ID,Unit Type,Unit Number,Unit Name,Break Before Members," +
+            "Officer Count,Officer Rows,Past Master Count,Past Master Rows," +
+            "Joining Past Master Count,Joining Past Master Rows," +
+            "Member Count,Member Layout,Member Group Count,Member Rows," +
+            "Honorary Member Count,Honorary Member Rows,Total Person Count,Total Displayed Rows");
+
+        foreach (var context in contexts.OrderBy(item => item.SectionIndex).ThenBy(item => item.Unit.Number))
+        {
+            var unit = context.Unit;
+            var counts = UnitModelBuilder.CalculateDisplayRowCount(unit, context.HideNotAppointedRules);
+
+            writer.WriteLine(
+                $"{Q(context.SectionId)},{Q(unit.UnitType)},{unit.Number},{Q(unit.Name)},{Q(unit.BreakBeforeMembers ? "TRUE" : "FALSE")}," +
+                $"{counts.OfficerCount},{counts.OfficerRows},{counts.PastMasterCount},{counts.PastMasterRows}," +
+                $"{counts.JoiningPastMasterCount},{counts.JoiningPastMasterRows}," +
+                $"{counts.MemberCount},{Q(counts.MemberLayout)},{counts.MemberGroupCount},{counts.MemberRows}," +
+                $"{counts.HonoraryMemberCount},{counts.HonoraryMemberRows},{counts.TotalPersonCount},{counts.TotalDisplayedRows}");
+        }
+    }
+
     // Wrap a value in CSV double-quotes, escaping any embedded quotes.
     private static string Q(string? value) => $"\"{(value ?? "").Replace("\"", "\"\"")}\"";
 
@@ -214,4 +261,10 @@ public class CsvExportService(DocumentLayoutLoader layoutLoader, SchemaDataLoade
             return csv.GetField(col);
         return csv.GetField(property);
     }
+
+    private sealed record UnitExportContext(
+        int SectionIndex,
+        string SectionId,
+        SchemaUnit Unit,
+        List<HideNotAppointedRule>? HideNotAppointedRules);
 }

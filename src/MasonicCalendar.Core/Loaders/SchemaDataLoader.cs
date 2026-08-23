@@ -196,6 +196,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     UnitType = mapping.Units.FilterField != null ? csv.GetField(mapping.Units.FilterField) : null,
                     HideUnitNumber = mapping.Units.HideUnitNumber,
                     HideUnitName = mapping.Units.HideUnitName,
+                    BreakBeforeMembers = bool.TryParse(
+                        GetFieldValueWithComposite(csv, fieldMap, "BreakBeforeMembers")?.Trim(),
+                        out var breakBeforeMembers) && breakBeforeMembers,
                 };
 
                 units.Add(unit);

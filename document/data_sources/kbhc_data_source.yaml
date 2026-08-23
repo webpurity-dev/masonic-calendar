@@ -69,3 +69,6 @@ units:
     - name: "Contact"
       csv_column: "Email"
       type: "string"
+    - name: "BreakBeforeMembers"
+      csv_column: "Break Before Members"
+      type: "bool"

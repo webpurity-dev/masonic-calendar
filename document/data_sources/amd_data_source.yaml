@@ -23,7 +23,7 @@ order_summary:
 
 order_regional_officers:  
   district_heading: "District of the Southern Counties"
-  officers_heading: "District Officers"
+  officers_heading: "Officers of the District of the Southern Counties"
   source: "amd_officers.csv"
   fields:
     - name: "Office"
@@ -71,6 +71,9 @@ units:
     - name: "Contact"
       csv_column: "Email"
       type: "string"
+    - name: "BreakBeforeMembers"
+      csv_column: "Break Before Members"
+      type: "bool"
 
 unit_officers:
   source: "amd_membership.csv"

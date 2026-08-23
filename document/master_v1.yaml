@@ -348,7 +348,22 @@ sections:
     type: "meetings-table"
     template: "_data-driven/meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["AMD", "RC", "STOA", "KBHC", "KT", "KTP", "Athel", "OSC", "OSM", "RCOC", "ROS", "RSM", "SRIA", "PBQ"]
+    unit_types: [
+      "RC", 
+      "AMD", 
+      "KT", 
+      "KTP",      
+      "STOA", 
+      "KBHC", 
+      "Athel", 
+      "OSC", 
+      "OSM", 
+      "RCOC", 
+      "ROS", 
+      "RSM", 
+      "SRIA", 
+      "PBQ"
+      ]
 
   # Ancient and Accepted Rite (Rose Croix)
   - section_id: "rc_officers"
@@ -462,6 +477,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/osm_data_source.yaml"
+    break_before_officers: true
   - section_id: "osm_units"
     section_title: "Secret Monitor Conclaves in Numerical Order"
     type: "data-driven"
@@ -475,6 +491,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/osc_data_source.yaml"
+    break_before_officers: true
   - section_id: "osc_units"
     section_title: "Scarlet Cord Consistories in Numerical Order"
     type: "data-driven"

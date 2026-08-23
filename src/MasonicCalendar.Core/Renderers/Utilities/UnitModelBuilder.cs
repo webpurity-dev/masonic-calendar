@@ -25,6 +25,41 @@ public static class UnitModelBuilder
     /// </summary>
     public static RankDisplay? ConfiguredRankDisplay { get; set; }
 
+    public static UnitDisplayRowCount CalculateDisplayRowCount(
+        SchemaUnit unit,
+        List<HideNotAppointedRule>? hideNotAppointedRules = null)
+    {
+        var renderedOfficerCount = ApplyHideNotAppointedFiltering(unit.Officers, hideNotAppointedRules)
+            .Count(officer => officer.Office != "0");
+
+        var groupedMembers = unit.Members
+            .Where(member => !string.IsNullOrWhiteSpace(member.Grouping))
+            .GroupBy(member => member.Grouping, StringComparer.Ordinal)
+            .ToList();
+        var usesGroupedMemberLayout = groupedMembers.Count > 0;
+        var renderedMemberCount = usesGroupedMemberLayout
+            ? groupedMembers.Sum(group => group.Count())
+            : unit.Members.Count;
+        var memberRows = usesGroupedMemberLayout
+            ? groupedMembers.Sum(group => DivideRoundUp(group.Count(), 2))
+            : DivideRoundUp(renderedMemberCount, 3);
+
+        return new UnitDisplayRowCount(
+            renderedOfficerCount,
+            DivideRoundUp(renderedOfficerCount, 2),
+            unit.PastMasters.Count,
+            unit.JoinPastMasters.Count,
+            renderedMemberCount,
+            usesGroupedMemberLayout ? "Grouped (2 columns per group)" : "Regular (3 columns)",
+            groupedMembers.Count,
+            memberRows,
+            unit.HonoraryMembers.Count,
+            DivideRoundUp(unit.HonoraryMembers.Count, 3));
+    }
+
+    private static int DivideRoundUp(int value, int divisor) =>
+        value == 0 ? 0 : (value + divisor - 1) / divisor;
+
     /// <summary>
     /// Format a DateOnly with ordinal day suffix (e.g., "21st January 2026")
     /// </summary>
@@ -65,6 +100,7 @@ public static class UnitModelBuilder
                     { "unitPostfixDisplay", unit.UnitPostfix ?? unit.Number.ToString() },
                     { "hideUnitNumber", unit.HideUnitNumber },
                     { "hideUnitName", unit.HideUnitName },
+                    { "breakBeforeMembers", unit.BreakBeforeMembers },
                     { "contact", unit.Contact },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
                     { "lastInstallationDate", unit.LastInstallationDate },
@@ -609,5 +645,23 @@ public static class UnitModelBuilder
 
         return cleanedRank.Replace("PProv", "PPr", StringComparison.Ordinal);
     }
+}
+
+public sealed record UnitDisplayRowCount(
+    int OfficerCount,
+    int OfficerRows,
+    int PastMasterCount,
+    int JoiningPastMasterCount,
+    int MemberCount,
+    string MemberLayout,
+    int MemberGroupCount,
+    int MemberRows,
+    int HonoraryMemberCount,
+    int HonoraryMemberRows)
+{
+    public int PastMasterRows => PastMasterCount;
+    public int JoiningPastMasterRows => JoiningPastMasterCount;
+    public int TotalPersonCount => OfficerCount + PastMasterCount + JoiningPastMasterCount + MemberCount + HonoraryMemberCount;
+    public int TotalDisplayedRows => OfficerRows + PastMasterRows + JoiningPastMasterRows + MemberRows + HonoraryMemberRows;
 }
 

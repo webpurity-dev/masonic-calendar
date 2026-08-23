@@ -23,6 +23,7 @@ public class SchemaUnit
     public SchemaLocation? Location { get; set; }
     public bool HideUnitNumber { get; set; } = false;  // When true, unit number is hidden in templates
     public bool HideUnitName { get; set; } = false;    // When true, unit name is hidden in templates
+    public bool BreakBeforeMembers { get; set; } = false;
     
     // Related data, loaded based on section configuration
     public List<SchemaOfficer> Officers { get; set; } = [];

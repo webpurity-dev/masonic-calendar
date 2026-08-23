@@ -57,7 +57,6 @@ RC 0004 Off 020,RC,4,4,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0004 Off 021,RC,4,4,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0004 Off 022,RC,4,4,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0004 Off 023,RC,4,4,23,Outer Guard,,Off,"Culley, A E J",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 0004 Off 024,RC,4,4,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0004 SecEMail 001,RC,4,4,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc4@dorsetfreemasonry.info,Rose Croix
 RC 0597 Hon 001,RC,597,597,1,,,Hon,"Barnes, K H 33°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0597 Hon 002,RC,597,597,2,,,Hon,"Brookes, L T 32°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -84,7 +83,7 @@ RC 0597 Mem 019,RC,597,597,19,,,Mem,"Carter, B A",,,,,,,,,,,,,,,,,,,,,,,,2018, 
 RC 0597 Mem 020,RC,597,597,20,,,Mem,"Brookman, A G",,,,,,,,,,,,,,,,,,,,,,,,2024, ,,18°,,Rose Croix
 RC 0597 Mem 021,RC,597,597,21,,,Mem,"Frost, M",,,,,,,,,,,,,,,,,,,,,,,,2024, ,,18°,,Rose Croix
 RC 0597 Mem 022,RC,597,597,22,,,Mem,"James, S A",,,,,,,,,,,,,,,,,,,,,,,,2025, ,,18°,,Rose Croix
-RC 0597 Mem 023,RC,597,597,23,,,Mem,"Murt, M R",,,,,,,,,,,,,,,,,,,,,,,,1999, ,,31°,,Rose Croix
+RC 0597 Mem 023,RC,597,597,23,,,Mem,"Burt, M R",,,,,,,,,,,,,,,,,,,,,,,,1999, ,,31°,,Rose Croix
 RC 0597 Mem 024,RC,597,597,24,,,Mem,"Elliott, M W ",,,,,,,,,,,,,,,,,,,,,,,,2025, ,,18°,,Rose Croix
 RC 0597 Mem 025,RC,597,597,25,,,Mem,"Howard, D",,,,,,,,,,,,,,,,,,,,,,,,1979,,,30°,,Rose Croix
 RC 0597 Off 001,RC,597,597,1,M.W.S.,,Off,"Poate, F W J",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -110,7 +109,7 @@ RC 0597 Off 020,RC,597,597,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Cro
 RC 0597 Off 021,RC,597,597,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0597 Off 022,RC,597,597,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0597 Off 023,RC,597,597,23,Outer Guard,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 0597 Off 024,RC,597,597,24,Guest Organist,,Off,"Boylin, D",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
+RC 0597 Off 024,RC,597,597,24,Gst Organist,,Off,"Boylin, D",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0597 SecEMail 001,RC,597,597,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc597@dorsetfreemasonry.info,Rose Croix
 RC 0768 Hon 001,RC,768,768,1,,,Hon,"Barnes, K H 33°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0768 Hon 002,RC,768,768,2,,,Hon,"Brooke, L T 32°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -161,7 +160,6 @@ RC 0768 Off 020,RC,768,768,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Cro
 RC 0768 Off 021,RC,768,768,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0768 Off 022,RC,768,768,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0768 Off 023,RC,768,768,23,Outer Guard,,Off,"Blake, R P M",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 0768 Off 024,RC,768,768,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 0768 SecEMail 001,RC,768,768,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc768@dorsetfreemasonry.info,Rose Croix
 RC 1019 Hon 001,RC,1019,1019,1,,,Hon,"Izzard, O K ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1019 Inst 001,RC,1019,1019,1,,,Inst,,,,,,,,,,,,,,,October 7th 2025,,,,,,,,,,,,,,,DBLodges
@@ -207,7 +205,6 @@ RC 1019 Off 020,RC,1019,1019,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose C
 RC 1019 Off 021,RC,1019,1019,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1019 Off 022,RC,1019,1019,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1019 Off 023,RC,1019,1019,23,Outer Guard,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1019 Off 024,RC,1019,1019,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1019 SecEMail 001,RC,1019,1019,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1019@dorsetfreemasonry.info,Rose Croix
 RC 1068 Hon 001,RC,1068,1068,1,,,Hon,Barnes K H 33°,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1068 Hon 002,RC,1068,1068,2,,,Hon,Smith B P 32°,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -249,7 +246,6 @@ RC 1068 Off 020,RC,1068,1068,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose C
 RC 1068 Off 021,RC,1068,1068,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1068 Off 022,RC,1068,1068,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1068 Off 023,RC,1068,1068,23,Outer Guard,,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1068 Off 024,RC,1068,1068,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1068 SecEMail 001,RC,1068,1068,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1068@dorsetfreemasonry.info,Rose Croix
 RC 1078 Hon 001,RC,1078,1078,1,,,Hon,Barnes K H 33°,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1078 Hon 002,RC,1078,1078,2,,,Hon,Brookes L T 32°,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -303,7 +299,6 @@ RC 1078 Off 020,RC,1078,1078,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose C
 RC 1078 Off 021,RC,1078,1078,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1078 Off 022,RC,1078,1078,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1078 Off 023,RC,1078,1078,23,Outer Guard,,Off,"Bond, T A",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1078 Off 024,RC,1078,1078,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1078 SecEMail 001,RC,1078,1078,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1078@dorsetfreemasonry.info,Rose Croix
 RC 1127 Inst 001,RC,1127,1127,1,,,Inst,,,,,,,,,,,,,,,March 10th 2026,,,,,,,,,,,,,,,DBLodges
 RC 1127 Mem 001,RC,1127,1127,1,,,Mem,"Old, R M",,,,,,,,,,,,,,,,,,,,,†,,,2002,,,30°,,Rose Croix
@@ -353,7 +348,6 @@ RC 1127 Off 020,RC,1127,1127,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose C
 RC 1127 Off 021,RC,1127,1127,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1127 Off 022,RC,1127,1127,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1127 Off 023,RC,1127,1127,23,Outer Guard,,Off,"Samways, C B ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1127 Off 024,RC,1127,1127,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1127 SecEMail 001,RC,1127,1127,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1127@dorsetfreemasonry.info,Rose Croix
 RC 1162 Hon 001,RC,1162,1162,1,,,Hon,"Bosanquet, N G I 33°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1162 Hon 002,RC,1162,1162,2,,,Hon,"Potter, I F 31°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -436,7 +430,6 @@ RC 1162 Off 020,RC,1162,1162,20,Steward,,Off, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose
 RC 1162 Off 021,RC,1162,1162,21,Steward,,Off, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1162 Off 022,RC,1162,1162,22,Steward,,Off, ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1162 Off 023,RC,1162,1162,23,Outer Guard,,Off,"Mumford, R M",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1162 Off 024,RC,1162,1162,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1162 SecEMail 001,RC,1162,1162,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1162@dorsetfreemasonry.info,Rose Croix
 RC 1212 Hon 001,RC,1212,1212,1,,,Hon,"Shilson, G R E 33°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1212 Hon 002,RC,1212,1212,2,,,Hon,"Buckland, C W 31°",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
@@ -488,5 +481,4 @@ RC 1212 Off 020,RC,1212,1212,20,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose C
 RC 1212 Off 021,RC,1212,1212,21,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1212 Off 022,RC,1212,1212,22,Steward,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1212 Off 023,RC,1212,1212,23,Outer Guard,,Off,"Bond, T A",,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
-RC 1212 Off 024,RC,1212,1212,24,Guest Organist,,Off,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Rose Croix
 RC 1212 SecEMail 001,RC,1212,1212,1,,,SecEMail,,,,,,,,,,,,,,,,,,,,,,,,,,,,,rc1212@dorsetfreemasonry.info,Rose Croix

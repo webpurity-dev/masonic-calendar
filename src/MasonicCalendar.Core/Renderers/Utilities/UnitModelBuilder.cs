@@ -109,7 +109,7 @@ public static class UnitModelBuilder
                     { "warrant", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.Warrant)) },
                     { "meetingDates", TextCleaner.EnsureTrailingPeriod(TextCleaner.CleanText(unit.MeetingDates)) },
                     { "hall", unit.Hall },
-                    { "location", TextCleaner.EnsureTrailingPeriod(unit.LocationId) },
+                    { "location", unit.Location is { Exclude: false } ? TextCleaner.EnsureTrailingPeriod(unit.LocationId) : null },
                     { "pastMastersCount", unit.PastMasters.Count },
                     { "joiningPastMastersCount", unit.JoinPastMasters.Count },
                     { "membersCount", unit.Members.Count },

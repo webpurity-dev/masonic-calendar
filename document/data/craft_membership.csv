@@ -72,8 +72,8 @@ Craft 0137 Off 011,Craft,137,137,11,Mentor,11,Off,"Crumpler, H   ",2013,,,,,,,,,
 Craft 0137 Off 012,Craft,137,137,12,SD,12,Off,"Head, C K  ",2025,,,,,,,,,,,,,,,,Craft8003874,,,,,,,,,,,,,Officers,PPSGD,Provincial Grand Lodge of Shropshire,N,CraftOff
 Craft 0137 Off 013,Craft,137,137,13,JD,13,Off,"Townly, C J W ",2025,,,,,,,,,,,,,,,,Craft10998954,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 0137 Off 014,Craft,137,137,14,ADC,14,Off,"Adlem, M J  ",1995,,,,,,,,,,,,,,,,Craft7539894,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 0137 Off 015,Craft,137,137,15,Gst Org,15,Off,"Miles, R J  ",,,,,,,,,,,,,,,,,Craft1023136,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 0137 Off 016,Craft,137,137,16,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 0137 Off 015,Craft,137,137,16,Gst Org,15,Off,"Miles, R J  ",,,,,,,,,,,,,,,,,Craft1023136,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 0137 Off 016,Craft,137,137,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 0137 Off 017,Craft,137,137,17,ASec,16,Off,"Wills, C C  ",2013,,,,,,,,,,,,,,,,Craft1033990A,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 0137 Off 018,Craft,137,137,18,IG,17,Off,"Kennedy, C J  ",2023,,,,,,,,,,,,,,,,Craft11128260,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 0137 Off 019,Craft,137,137,19,Stwd,18,Off,"Ballett, J   ",2025,,,,,,,,,,,,,,,,Craft11348228,,,,,,,,,,,,,Officers,,,,CraftOff
@@ -817,7 +817,7 @@ Craft 0708 PMO 005,Craft,708,708,5,,,PMO,"Dowrick, M   ",,,,,PProvJGW (Middx),20
 Craft 0708 PMO 006,Craft,708,708,6,,,PMO,"Carey, P R  ",,,,,PProvAGDC (Sussex),2014,,,,,,2025,2025,,,,Craft8352917,,,,,,,,,,,,,PMO,PPAGDC,Provincial Grand Lodge of Sussex,N,CraftPMO
 Craft 0708 PMO 008,Craft,708,708,8,,,PMO,"Ferguson, I A  ",,,,,AsstProvGM (Middx),2023,,,PSGD,2024,,"2009, 2016, 2017, 2018",2009,,,,Craft8439451,,,,,,,,,,,,,PMO,AsstProvGM,Provincial Grand Lodge of Middlesex,Y,CraftPMO
 Craft 0708 PMO 009,Craft,708,708,9,,,PMO,"Greatbatch, K J  ",,PPSGD,2025,,PProvAGDC (Middx),2020,,,,,,"1995, 2021",1995,,,,Craft5866588,,,,,,,,,,,,,PMO,ProvAGDC,Provincial Grand Lodge of Middlesex,Y,CraftPMO
-Craft 0708 PMO 010,Craft,708,708,10,,,PMO,"Preston, D S  ",,PPSGW,2022,,PProvJGW (Middx),2015,,,,,,"1988, 1991, 2007, 2014, 2022",1988,,,,Craft580163,,,,,,,,,,,,,PMO,PPJGW,Provincial Grand Lodge of Middlesex,N,CraftPMO
+Craft 0708 PMO 010,Craft,708,708,10,,,PMO,"Preston, D S  ",,PPSGW,2022,,PProvJGW (Middx),2015,,,,,,"1988, 91, 2007, 14, 22",1988,,,,Craft580163,,,,,,,,,,,,,PMO,PPJGW,Provincial Grand Lodge of Middlesex,N,CraftPMO
 Craft 0708 PMO 013,Craft,708,708,13,,,PMO,"Preston, J D  ",,,,,,,,,,,,2023,2023,,,,Craft10373210,,,,,,,,,,,,,PMO,,,,CraftPMO
 Craft 1037 Hon 001,Craft,1037,1037,1,,,Hon,"Barnes, K H  ",1977,PProvGM,1994,,,,,,PProvGM (Dorset),1994,,,,,,,Craft1039741,,,,,,,,,,,,,Honorary,,,,CraftHon
 Craft 1037 Hon 002,Craft,1037,1037,2,,,Hon,"Barrett, T M  ",2012,PProvSGD,2019,,,,,,,,,,,,,,Craft9338977,,,,,,,,,,,,,Honorary,,,,CraftHon
@@ -2438,8 +2438,8 @@ Craft 6827 Off 011,Craft,6827,6827,11,Mentor,11,Off,"Loft, M R A ",2014,,,,,,,,,
 Craft 6827 Off 012,Craft,6827,6827,12,SD,12,Off,"Boylan, A J  ",2023,,,,,,,,,,,,,,,,Craft11109614,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 6827 Off 013,Craft,6827,6827,13,JD,13,Off,"Tegg, S P  ",2017,,,,,,,,,,,,,,,,Craft8268606,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 6827 Off 014,Craft,6827,6827,14,ADC,14,Off,"Delaney, J   ",2005,,,,,,,,,,,,,,,,Craft9032363,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 6827 Off 015,Craft,6827,6827,15,Gst Org,15,Off,"Boylin, D   ",,,,,,,,,,,,,,,,,Craft1396501,,,,,,,,,,,,,Officers,PPSGW,Provincial Grand Lodge of Hampshire and Isle of Wight,N,CraftOff
-Craft 6827 Off 016,Craft,6827,6827,16,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 6827 Off 015,Craft,6827,6827,16,Gst Org,15,Off,"Boylin, D   ",,,,,,,,,,,,,,,,,Craft1396501,,,,,,,,,,,,,Officers,PPSGW,Provincial Grand Lodge of Hampshire and Isle of Wight,N,CraftOff
+Craft 6827 Off 016,Craft,6827,6827,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 6827 Off 017,Craft,6827,6827,17,ASec,16,Off,"Rose, S L  ",2007,,,,,,,,,,,,,,,,Craft9737243,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 6827 Off 018,Craft,6827,6827,18,IG,17,Off,"Oliver, S J  ",2024,,,,,,,,,,,,,,,,Craft11277487,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 6827 Off 019,Craft,6827,6827,19,Stwd,18,Off,"Diack, B J  ",2025,,,,,,,,,,,,,,,,Craft11333514,,,,,,,,,,,,,Officers,,,,CraftOff
@@ -2715,8 +2715,8 @@ Craft 7873 Off 011,Craft,7873,7873,11,Mentor,11,Off,"Hogben, M L  ",2003,,,,,,,,
 Craft 7873 Off 012,Craft,7873,7873,12,SD,12,Off,"Newman, O S  ",2022,,,,,,,,,,,,,,,,Craft11011487,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 7873 Off 013,Craft,7873,7873,13,JD,13,Off,"Symes, D R  ",2017,,,,,,,,,,,,,,,,Craft1067170A,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 7873 Off 014,Craft,7873,7873,14,ADC,14,Off,"Green, R B  ",2011,,,,,,,,,,,,,,,,Craft10141107,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 7873 Off 015,Craft,7873,7873,15,Gst Org,15,Off,"Williams, A   ",,,,,,,,,,,,,,,,,Craft7537247,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 7873 Off 016,Craft,7873,7873,16,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 7873 Off 015,Craft,7873,7873,16,Gst Org,15,Off,"Williams, A   ",,,,,,,,,,,,,,,,,Craft7537247,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 7873 Off 016,Craft,7873,7873,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 7873 Off 017,Craft,7873,7873,17,ASec,16,Off,"Reed, I A  ",2022,,,,,,,,,,,,,,,,Craft11024201,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 7873 Off 018,Craft,7873,7873,18,IG,17,Off,"Poole, J C  ",2022,,,,,,,,,,,,,,,,Craft11033413,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 7873 Off 019,Craft,7873,7873,19,Stwd,18,Off,"Pask, R J  ",2019,,,,,,,,,,,,,,,,Craft10855428,,,,,,,,,,,,,Officers,,,,CraftOff
@@ -3483,8 +3483,8 @@ Craft 8645 Off 011,Craft,8645,8645,11,Mentor,11,Off,"Palmer, A R  ",2006,,,,,,,,
 Craft 8645 Off 012,Craft,8645,8645,12,SD,12,Off,"Tubb, R J  ",2005,,,,,,,,,,,,,,,,Craft9313664,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 8645 Off 013,Craft,8645,8645,13,JD,13,Off,"Ladiao, L   ",2022,,,,,,,,,,,,,,,,Craft11016624,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 8645 Off 014,Craft,8645,8645,14,ADC,14,Off,"Francis, B J  ",2007,,,,,,,,,,,,,,,,Craft960099A,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 8645 Off 015,Craft,8645,8645,15,Gst Org,15,Off,"Miles, R J  ",,,,,,,,,,,,,,,,,Craft1023136,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 8645 Off 016,Craft,8645,8645,16,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 8645 Off 015,Craft,8645,8645,16,Gst Org,15,Off,"Miles, R J  ",,,,,,,,,,,,,,,,,Craft1023136,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 8645 Off 016,Craft,8645,8645,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 8645 Off 017,Craft,8645,8645,17,ASec,16,Off,"McEwen, A P  ",2017,,,,,,,,,,,,,,,,Craft585475,,,,,,,,,,,,,Officers,PPGStB,Provincial Grand Lodge of Middlesex,N,CraftOff
 Craft 8645 Off 018,Craft,8645,8645,18,IG,17,Off,"Hawkins, S M  ",2022,,,,,,,,,,,,,,,,Craft11059870,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 8645 Off 019,Craft,8645,8645,19,Stwd,18,Off,"Sales, C   ",2022,,,,,,,,,,,,,,,,Craft11096520,,,,,,,,,,,,,Officers,,,,CraftOff
@@ -3737,8 +3737,8 @@ Craft 9177 Off 011,Craft,9177,9177,11,Mentor,11,Off,"Campbell, F L  ",1995,,,,,,
 Craft 9177 Off 012,Craft,9177,9177,12,SD,12,Off,"Hunt, M P  ",2019,,,,,,,,,,,,,,,,Craft7984197,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 9177 Off 013,Craft,9177,9177,13,JD,13,Off,"Best, R C A ",2022,,,,,,,,,,,,,,,,Craft11061107,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 9177 Off 014,Craft,9177,9177,14,ADC,14,Off,"Shenton, P G  ",1989,,,,,,,,,,,,,,,,Craft331068A,,,,,,,,,,,,,Officers,,,,CraftOff
-Craft 9177 Off 015,Craft,9177,9177,15,Gst Org,15,Off,"Boylin, D   ",,,,,,,,,,,,,,,,,Craft1396501,,,,,,,,,,,,,Officers,PPSGW,Provincial Grand Lodge of Hampshire and Isle of Wight,N,CraftOff
-Craft 9177 Off 016,Craft,9177,9177,16,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
+Craft 9177 Off 015,Craft,9177,9177,16,Gst Org,15,Off,"Boylin, D   ",,,,,,,,,,,,,,,,,Craft1396501,,,,,,,,,,,,,Officers,PPSGW,Provincial Grand Lodge of Hampshire and Isle of Wight,N,CraftOff
+Craft 9177 Off 016,Craft,9177,9177,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 9177 Off 017,Craft,9177,9177,17,ASec,16,Off,"House, C   ",1993,,,,,,,,,,,,,,,,Craft724360A,,,,,,,,,,,,,Officers,PPAGDC,Provincial Grand Lodge of Hampshire and Isle of Wight,N,CraftOff
 Craft 9177 Off 018,Craft,9177,9177,18,IG,17,Off,"Gliddon, A G  ",2022,,,,,,,,,,,,,,,,Craft11080063,,,,,,,,,,,,,Officers,,,,CraftOff
 Craft 9177 Off 019,Craft,9177,9177,19,Stwd,18,Off,"Piper, N R  ",2013,,,,,,,,,,,,,,,,Craft10368454,,,,,,,,,,,,,Officers,,,,CraftOff

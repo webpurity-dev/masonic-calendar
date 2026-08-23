@@ -478,6 +478,11 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/osm_data_source.yaml"
     break_before_officers: true
+  - section_id: "osm_intro"
+    section_title: "Introduction to the Order of the Secret Monitor"
+    type: "static"
+    template: "companion/osm-intro.html"
+    hide_from_parent_toc: true
   - section_id: "osm_units"
     section_title: "Secret Monitor Conclaves in Numerical Order"
     type: "data-driven"
@@ -492,6 +497,11 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/osc_data_source.yaml"
     break_before_officers: true
+  - section_id: "osc_intro"
+    section_title: "Introduction to the Order of the Scarlet Cord"
+    type: "static"
+    template: "companion/osc-intro.html"
+    hide_from_parent_toc: true
   - section_id: "osc_units"
     section_title: "Scarlet Cord Consistories in Numerical Order"
     type: "data-driven"
@@ -505,6 +515,11 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/pbq_data_source.yaml"
+  - section_id: "pbq_intro"
+    section_title: "Introduction to the Operatives"
+    type: "static"
+    template: "companion/pbq-intro.html"
+    hide_from_parent_toc: true
   - section_id: "pbq_units"
     section_title: "Operative Assemblages in Numerical Order"
     type: "data-driven"
@@ -518,6 +533,11 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/ros_data_source.yaml"
+  - section_id: "ros_intro"
+    section_title: "Introduction to the Royal Order of Scotland"
+    type: "static"
+    template: "companion/ros-intro.html"
+    hide_from_parent_toc: true
   - section_id: "ros_units"
     section_title: "Royal Order of Scotland Lodges"
     type: "data-driven"

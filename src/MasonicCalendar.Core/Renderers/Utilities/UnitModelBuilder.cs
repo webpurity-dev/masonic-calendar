@@ -25,6 +25,8 @@ public static class UnitModelBuilder
     /// </summary>
     public static RankDisplay? ConfiguredRankDisplay { get; set; }
 
+    public static int? ConfiguredMemberNameInitialsCompactThreshold { get; set; }
+
     public static UnitDisplayRowCount CalculateDisplayRowCount(
         SchemaUnit unit,
         List<HideNotAppointedRule>? hideNotAppointedRules = null)
@@ -294,7 +296,7 @@ public static class UnitModelBuilder
                 {
                     { "reference", TextCleaner.CleanReference(m.Reference) },
                     { "dataId", BuildDataId(m.Reference, m.MemType, null) },
-                    { "name", TextCleaner.CleanName(m.Name) },
+                    { "name", CleanRegularMemberName(m.Name) },
                     { "joined", m.YearInitiated },
                     { "posNo", m.PosNo },
                     { "suffix", string.IsNullOrWhiteSpace(m.Suffix) || m.Suffix == "0" ? "" : m.Suffix }  // v1.9: Add suffix if not blank or "0"
@@ -306,6 +308,21 @@ public static class UnitModelBuilder
         }
 
         return columns;
+    }
+
+    private static string CleanRegularMemberName(string? name)
+    {
+        var cleanedName = TextCleaner.CleanName(name);
+        var threshold = ConfiguredMemberNameInitialsCompactThreshold;
+        if (!threshold.HasValue || cleanedName.Length <= threshold.Value)
+            return cleanedName;
+
+        var commaIndex = cleanedName.IndexOf(',');
+        if (commaIndex < 0)
+            return cleanedName;
+
+        var initials = cleanedName[(commaIndex + 1)..].Replace(" ", "");
+        return $"{cleanedName[..commaIndex]}, {initials}";
     }
 
     /// <summary>

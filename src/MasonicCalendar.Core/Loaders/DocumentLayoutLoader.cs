@@ -173,6 +173,7 @@ public class UiLabels
 public class UiPreferences
 {
     public string? NotAppointedLabel { get; set; }  // Override for NotAppointedLabel (for convenience)
+    public int? MemberNameInitialsCompactThreshold { get; set; }
     public RankDisplay? RankDisplay { get; set; }
 }
 

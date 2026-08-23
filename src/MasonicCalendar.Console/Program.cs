@@ -334,6 +334,9 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             {
                 UnitModelBuilder.ConfiguredVacantOfficerLabel = layoutResult.Data.UiPreferences.NotAppointedLabel;
             }
+
+            UnitModelBuilder.ConfiguredMemberNameInitialsCompactThreshold =
+                layoutResult.Data.UiPreferences.MemberNameInitialsCompactThreshold;
             
             // Set rank display configuration
             if (layoutResult.Data.UiPreferences.RankDisplay != null)

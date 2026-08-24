@@ -1219,11 +1219,11 @@ RA 5331 Off 013,RA,5331,5331,13,2ndASoj,13,Off,"Strange, D J  ",2023,,,,,,,,,,,,
 RA 5331 Off 014,RA,5331,5331,14,ADC,14,Off,"Read, P M  ",2000,,,,,,,,,,,,,,,,RA6120946,,,,,,,,,,,,,Officers,,,,RAOff
 RA 5331 Off 015,RA,5331,5331,15,Org,15,Off,Vacant,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Officers,,,,RAOff
 RA 5331 Off 016,RA,5331,5331,16,AScrE,17,Off,"Smart, D R  ",2000,,,,,,,,,,,,,,,,RA3515907,,,,,,,,,,,,,Officers,,,,RAOff
-RA 5331 Off 017,RA,5331,5331,17,Stwd,18,Off,"Holloway, A J  ",2026,,,,,,,,,,,,,,,,RA10543450,,,,,,,,,,,,,Officers,,,,RAOff
-RA 5331 Off 018,RA,5331,5331,18,Stwd,18,Off,"Jones, B D  ",2026,,,,,,,,,,,,,,,,RA10644532,,,,,,,,,,,,,Officers,,,,RAOff
+RA 5331 Off 017,RA,5331,5331,20,Stwd,18,Off,"Holloway, A J  ",2026,,,,,,,,,,,,,,,,RA10543450,,,,,,,,,,,,,Officers,,,,RAOff
+RA 5331 Off 018,RA,5331,5331,21,Stwd,18,Off,"Jones, B D  ",2026,,,,,,,,,,,,,,,,RA10644532,,,,,,,,,,,,,Officers,,,,RAOff
 RA 5331 Off 019,RA,5331,5331,19,Stwd,18,Off,"Rattew, D M  ",2025,,,,,,,,,,,,,,,,RA10570962,,,,,,,,,,,,,Officers,,,,RAOff
-RA 5331 Off 020,RA,5331,5331,20,Stwd,18,Off,"Crabb, P M  ",2024,,,,,,,,,,,,,,,,RA10441828,,,,,,,,,,,,,Officers,,,,RAOff
-RA 5331 Off 021,RA,5331,5331,21,Stwd,18,Off,"Black, C J  ",2022,,,,,,,,,,,,,,,,RA10140283,,,,,,,,,,,,,Officers,,,,RAOff
+RA 5331 Off 020,RA,5331,5331,18,Stwd,18,Off,"Crabb, P M  ",2024,,,,,,,,,,,,,,,,RA10441828,,,,,,,,,,,,,Officers,,,,RAOff
+RA 5331 Off 021,RA,5331,5331,17,Stwd,18,Off,"Black, C J  ",2022,,,,,,,,,,,,,,,,RA10140283,,,,,,,,,,,,,Officers,,,,RAOff
 RA 5331 Off 022,RA,5331,5331,22,Jan,19,Off,"Watton, G   ",2000,,,,,,,,,,,,,,,,RA7740395,,,,,,,,,,,,,Officers,,,,RAOff
 RA 5331 PMEZ 001,RA,5331,5331,1,,,PMEZ,"Atyeo, C W K ",,,,,,,,,,,,1975,1975,,,,RA1026275,,,,,,,,,,,,,PMO,,,,RAPMEZ
 RA 5331 PMEZ 002,RA,5331,5331,2,,,PMEZ,"Carter, D E  ",,P3rdProvGPrin,2012,,,,,,PAGSoj,2010,,1984,1984,,,,RA1475991,,,,,,,,,,,,,PMO,,,,RAPMEZ

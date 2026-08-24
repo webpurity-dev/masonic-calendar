@@ -391,6 +391,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/kt_data_source.yaml"
+    break_before_officers: true
   - section_id: "kt_units"
     section_title: "Knights Templar Preceptories in Numerical Order"
     type: "data-driven"
@@ -547,6 +548,19 @@ sections:
     data_mapping: "data_sources/ros_data_source.yaml"
     hide_from_parent_toc: true
     override_break_before: true
+
+  # Societas Rosicruciana in Anglia
+  - section_id: "sria_officers"
+    section_title: "Societas Rosicruciana in Anglia"
+    type: "list_officers"
+    template: "_data-driven/list-officers.html"
+    data_mapping: "data_sources/sria_data_source.yaml"
+  - section_id: "sria_units"
+    section_title: "Societas Rosicruciana Colleges in Numerical Order"
+    type: "data-driven"
+    template: "_data-driven/unit-page.html"
+    data_mapping: "data_sources/sria_data_source.yaml"
+    hide_from_parent_toc: true
   
   # St Thomas of Acon
   - section_id: "stoa_officers"
@@ -575,32 +589,19 @@ sections:
     hide_from_parent_toc: true
     override_break_before: true
 
-  # Societas Rosicruciana in Anglia
-  - section_id: "sria_officers"
-    section_title: "Societas Rosicruciana in Anglia"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/sria_data_source.yaml"
-  - section_id: "sria_units"
-    section_title: "Societas Rosicruciana Colleges in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/sria_data_source.yaml"
-    hide_from_parent_toc: true
-
-  # Knights Beneficient of the Holy City
-  - section_id: "kbhc_officers"
-    section_title: "Knights Beneficent of the Holy City"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
-    data_mapping: "data_sources/kbhc_data_source.yaml"  
-  - section_id: "kbhc_units"
-    section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
-    type: "data-driven"
-    template: "_data-driven/unit-page.html"
-    data_mapping: "data_sources/kbhc_data_source.yaml"
-    hide_from_parent_toc: true
-    override_break_before: true
+  # Knights Beneficient of the Holy City (Removed)
+  # - section_id: "kbhc_officers"
+  #   section_title: "Knights Beneficent of the Holy City"
+  #   type: "list_officers"
+  #   template: "_data-driven/list-officers.html"
+  #   data_mapping: "data_sources/kbhc_data_source.yaml"  
+  # - section_id: "kbhc_units"
+  #   section_title: "Knights Beneficent of the Holy City Priories in Numerical Order"
+  #   type: "data-driven"
+  #   template: "_data-driven/unit-page.html"
+  #   data_mapping: "data_sources/kbhc_data_source.yaml"
+  #   hide_from_parent_toc: true
+  #   override_break_before: true
 
   # DATA PROTECTION
   - section_id: "data_protection"

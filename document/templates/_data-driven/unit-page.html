@@ -88,7 +88,7 @@
             <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; table-layout: fixed;">
                 <thead>
                     <tr>
-                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 34%;">Name</th>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%;">Name</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 22%;">Year</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 42%;">Rank & Date Accorded</th>
                     </tr>
@@ -96,7 +96,7 @@
                 <tbody>
                     {{ for master in pastMasters }}
                     <tr data-id="{{ master.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 34%; overflow-wrap: anywhere;">{{ master.name }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 28%; overflow-wrap: anywhere;">{{ master.name }}</td>
                         <td style="padding: 0.5px; text-align: right; width: 22%; overflow-wrap: anywhere;">{{ master.installed }}</td>
                         <td style="padding: 0.5px; text-align: right; width: 42%; overflow-wrap: anywhere; {{ if master.isGrandRank }}font-weight: 600;{{ end }}">{{ master.display_rank }}</td>
                     </tr>
@@ -121,23 +121,23 @@
             <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>
-                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 25%; overflow-wrap: anywhere;">Name</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 12%; overflow-wrap: anywhere;">Joined</th>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%; overflow-wrap: anywhere;">Name</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 15%; overflow-wrap: anywhere;">Joined</th>
                         {{ if sectionHeadings.showPastUnitsColumn }}
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 22%; overflow-wrap: anywhere;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 15%; overflow-wrap: anywhere;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
                         {{ end }}
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 40%; overflow-wrap: anywhere;">Rank & Date Accorded</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 50%; overflow-wrap: anywhere;">Rank & Date Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for joiningPastMaster in joiningPastMasters }}
                     <tr data-id="{{ joiningPastMaster.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 25%; overflow-wrap: anywhere;">{{ joiningPastMaster.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; width: 12%; overflow-wrap: anywhere;">{{ joiningPastMaster.joinedDate }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 28%; overflow-wrap: anywhere;">{{ joiningPastMaster.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 15%; overflow-wrap: anywhere;">{{ joiningPastMaster.joinedDate }}</td>
                         {{ if sectionHeadings.showPastUnitsColumn }}
-                        <td style="padding: 0.5px; text-align: right; width: 22%; overflow-wrap: anywhere;">{{ joiningPastMaster.pastUnits }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 15%; overflow-wrap: anywhere;">{{ joiningPastMaster.pastUnits }}</td>
                         {{ end }}
-                        <td style="padding: 0.5px; text-align: right; width: 40%; overflow-wrap: anywhere; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 50%; overflow-wrap: anywhere; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
                     </tr>
                     {{ end }}
                 </tbody>

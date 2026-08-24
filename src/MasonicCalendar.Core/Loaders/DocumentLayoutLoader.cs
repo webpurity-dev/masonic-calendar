@@ -180,7 +180,14 @@ public class UiPreferences
 public class RankDisplay
 {
     public List<string>? PriorityOrder { get; set; }  // Ordered list of rank field names to check (e.g., ["grand_rank", "provincial_rank", ...])
+    public List<ProvincialAndGrandRankDisplayRule>? DisplayProvincialAndGrandRank { get; set; }
     public RankDisplayShowDates? ShowDates { get; set; }  // When to include dates with rank display
+}
+
+public class ProvincialAndGrandRankDisplayRule
+{
+    public string? UnitType { get; set; }
+    public List<string>? ProvincialRanks { get; set; }
 }
 
 public class RankDisplayShowDates

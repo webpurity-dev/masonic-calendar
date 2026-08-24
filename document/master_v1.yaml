@@ -26,6 +26,21 @@ ui_preferences:
       - "provincial_rank"                # Provincial Rank
       - "prov_rank_other_prov"           # Provincial Rank from Other Province
       - "london_rank"                    # London Rank (lowest priority)
+    display_provincial_and_grand_rank:
+      - unit_type: "Craft"
+        provincial_ranks:
+          - "DepProvGM"
+          - "AsstProvGM"
+          - "PDepProvGM"
+          - "PAsstProvGM"
+      - unit_type: "RA"
+        provincial_ranks:
+          - "DepGSupt"
+          - "2ndProvGPrin"
+          - "3rdProvGPrin"
+          - "PDepGSupt"
+          - "P2ndProvGPrin"
+          - "P3rdProvGPrin"
     show_dates:
       past_masters: true                 # Include dates with past master ranks
       joining_past_masters: true         # Include dates with joining past master ranks

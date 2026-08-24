@@ -151,7 +151,7 @@ public static class UnitModelBuilder
                         { "dataId", BuildDataId(pm.Reference, pm.MemType, null) },
                         { "name", TextCleaner.CleanName(pm.Name) },
                         { "installed", pm.YearInstalled?.Replace(" ", "") },
-                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, ApplyRankFixes(pm.ProvincialRank, rankFixes), pm.DateRankAccorded, ApplyOtherProvinceRankFixes(pm.ProvRankOtherProv, pm.OpPastActive, rankFixes), pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(pm.GrandRank, pm.GrandRankDateAccorded, ApplyRankFixes(pm.ProvincialRank, rankFixes), pm.DateRankAccorded, ApplyOtherProvinceRankFixes(pm.ProvRankOtherProv, pm.OpPastActive, rankFixes), pm.OpDateStartYear, pm.LondonRank, pm.LondonRankDateAccorded, unit.UnitType, ConfiguredRankDisplay?.ShowDates?.PastMasters ?? true) },
                         { "isGrandRank", pm.IsGrandRank }
                     })
                     .ToList()
@@ -165,7 +165,7 @@ public static class UnitModelBuilder
                         { "name", TextCleaner.CleanName(jpm.Name) },
                         { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
                         { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
-                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyOtherProvinceRankFixes(jpm.ProvRankOtherProv, jpm.OpPastActive, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded) },
+                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyOtherProvinceRankFixes(jpm.ProvRankOtherProv, jpm.OpPastActive, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded, unit.UnitType, ConfiguredRankDisplay?.ShowDates?.JoiningPastMasters ?? true) },
                         { "isGrandRank", jpm.IsGrandRank }
                     })
                     .ToList()
@@ -195,7 +195,7 @@ public static class UnitModelBuilder
                         { "reference", TextCleaner.CleanReference(hm.Reference) },
                         { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
                         { "name", TextCleaner.CleanName(hm.Name) },
-                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyOtherProvinceRankFixes(hm.ProvRankOtherProv, hm.OpPastActive, rankFixes), hm.LondonRank) },
+                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyOtherProvinceRankFixes(hm.ProvRankOtherProv, hm.OpPastActive, rankFixes), hm.LondonRank, unit.UnitType) },
                         { "isGrandRank", hm.IsGrandRank }
                     })
                     .ToList()
@@ -344,8 +344,8 @@ public static class UnitModelBuilder
     /// <summary>
     /// Build a display rank string with dates in square brackets.
     /// Uses cascading priority from configuration: priority_order defines which rank to show.
-    /// If grand_rank exists and is first in priority_order: return "grand_rank [year]"
-    /// Shows only the first non-empty rank in the priority order.
+    /// Configured provincial rank exceptions display provincial rank followed by grand rank.
+    /// All other ranks display only the first non-empty rank in the priority order.
     /// Example: "PProvAGReg (Hants. & IoW) [2021]"
     /// Configuration loaded from master_v1.yaml ui_preferences.rank_display
     /// </summary>
@@ -353,13 +353,12 @@ public static class UnitModelBuilder
         string? grandRank, int? grandRankDateAccorded,
         string? provincialRank, int? dateRankAccorded,
         string? provRankOtherProv, int? opDateAccorded,
-        string? londonRank, int? londonRankDateAccorded)
+        string? londonRank, int? londonRankDateAccorded,
+        string? unitType, bool showDates)
     {
         // Use default priority order if config not set
         var priorityOrder = ConfiguredRankDisplay?.PriorityOrder ?? 
             new List<string> { "grand_rank", "provincial_rank", "prov_rank_other_prov", "london_rank" };
-        
-        var showDates = ConfiguredRankDisplay?.ShowDates?.PastMasters ?? true;
 
         // Map field names to (rank value, date value) tuples
         var rankMap = new Dictionary<string, (string?, int?)>
@@ -370,6 +369,17 @@ public static class UnitModelBuilder
             { "london_rank", (londonRank, londonRankDateAccorded) }
         };
 
+        if (ShouldDisplayProvincialAndGrandRank(unitType, provincialRank))
+        {
+            var ranks = new[]
+            {
+                FormatRankWithDate(provincialRank, dateRankAccorded, showDates),
+                FormatRankWithDate(grandRank, grandRankDateAccorded, showDates)
+            };
+
+            return string.Join(", ", ranks.Where(rank => !string.IsNullOrWhiteSpace(rank)));
+        }
+
         // Find the first non-empty rank in priority order
         foreach (var fieldName in priorityOrder)
         {
@@ -379,15 +389,29 @@ public static class UnitModelBuilder
                 var dateValue = rankTuple.Item2;
                 
                 if (!string.IsNullOrWhiteSpace(rankValue))
-                {
-                    if (showDates && dateValue.HasValue)
-                        return $"{rankValue} [{dateValue}]";
-                    return rankValue;
-                }
+                    return FormatRankWithDate(rankValue, dateValue, showDates);
             }
         }
 
         return null;
+    }
+
+    private static string? FormatRankWithDate(string? rank, int? date, bool showDate)
+    {
+        if (string.IsNullOrWhiteSpace(rank))
+            return null;
+
+        return showDate && date.HasValue ? $"{rank} [{date}]" : rank;
+    }
+
+    private static bool ShouldDisplayProvincialAndGrandRank(string? unitType, string? provincialRank)
+    {
+        if (string.IsNullOrWhiteSpace(unitType) || string.IsNullOrWhiteSpace(provincialRank))
+            return false;
+
+        return ConfiguredRankDisplay?.DisplayProvincialAndGrandRank?.Any(rule =>
+            string.Equals(rule.UnitType, unitType, StringComparison.OrdinalIgnoreCase) &&
+            rule.ProvincialRanks?.Contains(provincialRank, StringComparer.OrdinalIgnoreCase) == true) == true;
     }
 
     /// <summary>
@@ -396,8 +420,15 @@ public static class UnitModelBuilder
     /// Uses cascading priority: grand_rank > provincial_rank > prov_rank_other_prov > london_rank
     /// </summary>
     private static string? BuildDisplayRankWithCommaSimple(string? grandRank, string? provincialRank, 
-        string? provRankOtherProv, string? londonRank)
+        string? provRankOtherProv, string? londonRank, string? unitType)
     {
+        if (ShouldDisplayProvincialAndGrandRank(unitType, provincialRank))
+        {
+            var ranks = new[] { provincialRank, grandRank };
+            var pairedDisplayRank = string.Join(", ", ranks.Where(rank => !string.IsNullOrWhiteSpace(rank)));
+            return !string.IsNullOrWhiteSpace(pairedDisplayRank) ? $", {pairedDisplayRank}" : null;
+        }
+
         var displayRank = BuildDisplayRankSimple(grandRank, provincialRank, provRankOtherProv, londonRank);
         return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
     }
@@ -444,7 +475,7 @@ public static class UnitModelBuilder
         string? provRankOtherProv, int? opDateAccorded,
         string? londonRank, int? londonRankDateAccorded)
     {
-        var displayRank = BuildDisplayRankWithDates(grandRank, grandRankDateAccorded, provincialRank, dateRankAccorded, provRankOtherProv, opDateAccorded, londonRank, londonRankDateAccorded);
+        var displayRank = BuildDisplayRankWithDates(grandRank, grandRankDateAccorded, provincialRank, dateRankAccorded, provRankOtherProv, opDateAccorded, londonRank, londonRankDateAccorded, null, ConfiguredRankDisplay?.ShowDates?.PastMasters ?? true);
         return !string.IsNullOrWhiteSpace(displayRank) ? $", {displayRank}" : null;
     }
 

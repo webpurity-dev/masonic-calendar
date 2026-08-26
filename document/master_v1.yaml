@@ -17,9 +17,11 @@ document:
 
 # UI Preferences - configurable display behavior and labels
 ui_preferences:
-  not_appointed_label: "Not appointed"   # Display text for vacant officer positions
   # Remove space from initial if the member's name is longer than this threshold (in characters).
   member_name_initials_compact_threshold: 20
+  officer_display:
+    not_appointed_label: "Not appointed"   # Display text for vacant officer positions
+    hide_officer_with_name: "Ignore"       # Officers with this exact name will not be displayed
   rank_display:
     priority_order:
       - "grand_rank"                     # Grand Rank (highest priority)

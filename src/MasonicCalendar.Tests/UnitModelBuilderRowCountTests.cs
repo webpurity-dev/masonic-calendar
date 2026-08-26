@@ -66,6 +66,35 @@ public class UnitModelBuilderRowCountTests
     }
 
     [Fact]
+    public void Officers_ExcludeExactConfiguredHiddenNameFromModelAndRowCount()
+    {
+        var previousHiddenName = UnitModelBuilder.ConfiguredHiddenOfficerName;
+        try
+        {
+            UnitModelBuilder.ConfiguredHiddenOfficerName = "Ignore";
+            var unit = CreateUnit();
+            unit.Officers =
+            [
+                new SchemaOfficer { Name = " ignore ", Office = "Org", Position = "Organist" },
+                new SchemaOfficer { Name = "Ignore Smith", Office = "Gst Org", Position = "Guest Organist" }
+            ];
+
+            var model = UnitModelBuilder.BuildModel(unit);
+            var officers = Assert.IsType<List<Dictionary<string, object?>>>(model["officers"]);
+            var rowCount = UnitModelBuilder.CalculateDisplayRowCount(unit);
+
+            var officer = Assert.Single(officers);
+            Assert.Equal("Ignore Smith", officer["name"]);
+            Assert.Equal(1, rowCount.OfficerCount);
+            Assert.Equal(1, rowCount.OfficerRows);
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredHiddenOfficerName = previousHiddenName;
+        }
+    }
+
+    [Fact]
     public void GroupedMembers_SumTallestColumnInEachGroup()
     {
         var unit = CreateUnit();

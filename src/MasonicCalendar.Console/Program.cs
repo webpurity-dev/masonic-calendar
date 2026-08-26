@@ -330,10 +330,13 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // Override with UiPreferences if present (takes priority over UiLabels)
         if (layoutResult.Data?.UiPreferences != null)
         {
-            if (!string.IsNullOrWhiteSpace(layoutResult.Data.UiPreferences.NotAppointedLabel))
+            var officerDisplay = layoutResult.Data.UiPreferences.OfficerDisplay;
+            if (!string.IsNullOrWhiteSpace(officerDisplay?.NotAppointedLabel))
             {
-                UnitModelBuilder.ConfiguredVacantOfficerLabel = layoutResult.Data.UiPreferences.NotAppointedLabel;
+                UnitModelBuilder.ConfiguredVacantOfficerLabel = officerDisplay.NotAppointedLabel;
             }
+
+            UnitModelBuilder.ConfiguredHiddenOfficerName = officerDisplay?.HideOfficerWithName;
 
             UnitModelBuilder.ConfiguredMemberNameInitialsCompactThreshold =
                 layoutResult.Data.UiPreferences.MemberNameInitialsCompactThreshold;

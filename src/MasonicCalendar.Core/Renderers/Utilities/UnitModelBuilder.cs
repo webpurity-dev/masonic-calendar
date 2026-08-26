@@ -19,6 +19,8 @@ public static class UnitModelBuilder
     /// </summary>
     public static string? ConfiguredVacantOfficerLabel { get; set; }
 
+    public static string? ConfiguredHiddenOfficerName { get; set; }
+
     /// <summary>
     /// Gets or sets the rank display configuration for past masters and honorary members.
     /// Defines priority order of ranks and when to include dates. Set from master YAML via Program.cs.
@@ -633,11 +635,15 @@ public static class UnitModelBuilder
     /// </summary>
     private static List<SchemaOfficer> ApplyHideNotAppointedFiltering(List<SchemaOfficer> officers, List<HideNotAppointedRule>? hideNotAppointedRules)
     {
+        var visibleOfficers = officers
+            .Where(officer => !IsConfiguredHiddenOfficer(officer.Name))
+            .ToList();
+
         if (hideNotAppointedRules == null || hideNotAppointedRules.Count == 0)
-            return officers;  // No filtering rules, return all officers
+            return visibleOfficers;
 
         var result = new List<SchemaOfficer>();
-        var groupedByPosition = officers.GroupBy(o => o.Position, StringComparer.OrdinalIgnoreCase).ToList();
+        var groupedByPosition = visibleOfficers.GroupBy(o => o.Position, StringComparer.OrdinalIgnoreCase).ToList();
 
         foreach (var positionGroup in groupedByPosition)
         {
@@ -666,6 +672,10 @@ public static class UnitModelBuilder
 
         return result;
     }
+
+    private static bool IsConfiguredHiddenOfficer(string? name) =>
+        !string.IsNullOrWhiteSpace(ConfiguredHiddenOfficerName) &&
+        string.Equals(name?.Trim(), ConfiguredHiddenOfficerName.Trim(), StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// v1.11: Apply rank fixes configured in the data source (e.g., fixing PP abbreviations).

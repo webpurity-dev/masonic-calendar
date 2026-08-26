@@ -124,6 +124,7 @@ unit_past_heads:
       filter_value: "OSM"
     - filter_field: "Mem Type"
       filter_value: "PMO"
+  override_heading: "Past Supreme Rulers"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -157,6 +158,8 @@ unit_joining_past_heads:
       filter_value: "OSM"
     - filter_field: "Mem Type"
       filter_value: "PMI"
+  override_heading: "Joining Past Supreme Rulers"
+  units_column_heading: "Conclaves"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"

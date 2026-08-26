@@ -588,6 +588,7 @@ sections:
     type: "static"
     template: "companion/stoa-intro.html"
     hide_from_parent_toc: true
+    override_break_before: true
   - section_id: "stoa_units"
     section_title: "St Thomas of Acon Chapels in Numerical Order"
     type: "data-driven"

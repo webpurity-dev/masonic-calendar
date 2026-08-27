@@ -212,6 +212,9 @@ units:
     - name: "BreakBeforeMembers"
       csv_column: "Break Before Members"
       type: "bool"
+    - name: "BreakBeforeJoiningMembers"
+      csv_column: "Break Before Joining Members"
+      type: "bool"
     # Location and What3Words now loaded from unit_locations.csv via location join
 
 unit_officers:

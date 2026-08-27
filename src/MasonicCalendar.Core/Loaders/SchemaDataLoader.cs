@@ -199,6 +199,9 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
                     BreakBeforeMembers = bool.TryParse(
                         GetFieldValueWithComposite(csv, fieldMap, "BreakBeforeMembers")?.Trim(),
                         out var breakBeforeMembers) && breakBeforeMembers,
+                    BreakBeforeJoiningMembers = bool.TryParse(
+                        GetFieldValueWithComposite(csv, fieldMap, "BreakBeforeJoiningMembers")?.Trim(),
+                        out var breakBeforeJoiningMembers) && breakBeforeJoiningMembers,
                 };
 
                 units.Add(unit);

@@ -14,7 +14,7 @@ public class UnitModelBuilderPageBreakTests
     [InlineData("", true, false)]
     [InlineData("invalid", true, false)]
     [InlineData("TRUE", false, false)]
-    public async Task Loader_DefaultsMissingBlankFalseAndInvalidValuesToFalse(
+    public async Task Loader_DefaultsPageBreakFieldsMissingBlankFalseAndInvalidValuesToFalse(
         string csvValue,
         bool includeMapping,
         bool expected)
@@ -60,6 +60,9 @@ public class UnitModelBuilderPageBreakTests
                                 [
                                         "    - name: \"BreakBeforeMembers\"",
                                         "      csv_column: \"Break Before Members\"",
+                                        "      type: \"bool\"",
+                                        "    - name: \"BreakBeforeJoiningMembers\"",
+                                        "      csv_column: \"Break Before Joining Member\"",
                                         "      type: \"bool\""
                                 ]);
                         }
@@ -68,14 +71,16 @@ public class UnitModelBuilderPageBreakTests
                                 mappingLines);
             await File.WriteAllTextAsync(
                 Path.Combine(dataRoot, "units.csv"),
-                $"Unit Type,Unit No,Unit Name,Break Before Members{Environment.NewLine}Craft,2559,Test Unit,{csvValue}{Environment.NewLine}");
+                $"Unit Type,Unit No,Unit Name,Break Before Members,Break Before Joining Member{Environment.NewLine}Craft,2559,Test Unit,{csvValue},{csvValue}{Environment.NewLine}");
 
             var layoutLoader = new DocumentLayoutLoader(documentRoot);
             var dataLoader = new SchemaDataLoader(layoutLoader, dataRoot);
             var result = await dataLoader.LoadUnitsWithDataAsync("master_v1", "craft_units");
 
             Assert.True(result.Success, result.Error);
-            Assert.Equal(expected, Assert.Single(result.Data!).BreakBeforeMembers);
+            var unit = Assert.Single(result.Data!);
+            Assert.Equal(expected, unit.BreakBeforeMembers);
+            Assert.Equal(expected, unit.BreakBeforeJoiningMembers);
         }
         finally
         {
@@ -107,6 +112,34 @@ public class UnitModelBuilderPageBreakTests
         var model = UnitModelBuilder.BuildModel(unit);
         var unitModel = Assert.IsType<Dictionary<string, object?>>(model["unit"]);
         Assert.Equal(enabled, unitModel["breakBeforeMembers"]);
+
+        var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+        var template = Template.Parse(File.ReadAllText(templatePath));
+        Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+
+        var html = template.Render(model);
+
+        if (enabled)
+            Assert.Contains("class=\"page-break-before\"", html);
+        else
+            Assert.DoesNotContain("class=\"page-break-before\"", html);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Template_AppliesJoiningBreakClassOnlyWhenEnabled(bool enabled)
+    {
+        var unit = new SchemaUnit
+        {
+            Number = 2559,
+            Name = "Test Unit",
+            BreakBeforeJoiningMembers = enabled,
+            JoinPastMasters = [new SchemaJoinPastMaster { Name = "Joining Member" }]
+        };
+        var model = UnitModelBuilder.BuildModel(unit);
+        var unitModel = Assert.IsType<Dictionary<string, object?>>(model["unit"]);
+        Assert.Equal(enabled, unitModel["breakBeforeJoiningMembers"]);
 
         var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
         var template = Template.Parse(File.ReadAllText(templatePath));

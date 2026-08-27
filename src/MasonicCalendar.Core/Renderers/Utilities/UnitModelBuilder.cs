@@ -109,6 +109,7 @@ public static class UnitModelBuilder
                     { "hideUnitNumber", unit.HideUnitNumber },
                     { "hideUnitName", unit.HideUnitName },
                     { "breakBeforeMembers", unit.BreakBeforeMembers },
+                    { "breakBeforeJoiningMembers", unit.BreakBeforeJoiningMembers },
                     { "contact", unit.Contact },
                     { "established", unit.Established.HasValue ? FormatDateWithOrdinal(unit.Established.Value) : "" },
                     { "lastInstallationDate", unit.LastInstallationDate },

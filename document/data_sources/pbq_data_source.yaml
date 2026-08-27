@@ -84,6 +84,9 @@ units:
     - name: "BreakBeforeMembers"
       csv_column: "Break Before Members"
       type: "bool"
+    - name: "BreakBeforeJoiningMembers"
+      csv_column: "Break Before Joining Members"
+      type: "bool"
 
 unit_officers:
   source: "pbq_membership.csv"

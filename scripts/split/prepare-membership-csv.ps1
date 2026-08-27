@@ -84,12 +84,17 @@ $textReplacementRules = @(
     @{ Old = "s. &"; New = "s &" },
     @{ Old = "2000 & 2013"; New = "2000,2013" },
     @{ Old = "2025, 2025"; New = "2025" },
-    @{ Old = "2015, 2015"; New = "2015" },
+    @{ Old = "1988, 1991, 2007, 2014, 2022"; New = "1988,91,2007,14,22" },
+    @{ Old = "2009, 2016, 2017, 2018"; New = "2009,16,17,18" },
+    @{ Old = "2007, 2014, 2022, 2023"; New = "2007,14,22,23" },
+    @{ Old = "1991, 2015, 2019, 2020"; New = "1991,2015,19,20" },
+    @{ Old = "HAWKINS, V D"; New = "Hawkins, V D" }
     @{ Old = "Vacant,"; New = "Vacant" },
     @{ Old = "Comms Officer"; New = "Comms" },
     @{ Old = "CORPUZ QUIJANO, E C"; New = "Corpuz Quijano, E C" },
     @{ Old = "ORDONEZ, D G"; New = "Ordonez, D G" },
-    @{ Old = "HAWKINS, V D"; New = "Hawkins, V D" }
+    @{ Old = "HAWKINS, V D"; New = "Hawkins, V D" },
+
 )
 
 $membershipPath = Resolve-FromScriptDir -Path $MembershipFile

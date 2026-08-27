@@ -165,7 +165,7 @@ unit_joining_past_heads:
       csv_column: "Pos No"
       type: "int"
     - name: "PastUnits"
-      csv_column: "Lodge"
+      csv_column: "Join Unit"
       type: "string"
     - name: "ProvincialRank"
       csv_column: "Provincial Rank"

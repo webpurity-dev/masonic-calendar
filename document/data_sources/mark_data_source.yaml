@@ -159,7 +159,7 @@ unit_joining_past_heads:
       csv_column: "Join Date"
       type: "string"
     - name: "PastUnits"
-      csv_column: "Lodge"
+      csv_column: "Join Unit"
       type: "string"
     - name: "PosNo"
       csv_column: "Pos No"

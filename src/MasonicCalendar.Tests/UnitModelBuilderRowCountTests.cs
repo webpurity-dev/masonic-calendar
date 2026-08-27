@@ -95,6 +95,46 @@ public class UnitModelBuilderRowCountTests
     }
 
     [Fact]
+    public void Officers_HideConfiguredOfficeOnlyWhenVacantAndUnitTypeMatches()
+    {
+        var previousRules = UnitModelBuilder.ConfiguredHideOfficerIfVacantRules;
+        try
+        {
+            UnitModelBuilder.ConfiguredHideOfficerIfVacantRules =
+            [
+                new HideOfficerIfVacantRule { UnitType = "Craft", Officers = ["Org"] }
+            ];
+            var craftUnit = CreateUnit();
+            craftUnit.UnitType = "Craft";
+            craftUnit.Officers =
+            [
+                new SchemaOfficer { Name = "Vacant", Office = "Org", Position = "Organist" },
+                new SchemaOfficer { Name = "Appointed Organist", Office = "Org", Position = "Organist" },
+                new SchemaOfficer { Name = "Vacant", Office = "Gst Org", Position = "Guest Organist" }
+            ];
+            var raUnit = CreateUnit();
+            raUnit.UnitType = "RA";
+            raUnit.Officers = [new SchemaOfficer { Name = "Vacant", Office = "Org", Position = "Organist" }];
+
+            var craftModel = UnitModelBuilder.BuildModel(craftUnit);
+            var craftOfficers = Assert.IsType<List<Dictionary<string, object?>>>(craftModel["officers"]);
+            var craftRowCount = UnitModelBuilder.CalculateDisplayRowCount(craftUnit);
+            var raModel = UnitModelBuilder.BuildModel(raUnit);
+            var raOfficers = Assert.IsType<List<Dictionary<string, object?>>>(raModel["officers"]);
+
+            Assert.Equal(2, craftOfficers.Count);
+            Assert.Contains(craftOfficers, officer => Equals(officer["name"], "Appointed Organist"));
+            Assert.Contains(craftOfficers, officer => Equals(officer["position"], "Guest Organist"));
+            Assert.Equal(2, craftRowCount.OfficerCount);
+            Assert.Single(raOfficers);
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredHideOfficerIfVacantRules = previousRules;
+        }
+    }
+
+    [Fact]
     public void GroupedMembers_SumTallestColumnInEachGroup()
     {
         var unit = CreateUnit();

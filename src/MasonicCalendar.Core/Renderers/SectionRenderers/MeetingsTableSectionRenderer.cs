@@ -219,7 +219,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             {
                 "medium" => ("6pt", "1.2"),
                 "large" => ("7.2pt", "1.3"),
-                _ => ("4.8pt", "1")  // Default to "small"
+                _ => ("5pt", "1")  // Default to "small"
             };
 
             var model = new Dictionary<string, object?>

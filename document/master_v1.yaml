@@ -20,8 +20,24 @@ ui_preferences:
   # Remove space from initial if the member's name is longer than this threshold (in characters).
   member_name_initials_compact_threshold: 20
   officer_display:
-    not_appointed_label: "Not appointed"   # Display text for vacant officer positions
-    hide_officer_with_name: "Ignore"       # Officers with this exact name will not be displayed
+    # Display text for vacant officer positions
+    not_appointed_label: "Not appointed"
+    # Officers with this exact name will not be displayed
+    hide_officer_with_name: "Ignore"
+    # Hide officer positions if they are vacant
+    hide_officer_if_vacant:
+      - unit_type: "Craft"
+        officers: ["Org"]
+      - unit_type: "RA"
+        officers: ["Org"]
+  joining_past_masters_display:
+    # Maximum number of joining units to display
+    joining_units_threshold: 1
+    # Display only the first threshold units and hide the remainder
+    hide_exceeded_joining_units: true
+    # Consolidate the full list if hiding is disabled and the threshold is exceeded   
+    consolidate_exceeded_joining_units: false
+    consolidate_text: "X unit(s)"
   rank_display:
     priority_order:
       - "grand_rank"                     # Grand Rank (highest priority)

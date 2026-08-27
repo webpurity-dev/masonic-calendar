@@ -21,6 +21,8 @@ public static class UnitModelBuilder
 
     public static string? ConfiguredHiddenOfficerName { get; set; }
 
+    public static List<HideOfficerIfVacantRule>? ConfiguredHideOfficerIfVacantRules { get; set; }
+
     /// <summary>
     /// Gets or sets the rank display configuration for past masters and honorary members.
     /// Defines priority order of ranks and when to include dates. Set from master YAML via Program.cs.
@@ -29,11 +31,13 @@ public static class UnitModelBuilder
 
     public static int? ConfiguredMemberNameInitialsCompactThreshold { get; set; }
 
+    public static JoiningPastMastersDisplay? ConfiguredJoiningPastMastersDisplay { get; set; }
+
     public static UnitDisplayRowCount CalculateDisplayRowCount(
         SchemaUnit unit,
         List<HideNotAppointedRule>? hideNotAppointedRules = null)
     {
-        var renderedOfficerCount = ApplyHideNotAppointedFiltering(unit.Officers, hideNotAppointedRules)
+        var renderedOfficerCount = ApplyHideNotAppointedFiltering(unit, hideNotAppointedRules)
             .Count(officer => officer.Office != "0");
 
         var groupedMembers = unit.Members
@@ -92,7 +96,7 @@ public static class UnitModelBuilder
         var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
         
         // v1.11: Apply officer filtering based on hide_not_appointed configuration
-        var filteredOfficers = ApplyHideNotAppointedFiltering(unit.Officers, hideNotAppointedRules);
+        var filteredOfficers = ApplyHideNotAppointedFiltering(unit, hideNotAppointedRules);
         
         var model = new Dictionary<string, object?>
         {
@@ -602,7 +606,7 @@ public static class UnitModelBuilder
 
     /// <summary>
     /// Format joining past master units display.
-    /// If more than 3 units, returns "X unit(s)"; otherwise returns the original list.
+    /// Applies the configured threshold and hide/consolidate behavior.
     /// Example: "1895,6194,9660,9900,9689,9697" (6 units) → "6 unit(s)"
     /// Example: "1895,6194,9660" (3 units) → "1895,6194,9660"
     /// </summary>
@@ -610,15 +614,22 @@ public static class UnitModelBuilder
     {
         if (string.IsNullOrWhiteSpace(pastUnits))
             return pastUnits;
-        
-        const int JOINING_UNITS_THRESHOLD = 3;
-        
+
+        var display = ConfiguredJoiningPastMastersDisplay;
+        var threshold = display?.JoiningUnitsThreshold ?? 3;
+
         // Count units by splitting on comma (handles spaces and commas)
         var units = pastUnits.Split(',', System.StringSplitOptions.RemoveEmptyEntries);
-        
-        if (units.Length > JOINING_UNITS_THRESHOLD)
-            return $"{units.Length} unit(s)";
-        
+
+        if (units.Length <= threshold)
+            return pastUnits;
+
+        if (display?.HideExceededJoiningUnits == true)
+            return string.Join(",", units.Take(threshold).Select(unit => unit.Trim()));
+
+        if (display?.ConsolidateExceededJoiningUnits != false)
+            return (display?.ConsolidateText ?? "X unit(s)").Replace("X", units.Length.ToString());
+
         return pastUnits;
     }
 
@@ -633,10 +644,11 @@ public static class UnitModelBuilder
     /// - First vacant officer is shown when limit > 0
     /// - Positions without rules show all vacant instances (backward compatible)
     /// </summary>
-    private static List<SchemaOfficer> ApplyHideNotAppointedFiltering(List<SchemaOfficer> officers, List<HideNotAppointedRule>? hideNotAppointedRules)
+    private static List<SchemaOfficer> ApplyHideNotAppointedFiltering(SchemaUnit unit, List<HideNotAppointedRule>? hideNotAppointedRules)
     {
-        var visibleOfficers = officers
-            .Where(officer => !IsConfiguredHiddenOfficer(officer.Name))
+        var visibleOfficers = unit.Officers
+            .Where(officer => !IsConfiguredHiddenOfficer(officer.Name) &&
+                              !IsConfiguredHiddenVacantOfficer(unit.UnitType, officer))
             .ToList();
 
         if (hideNotAppointedRules == null || hideNotAppointedRules.Count == 0)
@@ -676,6 +688,12 @@ public static class UnitModelBuilder
     private static bool IsConfiguredHiddenOfficer(string? name) =>
         !string.IsNullOrWhiteSpace(ConfiguredHiddenOfficerName) &&
         string.Equals(name?.Trim(), ConfiguredHiddenOfficerName.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsConfiguredHiddenVacantOfficer(string? unitType, SchemaOfficer officer) =>
+        IsVacantOfficer(officer.Name) &&
+        ConfiguredHideOfficerIfVacantRules?.Any(rule =>
+            string.Equals(rule.UnitType, unitType, StringComparison.OrdinalIgnoreCase) &&
+            rule.Officers?.Contains(officer.Office ?? "", StringComparer.OrdinalIgnoreCase) == true) == true;
 
     /// <summary>
     /// v1.11: Apply rank fixes configured in the data source (e.g., fixing PP abbreviations).

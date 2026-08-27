@@ -337,9 +337,13 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             }
 
             UnitModelBuilder.ConfiguredHiddenOfficerName = officerDisplay?.HideOfficerWithName;
+            UnitModelBuilder.ConfiguredHideOfficerIfVacantRules = officerDisplay?.HideOfficerIfVacant;
 
             UnitModelBuilder.ConfiguredMemberNameInitialsCompactThreshold =
                 layoutResult.Data.UiPreferences.MemberNameInitialsCompactThreshold;
+
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay =
+                layoutResult.Data.UiPreferences.JoiningPastMastersDisplay;
             
             // Set rank display configuration
             if (layoutResult.Data.UiPreferences.RankDisplay != null)

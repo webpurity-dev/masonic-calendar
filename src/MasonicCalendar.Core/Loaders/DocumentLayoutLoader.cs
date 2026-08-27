@@ -174,13 +174,29 @@ public class UiPreferences
 {
     public int? MemberNameInitialsCompactThreshold { get; set; }
     public OfficerDisplay? OfficerDisplay { get; set; }
+    public JoiningPastMastersDisplay? JoiningPastMastersDisplay { get; set; }
     public RankDisplay? RankDisplay { get; set; }
+}
+
+public class JoiningPastMastersDisplay
+{
+    public int JoiningUnitsThreshold { get; set; } = 3;
+    public bool HideExceededJoiningUnits { get; set; }
+    public bool ConsolidateExceededJoiningUnits { get; set; } = true;
+    public string ConsolidateText { get; set; } = "X unit(s)";
 }
 
 public class OfficerDisplay
 {
     public string? NotAppointedLabel { get; set; }
     public string? HideOfficerWithName { get; set; }
+    public List<HideOfficerIfVacantRule>? HideOfficerIfVacant { get; set; }
+}
+
+public class HideOfficerIfVacantRule
+{
+    public string? UnitType { get; set; }
+    public List<string>? Officers { get; set; }
 }
 
 public class RankDisplay

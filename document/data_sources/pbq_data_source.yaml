@@ -13,23 +13,21 @@ order_summary:
     - rank: "3rd Grand Master Mason"
       title: "M.W. Bro."
       name: "Graham L. Flight, VII°"
-  district_heads:
-    - rank: "Deputy Grand Master Mason"
-      name: "RtWBro Derek Alan Mills VII°"
-    - rank: "Deputy Master Mason VI°"
-      name: "RtWBro Matthew R Burt VII°"
-    - rank: "Deputy Master Mason V°"
-      name: "RtWBro Roger W Freeman VII°"
-    - rank: "Super Intendent of Work"
-      name: "WBro John C Penpraze VI°"
-    - rank: "Clerk"
-      name: "WBro Richard F Micklefield VI°"
-    - rank: "Treasurer "
-      name: "Bro Christoper J Haliburton IV°"
-    - rank: "Deputy J"
-      name: "WBro Richard J Oakley VI°"
-    - rank: "Deputy B"
-      name: "WBro Michael R Parkes VI°"
+  district_heads: []
+
+order_executive_officers:
+  deputy_heading: "South Western Counties Region"
+  source: "pbq_executive_officers.csv"
+  fields:
+    - name: "Rank"
+      csv_column: "Rank"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "Contact"
+      csv_column: "Contact"
+      type: "string"
 
 order_regional_officers:
   district_heading: "South Western Counties Region"

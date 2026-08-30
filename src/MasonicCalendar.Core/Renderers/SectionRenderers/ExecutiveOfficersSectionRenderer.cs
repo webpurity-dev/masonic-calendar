@@ -42,6 +42,7 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
             {
                 { "heading1", metadata["heading1"] },
                 { "heading2", metadata["heading2"] },
+                { "deputy_heading", metadata["deputy_heading"] },
                 { "website", metadata["website"] },
                 { "crest", metadata["crest"] },
                 { "heads", metadata["heads"] },
@@ -89,6 +90,8 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
         if (mapping == null)
         {
             data["heading1"] = section.SectionTitle ?? "Officers";
+            data["heading2"] = null;
+            data["deputy_heading"] = null;
             data["website"] = null;
             data["crest"] = "";
             data["heads"] = new List<OfficerGroup>();
@@ -131,6 +134,7 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
 
         // Use section-specific heading2 (distinct from title)
         data["heading2"] = string.IsNullOrWhiteSpace(config.Heading2) ? null : config.Heading2;
+        data["deputy_heading"] = string.IsNullOrWhiteSpace(config.DeputyHeading) ? null : config.DeputyHeading;
 
         if (DebugMode)
             Console.WriteLine($"    ✓ Loaded executive officers metadata");

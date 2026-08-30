@@ -551,10 +551,10 @@ sections:
     hide_from_parent_toc: true
 
   # The Operatives
-  - section_id: "pbq_officers"
+  - section_id: "pbq_executive_officers"
     section_title: "The Worshipful Society of Free Masons"
-    type: "list_officers"
-    template: "_data-driven/list-officers.html"
+    type: "list_executive_officers"
+    template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/pbq_data_source.yaml"
   - section_id: "pbq_intro"
     section_title: "Introduction to the Operatives"

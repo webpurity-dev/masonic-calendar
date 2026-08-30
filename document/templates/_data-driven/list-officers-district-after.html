@@ -53,9 +53,10 @@
 
 {{ if officers.size > 0 }}
 <!-- Officers -->
-<table style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+{{ for tableIndex in 0..(officer_tables.size - 1) }}
+<table data-id="{{ if tableIndex == 0 }}officers{{ else }}officers_{{ tableIndex + 1 }}{{ end }}"{{ if tableIndex > 0 }} class="page-break-before"{{ end }} style="margin: 8px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
-        {{ for officer in officers }}
+        {{ for officer in officer_tables[tableIndex] }}
         <tr style="margin: 2px; padding: 0;">
             <td style="text-align: left; width: 50%; font-weight: 600;">{{ officer.office }}</td>
             <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}35%{{ else }}45%{{ end }};">{{ officer.name }}</td>
@@ -64,6 +65,7 @@
         {{ end }}
     </tbody>
 </table>
+{{ end }}
 {{ end }}
 
 {{ if district_heading != null && district_heading != "" }}

@@ -143,7 +143,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             output.AppendLine("<body>");
 
             // Render each section and combine
-            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document, layout.UiPreferences);
             var sectionIndex = 0;
             
             foreach (var requestedSectionId in sectionIds)
@@ -389,7 +389,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             else if (!isDataDriven)
             {
                 // Non-data-driven, non-toc, non-static sections (e.g. meetings-calendar) — delegate to SectionRendererFactory
-                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document, layout.UiPreferences);
                 var sectionRenderer = rendererFactory.CreateRenderer(section.Type);
                 var sectionIndex = layout?.Sections?.IndexOf(section) ?? 0;
                 var sectionOutput = new StringBuilder();
@@ -604,7 +604,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
 
             Console.WriteLine($"  - Processing {layout!.Sections.Count} sections...");
             
-            var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document);
+                var rendererFactory = new SectionRendererFactory(_templateRoot, _dataLoader, _debugMode, layout!.Document, layout.UiPreferences);
             
             for (int sectionIndex = 0; sectionIndex < layout.Sections.Count; sectionIndex++)
             {

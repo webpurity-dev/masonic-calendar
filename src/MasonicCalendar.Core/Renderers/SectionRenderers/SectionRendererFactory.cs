@@ -11,13 +11,15 @@ public class SectionRendererFactory
     private readonly SchemaDataLoader? _dataLoader;
     private readonly bool _debugMode;
     private readonly DocumentInfo? _documentInfo;
+    private readonly UiPreferences? _uiPreferences;
 
-    public SectionRendererFactory(string templateRoot, SchemaDataLoader? dataLoader = null, bool debugMode = false, DocumentInfo? documentInfo = null)
+    public SectionRendererFactory(string templateRoot, SchemaDataLoader? dataLoader = null, bool debugMode = false, DocumentInfo? documentInfo = null, UiPreferences? uiPreferences = null)
     {
         _templateRoot = templateRoot;
         _dataLoader = dataLoader;
         _debugMode = debugMode;
         _documentInfo = documentInfo;
+        _uiPreferences = uiPreferences;
     }
 
     /// <summary>
@@ -34,7 +36,7 @@ public class SectionRendererFactory
             "meetings-table" => new MeetingsTableSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "membership-summary" => new MembershipSummarySectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "membership-statistics" => new MembershipStatisticsSectionRenderer(_templateRoot, _dataLoader, _debugMode),
-            "list_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "list_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode, _uiPreferences?.OrderOfficersDisplay),
             "list_executive_officers" => new ExecutiveOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "locations" => new LocationSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "succession-list" => new SuccessionListSectionRenderer(_templateRoot, _dataLoader, _debugMode),

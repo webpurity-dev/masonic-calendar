@@ -10,7 +10,7 @@ using System.Text;
 /// <summary>
 /// Renders provincial/grand order officers sections with data from YAML metadata and CSV officers.
 /// </summary>
-public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode)
+public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode, OrderOfficersDisplay? orderOfficersDisplay = null)
     : SectionRenderer(templateRoot, dataLoader, debugMode)
 {
     public override async Task RenderAsync(
@@ -36,6 +36,16 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
             if (DebugMode)
                 Console.WriteLine($"  - Section '{section.SectionId}': Loaded officers metadata");
 
+            var officers = BuildOfficersModel((List<ProvinceOfficer>)metadata["officers"]!, section.BoldOfficerNameSuffix);
+            var heading1 = metadata["heading1"] as string;
+            var firstTableRows = ResolveFirstTableRows(
+                heading1,
+                section.DisplayOfficersOnly,
+                section.BreakBeforeOfficers,
+                orderOfficersDisplay);
+            var continuationTableRows = orderOfficersDisplay?.RowsPerTableWithoutHeading ?? 0;
+            var officerTables = BuildOfficerTables(officers, firstTableRows, continuationTableRows);
+
             // Build Scriban model
             var model = new Dictionary<string, object?>
             {
@@ -48,7 +58,8 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
                 { "heads", metadata["heads"] },
                 { "deputy_heads", metadata["deputy_heads"] },
                 { "district_heads", metadata["district_heads"] },
-                { "officers", BuildOfficersModel((List<ProvinceOfficer>)metadata["officers"]!, section.BoldOfficerNameSuffix) },
+                { "officers", officers },
+                { "officer_tables", officerTables },
                 { "display_officers_only", section.DisplayOfficersOnly },
                 { "break_before_officers", section.BreakBeforeOfficers },
                 { "override_break_before", section.OverrideBreakBefore }
@@ -236,6 +247,41 @@ public class ProvincialOfficersSectionRenderer(string templateRoot, SchemaDataLo
                 { "unit", officer.Unit }
             };
         }).ToList();
+    }
+
+    public static List<List<Dictionary<string, object?>>> BuildOfficerTables(
+        List<Dictionary<string, object?>> officers,
+        int firstTableRows,
+        int continuationTableRows)
+    {
+        if (firstTableRows <= 0 || continuationTableRows <= 0 || officers.Count <= firstTableRows)
+            return [officers];
+
+        var tables = new List<List<Dictionary<string, object?>>>
+        {
+            officers.Take(firstTableRows).ToList()
+        };
+        tables.AddRange(officers
+            .Skip(firstTableRows)
+            .Chunk(continuationTableRows)
+            .Select(chunk => chunk.ToList()));
+
+        return tables;
+    }
+
+    public static int ResolveFirstTableRows(
+        string? heading1,
+        bool displayOfficersOnly,
+        bool breakBeforeOfficers,
+        OrderOfficersDisplay? display)
+    {
+        var headingSharesFirstTablePage = !displayOfficersOnly &&
+            !breakBeforeOfficers &&
+            !string.IsNullOrWhiteSpace(heading1);
+
+        return headingSharesFirstTablePage
+            ? display?.RowsPerTableWithHeading ?? 0
+            : display?.RowsPerTableWithoutHeading ?? 0;
     }
 
     private async Task<List<ProvinceOfficer>> LoadOfficersFromCsvAsync(string? csvSource, string documentRoot)

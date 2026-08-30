@@ -19,6 +19,10 @@ document:
 ui_preferences:
   # Remove space from initial if the member's name is longer than this threshold (in characters).
   member_name_initials_compact_threshold: 20
+  order_officers_display:
+    # Split long officers lists according to whether heading1 shares the page
+    rows_per_table_with_heading: 30
+    rows_per_table_without_heading: 34
   officer_display:
     # Display text for vacant officer positions
     not_appointed_label: "Not appointed"
@@ -92,7 +96,7 @@ page_margins:
 sections:
   - section_id: "cover"
     type: "static"
-    template: "cover-front.html"  
+    template: "cover-front.html"
   - section_id: "pgm_photo"
     type: "static"
     template: "photos/photo-pgm.html"
@@ -151,6 +155,7 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     officers_config_key: "provincial"
     bold_officer_name_suffix: true
+    break_before_officers: true
     is_child: true
   - section_id: "craft_promotions"
     section_title: "Promotions 2026/27"
@@ -161,7 +166,6 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-    override_break_before: true
   - section_id: "craft_appointments"
     section_title: "Appointments to Past Rank 2026/27"
     type: "list_officers"
@@ -259,6 +263,7 @@ sections:
     data_mapping: "data_sources/royalarch_data_source.yaml"
     officers_config_key: "provincial"
     bold_officer_name_suffix: true
+    break_before_officers: true
     is_child: true
   - section_id: "ra_promotions"
     section_title: "Promotions 2026/27"
@@ -269,7 +274,6 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-    override_break_before: true
   - section_id: "ra_appointments"
     section_title: "Appointments to Past Rank 2026/27"
     type: "list_officers"
@@ -279,7 +283,6 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-    override_break_before: true
   - section_id: "ra_reasons"
     section_title: "Reasons to be Exalted"
     type: "static"

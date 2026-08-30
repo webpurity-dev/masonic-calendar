@@ -173,9 +173,16 @@ public class UiLabels
 public class UiPreferences
 {
     public int? MemberNameInitialsCompactThreshold { get; set; }
+    public OrderOfficersDisplay? OrderOfficersDisplay { get; set; }
     public OfficerDisplay? OfficerDisplay { get; set; }
     public JoiningPastMastersDisplay? JoiningPastMastersDisplay { get; set; }
     public RankDisplay? RankDisplay { get; set; }
+}
+
+public class OrderOfficersDisplay
+{
+    public int RowsPerTableWithHeading { get; set; }
+    public int RowsPerTableWithoutHeading { get; set; }
 }
 
 public class JoiningPastMastersDisplay

@@ -13,25 +13,26 @@
         <tbody>
             {{ for item in group.col1 }}
             <tr class="toc-item">
-                <td style="padding: 2px; text-align: left; font-size: 6pt;">
+                <td style="padding: 2px; text-align: left;">
                     <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">
                         {{ if !item.hide_unit_number }}<strong>{{ item.unit_postfix_display }}</strong> {{ end }}{{ item.short_name }}</a>
                 </td>
-                <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
+                <td style="padding: 2px; text-align: right; white-space: nowrap;">
                     <span class="toc-page-number"></span>
                 </td>
             </tr>
             {{ end }}
         </tbody>
-    </table><table style="display: inline-block; vertical-align: top; width: 50%; border-collapse: collapse; font-size: 7pt; box-sizing: border-box;">
+    </table>
+    <table style="display: inline-block; vertical-align: top; width: 50%; border-collapse: collapse; font-size: 7pt; box-sizing: border-box;">
         <tbody>
             {{ for item in group.col2 }}
             <tr class="toc-item">
-                <td style="padding: 2px; text-align: left; font-size: 6pt;">
+                <td style="padding: 2px; text-align: left;">
                     <a style="color: #000; text-decoration: none;" href="#{{ item.anchor_id }}">
                         {{ if !item.hide_unit_number }}<strong>{{ item.unit_postfix_display }}</strong> {{ end }}{{ item.short_name }}</a>
                 </td>
-                <td style="padding: 2px; text-align: right; white-space: nowrap; font-size: 6pt;">
+                <td style="padding: 2px; text-align: right; white-space: nowrap;">
                     <span class="toc-page-number"></span>
                 </td>
             </tr>

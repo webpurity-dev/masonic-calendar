@@ -72,12 +72,12 @@ ui_preferences:
 page_margins:
   page_size: "111mm 154mm"  # A6 trim (105 x 148mm) plus 3mm bleed on every edge
   right_page:               # Odd pages (Recto)
-    top: 8mm                # 3mm bleed + 5mm trim-relative margin
+    top: 10mm                # 3mm bleed + 5mm trim-relative margin
     bottom: 12mm            # IMPORTANT! Preserves rows when tables cross pages!!
     left: 11mm              # 3mm bleed + 8mm inner margin
     right: 11mm             # 3mm bleed + 8mm outer margin
   left_page:                # Even pages (Verso)
-    top: 8mm                # 3mm bleed + 5mm trim-relative margin
+    top: 10mm                # 3mm bleed + 5mm trim-relative margin
     bottom: 12mm            # IMPORTANT! Preserves rows when tables cross pages!!
     left: 11mm              # 3mm bleed + 8mm outer margin
     right: 11mm             # 3mm bleed + 8mm inner margin
@@ -569,6 +569,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/ros_data_source.yaml"
+    break_before_officers: true
   - section_id: "ros_intro"
     section_title: "Introduction to the Royal Order of Scotland"
     type: "static"

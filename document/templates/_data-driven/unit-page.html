@@ -117,7 +117,8 @@
                 {{ sectionHeadings.joiningPastMasters }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
-        <div style="width: 100%; overflow: visible;">
+        {{ for tableIndex in 0..(joiningPastMasterTables.size - 1) }}
+        <div class="{{ if tableIndex > 0 }}page-break-before{{ end }}" style="width: 100%; overflow: visible;">
             <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>
@@ -130,7 +131,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{ for joiningPastMaster in joiningPastMasters }}
+                    {{ for joiningPastMaster in joiningPastMasterTables[tableIndex] }}
                     <tr data-id="{{ joiningPastMaster.dataId }}">
                         <td style="padding: 0.5px; text-align: left; width: 28%; overflow-wrap: anywhere;">{{ joiningPastMaster.name }}</td>
                         <td style="padding: 0.5px; text-align: right; width: 15%; overflow-wrap: anywhere;">{{ joiningPastMaster.joinedDate }}</td>
@@ -143,6 +144,7 @@
                 </tbody>
             </table>
         </div>
+        {{ end }}
     </div>
     {{ end }}
 

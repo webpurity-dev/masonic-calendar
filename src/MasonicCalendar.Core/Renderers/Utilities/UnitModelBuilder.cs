@@ -97,6 +97,23 @@ public static class UnitModelBuilder
         
         // v1.11: Apply officer filtering based on hide_not_appointed configuration
         var filteredOfficers = ApplyHideNotAppointedFiltering(unit, hideNotAppointedRules);
+
+        var joiningPastMasters = unit.JoinPastMasters
+            .Select(jpm => new Dictionary<string, object?>
+            {
+                { "reference", TextCleaner.CleanReference(jpm.Reference) },
+                { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
+                { "name", TextCleaner.CleanName(jpm.Name) },
+                { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
+                { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
+                { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyOtherProvinceRankFixes(jpm.ProvRankOtherProv, jpm.OpPastActive, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded, unit.UnitType, ConfiguredRankDisplay?.ShowDates?.JoiningPastMasters ?? true) },
+                { "isGrandRank", jpm.IsGrandRank }
+            })
+            .ToList();
+        var rowsPerJoiningPastMastersTable = ConfiguredJoiningPastMastersDisplay?.RowsPerTable ?? 0;
+        var joiningPastMasterTables = rowsPerJoiningPastMastersTable > 0
+            ? joiningPastMasters.Chunk(rowsPerJoiningPastMastersTable).Select(chunk => chunk.ToList()).ToList()
+            : [joiningPastMasters];
         
         var model = new Dictionary<string, object?>
         {
@@ -164,18 +181,10 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
-                "joiningPastMasters", unit.JoinPastMasters
-                    .Select(jpm => new Dictionary<string, object?>
-                    {
-                        { "reference", TextCleaner.CleanReference(jpm.Reference) },
-                        { "dataId", BuildDataId(jpm.Reference, jpm.MemType, null) },
-                        { "name", TextCleaner.CleanName(jpm.Name) },
-                        { "joinedDate", jpm.JoinedDate?.Replace(" ", "") },
-                        { "pastUnits", FormatJoiningUnitsDisplay(jpm.PastUnits) },
-                        { "display_rank", BuildDisplayRankWithDates(jpm.GrandRank, jpm.GrandRankDateAccorded, ApplyRankFixes(jpm.ProvincialRank, rankFixes), jpm.DateRankAccorded, ApplyOtherProvinceRankFixes(jpm.ProvRankOtherProv, jpm.OpPastActive, rankFixes), jpm.OpDateStartYear, jpm.LondonRank, jpm.LondonRankDateAccorded, unit.UnitType, ConfiguredRankDisplay?.ShowDates?.JoiningPastMasters ?? true) },
-                        { "isGrandRank", jpm.IsGrandRank }
-                    })
-                    .ToList()
+                "joiningPastMasters", joiningPastMasters
+            },
+            {
+                "joiningPastMasterTables", joiningPastMasterTables
             },
             {
                 "members", unit.Members

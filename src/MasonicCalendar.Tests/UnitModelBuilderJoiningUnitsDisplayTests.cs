@@ -3,6 +3,7 @@ namespace MasonicCalendar.Tests;
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Loaders;
 using MasonicCalendar.Core.Renderers.Utilities;
+using Scriban;
 
 public class UnitModelBuilderJoiningUnitsDisplayTests
 {
@@ -16,9 +17,10 @@ public class UnitModelBuilderJoiningUnitsDisplayTests
 
         Assert.True(result.Success, result.Error);
         var display = Assert.IsType<JoiningPastMastersDisplay>(result.Data?.UiPreferences?.JoiningPastMastersDisplay);
-        Assert.Equal(2, display.JoiningUnitsThreshold);
+        Assert.Equal(46, display.RowsPerTable);
+        Assert.Equal(1, display.JoiningUnitsThreshold);
         Assert.True(display.HideExceededJoiningUnits);
-        Assert.True(display.ConsolidateExceededJoiningUnits);
+        Assert.False(display.ConsolidateExceededJoiningUnits);
         Assert.Equal("X unit(s)", display.ConsolidateText);
     }
 
@@ -75,6 +77,74 @@ public class UnitModelBuilderJoiningUnitsDisplayTests
         }
     }
 
+    [Theory]
+    [InlineData(46, 46)]
+    [InlineData(47, 46, 1)]
+    [InlineData(92, 46, 46)]
+    [InlineData(93, 46, 46, 1)]
+    public void JoiningPastMasters_ChunkAtConfiguredTableBoundary(int rowCount, params int[] expectedChunkSizes)
+    {
+        var previousDisplay = UnitModelBuilder.ConfiguredJoiningPastMastersDisplay;
+        try
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = new JoiningPastMastersDisplay { RowsPerTable = 46 };
+
+            var model = UnitModelBuilder.BuildModel(CreateUnitWithJoiningPastMasters(rowCount));
+            var tables = Assert.IsType<List<List<Dictionary<string, object?>>>>(model["joiningPastMasterTables"]);
+
+            Assert.Equal(expectedChunkSizes, tables.Select(table => table.Count));
+            Assert.Equal(
+                Enumerable.Range(1, rowCount).Select(index => $"JPM-{index:D3}"),
+                tables.SelectMany(table => table).Select(row => row["dataId"] as string));
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = previousDisplay;
+        }
+    }
+
+    [Fact]
+    public void JoiningPastMasters_DisabledChunkingRetainsSingleTable()
+    {
+        var previousDisplay = UnitModelBuilder.ConfiguredJoiningPastMastersDisplay;
+        try
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = new JoiningPastMastersDisplay { RowsPerTable = 0 };
+
+            var model = UnitModelBuilder.BuildModel(CreateUnitWithJoiningPastMasters(93));
+            var tables = Assert.IsType<List<List<Dictionary<string, object?>>>>(model["joiningPastMasterTables"]);
+
+            Assert.Equal(93, Assert.Single(tables).Count);
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = previousDisplay;
+        }
+    }
+
+    [Fact]
+    public void JoiningPastMasters_TemplateStartsEveryAdditionalTableOnNewPage()
+    {
+        var previousDisplay = UnitModelBuilder.ConfiguredJoiningPastMastersDisplay;
+        try
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = new JoiningPastMastersDisplay { RowsPerTable = 46 };
+            var model = UnitModelBuilder.BuildModel(CreateUnitWithJoiningPastMasters(93));
+            var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+            var template = Template.Parse(File.ReadAllText(templatePath));
+
+            Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+            var html = template.Render(model);
+
+            Assert.Equal(3, System.Text.RegularExpressions.Regex.Matches(html, "<table ").Count);
+            Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(html, "class=\"page-break-before\"").Count);
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredJoiningPastMastersDisplay = previousDisplay;
+        }
+    }
+
     private static string? GetJoiningUnitsDisplay(string pastUnits)
     {
         var unit = new SchemaUnit
@@ -90,6 +160,22 @@ public class UnitModelBuilderJoiningUnitsDisplayTests
         var joiningPastMasters = Assert.IsType<List<Dictionary<string, object?>>>(model["joiningPastMasters"]);
 
         return Assert.Single(joiningPastMasters)["pastUnits"] as string;
+    }
+
+    private static SchemaUnit CreateUnitWithJoiningPastMasters(int count)
+    {
+        return new SchemaUnit
+        {
+            Number = 1,
+            Name = "Test Unit",
+            JoinPastMasters = Enumerable.Range(1, count)
+                .Select(index => new SchemaJoinPastMaster
+                {
+                    Reference = $"JPM-{index:D3}",
+                    Name = $"Joining Member {index:D3}"
+                })
+                .ToList()
+        };
     }
 
     private static string FindRepositoryRoot()

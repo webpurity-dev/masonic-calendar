@@ -180,6 +180,7 @@ public class UiPreferences
 
 public class JoiningPastMastersDisplay
 {
+    public int RowsPerTable { get; set; }
     public int JoiningUnitsThreshold { get; set; } = 3;
     public bool HideExceededJoiningUnits { get; set; }
     public bool ConsolidateExceededJoiningUnits { get; set; } = true;

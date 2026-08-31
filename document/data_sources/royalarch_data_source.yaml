@@ -45,7 +45,7 @@ order_executive_officers:
 
 order_regional_officer_sets:
   provincial:
-    officers_heading: "Provincial Grand Chapter Officers 2026-27.<br/>Appointed on Saturday 10th October 2026."
+    officers_heading: "Provincial Grand Chapter Officers 2026-27<br/>Appointed on Saturday 10th October 2026"
     source: "royalarch_officers.csv"
     fields:
       - name: "Office"

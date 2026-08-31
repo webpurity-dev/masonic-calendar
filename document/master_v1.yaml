@@ -4,7 +4,7 @@ document:
     # The 111 × 154 mm media page is A6 plus 3 mm bleed on every edge:
     # 105 + 6 = 111 mm
     # 148 + 6 = 154 mm
-  version: "2.4.3"
+  version: "2.4.4"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
   global_styling:
@@ -78,13 +78,13 @@ ui_preferences:
 page_margins:
   page_size: "111mm 154mm"  # A6 trim (105 x 148mm) plus 3mm bleed on every edge
   right_page:               # Odd pages (Recto)
-    top: 10mm                # 3mm bleed + 5mm trim-relative margin
-    bottom: 12mm            # IMPORTANT! Preserves rows when tables cross pages!!
+    top: 10mm               # 3mm bleed + 7mm trim-relative margin
+    bottom: 12mm            # 3mm bleed + 9mm inner margin for page numbers
     left: 11mm              # 3mm bleed + 8mm inner margin
     right: 11mm             # 3mm bleed + 8mm outer margin
   left_page:                # Even pages (Verso)
-    top: 10mm                # 3mm bleed + 5mm trim-relative margin
-    bottom: 12mm            # IMPORTANT! Preserves rows when tables cross pages!!
+    top: 10mm               # 3mm bleed + 7mm trim-relative margin
+    bottom: 12mm            # 3mm bleed + 9mm inner margin for page numbers
     left: 11mm              # 3mm bleed + 8mm outer margin
     right: 11mm             # 3mm bleed + 8mm inner margin
   first_page:               # Cover page - no page number, no margins
@@ -170,7 +170,7 @@ sections:
     data_mapping: "data_sources/craft_data_source.yaml"
     officers_config_key: "provincial"
     bold_officer_name_suffix: true
-    break_before_officers: true
+    display_officers_only: true
     is_child: true
   - section_id: "craft_promotions"
     section_title: "Promotions 2026/27"
@@ -278,7 +278,7 @@ sections:
     data_mapping: "data_sources/royalarch_data_source.yaml"
     officers_config_key: "provincial"
     bold_officer_name_suffix: true
-    break_before_officers: true
+    display_officers_only: true
     is_child: true
   - section_id: "ra_promotions"
     section_title: "Promotions 2026/27"

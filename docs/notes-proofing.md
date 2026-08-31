@@ -1,32 +1,39 @@
 # Print grouped sections for Proofing
 
 ## -FRONT
-Pages: 1-6
+Pages: 1-8
 ## -UGLE + Grand Officers
-Pages: 7-12
+Pages: 9-12
 ## -CRAFT-INTRO
-Pages: 13-43
-## -CRAFT-137-3366
-Pages: 44-80
-## -CRAFT-3743-8099
-Pages: 81-109
-## -CRAFT-8149-9942
-Pages: 110-140
+Pages: 13-44
+## -CRAFT-UNITS
+Pages: 45-142
 ## -ROYALARCH-INTRO
-Pages: 141-150
+Pages: 143-152
 ## -ROYALARCH-UNITS
-Pages: 151-185
+Pages: 153-192
 ## -MARK-RAM
-Pages: 186-224
+Pages: 193-231
 ## -ROSE-CROIX
-Pages: 225-238
+Pages: 233-245
 ## -KT-KTP
-Pages: 239-247
+Pages: 246-255
 ## -RCOC-AMD
-Pages: 248-264
+Pages: 256-272
 ## OSM-OSC
-Pages: 265-280
+Pages: 273-288
 ## ORDERS
-Pages: 281-296
-## Back
-Pages: 297-304
+Pages: 289-304
+## -BACK
+Pages: 305-313	
+
+
+## Email v2.4.3
+Subject: Calendar Proof Reading v2.4.3
+
+See attached the following sections for proof reading:
+- 
+
+Just email me any feedback or give me a call to discuss.
+
+The full document is also available here : https://drive.google.com/file/d/1E4NXGQ_9uGUbVfMSIN7JNco2pmxbjght/view?usp=sharing

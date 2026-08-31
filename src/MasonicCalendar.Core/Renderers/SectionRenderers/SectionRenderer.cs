@@ -85,9 +85,10 @@ public abstract class SectionRenderer
     /// When resetPageCounter is true, emits counter-reset: page 0 so this section displays as page 1.
     /// When overrideBreakBefore is true, disables the page break, letting content flow naturally.
     /// </summary>
-    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex, bool resetPageCounter = false, bool? overrideBreakBefore = null)
+    protected void WrapWithPageBreakAndAnchor(StringBuilder output, string anchorId, string content, int sectionIndex, bool resetPageCounter = false, bool? overrideBreakBefore = null, string? pageStyle = null)
     {
         var anchorStyle = resetPageCounter ? " style=\"counter-reset: page 0;\"" : "";
+        var pageStyleClass = string.IsNullOrWhiteSpace(pageStyle) ? "" : $" page-style-{pageStyle}";
         
         // Default: break before all sections except the first
         // If overrideBreakBefore is true, skip the page break (flow naturally)
@@ -95,7 +96,14 @@ public abstract class SectionRenderer
         
         if (shouldBreakBefore)
         {
-            output.AppendLine("<div class='section-divider'>");
+            output.AppendLine($"<div class='section-divider{pageStyleClass}'>");
+            output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
+            output.AppendLine(content);
+            output.AppendLine("</div>");
+        }
+        else if (!string.IsNullOrWhiteSpace(pageStyle))
+        {
+            output.AppendLine($"<div class='{pageStyleClass.Trim()}'>");
             output.AppendLine($"<div id=\"{anchorId}\"{anchorStyle}></div>");
             output.AppendLine(content);
             output.AppendLine("</div>");

@@ -11,6 +11,19 @@ public class PageMargins
     public PageSideMargins? LeftPage { get; set; }   // Even pages (Verso)
     public PageSideMargins? FirstPage { get; set; }  // Cover page (no page number)
     public FooterMargins? Footer { get; set; }
+    public CropMarks? CropMarks { get; set; }
+}
+
+/// <summary>
+/// Configuration for proofing crop marks placed at each trim corner.
+/// </summary>
+public class CropMarks
+{
+    public string? TrimInset { get; set; }
+    public string? MarkLength { get; set; }
+    public string? CornerGap { get; set; }
+    public string? StrokeWidth { get; set; }
+    public string? Color { get; set; }
 }
 
 /// <summary>

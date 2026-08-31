@@ -112,6 +112,13 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         output.AppendLine(marginsCss);
                     }
                 }
+
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                if (!string.IsNullOrEmpty(pageStylesCss))
+                {
+                    output.AppendLine("/* Named page styles from configuration */");
+                    output.AppendLine(pageStylesCss);
+                }
                 
                 var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
                 if (!string.IsNullOrEmpty(globalStylesCss))
@@ -122,21 +129,14 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 
                 if (_showBleeds)
                 {
-                    output.AppendLine(GenerateBleedVisualizationCss());
+                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
                 }
                 
                 output.AppendLine("</style>");
             }
             
             output.AppendLine("<script>");
-            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
-            output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
-            output.AppendLine("      el.style.overflow = 'visible';");
-            output.AppendLine("    });");
-            output.AppendLine("  }");
-            output.AppendLine("}");
-            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine(GeneratePagedHandlerScript());
             output.AppendLine("</script>");
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("</head>");
@@ -285,6 +285,13 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         output.AppendLine(marginsCss);
                     }
                 }
+
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                if (!string.IsNullOrEmpty(pageStylesCss))
+                {
+                    output.AppendLine("/* Named page styles from configuration */");
+                    output.AppendLine(pageStylesCss);
+                }
                 
                 // Generate and inject global styles CSS from configuration
                 var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
@@ -297,7 +304,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine(GenerateBleedVisualizationCss());
+                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
                 }
                 
                 output.AppendLine("</style>");
@@ -309,14 +316,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
             // the last row on a page is invisibly cut off (mm→px conversion is not exact).
             output.AppendLine("<script>");
-            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
-            output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
-            output.AppendLine("      el.style.overflow = 'visible';");
-            output.AppendLine("    });");
-            output.AppendLine("  }");
-            output.AppendLine("}");
-            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine(GeneratePagedHandlerScript());
             output.AppendLine("</script>");
             output.AppendLine("<script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script>");
             output.AppendLine("</head>");
@@ -553,6 +553,13 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         output.AppendLine(marginsCss);
                     }
                 }
+
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                if (!string.IsNullOrEmpty(pageStylesCss))
+                {
+                    output.AppendLine("/* Named page styles from configuration */");
+                    output.AppendLine(pageStylesCss);
+                }
                 
                 // Generate and inject global styles CSS from configuration
                 var globalStylesCss = GenerateGlobalStylesCss(layout?.Document?.GlobalStyling);
@@ -565,7 +572,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 // Add bleed visualization if requested
                 if (_showBleeds)
                 {
-                    output.AppendLine(GenerateBleedVisualizationCss());
+                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
                 }
                 
                 output.AppendLine("</style>");
@@ -577,14 +584,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             // the afterRendered hook to fix them. This prevents the sub-pixel clipping where
             // the last row on a page is invisibly cut off (mm→px conversion is not exact).
             output.AppendLine("<script>");
-            output.AppendLine("class OverflowFixHandler extends Paged.Handler {");
-            output.AppendLine("  afterRendered(pages) {");
-            output.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
-            output.AppendLine("      el.style.overflow = 'visible';");
-            output.AppendLine("    });");
-            output.AppendLine("  }");
-            output.AppendLine("}");
-            output.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+            output.AppendLine(GeneratePagedHandlerScript());
             output.AppendLine("</script>");
             
             // Load Paged.js from CDN
@@ -1433,6 +1433,37 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return css.ToString();
     }
 
+    private static string GeneratePageStylesCss(IEnumerable<PageStyleConfig>? pageStyles)
+    {
+        if (pageStyles == null)
+            return string.Empty;
+
+        var css = new StringBuilder();
+        foreach (var pageStyle in pageStyles.Where(style => !string.IsNullOrWhiteSpace(style.Name)))
+        {
+            css.AppendLine($".page-style-{pageStyle.Name} {{ page: {pageStyle.Name}; }}");
+            css.AppendLine($"@page {pageStyle.Name} {{");
+            if (pageStyle.Margins != null)
+            {
+                css.AppendLine($"  margin-top: {pageStyle.Margins.Top};");
+                css.AppendLine($"  margin-bottom: {pageStyle.Margins.Bottom};");
+                css.AppendLine($"  margin-left: {pageStyle.Margins.Left};");
+                css.AppendLine($"  margin-right: {pageStyle.Margins.Right};");
+            }
+
+            if (pageStyle.ShowPageNumber == false)
+            {
+                css.AppendLine("  @bottom-center {");
+                css.AppendLine("    content: \"\";");
+                css.AppendLine("  }");
+            }
+
+            css.AppendLine("}");
+        }
+
+        return css.ToString();
+    }
+
     /// <summary>
     /// Generate @page rules with 0 margins for -noprint mode.
     /// Prevents browser default margins from being applied.
@@ -1566,15 +1597,36 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return css.ToString();
     }
 
-    private string GenerateBleedVisualizationCss()
+    private static string GenerateCropMarksCss(CropMarks? cropMarks)
     {
+        if (cropMarks?.TrimInset == null || cropMarks.MarkLength == null || cropMarks.CornerGap == null || cropMarks.StrokeWidth == null || cropMarks.Color == null)
+            return string.Empty;
+
         var css = new StringBuilder();
-        css.AppendLine("/* Bleed visualization: media edge plus A6 trim boundary 3mm inward */");
-        css.AppendLine(".pagedjs_sheet { position: relative; }");
-        css.AppendLine(".pagedjs_sheet::after { content: ''; position: absolute; inset: 0; border: 1px dashed gray; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
-        css.AppendLine(".pagedjs_pagebox { position: relative; }");
-        css.AppendLine(".pagedjs_pagebox::after { content: ''; position: absolute; inset: 3mm; border: 1px dashed black; pointer-events: none; z-index: 99999; box-sizing: border-box; }");
+        var inset = cropMarks.TrimInset;
+        var length = cropMarks.MarkLength;
+        var gap = cropMarks.CornerGap;
+        var stroke = cropMarks.StrokeWidth;
+        var color = cropMarks.Color;
+
+        css.AppendLine("/* Configured crop marks extend outward, stopping short of each A6 trim corner. */");
+        css.AppendLine(".pagedjs_page { position: relative; overflow: visible !important; }");
+        css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}; }}");
         return css.ToString();
+    }
+
+    private string GeneratePagedHandlerScript()
+    {
+        var script = new StringBuilder();
+        script.AppendLine("class OverflowFixHandler extends Paged.Handler {");
+        script.AppendLine("  afterRendered(pages) {");
+        script.AppendLine("    document.querySelectorAll('.pagedjs_area, .pagedjs_page, .pagedjs_page_box, .pagedjs_page_content').forEach(el => {");
+        script.AppendLine("      el.style.overflow = 'visible';");
+        script.AppendLine("    });");
+        script.AppendLine("  }");
+        script.AppendLine("}");
+        script.AppendLine("Paged.registerHandlers(OverflowFixHandler);");
+        return script.ToString();
     }
 }
 

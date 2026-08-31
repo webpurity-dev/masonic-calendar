@@ -40,7 +40,7 @@ public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLo
         };
         var staticHtml = template.Render(staticModel);
 
-        WrapWithPageBreakAndAnchor(output, anchorId, staticHtml, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore);
+        WrapWithPageBreakAndAnchor(output, anchorId, staticHtml, sectionIndex, section.ResetPageCounter, section.OverrideBreakBefore, section.PageStyle);
 
         return Task.CompletedTask;
     }

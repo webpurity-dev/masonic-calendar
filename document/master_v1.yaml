@@ -92,6 +92,21 @@ page_margins:
     bottom: 0mm
     left: 0mm
     right: 0mm
+  crop_marks:
+    trim_inset: 3mm         # A6 trim boundary within the 3mm bleed area
+    mark_length: 5mm
+    corner_gap: 3mm
+    stroke_width: 0.25px
+    color: black
+
+page_styles:
+  - name: "full_bleed_no_footer"
+    margins:
+      top: 0mm
+      bottom: 0mm
+      left: 0mm
+      right: 0mm
+    show_page_number: false
 
 sections:
   - section_id: "cover"
@@ -678,5 +693,6 @@ sections:
   # BACK COVER
   - section_id: "back_cover"
     type: "static"
-    template: "cover-back.html"  
+    template: "cover-back.html"
+    page_style: "full_bleed_no_footer"
     hide_from_parent_toc: true

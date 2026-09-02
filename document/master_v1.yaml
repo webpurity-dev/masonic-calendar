@@ -349,7 +349,7 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/mark_data_source.yaml"
     break_before_officers: true
-  - section_id: "ram_intro"
+  - section_id: "mark_intro"
     section_title: "Introduction to Mark Masonry"
     type: "static"
     template: "companion/mark-intro.html"
@@ -582,7 +582,7 @@ sections:
     template: "companion/pbq-intro.html"
     hide_from_parent_toc: true
   - section_id: "pbq_units"
-    section_title: "Operative Assemblages in Numerical Order"
+    section_title: "Operative Assemblages"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/pbq_data_source.yaml"
@@ -601,7 +601,7 @@ sections:
     template: "companion/ros-intro.html"
     hide_from_parent_toc: true
   - section_id: "ros_units"
-    section_title: "Royal Order of Scotland Lodges"
+    section_title: "Royal Order of Scotland"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/ros_data_source.yaml"
@@ -617,7 +617,7 @@ sections:
     break_before_officers: true
     data_mapping: "data_sources/sria_data_source.yaml"
   - section_id: "sria_units"
-    section_title: "Societas Rosicruciana Colleges in Numerical Order"
+    section_title: "Societas Rosicruciana Colleges"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/sria_data_source.yaml"
@@ -636,7 +636,7 @@ sections:
     hide_from_parent_toc: true
     override_break_before: true
   - section_id: "stoa_units"
-    section_title: "St Thomas of Acon Chapels in Numerical Order"
+    section_title: "St Thomas of Acon Chapels"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/stoa_data_source.yaml"
@@ -649,7 +649,7 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/athel_data_source.yaml"
   - section_id: "athel_units"
-    section_title: "Order of Athelstan Courts in Numerical Order"
+    section_title: "Order of Athelstan Courts"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/athel_data_source.yaml"

@@ -330,7 +330,17 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             if (isToc)
             {
                 List<Dictionary<string, object?>> tocData;
-                if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
+                if (section.ForSection?.Equals("all_units", StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    // The grouped all-units index is owned by TocSectionRenderer.
+                    var tocRenderer = new TocSectionRenderer(_templateRoot, _dataLoader, _debugMode);
+                    var tocOutput = new StringBuilder();
+                    var sectionIndex = layout?.Sections?.IndexOf(section) ?? 0;
+                    await tocRenderer.RenderAsync(section, sectionIndex, layout?.Sections ?? [], masterTemplateKey, units, tocOutput);
+                    output.Append(tocOutput);
+                    return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(output.ToString()));
+                }
+                else if (section.ForSection?.Equals("all", StringComparison.OrdinalIgnoreCase) ?? false)
                 {
                     // Find the index of this section in the layout
                     var sectionIndex = layout?.Sections?.IndexOf(section) ?? -1;
@@ -719,7 +729,9 @@ function injectTocPageNumbers() {
                     const pageSpan = row.querySelector('.toc-page-number');
                     if (pageSpan && !pageSpan.textContent) {
                         // Populate the existing span with page number
-                        pageSpan.textContent = pageNumber.toString();
+                        pageSpan.textContent = pageSpan.classList.contains('toc-page-number-with-prefix')
+                            ? `p${pageNumber}`
+                            : pageNumber.toString();
                         injectedCount++;
                         console.log(`[injectTocPageNumbers] Link ${index}: Page number ${pageNumber} set in second column span`);
                     } else if (!pageSpan) {

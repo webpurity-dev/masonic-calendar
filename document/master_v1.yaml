@@ -445,6 +445,11 @@ sections:
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/kt_data_source.yaml"
     break_before_officers: true
+  - section_id: "kt_intro"
+    section_title: "Introduction to Knights Templar"
+    type: "static"
+    template: "companion/kt-intro.html"
+    hide_from_parent_toc: true
   - section_id: "kt_units"
     section_title: "Knights Templar Preceptories in Numerical Order"
     type: "data-driven"
@@ -608,6 +613,8 @@ sections:
     section_title: "Societas Rosicruciana in Anglia"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
+    hide_from_parent_toc: true
+    break_before_officers: true
     data_mapping: "data_sources/sria_data_source.yaml"
   - section_id: "sria_units"
     section_title: "Societas Rosicruciana Colleges in Numerical Order"

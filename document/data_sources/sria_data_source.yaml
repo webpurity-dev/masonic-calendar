@@ -4,22 +4,23 @@ order_summary:
   website: "https://www.sria.uk.com"
   heads: 
     - rank: "Supreme Magus"
-      name: "Anthony W Llewellyn"
+      name: "Anthony Llewellyn"
   deputy_heads:
     - rank: "Senior Substitute Magus"
-      name: "tbc"
+      name: "Adam Lancashire"
     - rank: "Junior Substitute Magus"
-      name: "tbc"
+      name: "Stephen Goulder"
     - rank: "Secretary-General"
-      name: "tbc"
+      name: "Stephen Clark"
   district_heads:
     - rank: "Chief Adept"
-      name: "tbc"
+      name: "Mark Gannaway"
     - rank: "Suffragan"
-      name: "tbc"
+      name: "Mark Fuller"
 
 order_regional_officers:
   district_heading: "Province of Southern England"
+  officers_heading: "Provincial Officers of Southern England"
   source: "sria_officers.csv"
   fields:
     - name: "Office"

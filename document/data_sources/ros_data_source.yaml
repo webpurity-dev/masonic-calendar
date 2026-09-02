@@ -78,12 +78,13 @@ units:
 
 unit_past_heads:
   source: "ros_membership.csv"
+  sort_by: "PosNo"
   filters:
     - filter_field: "Unit Type"
       filter_value: "ROS"
     - filter_field: "Mem Type"
       filter_value: "PMO"
-  override_heading: ""
+  override_heading: "&nbsp;"
   fields:
     - name: "Reference"
       csv_column: "Unique Ref"
@@ -102,12 +103,6 @@ unit_past_heads:
       type: "string"
     - name: "DateRankAccorded"
       csv_column: "Date Accorded"
-      type: "string"
-    - name: "GrandRank"
-      csv_column: "Grand Rank"
-      type: "string"
-    - name: "GrandRankDateAccorded"
-      csv_column: "GR Date Accorded"
       type: "string"
 
 unit_members:
@@ -165,4 +160,22 @@ unit_members:
       type: "string"
     - name: "Grouping"
       csv_column: "Grouping"
+      type: "string"
+
+unit_honorary_members:
+  source: "ros_membership.csv"
+  filters:
+    - filter_field: "Unit Type"
+      filter_value: "ROS"
+    - filter_field: "Mem Type"
+      filter_value: "Hon"
+  fields:
+    - name: "Reference"
+      csv_column: "Unique Ref"
+      type: "string"
+    - name: "Name"
+      csv_column: "Name"
+      type: "string"
+    - name: "ProvincialRank"
+      csv_column: "Provincial Rank"
       type: "string"

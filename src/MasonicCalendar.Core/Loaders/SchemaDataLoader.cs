@@ -607,7 +607,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
             // Deduplicate all member lists, keeping the last occurrence of each Reference
             foreach (var unit in units)
             {
-                DeduplicateMemberLists(unit);
+                DeduplicateMemberLists(unit, pastHeadsConfig);
             }
 
             
@@ -772,7 +772,7 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
     /// This ensures that if the same person appears multiple times with the same MemType, only their most recent entry is retained.
     /// However, a person can legitimately appear in multiple roles (e.g., as both Officer and Member), so those are preserved.
     /// </summary>
-    private void DeduplicateMemberLists(SchemaUnit unit)
+    private void DeduplicateMemberLists(SchemaUnit unit, DataSourceDefinition? pastHeadsConfig = null)
     {
         // For Officers: deduplicate by Reference + Office or Name + Office (a person can't hold the same office twice)
         // If Reference is null/empty, use Name instead for the composite key
@@ -783,11 +783,17 @@ public class SchemaDataLoader(DocumentLayoutLoader layoutLoader, string? dataRoo
 
         // For Past Masters: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication
-        unit.PastMasters = unit.PastMasters
+        var deduplicatedPastMasters = unit.PastMasters
             .GroupBy(p => !string.IsNullOrWhiteSpace(p.Reference) ? p.Reference : p.Name)
-            .SelectMany(g => g.Skip(g.Count() - 1))
-            .OrderBy(p => ExtractYearAsInt(p.YearInstalled))  // Sort by YearInstalled (first year as int)
-            .ToList();
+            .SelectMany(g => g.Skip(g.Count() - 1));
+
+        unit.PastMasters = string.Equals(pastHeadsConfig?.SortBy, "PosNo", StringComparison.OrdinalIgnoreCase)
+            ? deduplicatedPastMasters
+                .OrderBy(p => p.PosNo ?? int.MaxValue)
+                .ToList()
+            : deduplicatedPastMasters
+                .OrderBy(p => ExtractYearAsInt(p.YearInstalled))  // Sort by YearInstalled (first year as int)
+                .ToList();
 
         // For Joining Past Masters: deduplicate by Reference or Name (keep last occurrence)
         // If Reference is null/empty, use Name as the key for deduplication

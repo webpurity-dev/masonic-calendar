@@ -1,6 +1,7 @@
-<div style="break-before: always; break-inside: avoid; {{ if override_break_before }} margin-top: 8pt;{{ end }}">
+{{ for pageIndex in 0..(row_pages.size - 1) }}
+<div class="{{ if pageIndex > 0 }}page-break-before{{ end }}" style="break-inside: avoid; {{ if pageIndex == 0 && override_break_before }} margin-top: 8pt;{{ end }}">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-        <h1 style="font-size: var(--font-heading-primary); margin: 0 0 12px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
+        <h1 style="font-size: var(--font-heading-primary); margin: 0 0 {{ heading_spacing }} 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
     </div>
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: {{ font_size }}; line-height: {{ line_height }}; border: 0px;">
         <thead>
@@ -19,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            {{ for row in rows }}
+            {{ for row in row_pages[pageIndex] }}
             {{ if row.is_group_header }}
             <tr style="border-left: none; border-right: none; border-top: 1px solid #000; background-color: #f2f2f2;">
                 <td colspan="{{ table_colspan }}" style="padding: 1px 0; text-align: left; font-weight: bold;">
@@ -53,3 +54,4 @@
         </tbody>
     </table>
 </div>
+{{ end }}

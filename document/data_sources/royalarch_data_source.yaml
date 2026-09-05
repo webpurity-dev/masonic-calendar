@@ -105,7 +105,7 @@ order_succession_list:
       table_caption: "‡ Dismissed from Office by the Grand Master."
     - title: "DEPUTY GRAND SUPERINTENDENTS"
       source: "royalarch_degs_succession.csv"
-      font_size: "6pt"
+      font_size: "7pt"
       columns:
         - name: "Appointed"
           csv_column: "Appointed"

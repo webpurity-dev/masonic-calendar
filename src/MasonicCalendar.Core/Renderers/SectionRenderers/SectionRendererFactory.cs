@@ -29,13 +29,13 @@ public class SectionRendererFactory
     {
         return sectionType?.ToLowerInvariant() switch
         {
-            "toc" => new TocSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "toc" => new TocSectionRenderer(_templateRoot, _dataLoader, _debugMode, _uiPreferences?.TablePagination),
             "static" => new StaticSectionRenderer(_templateRoot, _dataLoader, _debugMode, _documentInfo),
             "data-driven" => new DataDrivenSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "meetings-calendar" => new MeetingsCalendarSectionRenderer(_templateRoot, _dataLoader, _debugMode),
-            "meetings-table" => new MeetingsTableSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "meetings-table" => new MeetingsTableSectionRenderer(_templateRoot, _dataLoader, _debugMode, _uiPreferences?.TablePagination),
             "membership-summary" => new MembershipSummarySectionRenderer(_templateRoot, _dataLoader, _debugMode),
-            "membership-statistics" => new MembershipStatisticsSectionRenderer(_templateRoot, _dataLoader, _debugMode),
+            "membership-statistics" => new MembershipStatisticsSectionRenderer(_templateRoot, _dataLoader, _debugMode, _uiPreferences?.TablePagination),
             "list_officers" => new ProvincialOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode, _uiPreferences?.OrderOfficersDisplay),
             "list_executive_officers" => new ExecutiveOfficersSectionRenderer(_templateRoot, _dataLoader, _debugMode),
             "locations" => new LocationSectionRenderer(_templateRoot, _dataLoader, _debugMode),

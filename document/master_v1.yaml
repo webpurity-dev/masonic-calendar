@@ -61,6 +61,11 @@ ui_preferences:
       - unit_type: "Craft"
         unit_number: 3366
         rows_per_page: 34
+  table_pagination:
+    meetings_table_rows_per_page: 25
+    membership_statistics_rows_per_page: 24
+    all_units_index_rows_per_page: 48
+    meetings_table_heading_spacing: "14px"
   rank_display:
     priority_order:
       - "grand_rank"                     # Grand Rank (highest priority)

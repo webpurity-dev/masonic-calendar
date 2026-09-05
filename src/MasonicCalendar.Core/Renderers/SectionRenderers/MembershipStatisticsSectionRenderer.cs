@@ -12,9 +12,10 @@ using YamlDotNet.Serialization.NamingConventions;
 /// <summary>
 /// Renders membership statistics sections (displays membership change data from CSV as a single table).
 /// </summary>
-public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode)
+public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode, TablePagination? tablePagination = null)
     : SectionRenderer(templateRoot, dataLoader, debugMode)
 {
+    private readonly TablePagination? _tablePagination = tablePagination;
     /// <summary>
     /// Represents a single row of membership statistics.
     /// </summary>
@@ -102,8 +103,11 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
             })
             .ToList();
 
-        var memberStatsPage1 = memberStatsDicts.Take(25).ToList();
-        var memberStatsPage2 = memberStatsDicts.Skip(25).ToList();
+        var rowsPerPage = _tablePagination?.MembershipStatisticsRowsPerPage > 0
+            ? _tablePagination.MembershipStatisticsRowsPerPage
+            : 25;
+        var memberStatsPage1 = memberStatsDicts.Take(rowsPerPage).ToList();
+        var memberStatsPage2 = memberStatsDicts.Skip(rowsPerPage).ToList();
 
         // Build the model for the template
         var statsModel = new Dictionary<string, object?>
@@ -112,6 +116,7 @@ public class MembershipStatisticsSectionRenderer(string templateRoot, SchemaData
             { "member_stats", memberStatsDicts },
             { "member_stats_page1", memberStatsPage1 },
             { "member_stats_page2", memberStatsPage2 },
+            { "heading_spacing", _tablePagination?.MeetingsTableHeadingSpacing ?? "4px" },
             { "total_memberships_start", totalMembershipsStart },
             { "total_memberships_end", totalMembershipsEnd },
             { "total_difference", totalDifference },

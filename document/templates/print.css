@@ -59,6 +59,11 @@ img {
     page-break-after: always;
 }
 
+.membership-statistics-continuation {
+    break-before: page !important;
+    page-break-before: always !important;
+}
+
 .officers-page-break-before {
     break-before: always;
     page-break-before: always;

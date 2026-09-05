@@ -179,6 +179,7 @@ public class UiPreferences
     public JoiningPastMastersDisplay? JoiningPastMastersDisplay { get; set; }
     public HonoraryMembersDisplay? HonoraryMembersDisplay { get; set; }
     public MemberDisplay? MemberDisplay { get; set; }
+    public TablePagination? TablePagination { get; set; }
     public RankDisplay? RankDisplay { get; set; }
 }
 
@@ -212,6 +213,14 @@ public class MemberPageLimit
     public string? UnitType { get; set; }
     public int UnitNumber { get; set; }
     public int RowsPerPage { get; set; }
+}
+
+public class TablePagination
+{
+    public int MeetingsTableRowsPerPage { get; set; } = 25;
+    public int MembershipStatisticsRowsPerPage { get; set; } = 25;
+    public int AllUnitsIndexRowsPerPage { get; set; } = 44;
+    public string? MeetingsTableHeadingSpacing { get; set; }
 }
 
 public class OfficerDisplay

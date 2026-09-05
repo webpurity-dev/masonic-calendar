@@ -11,10 +11,11 @@ using System.Text;
 /// Renders meetings as a compact grid: one row per unit, one column per month.
 /// Uses SuperShortName for unit display. Installation months are bolded with *.
 /// </summary>
-public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode)
+public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode, TablePagination? tablePagination = null)
     : SectionRenderer(templateRoot, dataLoader, debugMode)
 {
     private readonly RecurrenceService _recurrenceService = new();
+    private readonly TablePagination? _tablePagination = tablePagination;
 
     public override async Task RenderAsync(
         SectionConfig section,
@@ -229,8 +230,10 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 { "months", monthsModel },
                 { "table_colspan", monthColumns.Count + 2 },
                 { "rows", rows },
+                { "row_pages", rows.Chunk(_tablePagination?.MeetingsTableRowsPerPage > 0 ? _tablePagination.MeetingsTableRowsPerPage : 25).Select(page => page.ToList()).ToList() },
                 { "font_size", fontSize },
                 { "line_height", lineHeight },
+                { "heading_spacing", _tablePagination?.MeetingsTableHeadingSpacing ?? "12px" },
                 { "override_break_before", section.OverrideBreakBefore }
             };
 

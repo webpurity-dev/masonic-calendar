@@ -1,7 +1,7 @@
-<div style="break-before: always; break-inside: avoid;">
+<div style="break-before: always;">
     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <h1 style="font-size: var(--font-heading-primary); margin: 0 0 4px 0; font-weight: 600; line-height: 1;">{{ section_title }}</h1>
-        <span style="font-size: var(--font-secondary); margin: 0 0 4px 0; font-style: italic; line-height: 1;">Membership statistics for the year up to 31st December 2025.</span>
+        <span style="font-size: var(--font-secondary); margin: 0 0 {{ heading_spacing }} 0; font-style: italic; line-height: 1;">Membership statistics for the year up to 31st December 2025.</span>
     </div>
     <!-- First Table: Rows 0-27 (28 items) -->
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--font-dense-table); border: 0px; line-height: 1; margin-bottom: 8px;">
@@ -36,8 +36,8 @@
                 <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ row.membershipsEnd }}</td>
             </tr>
             {{ end }}
-            <!-- Totals row for single-page layout (if 28 or fewer items) -->
-            {{ if member_stats.size <= 28 }}
+            <!-- Totals row for a single-page layout. -->
+            {{ if member_stats_page2.size == 0 }}
             <tr style="padding: 1px; font-size: var(--font-dense-table); font-weight: 600; border-top: 2px solid #000;">
                 <td colspan="2" style="text-align: left; padding: 2px; width: 84px; border: 1px solid #000;">Totals</td>
                 <td style="text-align: center; padding: 2px; width: 19px; border: 1px solid #000;">{{ total_memberships_start }}</td>
@@ -54,9 +54,9 @@
         </tbody>
     </table>
 </div>    
-    <!-- Second Table: Rows 28+ (if more than 28) -->
-    {{ if member_stats.size > 28 }}
-    <div style="break-before: always; display: block;">
+    <!-- Continuation table for the configured second page. -->
+    {{ if member_stats_page2.size > 0 }}
+    <div class="membership-statistics-continuation" style="display: block;">
     <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--font-dense-table); border: 0px; line-height: 1; margin: 4px 0 8px 4px;">
         <thead>
             <tr style="font-weight: 600; height: 50px;">

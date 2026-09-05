@@ -7,9 +7,10 @@ using System.Text;
 /// <summary>
 /// Renders table of contents sections.
 /// </summary>
-public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode)
+public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoader, bool debugMode, TablePagination? tablePagination = null)
     : SectionRenderer(templateRoot, dataLoader, debugMode)
 {
+    private readonly TablePagination? _tablePagination = tablePagination;
     public override async Task RenderAsync(
         SectionConfig section,
         int sectionIndex,
@@ -41,7 +42,7 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
             var indexModel = new Dictionary<string, object?>
             {
                 { "section_title", section.SectionTitle },
-                { "toc_by_section", tocData }
+                { "index_pages", BuildAllUnitsIndexPages(tocData) }
             };
             var indexHtml = template.Render(indexModel);
             var indexAnchorId = $"section_{section.SectionId}";
@@ -138,6 +139,45 @@ public class TocSectionRenderer(string templateRoot, SchemaDataLoader? dataLoade
         }
 
         return tocData;
+    }
+
+    private List<Dictionary<string, object?>> BuildAllUnitsIndexPages(List<Dictionary<string, object?>> tocData)
+    {
+        var rowsPerPage = _tablePagination?.AllUnitsIndexRowsPerPage > 0
+            ? _tablePagination.AllUnitsIndexRowsPerPage
+            : 44;
+        var pages = new List<Dictionary<string, object?>>();
+        var pageGroups = new List<Dictionary<string, object?>>();
+        var pageItemCount = 0;
+
+        foreach (var group in tocData)
+        {
+            var items = group["items"] as List<object?> ?? [];
+            foreach (var itemPage in items.Chunk(rowsPerPage))
+            {
+                var pageItems = itemPage.ToList();
+                var half = (int)Math.Ceiling(pageItems.Count / 2.0);
+                if (pageItemCount > 0 && pageItemCount + pageItems.Count > rowsPerPage)
+                {
+                    pages.Add(new Dictionary<string, object?> { { "groups", pageGroups } });
+                    pageGroups = [];
+                    pageItemCount = 0;
+                }
+
+                pageGroups.Add(new Dictionary<string, object?>
+                {
+                    { "section_title", group["section_title"] },
+                    { "col1", pageItems.Take(half).ToList() },
+                    { "col2", pageItems.Skip(half).ToList() }
+                });
+                pageItemCount += pageItems.Count;
+            }
+        }
+
+        if (pageGroups.Count > 0)
+            pages.Add(new Dictionary<string, object?> { { "groups", pageGroups } });
+
+        return pages;
     }
 
     /// <summary>

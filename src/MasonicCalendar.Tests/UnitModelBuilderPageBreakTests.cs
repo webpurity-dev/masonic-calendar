@@ -153,6 +153,49 @@ public class UnitModelBuilderPageBreakTests
             Assert.DoesNotContain("class=\"page-break-before\"", html);
     }
 
+    [Fact]
+    public void ConfiguredMemberPageLimit_SplitsCraft3366IntoBalancedThreeColumnPages()
+    {
+        var previousConfiguration = UnitModelBuilder.ConfiguredMemberDisplay;
+        try
+        {
+            UnitModelBuilder.ConfiguredMemberDisplay = new MemberDisplay
+            {
+                PageLimits =
+                [
+                    new MemberPageLimit
+                    {
+                        UnitType = "Craft",
+                        UnitNumber = 3366,
+                        RowsPerPage = 34
+                    }
+                ]
+            };
+            var unit = new SchemaUnit
+            {
+                Number = 3366,
+                UnitType = "Craft",
+                Name = "Test Unit",
+                Members = Enumerable.Range(1, 103)
+                    .Select(index => new SchemaMember { Name = $"Member {index}" })
+                    .ToList()
+            };
+
+            var model = UnitModelBuilder.BuildModel(unit);
+            var memberPages = Assert.IsType<List<List<List<Dictionary<string, object?>>>>>(model["memberPages"]);
+
+            Assert.Equal(2, memberPages.Count);
+            Assert.All(memberPages[0], column => Assert.Equal(34, column.Count));
+            Assert.Single(memberPages[1][0]);
+            Assert.Empty(memberPages[1][1]);
+            Assert.Empty(memberPages[1][2]);
+        }
+        finally
+        {
+            UnitModelBuilder.ConfiguredMemberDisplay = previousConfiguration;
+        }
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

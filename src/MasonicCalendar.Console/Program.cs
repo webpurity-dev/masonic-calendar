@@ -391,6 +391,12 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
             UnitModelBuilder.ConfiguredJoiningPastMastersDisplay =
                 layoutResult.Data.UiPreferences.JoiningPastMastersDisplay;
+
+            UnitModelBuilder.ConfiguredHonoraryMembersDisplay =
+                layoutResult.Data.UiPreferences.HonoraryMembersDisplay;
+
+            UnitModelBuilder.ConfiguredMemberDisplay =
+                layoutResult.Data.UiPreferences.MemberDisplay;
             
             // Set rank display configuration
             if (layoutResult.Data.UiPreferences.RankDisplay != null)

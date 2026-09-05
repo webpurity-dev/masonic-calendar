@@ -27,8 +27,11 @@ Pages: 289-304
 ## -BACK
 Pages: 305-313	
 
+### Physical Print Checks
+Text Pages: 7,8,13,47
+Table Pages: 41,43,251,333
 
-## Email v2.4.3
+### Email v2.4.3
 Subject: Calendar Proof Reading v2.4.3
 
 See attached the following sections for proof reading:

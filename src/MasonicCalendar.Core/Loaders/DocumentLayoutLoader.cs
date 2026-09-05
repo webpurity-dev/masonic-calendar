@@ -177,6 +177,8 @@ public class UiPreferences
     public OrderOfficersDisplay? OrderOfficersDisplay { get; set; }
     public OfficerDisplay? OfficerDisplay { get; set; }
     public JoiningPastMastersDisplay? JoiningPastMastersDisplay { get; set; }
+    public HonoraryMembersDisplay? HonoraryMembersDisplay { get; set; }
+    public MemberDisplay? MemberDisplay { get; set; }
     public RankDisplay? RankDisplay { get; set; }
 }
 
@@ -193,6 +195,23 @@ public class JoiningPastMastersDisplay
     public bool HideExceededJoiningUnits { get; set; }
     public bool ConsolidateExceededJoiningUnits { get; set; } = true;
     public string ConsolidateText { get; set; } = "X unit(s)";
+}
+
+public class HonoraryMembersDisplay
+{
+    public int RankWrapThreshold { get; set; } = 10;
+}
+
+public class MemberDisplay
+{
+    public List<MemberPageLimit>? PageLimits { get; set; }
+}
+
+public class MemberPageLimit
+{
+    public string? UnitType { get; set; }
+    public int UnitNumber { get; set; }
+    public int RowsPerPage { get; set; }
 }
 
 public class OfficerDisplay

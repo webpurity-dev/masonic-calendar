@@ -36,7 +36,7 @@
     </div>    
 
     <!-- Last Installation Section -->
-    <div style="margin-bottom: 2px; text-align: center;">            
+    <div style="margin-bottom: 2px; padding-top: 4px; text-align: center;">            
         {{ if unit.lastInstallationDate }}
             <p style="font-size: var(--font-body); margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
         {{ end }}   
@@ -88,17 +88,17 @@
             <table style="border-collapse: collapse; font-size: var(--font-dense-table); width: 100%; margin: 0; table-layout: fixed;">
                 <thead>
                     <tr>
-                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%;">Name</th>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 23%;">Name</th>
                         <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 22%;">Year</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 42%;">Rank & Date Accorded</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 45%;">Rank & Date Accorded</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ for master in pastMasters }}
                     <tr data-id="{{ master.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 28%; overflow-wrap: anywhere;">{{ master.name }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 23%; overflow-wrap: anywhere;">{{ master.name }}</td>
                         <td style="padding: 0.5px; text-align: right; width: 22%; overflow-wrap: anywhere;">{{ master.installed }}</td>
-                        <td style="padding: 0.5px; text-align: right; width: 42%; overflow-wrap: anywhere; {{ if master.isGrandRank }}font-weight: 600;{{ end }}">{{ master.display_rank }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 45%; overflow-wrap: anywhere; {{ if master.isGrandRank }}font-weight: 600;{{ end }}">{{ master.display_rank }}</td>
                     </tr>
                     {{ end }}
                 </tbody>
@@ -122,10 +122,10 @@
             <table style="border-collapse: collapse; font-size: var(--font-dense-table); width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>
-                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%; overflow-wrap: anywhere;">Name</th>
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 15%; overflow-wrap: anywhere;">Joined</th>
+                        <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 26%; overflow-wrap: anywhere;">Name</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 12%; overflow-wrap: anywhere;">Joined</th>
                         {{ if sectionHeadings.showPastUnitsColumn }}
-                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 15%; overflow-wrap: anywhere;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
+                        <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 12%; overflow-wrap: anywhere;">{{ sectionHeadings.joiningPastMastersUnitsColumn }}</th>
                         {{ end }}
                         <th style="padding: 0.5px; text-align: right; font-weight: 800; width: 50%; overflow-wrap: anywhere;">Rank & Date Accorded</th>
                     </tr>
@@ -133,10 +133,10 @@
                 <tbody>
                     {{ for joiningPastMaster in joiningPastMasterTables[tableIndex] }}
                     <tr data-id="{{ joiningPastMaster.dataId }}">
-                        <td style="padding: 0.5px; text-align: left; width: 28%; overflow-wrap: anywhere;">{{ joiningPastMaster.name }}</td>
-                        <td style="padding: 0.5px; text-align: right; width: 15%; overflow-wrap: anywhere;">{{ joiningPastMaster.joinedDate }}</td>
+                        <td style="padding: 0.5px; text-align: left; width: 26%; overflow-wrap: anywhere;">{{ joiningPastMaster.name }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 12%; overflow-wrap: anywhere;">{{ joiningPastMaster.joinedDate }}</td>
                         {{ if sectionHeadings.showPastUnitsColumn }}
-                        <td style="padding: 0.5px; text-align: right; width: 15%; overflow-wrap: anywhere;">{{ joiningPastMaster.pastUnits }}</td>
+                        <td style="padding: 0.5px; text-align: right; width: 12%; overflow-wrap: anywhere;">{{ joiningPastMaster.pastUnits }}</td>
                         {{ end }}
                         <td style="padding: 0.5px; text-align: right; width: 50%; overflow-wrap: anywhere; {{ if joiningPastMaster.isGrandRank }}font-weight: 600;{{ end }}">{{ joiningPastMaster.display_rank }}</td>
                     </tr>
@@ -158,11 +158,12 @@
                 {{ sectionHeadings.members }} ({{ unit.unitPostfixDisplay }})
             {{ end }}
         </h2>
-        <div style="font-size: 0; width: 100%; margin: 0; break-inside: auto;">
-            {{ for colIndex in 0..(memberColumns.size - 1) }}
+        {{ for memberPageIndex in 0..(memberPages.size - 1) }}
+        <div class="{{ if memberPageIndex > 0 }}page-break-before{{ end }}" style="font-size: 0; width: 100%; margin: 0; break-inside: auto;">
+            {{ for colIndex in 0..(memberPages[memberPageIndex].size - 1) }}
             <table style="font-size: var(--font-dense-table); display: inline-table; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box; table-layout: fixed;">
                 <tbody>
-                    {{ for member in memberColumns[colIndex] }}
+                    {{ for member in memberPages[memberPageIndex][colIndex] }}
                     <tr data-id="{{ member.dataId }}">
                         <td style="padding: 0.5px; text-align: left; width: 75%; overflow-wrap: anywhere;{{ if colIndex > 0 }} padding-left: 8px;{{ end }}">{{ member.name }}{{ if member.suffix }} {{ member.suffix }}{{ end }}</td>
                         <td style="padding: 0.5px; padding-left: 6px; text-align: right; width: 25%; white-space: nowrap;">{{ member.joined }}</td>
@@ -172,6 +173,7 @@
             </table>
             {{ end }}
         </div>
+        {{ end }}
     </div>
     {{ end }}
 
@@ -274,14 +276,14 @@
             <!-- Single member: full width, centered -->
             <div style="display: grid; grid-template-columns: 1fr; gap: 1px; width: 100%; break-inside: avoid;">
                 {{ member = honoraryMembers[0] }}
-                <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.rank_separator }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;{{ if member.rank_on_new_line }} display: block;{{ end }}">{{ member.display_rank }}</span></div>
             </div>
         {{ else if totalMembers == 2 }}
             <!-- Two members: two columns, centered -->
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ for i in (0..1) }}
                     {{ member = honoraryMembers[i] }}
-                    <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                    <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.rank_separator }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;{{ if member.rank_on_new_line }} display: block;{{ end }}">{{ member.display_rank }}</span></div>
                 {{ end }}
             </div>
         {{ else }}
@@ -298,14 +300,14 @@
                     {{ if isLastRowMember && membersInLastRow == 1 && posInLastRow == 0 }}
                         <!-- Special handling: 1 member in last row goes to middle column -->
                         <div></div>
-                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.rank_separator }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;{{ if member.rank_on_new_line }} display: block;{{ end }}">{{ member.display_rank }}</span></div>
                         <div></div>
                     {{ else if isLastRowMember && membersInLastRow == 2 && posInLastRow < 2 }}
                         <!-- 2 members in last row: render in left and middle (right stays empty) -->
-                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.rank_separator }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;{{ if member.rank_on_new_line }} display: block;{{ end }}">{{ member.display_rank }}</span></div>
                     {{ else if !isLastRowMember || membersInLastRow == 3 }}
                         <!-- Full rows or case where all 3 spots in last row are filled -->
-                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}{{ member.rank_separator }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;{{ if member.rank_on_new_line }} display: block;{{ end }}">{{ member.display_rank }}</span></div>
                     {{ end }}
                 {{ end }}
                 

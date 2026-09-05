@@ -21,7 +21,7 @@
             <td style="font-weight: 600; width: 50%; vertical-align: top;">{{ head.rank }}</td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="font-weight: 600; line-height: 1;">{{ head.name }}</div>
+                    <div style="font-weight: 600; line-height: 1.5;">{{ head.name }}</div>
                     {{ if head.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ head.contact }}">{{ head.contact }}</a></div>{{ end }}
                 </div>
             </td>
@@ -40,7 +40,7 @@
             <td style="font-weight: 600; width: 45%; vertical-align: top;">{{ deputy.rank }}</td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="font-weight: 600; line-height: 1;">{{ deputy.name }}</div>
+                    <div style="font-weight: 600; line-height: 1.5;">{{ deputy.name }}</div>
                     {{ if deputy.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ deputy.contact }}">{{ deputy.contact }}</a></div>{{ end }}
                 </div>
             </td>
@@ -65,7 +65,7 @@
             <td style="font-weight: 600; width: 45%; vertical-align: top;">{{ officer.rank }}</td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="font-weight: 600; line-height: 1;">{{ officer.name }}</div>
+                    <div style="line-height: 1;">{{ officer.name }}</div>
                     {{ if officer.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ officer.contact }}">{{ officer.contact }}</a></div>{{ end }}
                 </div>
             </td>

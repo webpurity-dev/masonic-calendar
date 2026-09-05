@@ -44,7 +44,7 @@ ui_preferences:
         officers: ["Org"]
   joining_past_masters_display:
     # Split long joining past master lists into page-sized tables
-    rows_per_table: 46
+    rows_per_table: 40
     # Maximum number of joining units to display
     joining_units_threshold: 1
     # Display only the first threshold units and hide the remainder
@@ -52,6 +52,15 @@ ui_preferences:
     # Consolidate the full list if hiding is disabled and the threshold is exceeded   
     consolidate_exceeded_joining_units: false
     consolidate_text: "X unit(s)"
+  honorary_members_display:
+    # Display a rank beneath the name when it exceeds this many characters.
+    rank_wrap_threshold: 10
+  member_display:
+    # Split only Lodge 3366 into balanced three-column member pages.
+    page_limits:
+      - unit_type: "Craft"
+        unit_number: 3366
+        rows_per_page: 34
   rank_display:
     priority_order:
       - "grand_rank"                     # Grand Rank (highest priority)
@@ -210,21 +219,7 @@ sections:
     section_title: "Salutations"
     type: "static"
     template: "craft/salutes.html"
-    is_child: true  
-  - section_id: "craft_membership_statistics"
-    section_title: "Membership Statistics 2025"
-    type: "membership-statistics"
-    template: "_data-driven/membership-statistics-page.html"
-    data_mapping: "data_sources/craft_data_source.yaml"
-    is_child: true
-  - section_id: "craft_meetings_table"
-    section_title: "Lodge Meeting Dates"
-    type: "meetings-table"
-    template: "_data-driven/meetings-table-page.html"
-    data_mapping: "data_sources/meetings_data_source.yaml"
-    unit_types: ["Craft"]
-    style: "small"
-    is_child: true
+    is_child: true 
   - section_id: "dorset_masonic_charity"
     section_title: "Dorset Masonic Charities"
     type: "static"
@@ -240,6 +235,20 @@ sections:
     type: "locations"
     template: "_data-driven/location-page.html"
     unit_type_sort_priority: ["Craft", "RA"]
+    is_child: true 
+  - section_id: "craft_membership_statistics"
+    section_title: "Membership Statistics 2025"
+    type: "membership-statistics"
+    template: "_data-driven/membership-statistics-page.html"
+    data_mapping: "data_sources/craft_data_source.yaml"
+    is_child: true
+  - section_id: "craft_meetings_table"
+    section_title: "Lodge Meeting Dates"
+    type: "meetings-table"
+    template: "_data-driven/meetings-table-page.html"
+    data_mapping: "data_sources/meetings_data_source.yaml"
+    unit_types: ["Craft"]
+    style: "small"
     is_child: true
   - section_id: "craft_units_toc"
     section_title: "Lodges in Numerical Order"

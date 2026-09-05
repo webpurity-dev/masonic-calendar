@@ -33,6 +33,10 @@ public static class UnitModelBuilder
 
     public static JoiningPastMastersDisplay? ConfiguredJoiningPastMastersDisplay { get; set; }
 
+    public static HonoraryMembersDisplay? ConfiguredHonoraryMembersDisplay { get; set; }
+
+    public static MemberDisplay? ConfiguredMemberDisplay { get; set; }
+
     public static UnitDisplayRowCount CalculateDisplayRowCount(
         SchemaUnit unit,
         List<HideNotAppointedRule>? hideNotAppointedRules = null)
@@ -202,17 +206,34 @@ public static class UnitModelBuilder
                 "memberColumns", SplitMembersIntoColumns(unit.Members)
             },
             {
+                "memberPages", SplitMembersIntoPages(unit)
+            },
+            {
                 "groupedMembers", BuildGroupedMembers(unit.Members, groupingSortOrder)  // v2.0: Support custom grouping sort order (e.g., RC: 33°, 32°, 31°)
             },
             {
                 "honoraryMembers", unit.HonoraryMembers
-                    .Select(hm => new Dictionary<string, object?>
+                    .Select(hm =>
                     {
-                        { "reference", TextCleaner.CleanReference(hm.Reference) },
-                        { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
-                        { "name", TextCleaner.CleanName(hm.Name) },
-                        { "display_rank", BuildDisplayRankWithCommaSimple(hm.GrandRank, ApplyRankFixes(hm.ProvincialRank, rankFixes), ApplyOtherProvinceRankFixes(hm.ProvRankOtherProv, hm.OpPastActive, rankFixes), hm.LondonRank, unit.UnitType) },
-                        { "isGrandRank", hm.IsGrandRank }
+                        var provincialRank = ApplyRankFixes(hm.ProvincialRank, rankFixes);
+                        var otherProvinceRank = ApplyOtherProvinceRankFixes(hm.ProvRankOtherProv, hm.OpPastActive, rankFixes);
+                        var displayRank = BuildDisplayRankWithCommaSimple(hm.GrandRank, provincialRank, otherProvinceRank, hm.LondonRank, unit.UnitType);
+                        var hasPairedRanks = ShouldDisplayProvincialAndGrandRank(unit.UnitType, provincialRank) &&
+                            !string.IsNullOrWhiteSpace(hm.GrandRank);
+                        var rankLength = displayRank?.TrimStart(',', ' ').Length ?? 0;
+                        var wrapThreshold = ConfiguredHonoraryMembersDisplay?.RankWrapThreshold ?? 10;
+                        var rankOnNewLine = hasPairedRanks || rankLength > wrapThreshold;
+
+                        return new Dictionary<string, object?>
+                        {
+                            { "reference", TextCleaner.CleanReference(hm.Reference) },
+                            { "dataId", BuildDataId(hm.Reference, hm.MemType, null) },
+                            { "name", TextCleaner.CleanName(hm.Name) },
+                            { "display_rank", rankOnNewLine ? displayRank?.TrimStart(',', ' ') : displayRank },
+                            { "rank_separator", rankOnNewLine && !string.IsNullOrWhiteSpace(displayRank) ? "," : string.Empty },
+                            { "rank_on_new_line", rankOnNewLine },
+                            { "isGrandRank", hm.IsGrandRank }
+                        };
                     })
                     .ToList()
             },
@@ -324,6 +345,23 @@ public static class UnitModelBuilder
         }
 
         return columns;
+    }
+
+    private static List<List<List<Dictionary<string, object?>>>> SplitMembersIntoPages(SchemaUnit unit)
+    {
+        var pageLimit = ConfiguredMemberDisplay?.PageLimits?.FirstOrDefault(limit =>
+            limit.RowsPerPage > 0 &&
+            limit.UnitNumber == unit.Number &&
+            string.Equals(limit.UnitType, unit.UnitType, StringComparison.OrdinalIgnoreCase));
+
+        if (pageLimit == null)
+            return [SplitMembersIntoColumns(unit.Members)];
+
+        var membersPerPage = pageLimit.RowsPerPage * 3;
+        return unit.Members
+            .Chunk(membersPerPage)
+            .Select(memberPage => SplitMembersIntoColumns(memberPage.ToList()))
+            .ToList();
     }
 
     private static string CleanRegularMemberName(string? name)

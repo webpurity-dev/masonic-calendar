@@ -1,12 +1,12 @@
-<div class="location-page" style="padding: 10px; font-size: 7.5pt;">
+<div class="location-page" style="padding: 10px; font-size: var(--font-body);">
     
     <!-- Location Title -->
     <div style="margin-bottom: 8px;">
-        <h2 style="font-size: 14pt; margin: 0 0 4px 0; font-weight: bold; text-align: center;">
+        <h2 style="font-size: var(--font-title); margin: 0 0 4px 0; font-weight: bold; text-align: center;">
             {{ location.name }}
         </h2>
         {{ if location.address_line1 }}
-        <h4 style="font-size: 9pt; margin: 0 0 8px 0; font-weight: normal; text-align: center; color: #666;">
+        <h4 style="font-size: var(--font-body); margin: 0 0 8px 0; font-weight: normal; text-align: center; color: #666;">
             {{ location.address_line1 }}
         </h4>
         {{ end }}
@@ -28,7 +28,7 @@
 
     <!-- Descriptive Text -->
     <div style="margin-bottom: 8px; text-align: left;">
-        <p style="font-size: 7.5pt; margin: 0; line-height: 1.3; color: #444;">
+        <p style="font-size: var(--font-body); margin: 0; line-height: 1.3; color: #444;">
             {{ location.parking }}
         </p>
     </div>
@@ -40,7 +40,7 @@
         <div style="display: flex; gap: 8px; justify-content: space-between;">
             {{ for columnIndex in 0..1 }}
             {{ if unitColumns[columnIndex] && unitColumns[columnIndex].size > 0 }}
-            <table style="flex: 1; border-collapse: collapse; font-size: 7pt; table-layout: auto;">
+            <table style="flex: 1; border-collapse: collapse; font-size: var(--font-dense-table); table-layout: auto;">
                 <thead>
                     <tr style="border-bottom: 1px solid #333;">
                         <th style="padding: 2px 3px; text-align: left; font-weight: bold;">Unit</th>                        
@@ -52,7 +52,7 @@
                     {{ for unit in unitColumns[columnIndex] }}
                     <tr>
                         <td style="padding: 1px 3px; text-align: left;">{{ unit.super_short_name }}</td>                        
-                        <td style="padding: 1px 3px; text-align: left; font-size: 6.5pt;">{{ unit.unit_type }}</td>
+                        <td style="padding: 1px 3px; text-align: left; font-size: var(--font-secondary);">{{ unit.unit_type }}</td>
                         <td style="padding: 1px 3px; text-align: right; font-weight: 600;">{{ if unit.unit_postfix && unit.unit_postfix != "" }}{{ unit.unit_postfix }}{{ else if !unit.hide_unit_number }}{{ unit.unit_no }}{{ end }}</td>
                     </tr>
                     {{ end }}

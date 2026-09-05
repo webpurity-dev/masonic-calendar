@@ -1,14 +1,14 @@
 <!-- Executive Officers Section -->
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="font-size: 12pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
+    <h2 style="font-size: var(--font-heading-primary); margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
     <img src="{{ crest }}" style="max-width: 25%; height: auto; margin: 8px 0;"/>
     {{ end }}
     {{ if website != null && website != "" }}
-    <a href="{{ website }}" target="_blank" style="font-size: 6pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
+    <a href="{{ website }}" target="_blank" style="font-size: var(--font-secondary); margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
     {{ end }}
     {{ if heading2 != null && heading2 != "" }}
-    <h3 style="font-size: 10pt; margin: 4px 0;">{{ heading2 }}</h3>
+    <h3 style="font-size: var(--font-heading-secondary); margin: 4px 0;">{{ heading2 }}</h3>
     {{ end }}
 </div>
 
@@ -52,13 +52,13 @@
 
 {{ if deputy_heading != null && deputy_heading != "" }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h4 style="font-size: 8pt; margin: 4px 0;">{{ deputy_heading }}</h4>
+    <h4 style="font-size: var(--font-body); margin: 4px 0;">{{ deputy_heading }}</h4>
 </div>
 {{ end }}
 
 {{ if executive_officers && executive_officers.size > 0 }}
 <!-- Executive Officers -->
-<table style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table style="margin: 2px 0; font-size: var(--font-dense-table); width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in executive_officers }}
         <tr style="margin: 2px 6px; padding: 2px 0;">

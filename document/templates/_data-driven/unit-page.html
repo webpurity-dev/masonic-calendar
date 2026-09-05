@@ -1,10 +1,10 @@
-<div style="text-align: center; padding: 0px; font-size: 7.5pt;">
+<div style="text-align: center; padding: 0px; font-size: var(--font-body);">
     <!-- Header Section -->
     <div style="margin-bottom: 2px;">
         {{ if unit.hideUnitName }}
             &nbsp;
         {{ else }}
-            <h1 style="font-size: 12pt; margin: 0; font-weight: bold; text-align: center;">
+            <h1 style="font-size: var(--font-heading-primary); margin: 0; font-weight: bold; text-align: center;">
                 {{ if unit.hideUnitNumber }}
                     {{ unit.name }}
                 {{ else }}
@@ -14,7 +14,7 @@
         {{ end }}
         <!-- Contact email -->
         {{ if unit.contact }}
-            <p style="font-size: 6pt; margin: 1px 0;">
+            <p style="font-size: var(--font-secondary); margin: 1px 0;">
                 Email: <a href="mailto:{{ unit.contact }}">{{ unit.contact }}</a>
             </p>
         {{ end }}
@@ -22,7 +22,7 @@
     
     <!-- Summary Section -->
     <div style="margin-bottom: 2px; text-align: left;">
-        <p style="font-size: 6pt; margin: 1px 0;">
+        <p style="font-size: var(--font-body); margin: 1px 0;">
             {{ if unit.warrant }}
                 {{ unit.warrant }}     
             {{ end }}
@@ -38,7 +38,7 @@
     <!-- Last Installation Section -->
     <div style="margin-bottom: 2px; text-align: center;">            
         {{ if unit.lastInstallationDate }}
-            <p style="font-size: 7pt; margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
+            <p style="font-size: var(--font-body); margin: 1px 0;font-weight: 600;">{{ sectionHeadings.installationHeading }} {{ unit.lastInstallationDate }}</p>
         {{ end }}   
     </div>
     
@@ -47,7 +47,7 @@
     <div style="margin-top: 2px; text-align: center; break-inside: avoid;">
         <div style="display: flex; gap: 4px; justify-content: center; align-items: flex-start; break-inside: auto; width: 100%;">
             <!-- Left Column -->
-            <table style="border-collapse: collapse; font-size: 6.5pt; flex: 1 1 0; table-layout: fixed; min-width: 0;">
+            <table style="border-collapse: collapse; font-size: var(--font-dense-table); flex: 1 1 0; table-layout: fixed; min-width: 0;">
                 <tbody>
                     {{ for officer in officerColumns[0] }}
                     <tr data-id="{{ officer.dataId }}">
@@ -58,7 +58,7 @@
                 </tbody>
             </table>            
             <!-- Right Column -->
-            <table style="border-collapse: collapse; font-size: 6.5pt; flex: 1 1 0; table-layout: fixed; min-width: 0;">
+            <table style="border-collapse: collapse; font-size: var(--font-dense-table); flex: 1 1 0; table-layout: fixed; min-width: 0;">
                 <tbody>
                     {{ for officer in officerColumns[1] }}
                     <tr data-id="{{ officer.dataId }}">
@@ -76,7 +76,7 @@
     {{ if pastMasters && pastMasters.size > 0 }}
     <div style="margin-top: 3px; text-align: center; break-inside: auto;">
         {{ if sectionHeadings.pastMasters }}
-        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: var(--font-body); margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.pastMasters }}
             {{ else }}
@@ -85,7 +85,7 @@
         </h2>
         {{ end }}
         <div style="display: block; break-inside: auto; width: 100%;">
-            <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; table-layout: fixed;">
+            <table style="border-collapse: collapse; font-size: var(--font-dense-table); width: 100%; margin: 0; table-layout: fixed;">
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%;">Name</th>
@@ -110,7 +110,7 @@
     <!-- Joining Past Masters Table -->
     {{ if joiningPastMasters && joiningPastMasters.size > 0 }}
     <div class="{{ if unit.breakBeforeJoiningMembers }}page-break-before{{ end }}" style="margin-top: 3px; text-align: center; width: 100%; break-inside: auto; overflow: visible;">
-        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: var(--font-body); margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.joiningPastMasters }}
             {{ else }}
@@ -119,7 +119,7 @@
         </h2>
         {{ for tableIndex in 0..(joiningPastMasterTables.size - 1) }}
         <div class="{{ if tableIndex > 0 }}page-break-before{{ end }}" style="width: 100%; overflow: visible;">
-            <table style="border-collapse: collapse; font-size: 5.5pt; width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
+            <table style="border-collapse: collapse; font-size: var(--font-dense-table); width: 100%; margin: 0; break-inside: auto; table-layout: fixed; box-sizing: border-box;">
                 <thead>
                     <tr>
                         <th style="padding: 0.5px; text-align: left; font-weight: 800; width: 28%; overflow-wrap: anywhere;">Name</th>
@@ -151,7 +151,7 @@
     <!-- Members Table - 3 explicit inline-block tables to avoid CSS column-count PDF reflow -->
     {{ if members && members.size > 0 && (!groupedMembers || groupedMembers.size == 0) }}
     <div class="{{ if unit.breakBeforeMembers }}page-break-before{{ end }}" style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 7pt; font-weight: bold; text-align: center; margin: 0; break-after: avoid;">
+        <h2 style="font-size: var(--font-body); font-weight: bold; text-align: center; margin: 0; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
@@ -160,7 +160,7 @@
         </h2>
         <div style="font-size: 0; width: 100%; margin: 0; break-inside: auto;">
             {{ for colIndex in 0..(memberColumns.size - 1) }}
-            <table style="font-size: 5.5pt; display: inline-table; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box; table-layout: fixed;">
+            <table style="font-size: var(--font-dense-table); display: inline-table; vertical-align: top; width: 33.333%; border-collapse: collapse; box-sizing: border-box; table-layout: fixed;">
                 <tbody>
                     {{ for member in memberColumns[colIndex] }}
                     <tr data-id="{{ member.dataId }}">
@@ -178,7 +178,7 @@
     <!-- Grouped Members Table (for units with degree/level grouping like RC) -->
     {{ if groupedMembers && groupedMembers.size > 0 }}
     <div class="{{ if unit.breakBeforeMembers }}page-break-before{{ end }}" style="margin-top: 5px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: var(--font-body); margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.members }}
             {{ else }}
@@ -197,14 +197,14 @@
             {{ end }}
             <!-- If >2 members, show two tables side-by-side. Otherwise single table -->
             <div style="break-inside: avoid;{{ if memberCount > 2 }} grid-column: 1 / -1;{{ end }}">
-                <div style="font-size: 5.5pt; font-weight: bold; margin-bottom: 2px; text-align: left;">{{ group.groupKey }}</div>
+                <div style="font-size: var(--font-dense-table); font-weight: bold; margin-bottom: 2px; text-align: left;">{{ group.groupKey }}</div>
                 {{ if memberCount > 2 }}
                 <!-- Show left and right columns side-by-side -->
                 <div style="display: flex; gap: 2px; width: 100%; break-inside: avoid; align-items: flex-start;">
                     {{ for colIndex in (0..1) }}
                         {{ $col = group.columns[colIndex] }}
                         {{ if $col && $col.size > 0 }}
-                        <table style="border-collapse: collapse; font-size: 5.5pt; flex: 1; margin: 0; padding: 0; break-inside: avoid;">
+                        <table style="border-collapse: collapse; font-size: var(--font-dense-table); flex: 1; margin: 0; padding: 0; break-inside: avoid;">
                             <tbody>
                                 {{ for member in $col }}
                                 <tr data-id="{{ member.dataId }}" style="vertical-align: top;">
@@ -223,7 +223,7 @@
                 </div>
                 {{ else }}
                 <!-- Compact group: single table with balanced member distribution -->
-                <table style="font-size: 5.5pt; border-collapse: collapse; width: 100%; margin: 0; padding: 0; break-inside: avoid;">
+                <table style="font-size: var(--font-dense-table); border-collapse: collapse; width: 100%; margin: 0; padding: 0; break-inside: avoid;">
                     <tbody>
                         {{ for colIndex in (0..1) }}
                             {{ $col = group.columns[colIndex] }}
@@ -252,14 +252,14 @@
     <!-- Member Caption - renders for both regular and grouped members -->
     {{ if (members && members.size > 0) || (groupedMembers && groupedMembers.size > 0) }}
     {{ if sectionHeadings.memberCaption && sectionHeadings.memberCaption != "" }}
-    <div style="font-size: 5pt; margin-top: 2px; text-align: center; break-inside: auto; color: #333;">{{ sectionHeadings.memberCaption }}</div>
+    <div style="font-size: var(--font-secondary); margin-top: 2px; text-align: center; break-inside: auto; color: #333;">{{ sectionHeadings.memberCaption }}</div>
     {{ end }}
     {{ end }}
 
     <!-- Honorary Members Table - 3 per row with conditional alignment -->
     {{ if honoraryMembers && honoraryMembers.size > 0 }}
     <div style="margin-top: 10px; text-align: center; width: 100%; break-inside: auto;">
-        <h2 style="font-size: 7pt; margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
+        <h2 style="font-size: var(--font-body); margin: 0; font-weight: bold; text-align: center; break-after: avoid;">
             {{ if unit.hideUnitNumber }}
                 {{ sectionHeadings.honoraryMembers }}
             {{ else }}
@@ -274,14 +274,14 @@
             <!-- Single member: full width, centered -->
             <div style="display: grid; grid-template-columns: 1fr; gap: 1px; width: 100%; break-inside: avoid;">
                 {{ member = honoraryMembers[0] }}
-                <div style="font-size: 5pt; padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: inherit; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
             </div>
         {{ else if totalMembers == 2 }}
             <!-- Two members: two columns, centered -->
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; width: 100%; break-inside: avoid;">
                 {{ for i in (0..1) }}
                     {{ member = honoraryMembers[i] }}
-                    <div style="font-size: 5pt; padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: inherit; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                    <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
                 {{ end }}
             </div>
         {{ else }}
@@ -298,14 +298,14 @@
                     {{ if isLastRowMember && membersInLastRow == 1 && posInLastRow == 0 }}
                         <!-- Special handling: 1 member in last row goes to middle column -->
                         <div></div>
-                        <div style="font-size: 5pt; padding: 0.5px; text-align: center; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 5pt; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: center; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
                         <div></div>
                     {{ else if isLastRowMember && membersInLastRow == 2 && posInLastRow < 2 }}
                         <!-- 2 members in last row: render in left and middle (right stays empty) -->
-                        <div style="font-size: 5pt; padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 4pt; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
                     {{ else if !isLastRowMember || membersInLastRow == 3 }}
                         <!-- Full rows or case where all 3 spots in last row are filled -->
-                        <div style="font-size: 5pt; padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: 4pt; overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
+                        <div style="font-size: var(--font-dense-table); padding: 0.5px; text-align: {{ colAlignment }}; overflow-wrap: anywhere; {{ if member.isGrandRank }}font-weight: 600;{{ end }}" data-id="{{ member.dataId }}">{{ member.name }}<span style="font-size: var(--font-secondary); overflow-wrap: anywhere;">{{ member.display_rank }}</span></div>
                     {{ end }}
                 {{ end }}
                 

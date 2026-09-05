@@ -10,6 +10,13 @@ document:
   global_styling:
     fonts:
       default_family: "Tahoma, Arial, sans-serif"
+      sizes:
+        title: "14pt"
+        heading_primary: "12pt"
+        heading_secondary: "10pt"
+        body: "8pt"
+        dense_table: "7pt"
+        secondary: "6pt"
     footer:
       font_family: "Tahoma, Arial, sans-serif"
       font_size: "6pt"
@@ -78,15 +85,15 @@ ui_preferences:
 page_margins:
   page_size: "111mm 154mm"  # A6 trim (105 x 148mm) plus 3mm bleed on every edge
   right_page:               # Odd pages (Recto)
-    top: 10mm               # 3mm bleed + 7mm trim-relative margin
-    bottom: 12mm            # 3mm bleed + 9mm inner margin for page numbers
-    left: 11mm              # 3mm bleed + 8mm inner margin
-    right: 11mm             # 3mm bleed + 8mm outer margin
+    top:    5mm             # 3mm bleed + 2mm trim-relative margin
+    bottom: 9mm             # 3mm bleed + 5mm inner margin for page numbers
+    left:   9mm             # 3mm bleed + 6mm inner margin for binding edge
+    right:  4mm             # 3mm bleed + 1mm outer margin
   left_page:                # Even pages (Verso)
-    top: 10mm               # 3mm bleed + 7mm trim-relative margin
-    bottom: 12mm            # 3mm bleed + 9mm inner margin for page numbers
-    left: 11mm              # 3mm bleed + 8mm outer margin
-    right: 11mm             # 3mm bleed + 8mm inner margin
+    top:    5mm             # 3mm bleed + 7mm trim-relative margin
+    bottom: 9mm             # 3mm bleed + 9mm inner margin for page numbers
+    left:   4mm             # 3mm bleed + 8mm outer margin
+    right:  9mm             # 3mm bleed + 6mm inner margin for binding edge
   first_page:               # Cover page - no page number, no margins
     top: 0mm
     bottom: 0mm
@@ -96,8 +103,9 @@ page_margins:
     trim_inset: 3mm         # A6 trim boundary within the 3mm bleed area
     mark_length: 5mm
     corner_gap: 3mm
-    stroke_width: 0.25px
+    stroke_width: 0.15px
     color: black
+    margin_color: red
 
 page_styles:
   - name: "full_bleed_no_footer"
@@ -133,7 +141,7 @@ sections:
     for_section: "all"
     template: "_data-driven/toc-page.html"
     reset_page_counter: true 
-  - section_id: "master_foreword"
+  - section_id: "foreword"
     section_title: "Foreword"
     type: "static"
     template: "foreword.html"

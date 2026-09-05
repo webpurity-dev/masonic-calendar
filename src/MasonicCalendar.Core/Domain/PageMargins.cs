@@ -24,6 +24,7 @@ public class CropMarks
     public string? CornerGap { get; set; }
     public string? StrokeWidth { get; set; }
     public string? Color { get; set; }
+    public string? MarginColor { get; set; }
 }
 
 /// <summary>

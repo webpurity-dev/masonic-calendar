@@ -1,14 +1,14 @@
 {{ if display_officers_only != true }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="font-size: 12pt; margin: 0; font-weight: 600;">{{ heading1 }}</h2>
+    <h2 style="font-size: var(--font-heading-primary); margin: 0; font-weight: 600;">{{ heading1 }}</h2>
     {{ if crest }}
     <img src="{{ crest }}" style="max-width: 25%; height: auto; margin: 8px 0;"/>
     {{ end }}
     {{ if website != null && website != "" }}
-    <a href="{{ website }}" target="_blank" style="font-size: 6pt; margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
+    <a href="{{ website }}" target="_blank" style="font-size: var(--font-secondary); margin: 4px 0; color: #003d7a; text-decoration: none; font-weight: 500;">{{ website }}</a>
     {{ end }}
     {{ if heading2 != null && heading2 != "" }}
-    <h3 style="font-size: 10pt; margin: 4px 0;">{{ heading2 }}</h3>
+    <h3 style="font-size: var(--font-heading-secondary); margin: 4px 0;">{{ heading2 }}</h3>
     {{ end }}
 </div>
 
@@ -46,13 +46,13 @@
 
 {{ if district_heading != null && district_heading != "" }}
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h4 style="font-size: 8pt; margin: 4px 0;">{{ district_heading }}</h4>
+    <h4 style="font-size: var(--font-body); margin: 4px 0;">{{ district_heading }}</h4>
 </div>
 {{ end }}
 
 {{ if district_heads.size > 0 }}
 <!-- District Heads -->
-<table data-id="district_heads"{{ if break_before_officers && officers.size > 0 }} class="officers-page-break-after"{{ end }} style="margin: 2px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="district_heads"{{ if break_before_officers && officers.size > 0 }} class="officers-page-break-after"{{ end }} style="margin: 2px 0; font-size: var(--font-dense-table); width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for district in district_heads }}
         <tr style="margin: 1px; padding: 0;">
@@ -70,13 +70,13 @@
 {{ if officers.size > 0 }}
 {{ if officers_heading != null && officers_heading != "" }}
 <div{{ if break_before_officers && district_heads.size == 0 }} class="officers-page-break-before"{{ end }} style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h4 style="font-size: 8pt; font-weight: 600; margin: 8px 0;">{{ officers_heading }}</h4>
+    <h4 style="font-size: var(--font-body); font-weight: 600; margin: 8px 0;">{{ officers_heading }}</h4>
 </div>
 {{ end }}
 
 <!-- Officers -->
 {{ for tableIndex in 0..(officer_tables.size - 1) }}
-<table data-id="{{ if tableIndex == 0 }}officers{{ else }}officers_{{ tableIndex + 1 }}{{ end }}"{{ if tableIndex > 0 }} class="page-break-before"{{ else if break_before_officers && district_heads.size == 0 && (officers_heading == null || officers_heading == "") }} class="officers-page-break-before"{{ end }} style="margin: 2px 0 20px 0; font-size: 7pt; width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
+<table data-id="{{ if tableIndex == 0 }}officers{{ else }}officers_{{ tableIndex + 1 }}{{ end }}"{{ if tableIndex > 0 }} class="page-break-before"{{ else if break_before_officers && district_heads.size == 0 && (officers_heading == null || officers_heading == "") }} class="officers-page-break-before"{{ end }} style="margin: 2px 0 20px 0; font-size: var(--font-dense-table); width: 100%; border-collapse: collapse; table-layout: fixed; border: none;">
     <tbody>
         {{ for officer in officer_tables[tableIndex] }}
         <tr style="margin: 2px; padding: 0;">

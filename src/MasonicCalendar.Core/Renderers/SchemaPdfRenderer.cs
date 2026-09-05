@@ -13,12 +13,14 @@ using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleeds = false, bool noPrintMode = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleed = false, bool showPrint = false, bool showMargins = false, bool noPrintMode = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly bool _debugMode = debugMode;
-    private readonly bool _showBleeds = showBleeds;
+    private readonly bool _showBleed = showBleed;
+    private readonly bool _showPrint = showPrint;
+    private readonly bool _showMargins = showMargins;
     private readonly bool _noPrintMode = noPrintMode;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
@@ -127,10 +129,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     output.AppendLine(globalStylesCss);
                 }
                 
-                if (_showBleeds)
-                {
-                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
-                }
+                AppendProofOverlayCss(output, layout?.PageMargins);
                 
                 output.AppendLine("</style>");
             }
@@ -302,10 +301,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 
                 // Add bleed visualization if requested
-                if (_showBleeds)
-                {
-                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
-                }
+                AppendProofOverlayCss(output, layout?.PageMargins);
                 
                 output.AppendLine("</style>");
             }
@@ -580,10 +576,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 
                 // Add bleed visualization if requested
-                if (_showBleeds)
-                {
-                    output.AppendLine(GenerateCropMarksCss(layout?.PageMargins?.CropMarks));
-                }
+                AppendProofOverlayCss(output, layout?.PageMargins);
                 
                 output.AppendLine("</style>");
             }
@@ -1439,6 +1432,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         {
             css.AppendLine("@page {");
             css.AppendLine($"  size: {pageSize};");
+            css.AppendLine("  bleed: 0;");
             css.AppendLine("  marks: none;");
             css.AppendLine("}");
         }
@@ -1598,15 +1592,46 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     /// </summary>
     private string GenerateGlobalStylesCss(GlobalStyling? globalStyling)
     {
-        if (globalStyling?.Fonts?.DefaultFamily == null)
+        if (globalStyling?.Fonts == null)
             return string.Empty;
 
         var css = new StringBuilder();
-        css.AppendLine("html, body {");
-        css.AppendLine($"  font-family: {globalStyling.Fonts.DefaultFamily};");
-        css.AppendLine("}");
+        if (!string.IsNullOrWhiteSpace(globalStyling.Fonts.DefaultFamily))
+        {
+            css.AppendLine("html, body {");
+            css.AppendLine($"  font-family: {globalStyling.Fonts.DefaultFamily};");
+            css.AppendLine("}");
+        }
+
+        if (globalStyling.Fonts.Sizes?.Count > 0)
+        {
+            css.AppendLine(":root {");
+            foreach (var (name, size) in globalStyling.Fonts.Sizes)
+                css.AppendLine($"  --font-{name.Replace('_', '-')}: {size};");
+            css.AppendLine("}");
+        }
 
         return css.ToString();
+    }
+
+    private void AppendProofOverlayCss(StringBuilder output, PageMargins? margins)
+    {
+        if (_showBleed)
+            output.AppendLine(GenerateBleedBoundaryCss(margins?.CropMarks));
+
+        if (_showPrint)
+            output.AppendLine(GenerateCropMarksCss(margins?.CropMarks));
+
+        if (_showMargins)
+            output.AppendLine(GenerateMarginBoundaryCss(margins));
+    }
+
+    private static string GenerateBleedBoundaryCss(CropMarks? cropMarks)
+    {
+        if (cropMarks?.TrimInset == null || cropMarks.StrokeWidth == null || cropMarks.Color == null)
+            return string.Empty;
+
+        return $".pagedjs_page {{ position: relative; }} .pagedjs_page::before {{ content: ''; position: absolute; inset: {cropMarks.TrimInset}; pointer-events: none; z-index: 99998; outline: {cropMarks.StrokeWidth} dotted {cropMarks.Color}; }}";
     }
 
     private static string GenerateCropMarksCss(CropMarks? cropMarks)
@@ -1621,9 +1646,31 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         var stroke = cropMarks.StrokeWidth;
         var color = cropMarks.Color;
 
-        css.AppendLine("/* Configured crop marks extend outward, stopping short of each A6 trim corner. */");
+        css.AppendLine("/* Configured crop marks are drawn outward from the trim corners into the bleed area. */");
         css.AppendLine(".pagedjs_page { position: relative; overflow: visible !important; }");
-        css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}; }}");
+        css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left 0 top {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat left {inset} top 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat right 0 top {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat right {inset} top 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat left 0 bottom {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat left {inset} bottom 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat right 0 bottom {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat right {inset} bottom 0 / {stroke} min({length}, {inset}); }}");
+        return css.ToString();
+    }
+
+    private static string GenerateMarginBoundaryCss(PageMargins? margins)
+    {
+        if (margins?.CropMarks?.StrokeWidth == null || margins.CropMarks.MarginColor == null)
+            return string.Empty;
+
+        var stroke = margins.CropMarks.StrokeWidth;
+        var color = margins.CropMarks.MarginColor;
+        var css = new StringBuilder();
+        css.AppendLine(".pagedjs_pagebox { position: relative; }");
+
+        if (margins.RightPage != null)
+            css.AppendLine($".pagedjs_right_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {margins.RightPage.Top} {margins.RightPage.Right} {margins.RightPage.Bottom} {margins.RightPage.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
+
+        if (margins.LeftPage != null)
+            css.AppendLine($".pagedjs_left_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {margins.LeftPage.Top} {margins.LeftPage.Right} {margins.LeftPage.Bottom} {margins.LeftPage.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
+
+        if (margins.FirstPage != null)
+            css.AppendLine($".pagedjs_first_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {margins.FirstPage.Top} {margins.FirstPage.Right} {margins.FirstPage.Bottom} {margins.FirstPage.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
+
         return css.ToString();
     }
 

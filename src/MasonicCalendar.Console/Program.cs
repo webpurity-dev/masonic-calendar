@@ -70,8 +70,10 @@ if (!string.IsNullOrWhiteSpace(outputFolderName))
 // Check for debug flag
 debugMode = Array.IndexOf(args, "-debug") != -1;
 
-// Check for showbleeds flag
-bool showBleeds = Array.IndexOf(args, "-showbleeds") != -1;
+// Check for proof overlay flags
+bool showBleed = Array.IndexOf(args, "-showbleed") != -1 || Array.IndexOf(args, "-showbleeds") != -1;
+bool showPrint = Array.IndexOf(args, "-showprint") != -1;
+bool showMargins = Array.IndexOf(args, "-showmargins") != -1;
 
 // Check for noprint flag (removes print-specific margins and padding)
 bool noPrintMode = Array.IndexOf(args, "-noprint") != -1;
@@ -161,6 +163,51 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var peekLayout = peekLoader.LoadMasterLayout(templateName);
         var targetSectionType = peekLayout.Data?.Sections?
             .FirstOrDefault(s => s.SectionId == targetSectionId)?.Type;
+
+        // Handle a YAML-order range such as cover-sgc_officers.
+        bool renderingSectionRange = false;
+        List<string>? sectionRangeIds = null;
+        string? sectionRangeDisplay = null;
+        var hasExactSectionId = peekLayout.Data?.Sections?.Any(s =>
+            s.SectionId?.Equals(targetSectionId, StringComparison.OrdinalIgnoreCase) ?? false) ?? false;
+
+        if (!string.IsNullOrWhiteSpace(targetSectionId) && !hasExactSectionId && targetSectionId.Contains('-'))
+        {
+            var rangeParts = targetSectionId.Split('-', 2, StringSplitOptions.TrimEntries);
+            if (rangeParts.Length != 2 || string.IsNullOrWhiteSpace(rangeParts[0]) || string.IsNullOrWhiteSpace(rangeParts[1]))
+            {
+                Console.WriteLine($"❌ Error: Section range '{targetSectionId}' must use the format <start>-<end>");
+                return 1;
+            }
+
+            var configuredSectionIds = peekLayout.Data?.Sections?
+                .Where(s => !string.IsNullOrWhiteSpace(s.SectionId))
+                .Select(s => s.SectionId!)
+                .ToList() ?? [];
+            var startIndex = configuredSectionIds.FindIndex(id => id.Equals(rangeParts[0], StringComparison.OrdinalIgnoreCase));
+            var endIndex = configuredSectionIds.FindIndex(id => id.Equals(rangeParts[1], StringComparison.OrdinalIgnoreCase));
+
+            if (startIndex < 0 || endIndex < 0)
+            {
+                Console.WriteLine($"❌ Error: Section range '{targetSectionId}' contains an unknown section ID");
+                return 1;
+            }
+
+            if (startIndex > endIndex)
+            {
+                Console.WriteLine($"❌ Error: Section range '{targetSectionId}' is reversed in the template order");
+                return 1;
+            }
+
+            sectionRangeIds = configuredSectionIds
+                .Skip(startIndex)
+                .Take(endIndex - startIndex + 1)
+                .ToList();
+            sectionRangeDisplay = targetSectionId;
+            renderingSectionRange = true;
+            targetSectionId = null;
+            targetSectionType = null;
+        }
 
         // Handle special case: -section "{type}" renders all sections of that type
         bool renderingMultipleSectionsOfType = false;
@@ -353,7 +400,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleeds, noPrintMode);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleed, showPrint, showMargins, noPrintMode);
         
         // Log the rendering details
         if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
@@ -363,6 +410,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         else if (renderingMultipleSectionsOfType)
         {
             Console.WriteLine($"📄 Rendering all sections of type '{matchedTypeName}' ({sectionsOfTypeIds?.Count ?? 0} sections)");
+        }
+        else if (renderingSectionRange)
+        {
+            Console.WriteLine($"📄 Rendering section range: {sectionRangeDisplay} ({sectionRangeIds?.Count ?? 0} sections)");
         }
         else if (targetSectionId != null)
         {
@@ -399,6 +450,16 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine();
             
             renderResult = await renderer.RenderMultipleSectionsAsync([], templateName, sectionsOfTypeIds, documentOutputFormat);
+        }
+        else if (renderingSectionRange && sectionRangeIds?.Count > 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"📊 Sections to render ({sectionRangeDisplay}):");
+            foreach (var secId in sectionRangeIds)
+                Console.WriteLine($"   ✓ {secId}");
+            Console.WriteLine();
+
+            renderResult = await renderer.RenderMultipleSectionsAsync([], templateName, sectionRangeIds, documentOutputFormat);
         }
         else if (!string.IsNullOrWhiteSpace(unitNumber) && unitsToRender.Count == 1 && !string.IsNullOrWhiteSpace(targetSectionId))
         {
@@ -447,11 +508,15 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Save output file with version embedded in template name if available
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
-        var sectionPart = renderingMultipleSectionsOfType ? $"{matchedTypeName}-sections" : (targetSectionId ?? "all-sections");
+        var sectionPart = renderingMultipleSectionsOfType ? $"{matchedTypeName}-sections" :
+            renderingSectionRange ? sectionRangeDisplay :
+            (targetSectionId ?? "all-sections");
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
-        var bleedsPart = showBleeds ? "-showBleeds" : "";
+        var bleedPart = showBleed ? "-showBleed" : "";
+        var printPart = showPrint ? "-showPrint" : "";
+        var marginsPart = showMargins ? "-showMargins" : "";
         var noPrintPart = noPrintMode ? "-noprint" : "";
-        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedsPart}{noPrintPart}.{fileExtension}";
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedPart}{printPart}{marginsPart}{noPrintPart}.{fileExtension}";
         
         // If version is available, embed it in the template name: master_v1- → master_v1.4-
         if (!string.IsNullOrWhiteSpace(documentVersion))
@@ -485,14 +550,16 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("📄 Masonic Calendar - Document Renderer");
     Console.WriteLine("=" + new string('=', 50));
     Console.WriteLine("\nUsage:");
-    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleeds] [-debug]");
+    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleed] [-showprint] [-showmargins] [-debug]");
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
-    Console.WriteLine("  -section    Section ID to render (optional, default: all sections)");
+    Console.WriteLine("  -section    Section ID, type, or inclusive <start>-<end> range (optional, default: all sections)");
     Console.WriteLine("              Use 'static' to render only static pages (cover, foreword, etc.)");
     Console.WriteLine("  -unit       Unit number to render (optional, default: all units)");
-    Console.WriteLine("  -showbleeds Show page bleeds with border (optional, for debugging layout)");
+    Console.WriteLine("  -showbleed  Show the configured dotted bleed boundary (optional, proofing only)");
+    Console.WriteLine("  -showprint  Show configured crop marks (optional, proofing only)");
+    Console.WriteLine("  -showmargins Show configured dotted page margins (optional, proofing only)");
     Console.WriteLine("  -debug      Enable debug output and HTML file generation (optional)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
     Console.WriteLine("  static      Render all static pages (cover, foreword, gallery photos, etc.)");
@@ -503,6 +570,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("  dotnet run -- -template master_v1 -output PDF                     (renders all units)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output PDF -unit 3366          (renders only unit 3366)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section static    (renders static pages only)");
+    Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section cover-sgc_officers");
     Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -section craft     (renders only craft section)");
     Console.WriteLine("  dotnet run -- -template master_v1 -output HTML -unit 3366 -debug  (renders unit 3366 with debug)");
     return 1;
@@ -512,7 +580,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
 Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
-Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleeds] [-debug]");
+Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleed] [-showprint] [-showmargins] [-debug]");
 Console.WriteLine("\nExample (render all sections):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
 Console.WriteLine("\nExample (render specific unit):");

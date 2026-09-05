@@ -1,5 +1,5 @@
 <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-    <h2 style="font-size: 14pt; margin: 6px; font-weight: 600;">Succession Lists</h2>
+    <h2 style="font-size: var(--font-title); margin: 6px; font-weight: 600;">Succession Lists</h2>
 </div>
 
 {{ for table in tables }}
@@ -23,7 +23,7 @@
     </tbody>
 </table>
 {{ if table.table_caption != null && table.table_caption != "" }}
-    <p style="font-size: 6pt; margin: 2px; font-style: italic;">{{ table.table_caption }}</p>
+    <p style="font-size: var(--font-secondary); margin: 2px; font-style: italic;">{{ table.table_caption }}</p>
 {{ end }}
 {{ end }}
 

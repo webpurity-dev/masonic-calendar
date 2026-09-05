@@ -217,9 +217,9 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             // Determine font size and line-height based on style
             var (fontSize, lineHeight) = section.Style?.ToLowerInvariant() switch
             {
-                "medium" => ("6pt", "1.2"),
-                "large" => ("7.2pt", "1.3"),
-                _ => ("5pt", "1")  // Default to "small"
+                "medium" => ("var(--font-dense-table)", "1.2"),
+                "large" => ("var(--font-body)", "1.3"),
+                _ => ("var(--font-dense-table)", "1")  // Default to "small"
             };
 
             var model = new Dictionary<string, object?>

@@ -4,7 +4,7 @@ document:
     # The 111 × 154 mm media page is A6 plus 3 mm bleed on every edge:
     # 105 + 6 = 111 mm
     # 148 + 6 = 154 mm
-  version: "2.4.4"
+  version: "2.4.5"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
   global_styling:

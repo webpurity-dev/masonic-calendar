@@ -52,7 +52,7 @@
                     {{ for unit in unitColumns[columnIndex] }}
                     <tr>
                         <td style="padding: 1px 3px; text-align: left;">{{ unit.super_short_name }}</td>                        
-                        <td style="padding: 1px 3px; text-align: left; font-size: var(--font-secondary);">{{ unit.unit_type }}</td>
+                        <td style="padding: 1px 3px; text-align: left;">{{ unit.unit_type }}</td>
                         <td style="padding: 1px 3px; text-align: right; font-weight: 600;">{{ if unit.unit_postfix && unit.unit_postfix != "" }}{{ unit.unit_postfix }}{{ else if !unit.hide_unit_number }}{{ unit.unit_no }}{{ end }}</td>
                     </tr>
                     {{ end }}

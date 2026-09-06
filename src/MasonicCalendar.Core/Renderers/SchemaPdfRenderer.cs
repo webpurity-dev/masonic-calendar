@@ -277,7 +277,11 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 else
                 {
-                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    var marginsCss = GeneratePageMarginsCss(
+                        layout?.Document?.Format,
+                        layout?.PageMargins,
+                        layout?.Document?.GlobalStyling,
+                        firstPageIsCover: section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) ?? false);
                     if (!string.IsNullOrEmpty(marginsCss))
                     {
                         output.AppendLine("/* Page margins from configuration */");
@@ -301,7 +305,10 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 
                 // Add bleed visualization if requested
-                AppendProofOverlayCss(output, layout?.PageMargins);
+                AppendProofOverlayCss(
+                    output,
+                    layout?.PageMargins,
+                    firstPageIsCover: section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) ?? false);
                 
                 output.AppendLine("</style>");
             }
@@ -1500,7 +1507,11 @@ if (window.Paged && typeof window.Paged.on === 'function') {
     /// Generate margin and footer @page rules from PageMargins configuration.
     /// This is skipped with -noprint flag but page size is always included.
     /// </summary>
-    private string GeneratePageMarginsCss(string? format, PageMargins? margins, GlobalStyling? globalStyling)
+    private string GeneratePageMarginsCss(
+        string? format,
+        PageMargins? margins,
+        GlobalStyling? globalStyling,
+        bool firstPageIsCover = true)
     {
         if (margins == null)
             return string.Empty;
@@ -1548,16 +1559,26 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine("}");
         }
 
-        // First page (cover - no page number)
-        if (margins.FirstPage != null)
+        // First page is the cover in a full document. For a single non-cover
+        // section, use recto margins so the section remains visually comparable.
+        var firstPageMargins = firstPageIsCover ? margins.FirstPage : margins.RightPage;
+        if (firstPageMargins != null)
         {
             css.AppendLine("@page :first {");
-            css.AppendLine($"  margin-top: {margins.FirstPage.Top};");
-            css.AppendLine($"  margin-bottom: {margins.FirstPage.Bottom};");
-            css.AppendLine($"  margin-left: {margins.FirstPage.Left};");
-            css.AppendLine($"  margin-right: {margins.FirstPage.Right};");
+            css.AppendLine($"  margin-top: {firstPageMargins.Top};");
+            css.AppendLine($"  margin-bottom: {firstPageMargins.Bottom};");
+            css.AppendLine($"  margin-left: {firstPageMargins.Left};");
+            css.AppendLine($"  margin-right: {firstPageMargins.Right};");
             css.AppendLine("  @bottom-center {");
-            css.AppendLine("    content: \"\";");
+            css.AppendLine(firstPageIsCover
+                ? "    content: \"\";"
+                : "    content: counter(page);");
+            if (!firstPageIsCover)
+            {
+                css.AppendLine($"    font-family: {footerFont};");
+                css.AppendLine($"    font-size: {footerSize};");
+                css.AppendLine($"    text-align: {footerAlign};");
+            }
             css.AppendLine("  }");
             css.AppendLine("}");
 
@@ -1614,7 +1635,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return css.ToString();
     }
 
-    private void AppendProofOverlayCss(StringBuilder output, PageMargins? margins)
+    private void AppendProofOverlayCss(StringBuilder output, PageMargins? margins, bool firstPageIsCover = true)
     {
         if (_showBleed)
             output.AppendLine(GenerateBleedBoundaryCss(margins?.CropMarks));
@@ -1623,7 +1644,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             output.AppendLine(GenerateCropMarksCss(margins?.CropMarks));
 
         if (_showMargins)
-            output.AppendLine(GenerateMarginBoundaryCss(margins));
+            output.AppendLine(GenerateMarginBoundaryCss(margins, firstPageIsCover));
     }
 
     private static string GenerateBleedBoundaryCss(CropMarks? cropMarks)
@@ -1652,7 +1673,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return css.ToString();
     }
 
-    private static string GenerateMarginBoundaryCss(PageMargins? margins)
+    private static string GenerateMarginBoundaryCss(PageMargins? margins, bool firstPageIsCover = true)
     {
         if (margins?.CropMarks?.StrokeWidth == null || margins.CropMarks.MarginColor == null)
             return string.Empty;
@@ -1668,8 +1689,9 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (margins.LeftPage != null)
             css.AppendLine($".pagedjs_left_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {margins.LeftPage.Top} {margins.LeftPage.Right} {margins.LeftPage.Bottom} {margins.LeftPage.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
 
-        if (margins.FirstPage != null)
-            css.AppendLine($".pagedjs_first_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {margins.FirstPage.Top} {margins.FirstPage.Right} {margins.FirstPage.Bottom} {margins.FirstPage.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
+        var firstPageMargins = firstPageIsCover ? margins.FirstPage : margins.RightPage;
+        if (firstPageMargins != null)
+            css.AppendLine($".pagedjs_first_page .pagedjs_pagebox::after {{ content: ''; position: absolute; inset: {firstPageMargins.Top} {firstPageMargins.Right} {firstPageMargins.Bottom} {firstPageMargins.Left}; pointer-events: none; z-index: 99997; outline: {stroke} dotted {color}; }}");
 
         return css.ToString();
     }

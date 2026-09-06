@@ -63,7 +63,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
             var cur = new DateOnly(startYear, startMonth, 1);
             for (int i = 0; i < 12; i++)
             {
-                monthColumns.Add((cur.Year, cur.Month, cur.ToString("MMM")));
+                monthColumns.Add((cur.Year, cur.Month, cur.ToString("MMM", CultureInfo.InvariantCulture)));
                 cur = cur.AddMonths(1);
             }
 
@@ -230,7 +230,7 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 { "months", monthsModel },
                 { "table_colspan", monthColumns.Count + 2 },
                 { "rows", rows },
-                { "row_pages", rows.Chunk(_tablePagination?.MeetingsTableRowsPerPage > 0 ? _tablePagination.MeetingsTableRowsPerPage : 25).Select(page => page.ToList()).ToList() },
+                { "row_pages", BuildRowPages(rows, _tablePagination?.MeetingsTableRowsPerPage > 0 ? _tablePagination.MeetingsTableRowsPerPage : 25) },
                 { "font_size", fontSize },
                 { "line_height", lineHeight },
                 { "heading_spacing", _tablePagination?.MeetingsTableHeadingSpacing ?? "12px" },
@@ -249,6 +249,41 @@ public class MeetingsTableSectionRenderer(string templateRoot, SchemaDataLoader?
                 Console.WriteLine($"  ❌ Error rendering meetings table: {ex.Message}");
             throw;
         }
+    }
+
+    private static List<List<object?>> BuildRowPages(List<object?> rows, int rowsPerPage)
+    {
+        var pageSize = Math.Max(rowsPerPage, 2);
+        var pages = new List<List<object?>>();
+        var currentPage = new List<object?>();
+
+        foreach (var row in rows)
+        {
+            var isGroupHeader = row is Dictionary<string, object?> rowData &&
+                rowData.TryGetValue("is_group_header", out var groupHeaderValue) &&
+                groupHeaderValue is true;
+
+            if (isGroupHeader && currentPage.Count >= pageSize - 1)
+            {
+                if (currentPage.Count > 0)
+                    pages.Add(currentPage);
+
+                currentPage = new List<object?>();
+            }
+
+            currentPage.Add(row);
+
+            if (currentPage.Count >= pageSize)
+            {
+                pages.Add(currentPage);
+                currentPage = new List<object?>();
+            }
+        }
+
+        if (currentPage.Count > 0)
+            pages.Add(currentPage);
+
+        return pages;
     }
 
     /// <summary>

@@ -290,13 +290,13 @@ sections:
     hide_from_parent_toc: true
 
   # Royal Arch
-  - section_id: "ra_executive_officers"
+  - section_id: "royalarch_executive_officers"
     section_title: "Provincial Grand Chapter of Dorset"
     type: "list_executive_officers"
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     bold_officer_name_suffix: true
-  - section_id: "ra_provincial_officers"
+  - section_id: "royalarch_provincial_officers"
     section_title: "Provincial Officers 2026/27"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
@@ -305,7 +305,7 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     is_child: true
-  - section_id: "ra_promotions"
+  - section_id: "royalarch_promotions"
     section_title: "Promotions 2026/27"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
@@ -314,7 +314,7 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-  - section_id: "ra_appointments"
+  - section_id: "royalarch_appointments"
     section_title: "Appointments to Past Rank 2026/27"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
@@ -323,24 +323,24 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-  - section_id: "ra_reasons"
+  - section_id: "royalarch_intro"
     section_title: "Reasons to be Exalted"
     type: "static"
     template: "royalarch/reasons-to-be-exalted.html"
     is_child: true
-  - section_id: "ra_succession_lists"
+  - section_id: "royalarch_succession_lists"
     section_title: "Succession Lists"
     type: "succession-list"
     template: "_data-driven/list-succession.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
-  - section_id: "ra_membership_statistics"
+  - section_id: "royalarch_membership_statistics"
     section_title: "Membership Statistics 2025"
     type: "membership-statistics"
     template: "_data-driven/membership-statistics-page.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
-  - section_id: "ra_meetings_table"
+  - section_id: "royalarch_meetings_table"
     section_title: "Chapter Meeting Dates"
     type: "meetings-table"
     template: "_data-driven/meetings-table-page.html"

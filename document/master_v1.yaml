@@ -638,7 +638,6 @@ sections:
     section_title: "Societas Rosicruciana in Anglia"
     type: "list_officers"
     template: "_data-driven/list-officers.html"
-    hide_from_parent_toc: true
     break_before_officers: true
     data_mapping: "data_sources/sria_data_source.yaml"
   - section_id: "sria_units"
@@ -708,8 +707,13 @@ sections:
     for_section: "all_units"
     template: "_data-driven/unit-index-page.html"
 
-  # NOTES #1
+  # NOTES
   - section_id: "notes_1"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
+    hide_from_parent_toc: true
+  - section_id: "notes_2"
     section_title: "Notes"
     type: "static"
     template: "notes.html"

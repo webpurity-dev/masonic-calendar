@@ -115,7 +115,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     }
                 }
 
-                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles, layout?.PageMargins?.PageSize);
                 if (!string.IsNullOrEmpty(pageStylesCss))
                 {
                     output.AppendLine("/* Named page styles from configuration */");
@@ -289,7 +289,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     }
                 }
 
-                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles, layout?.PageMargins?.PageSize);
                 if (!string.IsNullOrEmpty(pageStylesCss))
                 {
                     output.AppendLine("/* Named page styles from configuration */");
@@ -567,7 +567,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                     }
                 }
 
-                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles);
+                var pageStylesCss = GeneratePageStylesCss(layout?.PageStyles, layout?.PageMargins?.PageSize);
                 if (!string.IsNullOrEmpty(pageStylesCss))
                 {
                     output.AppendLine("/* Named page styles from configuration */");
@@ -1446,7 +1446,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         return css.ToString();
     }
 
-    private static string GeneratePageStylesCss(IEnumerable<PageStyleConfig>? pageStyles)
+    private static string GeneratePageStylesCss(IEnumerable<PageStyleConfig>? pageStyles, string? pageSize)
     {
         if (pageStyles == null)
             return string.Empty;
@@ -1456,6 +1456,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         {
             css.AppendLine($".page-style-{pageStyle.Name} {{ page: {pageStyle.Name}; }}");
             css.AppendLine($"@page {pageStyle.Name} {{");
+            if (!string.IsNullOrWhiteSpace(pageSize))
+                css.AppendLine($"  size: {pageSize};");
             if (pageStyle.Margins != null)
             {
                 css.AppendLine($"  margin-top: {pageStyle.Margins.Top};");
@@ -1585,8 +1587,16 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             // Emit binding gutter as a CSS variable so cover templates don't need manual offsets.
             // Images on the first page automatically shift their focal point away from the spine.
             var gutter = margins.RightPage?.Left ?? "0mm";
-            css.AppendLine(":root { --binding-gutter: " + gutter + "; }");
-            css.AppendLine(".pagedjs_first_page img { object-position: calc(50% + calc(var(--binding-gutter) / 2)) center; }");
+            var rectoBindingGutter = margins.RightPage?.Left ?? "0mm";
+            var versoBindingGutter = margins.LeftPage?.Right ?? "0mm";
+            css.AppendLine(":root {");
+            css.AppendLine("  --binding-gutter: " + gutter + ";");
+            css.AppendLine("  --cover-recto-position: calc(50% + calc(" + rectoBindingGutter + " / 2));");
+            css.AppendLine("  --cover-verso-position: calc(50% - calc(" + versoBindingGutter + " / 2));");
+            css.AppendLine("}");
+            css.AppendLine(".pagedjs_first_page .cover-bleed-image { object-position: var(--cover-recto-position) center; }");
+            css.AppendLine(".pagedjs_left_page .cover-bleed-image { object-position: var(--cover-verso-position) center; }");
+            css.AppendLine(".pagedjs_right_page .cover-bleed-image { object-position: var(--cover-recto-position) center; }");
         }
 
         return css.ToString();

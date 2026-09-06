@@ -186,6 +186,7 @@ sections:
     type: "list_executive_officers"
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/craft_data_source.yaml"
+    bold_officer_name_suffix: true
   - section_id: "craft_provincial_officers"
     section_title: "Provincial Officers 2026/27"
     type: "list_officers"
@@ -294,6 +295,7 @@ sections:
     type: "list_executive_officers"
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
+    bold_officer_name_suffix: true
   - section_id: "ra_provincial_officers"
     section_title: "Provincial Officers 2026/27"
     type: "list_officers"
@@ -599,6 +601,7 @@ sections:
     type: "list_executive_officers"
     template: "_data-driven/list-executive-officers.html"
     data_mapping: "data_sources/pbq_data_source.yaml"
+    bold_officer_name_suffix: true
   - section_id: "pbq_intro"
     section_title: "Introduction to the Operatives"
     type: "static"

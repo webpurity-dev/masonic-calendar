@@ -62,11 +62,17 @@
     <tbody>
         {{ for officer in executive_officers }}
         <tr style="margin: 2px 6px; padding: 2px 0;">
-            <td style="font-weight: 600; width: 45%; vertical-align: top;">{{ officer.rank }}</td>
+            <td style="font-weight: 600; width: 45%; vertical-align: top;">
+                {{ officer.rank }}
+            </td>
             <td style="text-align: right; vertical-align: top;">
                 <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div style="line-height: 1;">{{ officer.name }}</div>
-                    {{ if officer.contact }}<div style="font-size: inherit; margin-top: 0;"><a href="mailto:{{ officer.contact }}">{{ officer.contact }}</a></div>{{ end }}
+                    <div style="line-height: 1;">{{ officer.name }}{{ if bold_officer_name_suffix && officer.name_suffix }}, <strong>{{ officer.name_suffix }}</strong>{{ end }}</div>
+                    {{ if officer.contact }}
+                        <div style="font-size: inherit; margin-top: 0;">
+                            <a href="mailto:{{ officer.contact }}">{{ officer.contact }}</a>
+                        </div>
+                    {{ end }}
                 </div>
             </td>
         </tr>

@@ -58,9 +58,15 @@
     <tbody>
         {{ for officer in officer_tables[tableIndex] }}
         <tr style="margin: 2px; padding: 0;">
-            <td style="text-align: left; width: 50%; font-weight: 600;">{{ officer.office }}</td>
-            <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}40%{{ else }}50%{{ end }};">{{ officer.name }}</td>
-            {{ if officer.unit != null && officer.unit != "" }}<td style="text-align: right; width: 10%;">{{ officer.unit }}</td>{{ end }}
+            <td style="text-align: left; width: 50%; font-weight: 600;">
+                {{ officer.office }}
+            </td>
+            <td style="text-align: right; width: {{ if officer.unit != null && officer.unit != "" }}40%{{ else }}50%{{ end }};">
+                {{ officer.name }}
+            </td>
+            {{ if officer.unit != null && officer.unit != "" }}
+                <td style="text-align: right; width: 10%;">{{ officer.unit }}</td>
+            {{ end }}
         </tr>
         {{ end }}
     </tbody>

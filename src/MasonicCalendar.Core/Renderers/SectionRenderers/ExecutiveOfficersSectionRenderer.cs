@@ -33,6 +33,9 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
         {
             // Load YAML metadata and CSV officers
             var metadata = await LoadExecutiveOfficersDataAsync(section);
+            var executiveOfficers = BuildExecutiveOfficersModel(
+                (List<Dictionary<string, object?>>)metadata["executive_officers"]!,
+                section.BoldOfficerNameSuffix);
 
             if (DebugMode)
                 Console.WriteLine($"  - Section '{section.SectionId}': Loaded executive officers metadata");
@@ -47,7 +50,8 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
                 { "crest", metadata["crest"] },
                 { "heads", metadata["heads"] },
                 { "deputy_heads", metadata["deputy_heads"] },
-                { "executive_officers", metadata["executive_officers"] },
+                { "executive_officers", executiveOfficers },
+                { "bold_officer_name_suffix", section.BoldOfficerNameSuffix },
                 { "override_break_before", section.OverrideBreakBefore }
             };
 
@@ -197,5 +201,36 @@ public class ExecutiveOfficersSectionRenderer(string templateRoot, SchemaDataLoa
         }
 
         return await Task.FromResult(officers);
+    }
+
+    private static List<Dictionary<string, object?>> BuildExecutiveOfficersModel(
+        List<Dictionary<string, object?>> officers,
+        bool boldNameSuffix)
+    {
+        return officers.Select(officer =>
+        {
+            var name = officer["name"] as string ?? "";
+            string? nameSuffix = null;
+
+            if (boldNameSuffix)
+            {
+                var commaIndex = name.IndexOf(',');
+                if (commaIndex >= 0)
+                {
+                    var suffix = name[(commaIndex + 1)..].Trim();
+                    if (!string.IsNullOrWhiteSpace(suffix))
+                    {
+                        name = name[..commaIndex].TrimEnd();
+                        nameSuffix = suffix;
+                    }
+                }
+            }
+
+            return new Dictionary<string, object?>(officer)
+            {
+                ["name"] = name,
+                ["name_suffix"] = nameSuffix
+            };
+        }).ToList();
     }
 }

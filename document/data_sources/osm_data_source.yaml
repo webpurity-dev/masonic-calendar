@@ -55,7 +55,7 @@ order_regional_officers:
       name: "V.Wy.Bro. Graham S. Franklin, P.G.V."
     - rank: "Provincial Grand Recorder"
       name: "Wy.Bro. Paul R. Gawler, P.A.G.D.C."
-  officers_heading: "Provincial Grand Officers appointed 28th March 2026."
+  officers_heading: "Provincial Grand Officers appointed 28th March 2026"
 
 units:
   source: "units.csv"

@@ -29,8 +29,8 @@ ui_preferences:
   member_name_initials_compact_threshold: 20
   order_officers_display:
     # Split long officers lists according to whether heading1 shares the page
-    rows_per_table_with_heading: 30
-    rows_per_table_without_heading: 34
+    rows_per_table_with_heading: 36
+    rows_per_table_without_heading: 38
   officer_display:
     # Display text for vacant officer positions
     not_appointed_label: "Not appointed"
@@ -214,7 +214,6 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-    override_break_before: true
   - section_id: "craft_succession_lists"
     section_title: "Succession Lists"
     type: "succession-list"

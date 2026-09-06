@@ -167,7 +167,7 @@ sections:
     type: "list_officers"
     template: "_data-driven/list-officers.html"
     data_mapping: "data_sources/ugle_data_source.yaml"
-  - section_id: "grand_officers"
+  - section_id: "ugle_grand_officers"
     section_title: "Craft Grand Officers"
     type: "list_officers"
     template: "_data-driven/list-officers.html"

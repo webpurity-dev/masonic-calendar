@@ -4,7 +4,7 @@ document:
     # The 111 × 154 mm media page is A6 plus 3 mm bleed on every edge:
     # 105 + 6 = 111 mm
     # 148 + 6 = 154 mm
-  version: "2.4.5"
+  version: "2.4.5.1"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
   global_styling:
@@ -103,11 +103,11 @@ page_margins:
     top:    5mm             # 3mm bleed + 2mm trim-relative margin
     bottom: 9mm             # 3mm bleed + 5mm inner margin for page numbers
     left:   9mm             # 3mm bleed + 6mm inner margin for binding edge
-    right:  4mm             # 3mm bleed + 1mm outer margin
+    right:  6mm             # 3mm bleed + 3mm outer margin
   left_page:                # Even pages (Verso)
     top:    5mm             # 3mm bleed + 7mm trim-relative margin
     bottom: 9mm             # 3mm bleed + 9mm inner margin for page numbers
-    left:   4mm             # 3mm bleed + 8mm outer margin
+    left:   6mm             # 3mm bleed + 3mm outer margin
     right:  9mm             # 3mm bleed + 6mm inner margin for binding edge
   first_page:               # Cover page - no page number, no margins
     top: 0mm
@@ -713,11 +713,11 @@ sections:
     type: "static"
     template: "notes.html"
     hide_from_parent_toc: true
-  - section_id: "notes_2"
-    section_title: "Notes"
-    type: "static"
-    template: "notes.html"
-    hide_from_parent_toc: true
+  # - section_id: "notes_2"
+  #   section_title: "Notes"
+  #   type: "static"
+  #   template: "notes.html"
+  #   hide_from_parent_toc: true
 
   # COPYRIGHT
   - section_id: "copyright"

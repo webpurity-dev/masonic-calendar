@@ -28,8 +28,14 @@ Pages: 289-304
 Pages: 305-313	
 
 ### Physical Print Checks
-Text Pages: 7,8,13,47
+Text Pages: 7,8,251,75
 Table Pages: 41,43,251,333
+
+### Version history
+- 2.4.5 - 1mm outer margin - 338 pages - too small!
+- 2.4.5.1 - 3mm outer margin - 340 pages
+- 2.4.5.2 - 4mm outer margin - 341 pages
+- 2.4.5.3 - 5mm outer margin - 343 pages - too big!
 
 ### Email v2.4.3
 Subject: Calendar Proof Reading v2.4.3

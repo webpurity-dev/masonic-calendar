@@ -550,7 +550,7 @@ sections:
     template: "companion/amd-intro.html"
     hide_from_parent_toc: true
   - section_id: "amd_units"
-    section_title: "Allied Masonic Degree Councils in Numerical Order"
+    section_title: "Allied Masonic Degree Councils"
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/amd_data_source.yaml"

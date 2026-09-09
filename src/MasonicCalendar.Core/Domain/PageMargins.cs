@@ -10,8 +10,14 @@ public class PageMargins
     public PageSideMargins? RightPage { get; set; }  // Odd pages (Recto)
     public PageSideMargins? LeftPage { get; set; }   // Even pages (Verso)
     public PageSideMargins? FirstPage { get; set; }  // Cover page (no page number)
+    public DigitalModeMargins? DigitalMode { get; set; }
     public FooterMargins? Footer { get; set; }
     public CropMarks? CropMarks { get; set; }
+}
+
+public class DigitalModeMargins
+{
+    public bool EqualizeSideMargins { get; set; }
 }
 
 /// <summary>

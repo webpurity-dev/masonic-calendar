@@ -5,6 +5,8 @@ using MasonicCalendar.Core.Loaders;
 using MasonicCalendar.Core.Renderers.Utilities;
 using Scriban;
 using System.Text;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using PuppeteerSharp;
 using PuppeteerSharp.Media;
 using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
@@ -13,7 +15,7 @@ using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleed = false, bool showPrint = false, bool showMargins = false, bool noPrintMode = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleed = false, bool showPrint = false, bool showMargins = false, bool noPrintMode = false, bool digitalMode = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
@@ -22,6 +24,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
     private readonly bool _showPrint = showPrint;
     private readonly bool _showMargins = showMargins;
     private readonly bool _noPrintMode = noPrintMode;
+    private readonly bool _digitalMode = digitalMode;
     private readonly string _templateRoot = !string.IsNullOrWhiteSpace(documentRoot)
         ? Path.Combine(documentRoot, "templates")
         : Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "document", "templates");
@@ -107,7 +110,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 else
                 {
-                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling, digitalMode: _digitalMode);
                     if (!string.IsNullOrEmpty(marginsCss))
                     {
                         output.AppendLine("/* Page margins from configuration */");
@@ -281,7 +284,8 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                         layout?.Document?.Format,
                         layout?.PageMargins,
                         layout?.Document?.GlobalStyling,
-                        firstPageIsCover: section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) ?? false);
+                        firstPageIsCover: section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) ?? false,
+                        digitalMode: _digitalMode);
                     if (!string.IsNullOrEmpty(marginsCss))
                     {
                         output.AppendLine("/* Page margins from configuration */");
@@ -559,7 +563,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 else
                 {
-                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling);
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling, digitalMode: _digitalMode);
                     if (!string.IsNullOrEmpty(marginsCss))
                     {
                         output.AppendLine("/* Page margins from configuration */");
@@ -1513,7 +1517,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         string? format,
         PageMargins? margins,
         GlobalStyling? globalStyling,
-        bool firstPageIsCover = true)
+        bool firstPageIsCover = true,
+        bool digitalMode = false)
     {
         if (margins == null)
             return string.Empty;
@@ -1527,14 +1532,18 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (!string.IsNullOrEmpty(globalStyling?.Footer?.FontFamily))
             footerFont = globalStyling.Footer.FontFamily;
 
+        var digitalSideMargin = digitalMode && margins.DigitalMode?.EqualizeSideMargins == true
+            ? GetSmallestComparableSideMargin(margins)
+            : null;
+
         // Right page (odd pages / Recto)
         if (margins.RightPage != null)
         {
             css.AppendLine("@page :right {");
             css.AppendLine($"  margin-top: {margins.RightPage.Top};");
             css.AppendLine($"  margin-bottom: {margins.RightPage.Bottom};");
-            css.AppendLine($"  margin-left: {margins.RightPage.Left};");
-            css.AppendLine($"  margin-right: {margins.RightPage.Right};");
+            css.AppendLine($"  margin-left: {digitalSideMargin ?? margins.RightPage.Left};");
+            css.AppendLine($"  margin-right: {digitalSideMargin ?? margins.RightPage.Right};");
             css.AppendLine("  @bottom-center {");
             css.AppendLine("    content: counter(page);");
             css.AppendLine($"    font-family: {footerFont};");
@@ -1550,8 +1559,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine("@page :left {");
             css.AppendLine($"  margin-top: {margins.LeftPage.Top};");
             css.AppendLine($"  margin-bottom: {margins.LeftPage.Bottom};");
-            css.AppendLine($"  margin-left: {margins.LeftPage.Left};");
-            css.AppendLine($"  margin-right: {margins.LeftPage.Right};");
+            css.AppendLine($"  margin-left: {digitalSideMargin ?? margins.LeftPage.Left};");
+            css.AppendLine($"  margin-right: {digitalSideMargin ?? margins.LeftPage.Right};");
             css.AppendLine("  @bottom-center {");
             css.AppendLine("    content: counter(page);");
             css.AppendLine($"    font-family: {footerFont};");
@@ -1569,8 +1578,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine("@page :first {");
             css.AppendLine($"  margin-top: {firstPageMargins.Top};");
             css.AppendLine($"  margin-bottom: {firstPageMargins.Bottom};");
-            css.AppendLine($"  margin-left: {firstPageMargins.Left};");
-            css.AppendLine($"  margin-right: {firstPageMargins.Right};");
+            css.AppendLine($"  margin-left: {(firstPageIsCover ? firstPageMargins.Left : digitalSideMargin ?? firstPageMargins.Left)};");
+            css.AppendLine($"  margin-right: {(firstPageIsCover ? firstPageMargins.Right : digitalSideMargin ?? firstPageMargins.Right)};");
             css.AppendLine("  @bottom-center {");
             css.AppendLine(firstPageIsCover
                 ? "    content: \"\";"
@@ -1600,6 +1609,33 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         }
 
         return css.ToString();
+    }
+
+    private static string? GetSmallestComparableSideMargin(PageMargins margins)
+    {
+        var sideMargins = new[]
+        {
+            margins.RightPage?.Left,
+            margins.RightPage?.Right,
+            margins.LeftPage?.Left,
+            margins.LeftPage?.Right
+        };
+
+        var parsedMargins = sideMargins
+            .Select(value => Regex.Match(value ?? string.Empty, @"^\s*(?<value>\d+(?:\.\d+)?)\s*(?<unit>[a-zA-Z%]+)\s*$"))
+            .ToList();
+
+        if (parsedMargins.Any(match => !match.Success))
+            return null;
+
+        var unit = parsedMargins[0].Groups["unit"].Value;
+        if (parsedMargins.Any(match => !match.Groups["unit"].Value.Equals(unit, StringComparison.OrdinalIgnoreCase)))
+            return null;
+
+        return parsedMargins
+            .OrderBy(match => decimal.Parse(match.Groups["value"].Value, CultureInfo.InvariantCulture))
+            .First()
+            .Value;
     }
 
     /// <summary>

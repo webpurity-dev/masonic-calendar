@@ -77,6 +77,7 @@ bool showMargins = Array.IndexOf(args, "-showmargins") != -1;
 
 // Check for noprint flag (removes print-specific margins and padding)
 bool noPrintMode = Array.IndexOf(args, "-noprint") != -1;
+bool digitalMode = Array.IndexOf(args, "-digital") != -1;
 
 // Document renderer mode
 if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(documentOutputFormat))
@@ -99,6 +100,10 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         if (noPrintMode)
         {
             Console.WriteLine($"Mode:     No-Print (margins/padding removed)");
+        }
+        if (digitalMode)
+        {
+            Console.WriteLine($"Mode:     Digital (equal side margins)");
         }
         Console.WriteLine();
 
@@ -406,7 +411,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleed, showPrint, showMargins, noPrintMode);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleed, showPrint, showMargins, noPrintMode, digitalMode);
         
         // Log the rendering details
         if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
@@ -522,7 +527,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var printPart = showPrint ? "-showPrint" : "";
         var marginsPart = showMargins ? "-showMargins" : "";
         var noPrintPart = noPrintMode ? "-noprint" : "";
-        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedPart}{printPart}{marginsPart}{noPrintPart}.{fileExtension}";
+        var digitalPart = digitalMode ? "-digital" : "";
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedPart}{printPart}{marginsPart}{noPrintPart}{digitalPart}.{fileExtension}";
         
         // If version is available, embed it in the template name: master_v1- → master_v1.4-
         if (!string.IsNullOrWhiteSpace(documentVersion))
@@ -556,13 +562,14 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("📄 Masonic Calendar - Document Renderer");
     Console.WriteLine("=" + new string('=', 50));
     Console.WriteLine("\nUsage:");
-    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleed] [-showprint] [-showmargins] [-debug]");
+    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
     Console.WriteLine("  -section    Section ID, type, or inclusive <start>-<end> range (optional, default: all sections)");
     Console.WriteLine("              Use 'static' to render only static pages (cover, foreword, etc.)");
     Console.WriteLine("  -unit       Unit number to render (optional, default: all units)");
+    Console.WriteLine("  -digital    Use equal side margins for digital output (optional)");
     Console.WriteLine("  -showbleed  Show the configured dotted bleed boundary (optional, proofing only)");
     Console.WriteLine("  -showprint  Show configured crop marks (optional, proofing only)");
     Console.WriteLine("  -showmargins Show configured dotted page margins (optional, proofing only)");
@@ -586,7 +593,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
 Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
-Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-showbleed] [-showprint] [-showmargins] [-debug]");
+Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
 Console.WriteLine("\nExample (render all sections):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
 Console.WriteLine("\nExample (render specific unit):");

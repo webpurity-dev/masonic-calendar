@@ -145,6 +145,96 @@ public class UnitModelBuilderJoiningUnitsDisplayTests
         }
     }
 
+    [Fact]
+    public void JoiningPastMasters_TemplateExpandsUnitsColumnWhenJoinedDatesAreAbsent()
+    {
+        var unit = new SchemaUnit
+        {
+            Number = 1,
+            Name = "Test Unit",
+            JoinPastMasters =
+            [
+                new SchemaJoinPastMaster { Name = "Joining Member", PastUnits = "1,2,3" }
+            ]
+        };
+        var headings = new Dictionary<string, string> { ["joiningPastMastersUnitsColumn"] = "Conclaves" };
+        var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+        var template = Template.Parse(File.ReadAllText(templatePath));
+
+        Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+        var html = template.Render(UnitModelBuilder.BuildModel(unit, headings));
+
+        Assert.DoesNotContain(">Joined</th>", html);
+        Assert.Contains("width: 24%; overflow-wrap: anywhere;\">Conclaves</th>", html);
+        Assert.Contains("width: 24%; overflow-wrap: anywhere;\">1,2,3</td>", html);
+    }
+
+    [Fact]
+    public void JoiningPastMasters_TemplateRetainsJoinedColumnWhenDateExists()
+    {
+        var unit = new SchemaUnit
+        {
+            Number = 1,
+            Name = "Test Unit",
+            JoinPastMasters =
+            [
+                new SchemaJoinPastMaster { Name = "Joining Member", JoinedDate = "2024", PastUnits = "1,2,3" }
+            ]
+        };
+        var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+        var template = Template.Parse(File.ReadAllText(templatePath));
+
+        Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+        var html = template.Render(UnitModelBuilder.BuildModel(unit));
+
+        Assert.Contains(">Joined</th>", html);
+        Assert.Contains("width: 12%; overflow-wrap: anywhere;\">Lodges</th>", html);
+        Assert.Contains("width: 12%; overflow-wrap: anywhere;\">2024</td>", html);
+    }
+
+    [Fact]
+    public void PastHeads_TemplateHidesYearColumnWhenInstalledYearsAreAbsent()
+    {
+        var unit = new SchemaUnit
+        {
+            Number = 1,
+            Name = "Test Unit",
+            PastMasters =
+            [
+                new SchemaPastMaster { Name = "Past Head" }
+            ]
+        };
+        var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+        var template = Template.Parse(File.ReadAllText(templatePath));
+
+        Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+        var html = template.Render(UnitModelBuilder.BuildModel(unit));
+
+        Assert.DoesNotContain(">Year</th>", html);
+    }
+
+    [Fact]
+    public void PastHeads_TemplateRetainsYearColumnWhenInstalledYearExists()
+    {
+        var unit = new SchemaUnit
+        {
+            Number = 1,
+            Name = "Test Unit",
+            PastMasters =
+            [
+                new SchemaPastMaster { Name = "Past Head", YearInstalled = "2024" }
+            ]
+        };
+        var templatePath = Path.Combine(FindRepositoryRoot(), "document", "templates", "_data-driven", "unit-page.html");
+        var template = Template.Parse(File.ReadAllText(templatePath));
+
+        Assert.False(template.HasErrors, string.Join(Environment.NewLine, template.Messages));
+        var html = template.Render(UnitModelBuilder.BuildModel(unit));
+
+        Assert.Contains(">Year</th>", html);
+        Assert.Contains("width: 22%; overflow-wrap: anywhere;\">2024</td>", html);
+    }
+
     private static string? GetJoiningUnitsDisplay(string pastUnits)
     {
         var unit = new SchemaUnit

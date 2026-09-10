@@ -98,6 +98,8 @@ public static class UnitModelBuilder
     {
         // v1.10: Check if any joining past master has PastUnits data
         var hasPastUnitsData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.PastUnits));
+        var hasJoinedDateData = unit.JoinPastMasters.Any(jpm => !string.IsNullOrWhiteSpace(jpm.JoinedDate));
+        var hasPastHeadsInstalledData = unit.PastMasters.Any(pm => !string.IsNullOrWhiteSpace(pm.YearInstalled));
         
         // v1.11: Apply officer filtering based on hide_not_appointed configuration
         var filteredOfficers = ApplyHideNotAppointedFiltering(unit, hideNotAppointedRules);
@@ -238,7 +240,7 @@ public static class UnitModelBuilder
                     .ToList()
             },
             {
-                "sectionHeadings", BuildSectionHeadings(sectionHeadings, hasPastUnitsData)
+                "sectionHeadings", BuildSectionHeadings(sectionHeadings, hasPastUnitsData, hasJoinedDateData, hasPastHeadsInstalledData)
             }
         };
 
@@ -249,7 +251,7 @@ public static class UnitModelBuilder
     /// Build section heading overrides with defaults.
     /// v1.10: Added showPastUnitsColumn flag to auto-hide empty units column
     /// </summary>
-    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null, bool hasPastUnitsData = true)
+    private static Dictionary<string, object?> BuildSectionHeadings(Dictionary<string, string>? overrides = null, bool hasPastUnitsData = true, bool hasJoinedDateData = true, bool hasPastHeadsInstalledData = true)
     {
         var headings = new Dictionary<string, object?>
         {
@@ -260,7 +262,9 @@ public static class UnitModelBuilder
             { "honoraryMembers", overrides?.TryGetValue("honoraryMembers", out var hm) == true ? hm : "Honorary Members" },  // Supports null/empty/space values
             { "installationHeading", overrides?.TryGetValue("installationHeading", out var ih) == true ? ih : "Installation" },  // v1.9: Support override (e.g., "Enthronement" for RC)
             { "memberCaption", overrides?.TryGetValue("memberCaption", out var mc) == true ? mc : "" },  // v1.9: Optional caption under member table
-            { "showPastUnitsColumn", hasPastUnitsData }  // v1.10: Hide units column if no joining past masters have past units data
+            { "showPastUnitsColumn", hasPastUnitsData },  // v1.10: Hide units column if no joining past masters have past units data
+            { "showJoinedDateColumn", hasJoinedDateData },
+            { "showPastHeadsInstalledColumn", hasPastHeadsInstalledData }
         };
         return headings;
     }

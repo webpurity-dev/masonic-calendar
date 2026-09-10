@@ -308,31 +308,47 @@ foreach ($cfg in $targetConfigs) {
         Write-Host "    $($sec.Name): $($secData[$sec.Name].Count) rows" -ForegroundColor DarkGray
     }
 
-    # Check for duplicate UniqueRef values within each section
+    # Check for duplicate source rows within each section. Officers may hold multiple
+    # positions, so only duplicate unit-and-name-and-position combinations are warnings.
     foreach ($sec in $cfg.MemSections) {
-        # Skip duplicate check for Officers section - officers can legitimately appear multiple times
-        # with different Office values (same person in multiple positions). Also skip vacant officers.
-        if ($sec.Name -eq "officers") {
-            continue
-        }
-
-        $refGroups = @{}
+        $isOfficerSection = $sec.Name -match "officers"
+        $duplicateGroups = @{}
         foreach ($row in $secData[$sec.Name]) {
             $ref = $row.($sec.RefColumn).Trim()
-            if (-not [string]::IsNullOrWhiteSpace($ref)) {
-                if (-not $refGroups.ContainsKey($ref)) {
-                    $refGroups[$ref] = @()
-                }
-                $refGroups[$ref] += $row
+            if ([string]::IsNullOrWhiteSpace($ref)) {
+                continue
             }
+
+            $groupKey = $ref
+            if ($isOfficerSection) {
+                $name = $row.($sec.NameColumn).Trim()
+                $position = if ($sec.PositionColumn) { $row.($sec.PositionColumn).Trim() } else { "" }
+                $unitNo = $row.($sec.UnitIdField).Trim()
+
+                # Vacant officers and sections without a mapped position cannot be duplicates by office.
+                if ([string]::IsNullOrWhiteSpace($unitNo) -or [string]::IsNullOrWhiteSpace($name) -or $name -ilike "*vacant*" -or [string]::IsNullOrWhiteSpace($position)) {
+                    continue
+                }
+
+                $groupKey = "$unitNo`n$name`n$position"
+            }
+
+            if (-not $duplicateGroups.ContainsKey($groupKey)) {
+                $duplicateGroups[$groupKey] = [PSCustomObject]@{
+                    Reference = $ref
+                    Rows = @()
+                }
+            }
+            $duplicateGroups[$groupKey].Rows += $row
         }
 
         # Report any duplicates as warnings (not failures)
-        foreach ($ref in $refGroups.Keys) {
-            if ($refGroups[$ref].Count -gt 1) {
+        foreach ($group in $duplicateGroups.Values) {
+            if ($group.Rows.Count -gt 1) {
+                $ref = $group.Reference
                 Write-Host "  WARN  $ref in [$($sec.Name)] - duplicate rows in CSV" -ForegroundColor Yellow
                 # Only log the first instance as a warning; don't fail the validation
-                $row = $refGroups[$ref][0]
+                $row = $group.Rows[0]
                 $name   = $row.($sec.NameColumn).Trim()
                 $unitNo = $row.($sec.UnitIdField).Trim()
                 $unitName = if ($unitNameMap.ContainsKey($unitNo)) { $unitNameMap[$unitNo] } else { '(not in units CSV)' }

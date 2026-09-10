@@ -23,7 +23,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "PROVINCIAL PRIORY OF DORSET AND WILTSHIRE"
-  officers_heading: "Provincial Officers appointed on 30th of May 2026"
+  officers_heading: "Provincial Officers appointed on the 30th May 2026"
   source: "kt_officers.csv"
   fields:
     - name: "Office"

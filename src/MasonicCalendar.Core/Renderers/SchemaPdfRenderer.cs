@@ -1443,7 +1443,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         {
             css.AppendLine("@page {");
             css.AppendLine($"  size: {pageSize};");
-            css.AppendLine("  bleed: 0;");
+            if (!_showPrint)
+                css.AppendLine("  bleed: 0;");
             css.AppendLine("  marks: none;");
             css.AppendLine("}");
         }
@@ -1713,9 +1714,9 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         var stroke = cropMarks.StrokeWidth;
         var color = cropMarks.Color;
 
-        css.AppendLine("/* Configured crop marks are drawn outward from the trim corners into the bleed area. */");
+        css.AppendLine("/* Configured crop marks extend outward, stopping short of each A6 trim corner. */");
         css.AppendLine(".pagedjs_page { position: relative; overflow: visible !important; }");
-        css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left 0 top {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat left {inset} top 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat right 0 top {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat right {inset} top 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat left 0 bottom {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat left {inset} bottom 0 / {stroke} min({length}, {inset}), linear-gradient({color}, {color}) no-repeat right 0 bottom {inset} / min({length}, {inset}) {stroke}, linear-gradient({color}, {color}) no-repeat right {inset} bottom 0 / {stroke} min({length}, {inset}); }}");
+        css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}; }}");
         return css.ToString();
     }
 

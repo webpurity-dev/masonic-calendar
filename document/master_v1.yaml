@@ -243,6 +243,11 @@ sections:
     template: "_data-driven/location-page.html"
     unit_type_sort_priority: ["Craft", "RA"]
     is_child: true 
+  - section_id: "notes_1"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
+    hide_from_parent_toc: true
   - section_id: "craft_membership_statistics"
     section_title: "Membership Statistics 2025"
     type: "membership-statistics"
@@ -710,11 +715,11 @@ sections:
     template: "_data-driven/unit-index-page.html"
 
   # NOTES
-  - section_id: "notes_1"
-    section_title: "Notes"
-    type: "static"
-    template: "notes.html"
-    hide_from_parent_toc: true
+  # - section_id: "notes_1"
+  #   section_title: "Notes"
+  #   type: "static"
+  #   template: "notes.html"
+  #   hide_from_parent_toc: true
   # - section_id: "notes_2"
   #   section_title: "Notes"
   #   type: "static"

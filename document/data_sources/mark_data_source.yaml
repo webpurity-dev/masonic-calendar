@@ -32,7 +32,7 @@ order_summary:
 
 order_regional_officers:
   district_heading: "Provincial Grand Mark Lodge of Dorset"
-  officers_heading: "Provincial Grand Mark Lodge Officers. Appointed on Saturday 19th September 2026"
+  officers_heading: "Provincial Grand Mark Lodge Officers.<br/>Appointed on Saturday 19th September 2026"
   source: "mark_officers.csv"
   fields:
     - name: "Office"

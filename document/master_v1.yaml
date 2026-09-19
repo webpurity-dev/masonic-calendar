@@ -435,20 +435,19 @@ sections:
     template: "_data-driven/meetings-table-page.html"
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: [
-      "RC", 
-      "AMD", 
-      "KT", 
-      "KTP",      
-      "STOA", 
-      "KBHC", 
-      "Athel", 
-      "OSC", 
-      "OSM", 
-      "RCOC", 
-      "ROS", 
-      "RSM", 
-      "SRIA", 
-      "PBQ"
+      "RC",
+      "KT",
+      "KTP",
+      "RCOC",
+      "RSM",
+      "AMD",
+      "OSM",
+      "OSC",
+      "PBQ",
+      "ROS",
+      "SRIA",
+      "STOA",
+      "Athel"
       ]
 
   # Ancient and Accepted Rite (Rose Croix)

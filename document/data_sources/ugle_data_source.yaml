@@ -11,11 +11,15 @@ order_summary:
     - rank: "The Most Worshipful Pro Grand Master"
       name: "JONATHAN SPENCE, DL"
     - rank: "The Right Worshipful Deputy Grand Master"
-      name: "SIR MICHAEL JOHN SNYDER"
+      name: "SIR MICHAEL SNYDER"
     - rank: "The Right Worshipful Assistant Grand Masters"
-      name: "ARTHUR STEVEN VARLEY"
+      name: "STEVEN VARLEY"
     - name: "JOHN PAUL THOMPSON"
-    - name: "CHARLES BERTRAM HOPKINSON-WOOLLEY"
+    - name: "CHARLES HOPKINSON-WOOLLEY"
+    - rank: "President of the Board of General Purposes"
+      name: "JONATHAN WHITAKER"
+    - rank: "Grand Secretary"
+      name: "ADRIAN MARSH"
   district_heads: []
 
 order_regional_officers:

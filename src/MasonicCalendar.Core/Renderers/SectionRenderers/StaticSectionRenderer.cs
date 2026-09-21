@@ -2,6 +2,7 @@ namespace MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 
 using MasonicCalendar.Core.Domain;
 using MasonicCalendar.Core.Loaders;
+using MasonicCalendar.Core.Renderers.Utilities;
 using System.Text;
 
 /// <summary>
@@ -33,7 +34,7 @@ public class StaticSectionRenderer(string templateRoot, SchemaDataLoader? dataLo
         var staticModel = new Dictionary<string, object?>
         {            
             { "current_year", now.Year },
-            { "current_date", now.ToString("d MMMM yyyy") },
+            { "current_date", TextCleaner.FormatOrdinalDate(now) },
             { "publish_version", documentInfo?.Version ?? "" },
             { "data_corrected_date", documentInfo?.DataCorrectedDate ?? "" },
             { "section_title", section.SectionTitle ?? "" }

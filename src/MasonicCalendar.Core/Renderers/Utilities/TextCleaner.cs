@@ -46,6 +46,26 @@ public static class TextCleaner
     }
 
     /// <summary>
+    /// Format a date as "21st of September 2026".
+    /// </summary>
+    public static string FormatOrdinalDate(DateTime date)
+    {
+        var suffix = (date.Day % 100) switch
+        {
+            11 or 12 or 13 => "th",
+            _ => (date.Day % 10) switch
+            {
+                1 => "st",
+                2 => "nd",
+                3 => "rd",
+                _ => "th"
+            }
+        };
+
+        return $"{date.Day}{suffix} of {date:MMMM} {date:yyyy}";
+    }
+
+    /// <summary>
     /// Clean free-text fields (meeting dates, warrant text, etc.) — strips newlines and
     /// collapses whitespace but does NOT apply surname-shortening logic.
     /// Use <see cref="CleanName"/> only for person name fields.

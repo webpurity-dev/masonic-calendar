@@ -646,6 +646,11 @@ sections:
     template: "_data-driven/list-officers.html"
     break_before_officers: true
     data_mapping: "data_sources/sria_data_source.yaml"
+  - section_id: "sria_intro"
+    section_title: "Introduction to Societas Rosicruciana in Anglia"
+    type: "static"
+    template: "companion/sria-intro.html"
+    hide_from_parent_toc: true
   - section_id: "sria_units"
     section_title: "Societas Rosicruciana Colleges"
     type: "data-driven"
@@ -714,11 +719,11 @@ sections:
     template: "_data-driven/unit-index-page.html"
 
   # NOTES
-  # - section_id: "notes_1"
-  #   section_title: "Notes"
-  #   type: "static"
-  #   template: "notes.html"
-  #   hide_from_parent_toc: true
+  - section_id: "notes_2"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
+    hide_from_parent_toc: true
   # - section_id: "notes_2"
   #   section_title: "Notes"
   #   type: "static"

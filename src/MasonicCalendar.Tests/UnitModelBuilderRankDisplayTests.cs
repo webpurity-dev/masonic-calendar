@@ -6,6 +6,22 @@ using MasonicCalendar.Core.Renderers.Utilities;
 
 public class UnitModelBuilderRankDisplayTests
 {
+    [Theory]
+    [InlineData(1, "1st of January 2026")]
+    [InlineData(2, "2nd of January 2026")]
+    [InlineData(3, "3rd of January 2026")]
+    [InlineData(11, "11th of January 2026")]
+    [InlineData(21, "21st of September 2026")]
+    [InlineData(22, "22nd of September 2026")]
+    [InlineData(23, "23rd of September 2026")]
+    [InlineData(24, "24th of September 2026")]
+    public void FormatOrdinalDate_FormatsDayWithCorrectSuffix(int day, string expected)
+    {
+        var date = new DateTime(2026, (day == 21 || day == 22 || day == 23 || day == 24) ? 9 : 1, day);
+
+        Assert.Equal(expected, TextCleaner.FormatOrdinalDate(date));
+    }
+
     [Fact]
     public void ConfiguredRoyalArchRanks_DisplayProvincialThenGrandRank()
     {

@@ -396,7 +396,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 var staticModel = new Dictionary<string, object?>
                 {
                     { "current_year", now.Year },
-                    { "current_date", now.ToString("d MMMM yyyy") },
+                    { "current_date", TextCleaner.FormatOrdinalDate(now) },
                     { "publish_version", layout?.Document?.Version ?? "" },
                     { "data_corrected_date", layout?.Document?.DataCorrectedDate ?? "" }
                 };

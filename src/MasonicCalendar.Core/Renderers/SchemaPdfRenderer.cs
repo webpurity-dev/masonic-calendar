@@ -39,12 +39,14 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         List<SchemaUnit> units,
         string masterTemplateKey,
         string? sectionId = null,
-        string format = "HTML")
+        string format = "HTML",
+        IReadOnlySet<string>? excludedSectionIds = null,
+        bool firstPageIsCover = true)
     {
         // If no specific section, render all sections
         if (string.IsNullOrWhiteSpace(sectionId))
         {
-            return await RenderAllSectionsAsync(units, masterTemplateKey, format);
+            return await RenderAllSectionsAsync(units, masterTemplateKey, format, excludedSectionIds, firstPageIsCover);
         }
 
         return await RenderSectionAsync(units, masterTemplateKey, sectionId, format);
@@ -512,7 +514,12 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         }
     }
 
-    private async Task<Result<byte[]>> RenderAllSectionsAsync(List<SchemaUnit> units, string masterTemplateKey, string format)
+    private async Task<Result<byte[]>> RenderAllSectionsAsync(
+        List<SchemaUnit> units,
+        string masterTemplateKey,
+        string format,
+        IReadOnlySet<string>? excludedSectionIds = null,
+        bool firstPageIsCover = true)
     {
         try
         {
@@ -563,7 +570,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 else
                 {
-                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling, digitalMode: _digitalMode);
+                    var marginsCss = GeneratePageMarginsCss(layout?.Document?.Format, layout?.PageMargins, layout?.Document?.GlobalStyling, firstPageIsCover, digitalMode: _digitalMode);
                     if (!string.IsNullOrEmpty(marginsCss))
                     {
                         output.AppendLine("/* Page margins from configuration */");
@@ -587,7 +594,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 }
                 
                 // Add bleed visualization if requested
-                AppendProofOverlayCss(output, layout?.PageMargins);
+                AppendProofOverlayCss(output, layout?.PageMargins, firstPageIsCover);
                 
                 output.AppendLine("</style>");
             }
@@ -623,6 +630,10 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             for (int sectionIndex = 0; sectionIndex < layout.Sections.Count; sectionIndex++)
             {
                 var section = layout.Sections[sectionIndex];
+
+                if (excludedSectionIds?.Contains(section.SectionId ?? string.Empty) == true)
+                    continue;
+
                 Console.WriteLine($"    • {section.SectionId} ({section.Type})");
 
                 if (string.IsNullOrWhiteSpace(section.Template))

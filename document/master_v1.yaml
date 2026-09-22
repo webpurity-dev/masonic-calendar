@@ -4,7 +4,7 @@ document:
     # The 111 × 154 mm media page is A6 plus 3 mm bleed on every edge:
     # 105 + 6 = 111 mm
     # 148 + 6 = 154 mm
-  version: "2.4.6.3"
+  version: "2.4.6.4"
   data_corrected_date: "25th July 2026"
   orientation: "portrait"
   global_styling:
@@ -137,6 +137,12 @@ sections:
   - section_id: "cover"
     type: "static"
     template: "cover-front.html"
+  # COPYRIGHT
+  - section_id: "copyright"
+    section_title: "Copyright"
+    type: "static"
+    template: "copyright.html"
+    hide_from_parent_toc: true
   - section_id: "pgm_photo"
     type: "static"
     template: "photos/photo-pgm.html"
@@ -243,6 +249,7 @@ sections:
     template: "_data-driven/location-page.html"
     unit_type_sort_priority: ["Craft", "RA"]
     is_child: true 
+  # NOTES
   - section_id: "notes_1"
     section_title: "Notes"
     type: "static"
@@ -280,6 +287,12 @@ sections:
     type: "static"
     template: "craft/associated-lodges.html" 
     hide_from_parent_toc: true 
+  # NOTES
+  - section_id: "notes_2"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
+    hide_from_parent_toc: true
 
   # SUPREME GRAND CHAPTER
   - section_id: "sgc_officers"
@@ -426,6 +439,12 @@ sections:
     type: "data-driven"
     template: "_data-driven/unit-page.html"
     data_mapping: "data_sources/ram_data_source.yaml"
+    hide_from_parent_toc: true
+  # NOTES
+  - section_id: "notes_3"
+    section_title: "Notes"
+    type: "static"
+    template: "notes.html"
     hide_from_parent_toc: true
 
   # Progressive and Selective Orders Intro
@@ -723,18 +742,6 @@ sections:
     section_title: "Notes"
     type: "static"
     template: "notes.html"
-    hide_from_parent_toc: true
-  # - section_id: "notes_2"
-  #   section_title: "Notes"
-  #   type: "static"
-  #   template: "notes.html"
-  #   hide_from_parent_toc: true
-
-  # COPYRIGHT
-  - section_id: "copyright"
-    section_title: "Copyright"
-    type: "static"
-    template: "copyright.html"
     hide_from_parent_toc: true
 
   # BACK COVER

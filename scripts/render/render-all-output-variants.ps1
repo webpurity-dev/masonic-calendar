@@ -15,8 +15,9 @@ $renderCommands = @(
     @("-template", "master_v1", "-output", "html"),
     @("-template", "master_v1", "-output", "pdf"),
     @("-template", "master_v1", "-output", "pdf", "-digital"),
-    @("-template", "master_v1", "-output", "pdf", "-showprint"),
-    @("-template", "master_v1", "-output", "pdf", "-showbleed", "-showmargins")
+    @("-template", "master_v1", "-output", "pdf", "-showbleed", "-showmargins"),
+    @("-template", "master_v1", "-output", "pdf", "-nocover -showprint"),
+    @("-template", "master_v1", "-output", "pdf", "-cover -showprint")
 )
 
 Push-Location $consoleDir

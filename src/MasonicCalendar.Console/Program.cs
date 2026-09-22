@@ -74,6 +74,20 @@ debugMode = Array.IndexOf(args, "-debug") != -1;
 bool showBleed = Array.IndexOf(args, "-showbleed") != -1 || Array.IndexOf(args, "-showbleeds") != -1;
 bool showPrint = Array.IndexOf(args, "-showprint") != -1;
 bool showMargins = Array.IndexOf(args, "-showmargins") != -1;
+bool includeCoversOnly = Array.IndexOf(args, "-cover") != -1;
+bool excludeCovers = Array.IndexOf(args, "-nocover") != -1;
+
+if (includeCoversOnly && excludeCovers)
+{
+    Console.WriteLine("❌ Error: -cover and -nocover cannot be used together");
+    return 1;
+}
+
+if ((includeCoversOnly || excludeCovers) && (!string.IsNullOrWhiteSpace(sectionId) || !string.IsNullOrWhiteSpace(unitNumber)))
+{
+    Console.WriteLine("❌ Error: -cover and -nocover can only be used for full-document renders");
+    return 1;
+}
 
 // Check for noprint flag (removes print-specific margins and padding)
 bool noPrintMode = Array.IndexOf(args, "-noprint") != -1;
@@ -369,6 +383,21 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             }
             Console.WriteLine();
         }
+
+        var coverSectionIds = layoutResult.Data?.Sections?
+            .Where(section => section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) == true ||
+                              section.SectionId?.Equals("back_cover", StringComparison.OrdinalIgnoreCase) == true)
+            .Select(section => section.SectionId!)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var selectedCoverSectionIds = includeCoversOnly ? coverSectionIds : null;
+        var excludedCoverSectionIds = excludeCovers ? coverSectionIds : null;
+        var renderingCoverSelection = selectedCoverSectionIds != null || excludedCoverSectionIds != null;
+
+        if (renderingCoverSelection && (selectedCoverSectionIds ?? excludedCoverSectionIds)!.Count == 0)
+        {
+            Console.WriteLine("❌ Error: No cover sections were found in the template");
+            return 1;
+        }
         
         // Extract version for output filename (will be embedded in template name in output)
         var documentVersion = layoutResult.Data?.Document?.Version;
@@ -437,7 +466,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         
         // Pre-load all data-driven sections to avoid repeated CSV loading during rendering
         Console.WriteLine();
-        if (targetSectionId == null)
+        if (targetSectionId == null && !renderingCoverSelection)
         {
             // Full render - preload all data upfront
             var preloadResult = await schemaLoader.PreloadAllDataAsync(templateName);
@@ -451,7 +480,22 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         // For single unit renders with pre-filtering, auto-include membership summary and meetings
         Result<byte[]> renderResult;
         
-        if (renderingMultipleSectionsOfType && sectionsOfTypeIds?.Count > 0)
+        if (renderingCoverSelection)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"📊 Sections to render ({(includeCoversOnly ? "covers only" : "without covers")}):");
+            if (includeCoversOnly)
+            {
+                foreach (var secId in selectedCoverSectionIds!)
+                    Console.WriteLine($"   ✓ {secId}");
+            }
+            Console.WriteLine();
+
+            renderResult = includeCoversOnly
+                ? await renderer.RenderMultipleSectionsAsync([], templateName, selectedCoverSectionIds!.ToList(), documentOutputFormat)
+                : await renderer.RenderAsync(unitsToRender, templateName, null, documentOutputFormat, excludedCoverSectionIds, firstPageIsCover: false);
+        }
+        else if (renderingMultipleSectionsOfType && sectionsOfTypeIds?.Count > 0)
         {
             // Render multiple sections of a type together
             Console.WriteLine();
@@ -519,7 +563,8 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
 
         // Save output file with version embedded in template name if available
         var fileExtension = documentOutputFormat.ToLower() == "pdf" ? "pdf" : "html";
-        var sectionPart = renderingMultipleSectionsOfType ? $"{matchedTypeName}-sections" :
+        var sectionPart = renderingCoverSelection ? (includeCoversOnly ? "covers" : "nocover") :
+            renderingMultipleSectionsOfType ? $"{matchedTypeName}-sections" :
             renderingSectionRange ? sectionRangeDisplay :
             (targetSectionId ?? "all-sections");
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
@@ -562,7 +607,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("📄 Masonic Calendar - Document Renderer");
     Console.WriteLine("=" + new string('=', 50));
     Console.WriteLine("\nUsage:");
-    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
+    Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-cover|-nocover] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
     Console.WriteLine("\nParameters:");
     Console.WriteLine("  -template   Master template name (e.g., master_v1)");
     Console.WriteLine("  -output     Output format: PDF or HTML");
@@ -573,6 +618,8 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("  -showbleed  Show the configured dotted bleed boundary (optional, proofing only)");
     Console.WriteLine("  -showprint  Show configured crop marks (optional, proofing only)");
     Console.WriteLine("  -showmargins Show configured dotted page margins (optional, proofing only)");
+    Console.WriteLine("  -cover      Render only the front cover and back cover sections (optional)");
+    Console.WriteLine("  -nocover    Render all sections except the front cover and back cover (optional)");
     Console.WriteLine("  -debug      Enable debug output and HTML file generation (optional)");
     Console.WriteLine("\nAvailable Section IDs (from master_v1.yaml):");
     Console.WriteLine("  static      Render all static pages (cover, foreword, gallery photos, etc.)");
@@ -593,7 +640,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
 Console.WriteLine("📄 Masonic Calendar - Document Renderer");
 Console.WriteLine("=" + new string('=', 50));
 Console.WriteLine("\nUsage:");
-Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
+Console.WriteLine("  dotnet run -- -template <name> -output <format> [-section <id>] [-unit <number>] [-cover|-nocover] [-digital] [-showbleed] [-showprint] [-showmargins] [-debug]");
 Console.WriteLine("\nExample (render all sections):");
 Console.WriteLine("  dotnet run -- -template master_v1 -output PDF");
 Console.WriteLine("\nExample (render specific unit):");

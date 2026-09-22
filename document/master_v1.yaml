@@ -255,6 +255,14 @@ sections:
     type: "static"
     template: "notes.html"
     hide_from_parent_toc: true
+  - section_id: "craft_units_toc"
+    section_title: "Lodges in Numerical Order"
+    type: "toc"
+    for_section: "craft_units"
+    template: "_data-driven/toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"  
+    is_child: true 
   - section_id: "craft_membership_statistics"
     section_title: "Membership Statistics 2025"
     type: "membership-statistics"
@@ -269,14 +277,6 @@ sections:
     unit_types: ["Craft"]
     style: "small"
     is_child: true
-  - section_id: "craft_units_toc"
-    section_title: "Lodges in Numerical Order"
-    type: "toc"
-    for_section: "craft_units"
-    template: "_data-driven/toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"  
-    is_child: true 
   - section_id: "craft_units"
     section_title: "Lodges in Numerical Order"
     type: "data-driven"
@@ -353,6 +353,14 @@ sections:
     template: "_data-driven/list-succession.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
     is_child: true
+  - section_id: "royalarch_units_toc"
+    section_title: "Chapters in Numerical Order"
+    type: "toc"
+    for_section: "royalarch_units"
+    template: "_data-driven/toc-page.html"
+    toc_sort_field: "number"
+    toc_display_field: "name"  
+    is_child: true
   - section_id: "royalarch_membership_statistics"
     section_title: "Membership Statistics 2025"
     type: "membership-statistics"
@@ -366,14 +374,6 @@ sections:
     data_mapping: "data_sources/meetings_data_source.yaml"
     unit_types: ["RA"]
     style: "medium"
-    is_child: true
-  - section_id: "royalarch_units_toc"
-    section_title: "Chapters in Numerical Order"
-    type: "toc"
-    for_section: "royalarch_units"
-    template: "_data-driven/toc-page.html"
-    toc_sort_field: "number"
-    toc_display_field: "name"  
     is_child: true
   - section_id: "royalarch_units"
     section_title: "Chapters in Numerical Order"

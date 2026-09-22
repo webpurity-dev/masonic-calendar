@@ -31,6 +31,16 @@ The supplied PDF includes 9 mm outside the crop marks on every edge. Black crop 
 - Corner gap: 3 mm
 - Crop-mark colour: black
 
+## Colour Pages
+All pages printed in white unless specified in the table below.
+
+| Start | End | Colour | 
+|---|---:|---:|
+| 42 | 147 | Blue |
+| 156 | 203 | Pink |
+| 204 | 253 | Green |
+| 254 | 333 | Yellow |
+
 ## Printing Instructions
 - Print the supplied PDF at 100% or Actual Size; do not scale to another paper size.
 - Preserve backgrounds, images, page size, and orientation.

@@ -134,6 +134,9 @@ cover_spread:
   spine_width: "20mm"
   text_margin: "5mm"
   spine_font_size: "16pt"
+  spine_font_family: "Times New Roman, Times, serif"
+  spine_font_weight: "bold"
+  spine_text_color: "black"
   spine_text: "Dorset Masonic Calendar 2026"
 
 page_styles:

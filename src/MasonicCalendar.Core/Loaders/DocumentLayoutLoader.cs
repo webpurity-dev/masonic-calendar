@@ -139,6 +139,9 @@ public class CoverSpreadConfig
     public string? SpineWidth { get; set; }
     public string? TextMargin { get; set; }
     public string? SpineFontSize { get; set; }
+    public string? SpineFontFamily { get; set; }
+    public string? SpineFontWeight { get; set; }
+    public string? SpineTextColor { get; set; }
     public string? SpineText { get; set; }
 }
 

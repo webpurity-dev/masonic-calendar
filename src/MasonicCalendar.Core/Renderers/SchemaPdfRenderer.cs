@@ -230,6 +230,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 string.IsNullOrWhiteSpace(coverSpread.SpineWidth) ||
                 string.IsNullOrWhiteSpace(coverSpread.TextMargin) ||
                 string.IsNullOrWhiteSpace(coverSpread.SpineFontSize) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontFamily) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontWeight) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineTextColor) ||
                 string.IsNullOrWhiteSpace(coverSpread.SpineText))
             {
                 return Result<byte[]>.Fail("Cover spread configuration is incomplete");
@@ -249,6 +252,9 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 ["spine_width"] = coverSpread.SpineWidth,
                 ["text_margin"] = coverSpread.TextMargin,
                 ["spine_font_size"] = coverSpread.SpineFontSize,
+                ["spine_font_family"] = coverSpread.SpineFontFamily,
+                ["spine_font_weight"] = coverSpread.SpineFontWeight,
+                ["spine_text_color"] = coverSpread.SpineTextColor,
                 ["spine_text"] = coverSpread.SpineText
             });
 
@@ -264,7 +270,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 ".cover-panel { background: var(--cover-background); }" +
                 ".cover-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }" +
                 ".cover-spine { background: var(--cover-background); display: flex; align-items: center; justify-content: center; }" +
-                ".cover-spine-text { max-height: calc(100% - (2 * var(--text-margin))); padding: var(--text-margin) 0; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; white-space: nowrap; font-family: Tahoma, Arial, sans-serif; font-size: var(--spine-font-size); }" +
+                ".cover-spine-text { max-height: calc(100% - (2 * var(--text-margin))); padding: var(--text-margin) 0; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; white-space: nowrap; font-family: var(--spine-font-family); font-size: var(--spine-font-size); font-weight: var(--spine-font-weight); color: var(--spine-text-color); }" +
                 cropMarksCss +
                 "</style><script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script></head><body>" +
                 coverHtml + "</body></html>";

@@ -118,6 +118,7 @@ public class DocumentLayout
     public UiLabels? UiLabels { get; set; }
     public UiPreferences? UiPreferences { get; set; }
     public PageMargins? PageMargins { get; set; }  // Paged.js CSS @page margin configuration
+    public CoverSpreadConfig? CoverSpread { get; set; }
     public PageNumbering? PageNumbering { get; set; }
     public List<PageStyleConfig>? PageStyles { get; set; }
     public Dictionary<string, object>? DataSources { get; set; }
@@ -125,6 +126,20 @@ public class DocumentLayout
     public Dictionary<string, object>? TypeCoercion { get; set; }
     public Dictionary<string, object>? DefaultPageTypes { get; set; }
     public List<SectionConfig>? Sections { get; set; }
+}
+
+public class CoverSpreadConfig
+{
+    public string? Template { get; set; }
+    public string? PageSize { get; set; }
+    public string? PanelWidth { get; set; }
+    public string? BackImage { get; set; }
+    public string? FrontImage { get; set; }
+    public string? BackgroundColor { get; set; }
+    public string? SpineWidth { get; set; }
+    public string? TextMargin { get; set; }
+    public string? SpineFontSize { get; set; }
+    public string? SpineText { get; set; }
 }
 
 public class DocumentInfo

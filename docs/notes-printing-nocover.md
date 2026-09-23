@@ -1,8 +1,24 @@
 # Printing Notes
 Notes to be presented to the printer alongside the print version PDF.
 
-## Current Version
-**2.4.6.3**
+## Quote
+Title: A6 Purbound 4pp cover 4/1 8pp 4/4 and 448pp 1/1
+Size: 148 X 105mm.
+Extent: Cover: 4 Pages, Text 1: 8 Pages, Text 2: 448 Pages.
+Origination: From complete print ready files supplied.
+Proofs: We to supply PDF proof(s).
+Printing: Material: Finishing: Cover: 4 colour process to face and Mono to Inner
+Text 1: 4 colour process both sides.
+Text 2: (Digital Mono) both sides.
+Cover: Magno Silk 250GSM, Text 1: Magno Silk 130GSM, Text 2: Soporset Offset
+90GSM.
+
+Gloss Lamination to Face of Cover and PUR bound, trimmed to finished size and packed
+in double walled boxes.
+
+
+# Current Version
+**2.4.6.4**
 
 ## Print Specification
 | Area | Inches | Millimetres |

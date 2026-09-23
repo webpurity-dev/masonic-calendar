@@ -211,6 +211,86 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         }
     }
 
+    public async Task<Result<byte[]>> RenderCoverSpreadAsync(
+        string masterTemplateKey,
+        string format = "HTML")
+    {
+        try
+        {
+            var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
+            if (!layoutResult.Success || layoutResult.Data?.CoverSpread == null)
+                return Result<byte[]>.Fail("Cover spread configuration is missing");
+
+            var coverSpread = layoutResult.Data.CoverSpread;
+            if (string.IsNullOrWhiteSpace(coverSpread.Template) ||
+                string.IsNullOrWhiteSpace(coverSpread.PageSize) ||
+                string.IsNullOrWhiteSpace(coverSpread.PanelWidth) ||
+                string.IsNullOrWhiteSpace(coverSpread.BackImage) ||
+                string.IsNullOrWhiteSpace(coverSpread.FrontImage) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineWidth) ||
+                string.IsNullOrWhiteSpace(coverSpread.TextMargin) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontSize) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineText))
+            {
+                return Result<byte[]>.Fail("Cover spread configuration is incomplete");
+            }
+
+            var templatePath = Path.Combine(_templateRoot, coverSpread.Template);
+            if (!File.Exists(templatePath))
+                return Result<byte[]>.Fail($"Cover spread template not found: {templatePath}");
+
+            var template = Template.Parse(File.ReadAllText(templatePath));
+            var coverHtml = template.Render(new Dictionary<string, object?>
+            {
+                ["panel_width"] = coverSpread.PanelWidth,
+                ["back_image"] = coverSpread.BackImage,
+                ["front_image"] = coverSpread.FrontImage,
+                ["background_color"] = coverSpread.BackgroundColor ?? "transparent",
+                ["spine_width"] = coverSpread.SpineWidth,
+                ["text_margin"] = coverSpread.TextMargin,
+                ["spine_font_size"] = coverSpread.SpineFontSize,
+                ["spine_text"] = coverSpread.SpineText
+            });
+
+            var cropMarksCss = _showPrint
+                ? GenerateCoverSpreadCropMarksCss(layoutResult.Data.PageMargins?.CropMarks)
+                : string.Empty;
+
+            var html = $"<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" +
+                $"@page {{ size: {coverSpread.PageSize}; margin: 0; }}" +
+                "html, body { margin: 0; padding: 0; } .pagedjs_page { position: relative; overflow: visible !important; }" +
+                $".cover-spread {{ display: grid; grid-template-columns: var(--panel-width) var(--spine-width) var(--panel-width); width: {coverSpread.PageSize.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0]}; height: {coverSpread.PageSize.Split(' ', StringSplitOptions.RemoveEmptyEntries)[1]}; overflow: hidden; }}" +
+                ".cover-panel, .cover-spine { position: relative; height: 100%; overflow: hidden; }" +
+                ".cover-panel { background: var(--cover-background); }" +
+                ".cover-panel img { width: 100%; height: 100%; object-fit: cover; display: block; }" +
+                ".cover-spine { background: var(--cover-background); display: flex; align-items: center; justify-content: center; }" +
+                ".cover-spine-text { max-height: calc(100% - (2 * var(--text-margin))); padding: var(--text-margin) 0; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; white-space: nowrap; font-family: Tahoma, Arial, sans-serif; font-size: var(--spine-font-size); }" +
+                cropMarksCss +
+                "</style><script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script></head><body>" +
+                coverHtml + "</body></html>";
+
+            html = ConvertRelativeImagesToDataUrls(html);
+            if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
+            {
+                var pdf = await ConvertHtmlToPdf(html, new PdfOptions
+                {
+                    Format = PaperFormat.A6,
+                    PrintBackground = true,
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }
+                });
+                return Result<byte[]>.Ok(pdf);
+            }
+
+            return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(html));
+        }
+        catch (Exception ex)
+        {
+            return Result<byte[]>.Fail($"Error rendering cover spread: {ex.Message}");
+        }
+    }
+
     private async Task<Result<byte[]>> RenderSectionAsync(
         List<SchemaUnit> units,
         string masterTemplateKey,
@@ -1729,6 +1809,30 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         css.AppendLine(".pagedjs_page { position: relative; overflow: visible !important; }");
         css.AppendLine($".pagedjs_page::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) top calc(var(--pagedjs-bleed-top) + {inset}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) top calc(var(--pagedjs-bleed-top) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat left calc(var(--pagedjs-bleed-left) + {inset}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {gap} - {length}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {stroke}) / {length} {stroke}, linear-gradient({color}, {color}) no-repeat right calc(var(--pagedjs-bleed-right) + {inset} - {stroke}) bottom calc(var(--pagedjs-bleed-bottom) + {inset} - {gap} - {length}) / {stroke} {length}; }}");
         return css.ToString();
+    }
+
+    private static string GenerateCoverSpreadCropMarksCss(CropMarks? cropMarks)
+    {
+        if (cropMarks?.TrimInset == null || cropMarks.MarkLength == null ||
+            cropMarks.CornerGap == null || cropMarks.StrokeWidth == null || cropMarks.Color == null)
+        {
+            return string.Empty;
+        }
+
+        var inset = cropMarks.TrimInset;
+        var length = cropMarks.MarkLength;
+        var gap = cropMarks.CornerGap;
+        var stroke = cropMarks.StrokeWidth;
+        var color = cropMarks.Color;
+        return $".cover-spread {{ position: relative; overflow: hidden; }} .cover-spread::after {{ content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 99999; background: " +
+            $"linear-gradient({color}, {color}) no-repeat left calc({inset} + {inset} - {gap} - {length}) top calc({inset} + {inset}) / {length} {stroke}, " +
+            $"linear-gradient({color}, {color}) no-repeat left calc({inset} + {inset}) top calc({inset} + {inset} - {gap} - {length}) / {stroke} {length}, " +
+            $"linear-gradient({color}, {color}) no-repeat right calc({inset} + {inset} - {gap} - {length}) top calc({inset} + {inset}) / {length} {stroke}, " +
+            $"linear-gradient({color}, {color}) no-repeat right calc({inset} + {inset} - {stroke}) top calc({inset} + {inset} - {gap} - {length}) / {stroke} {length}, " +
+            $"linear-gradient({color}, {color}) no-repeat left calc({inset} + {inset} - {gap} - {length}) bottom calc({inset} + {inset} - {stroke}) / {length} {stroke}, " +
+            $"linear-gradient({color}, {color}) no-repeat left calc({inset} + {inset}) bottom calc({inset} + {inset} - {gap} - {length}) / {stroke} {length}, " +
+            $"linear-gradient({color}, {color}) no-repeat right calc({inset} + {inset} - {gap} - {length}) bottom calc({inset} + {inset} - {stroke}) / {length} {stroke}, " +
+            $"linear-gradient({color}, {color}) no-repeat right calc({inset} + {inset} - {stroke}) bottom calc({inset} + {inset} - {gap} - {length}) / {stroke} {length}; }}";
     }
 
     private static string GenerateMarginBoundaryCss(PageMargins? margins, bool firstPageIsCover = true)

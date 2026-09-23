@@ -492,7 +492,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
             Console.WriteLine();
 
             renderResult = includeCoversOnly
-                ? await renderer.RenderMultipleSectionsAsync([], templateName, selectedCoverSectionIds!.ToList(), documentOutputFormat)
+                ? await renderer.RenderCoverSpreadAsync(templateName, documentOutputFormat)
                 : await renderer.RenderAsync(unitsToRender, templateName, null, documentOutputFormat, excludedCoverSectionIds, firstPageIsCover: false);
         }
         else if (renderingMultipleSectionsOfType && sectionsOfTypeIds?.Count > 0)

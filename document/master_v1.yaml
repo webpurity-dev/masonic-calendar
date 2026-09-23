@@ -124,6 +124,18 @@ page_margins:
     color: black
     margin_color: red
 
+cover_spread:
+  template: "cover-spread.html"
+  page_size: "242mm 154mm"
+  panel_width: "111mm"
+  back_image: "../images/cover-img-back.jpg"
+  front_image: "../images/cover-img-yellow.jpg"
+  background_color: "#ffeb9a"
+  spine_width: "20mm"
+  text_margin: "5mm"
+  spine_font_size: "16pt"
+  spine_text: "Dorset Masonic Calendar 2026"
+
 page_styles:
   - name: "full_bleed_no_footer"
     margins:
@@ -342,16 +354,16 @@ sections:
     bold_officer_name_suffix: true
     display_officers_only: true
     hide_from_parent_toc: true
-  - section_id: "royalarch_intro"
-    section_title: "Reasons to be Exalted"
-    type: "static"
-    template: "royalarch/reasons-to-be-exalted.html"
-    is_child: true
   - section_id: "royalarch_succession_lists"
     section_title: "Succession Lists"
     type: "succession-list"
     template: "_data-driven/list-succession.html"
     data_mapping: "data_sources/royalarch_data_source.yaml"
+    is_child: true
+  - section_id: "royalarch_intro"
+    section_title: "Reasons to be Exalted"
+    type: "static"
+    template: "royalarch/reasons-to-be-exalted.html"
     is_child: true
   - section_id: "royalarch_units_toc"
     section_title: "Chapters in Numerical Order"

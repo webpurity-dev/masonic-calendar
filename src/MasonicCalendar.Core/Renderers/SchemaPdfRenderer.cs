@@ -1625,6 +1625,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         var footerFont = globalStyling?.Fonts?.DefaultFamily ?? "Arial, sans-serif";
         var footerSize = globalStyling?.Footer?.FontSize ?? "6pt";
         var footerAlign = globalStyling?.Footer?.TextAlign ?? "center";
+        var footerOffset = globalStyling?.Footer?.Offset;
         
         // Specific footer font if defined, otherwise use default font
         if (!string.IsNullOrEmpty(globalStyling?.Footer?.FontFamily))
@@ -1647,6 +1648,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine($"    font-family: {footerFont};");
             css.AppendLine($"    font-size: {footerSize};");
             css.AppendLine($"    text-align: {footerAlign};");
+            if (!string.IsNullOrWhiteSpace(footerOffset))
+                css.AppendLine($"    transform: translateY({footerOffset});");
             css.AppendLine("  }");
             css.AppendLine("}");
         }
@@ -1664,6 +1667,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
             css.AppendLine($"    font-family: {footerFont};");
             css.AppendLine($"    font-size: {footerSize};");
             css.AppendLine($"    text-align: {footerAlign};");
+            if (!string.IsNullOrWhiteSpace(footerOffset))
+                css.AppendLine($"    transform: translateY({footerOffset});");
             css.AppendLine("  }");
             css.AppendLine("}");
         }
@@ -1687,6 +1692,8 @@ if (window.Paged && typeof window.Paged.on === 'function') {
                 css.AppendLine($"    font-family: {footerFont};");
                 css.AppendLine($"    font-size: {footerSize};");
                 css.AppendLine($"    text-align: {footerAlign};");
+                if (!string.IsNullOrWhiteSpace(footerOffset))
+                    css.AppendLine($"    transform: translateY({footerOffset});");
             }
             css.AppendLine("  }");
             css.AppendLine("}");

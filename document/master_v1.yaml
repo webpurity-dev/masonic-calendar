@@ -22,6 +22,7 @@ document:
       font_family: "Tahoma, Arial, sans-serif"
       font_size: "6pt"
       text_align: "center"
+      offset: "-3mm"
 
 # UI Preferences - configurable display behavior and labels
 ui_preferences:

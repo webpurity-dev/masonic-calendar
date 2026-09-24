@@ -182,6 +182,7 @@ public class FooterConfig
     public string? FontFamily { get; set; }
     public string? FontSize { get; set; }
     public string? TextAlign { get; set; }
+    public string? Offset { get; set; }
 }
 
 public class UiLabels

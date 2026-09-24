@@ -16,9 +16,8 @@ Cover: Magno Silk 250GSM, Text 1: Magno Silk 130GSM, Text 2: Soporset Offset
 Gloss Lamination to Face of Cover and PUR bound, trimmed to finished size and packed
 in double walled boxes.
 
-
 # Current Version
-**2.4.6.4**
+**2.4.6.5**
 
 ## Print Specification
 | Area | Inches | Millimetres |

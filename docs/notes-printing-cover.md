@@ -2,7 +2,7 @@
 Notes to be presented to the printer alongside the cover-spread PDF generated with `-cover`.
 
 ## Current Version
-**2.4.6.4**
+**2.4.6.5**
 
 ## Cover Layout
 The supplied cover file is one outside-face spread, arranged from left to right:

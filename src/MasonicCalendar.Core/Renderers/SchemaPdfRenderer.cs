@@ -297,6 +297,112 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
         }
     }
 
+    public async Task<Result<byte[]>> RenderCoverAsPagesAsync(
+        string masterTemplateKey,
+        string format = "HTML")
+    {
+        try
+        {
+            var layoutResult = _layoutLoader.LoadMasterLayout(masterTemplateKey);
+            if (!layoutResult.Success || layoutResult.Data?.CoverSpread == null)
+                return Result<byte[]>.Fail("Cover spread configuration is missing");
+
+            var layout = layoutResult.Data;
+            var coverSpread = layout.CoverSpread;
+            var frontTemplateName = layout.Sections?
+                .FirstOrDefault(section => section.SectionId?.Equals("cover", StringComparison.OrdinalIgnoreCase) == true)
+                ?.Template;
+            var backTemplateName = layout.Sections?
+                .FirstOrDefault(section => section.SectionId?.Equals("back_cover", StringComparison.OrdinalIgnoreCase) == true)
+                ?.Template;
+
+            if (string.IsNullOrWhiteSpace(frontTemplateName) ||
+                string.IsNullOrWhiteSpace(backTemplateName) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineTemplate) ||
+                string.IsNullOrWhiteSpace(coverSpread.PageSize) ||
+                string.IsNullOrWhiteSpace(coverSpread.PanelWidth) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineWidth) ||
+                string.IsNullOrWhiteSpace(coverSpread.TextMargin) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontSize) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontFamily) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineFontWeight) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineTextColor) ||
+                string.IsNullOrWhiteSpace(coverSpread.SpineText))
+            {
+                return Result<byte[]>.Fail("Cover-as-pages configuration is incomplete");
+            }
+
+            var frontTemplatePath = Path.Combine(_templateRoot, frontTemplateName);
+            var backTemplatePath = Path.Combine(_templateRoot, backTemplateName);
+            var spineTemplatePath = Path.Combine(_templateRoot, coverSpread.SpineTemplate);
+            if (!File.Exists(frontTemplatePath) || !File.Exists(backTemplatePath) || !File.Exists(spineTemplatePath))
+                return Result<byte[]>.Fail("One or more cover-as-pages templates were not found");
+
+            var staticModel = new Dictionary<string, object?>
+            {
+                ["current_year"] = DateTime.Now.Year,
+                ["current_date"] = TextCleaner.FormatOrdinalDate(DateTime.Now),
+                ["publish_version"] = layout.Document?.Version ?? "",
+                ["data_corrected_date"] = layout.Document?.DataCorrectedDate ?? ""
+            };
+            var spineModel = new Dictionary<string, object?>(staticModel)
+            {
+                ["spine_width"] = coverSpread.SpineWidth,
+                ["text_margin"] = coverSpread.TextMargin,
+                ["spine_font_size"] = coverSpread.SpineFontSize,
+                ["spine_font_family"] = coverSpread.SpineFontFamily,
+                ["spine_font_weight"] = coverSpread.SpineFontWeight,
+                ["spine_text_color"] = coverSpread.SpineTextColor,
+                ["background_color"] = coverSpread.BackgroundColor ?? "transparent",
+                ["spine_text"] = coverSpread.SpineText
+            };
+
+            var frontHtml = Template.Parse(File.ReadAllText(frontTemplatePath)).Render(staticModel);
+            var backHtml = Template.Parse(File.ReadAllText(backTemplatePath)).Render(staticModel);
+            var spineHtml = Template.Parse(File.ReadAllText(spineTemplatePath)).Render(spineModel);
+            var pageHeight = coverSpread.PageSize.Split(' ', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+            if (string.IsNullOrWhiteSpace(pageHeight))
+                return Result<byte[]>.Fail("Cover spread page size must include a height");
+
+            var cropMarksCss = _showPrint
+                ? GenerateCropMarksCss(layout.PageMargins?.CropMarks)
+                : string.Empty;
+            var html = $"<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" +
+                $"@page {{ size: {coverSpread.PanelWidth} {pageHeight}; margin: 0; }}" +
+                "html, body { margin: 0; padding: 0; }" +
+                ".pagedjs_page { position: relative; overflow: visible !important; }" +
+                ".cover-as-page { position: relative; width: 100%; height: 100%; break-after: page; page-break-after: always; overflow: hidden; }" +
+                ".cover-as-page:last-child { break-after: auto; page-break-after: auto; }" +
+                ".cover-spine-page { width: 100%; height: 100%; display: flex; align-items: stretch; justify-content: center; background: var(--cover-background); }" +
+                ".cover-spine-panel { width: var(--spine-width); height: 100%; display: flex; align-items: center; justify-content: center; background: var(--cover-background); }" +
+                ".cover-spine-text { max-height: calc(100% - (2 * var(--text-margin))); padding: var(--text-margin) 0; writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; white-space: nowrap; font-family: var(--spine-font-family); font-size: var(--spine-font-size); font-weight: var(--spine-font-weight); color: var(--spine-text-color); }" +
+                cropMarksCss +
+                "</style><script src='https://unpkg.com/pagedjs/dist/paged.polyfill.js'></script></head><body>" +
+                $"<div class='cover-as-page'>{frontHtml}</div><div class='cover-as-page'>{backHtml}</div><div class='cover-as-page'>{spineHtml}</div>" +
+                "</body></html>";
+
+            html = ConvertRelativeImagesToDataUrls(html);
+            if (format.Equals("PDF", StringComparison.OrdinalIgnoreCase))
+            {
+                var pdf = await ConvertHtmlToPdf(html, new PdfOptions
+                {
+                    Format = PaperFormat.A6,
+                    PrintBackground = true,
+                    DisplayHeaderFooter = false,
+                    PreferCSSPageSize = true,
+                    MarginOptions = new MarginOptions { Top = "0px", Bottom = "0px", Left = "0px", Right = "0px" }
+                });
+                return Result<byte[]>.Ok(pdf);
+            }
+
+            return Result<byte[]>.Ok(Encoding.UTF8.GetBytes(html));
+        }
+        catch (Exception ex)
+        {
+            return Result<byte[]>.Fail($"Error rendering cover as pages: {ex.Message}");
+        }
+    }
+
     private async Task<Result<byte[]>> RenderSectionAsync(
         List<SchemaUnit> units,
         string masterTemplateKey,

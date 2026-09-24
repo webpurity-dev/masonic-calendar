@@ -131,6 +131,7 @@ public class DocumentLayout
 public class CoverSpreadConfig
 {
     public string? Template { get; set; }
+    public string? SpineTemplate { get; set; }
     public string? PageSize { get; set; }
     public string? PanelWidth { get; set; }
     public string? BackImage { get; set; }

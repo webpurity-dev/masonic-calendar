@@ -123,6 +123,15 @@ dotnet run -- -template master_v1 -output html
 # Render with page boundary visualisation
 dotnet run -- -template master_v1 -output html -showbleeds
 
+# Render only the existing OFC/OBC cover spread
+dotnet run -- -template master_v1 -output pdf -cover
+
+# Render OFC, OBC, and the centred spine as three separate pages
+dotnet run -- -template master_v1 -output pdf -cover-as-pages
+
+# Render the document without the front and back covers
+dotnet run -- -template master_v1 -output pdf -nocover
+
 # Render all static pages together
 dotnet run -- -template master_v1 -output html -section static
 
@@ -254,7 +263,16 @@ Each render includes timing information to help identify performance considerati
 | `-output` | Yes | `pdf` / `html` | Output format |
 | `-section` | No | Section ID or Type | Render one section only, or all sections of a type (e.g. `-section craft_units` or `-section list_officers`) |
 | `-unit` | No | Lodge number | Render one unit only (e.g. `-unit 3366`) |
-| `-showbleeds` | No | flag | Overlay red/blue borders on page boundaries |
+| `-unittype` | No | Unit type | Select the degree mapping for `-unit` (e.g. `craft`, `royalarch`, `mark`, `ram`) |
+| `-outputfolder` | No | Folder name | Write generated output to a subfolder below `output/` |
+| `-cover` | No | flag | Render the configured front/back cover spread only |
+| `-cover-as-pages` | No | flag | Render OFC, OBC, and the centred spine as three separate pages; mutually exclusive with `-cover` and `-nocover` |
+| `-nocover` | No | flag | Render the document without the front and back covers |
+| `-digital` | No | flag | Use equalised side margins for digital output |
+| `-noprint` | No | flag | Remove print-specific margins and padding while retaining the configured page size |
+| `-showbleed` / `-showbleeds` | No | flag | Show the configured dotted bleed boundary |
+| `-showprint` | No | flag | Show configured crop marks for proofing |
+| `-showmargins` | No | flag | Show configured dotted page margins for proofing |
 | `-debug` | No | flag | Extra console output + debug HTML file |
 | `-output csv` | — | — | Exports `{template}-meetings.csv` (all expanded dates) and `{template}-members.csv` (all people per unit) to `output/` |
 

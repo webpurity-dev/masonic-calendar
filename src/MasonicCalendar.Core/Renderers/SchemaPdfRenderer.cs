@@ -367,9 +367,13 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             var cropMarksCss = _showPrint
                 ? GenerateCropMarksCss(layout.PageMargins?.CropMarks)
                 : string.Empty;
+            var rectoBindingGutter = layout.PageMargins?.RightPage?.Left ?? "0mm";
+            var versoBindingGutter = layout.PageMargins?.LeftPage?.Right ?? "0mm";
+            var pageBleed = _showPrint ? "6mm" : "0";
             var html = $"<!DOCTYPE html><html><head><meta charset='utf-8'/><style>" +
-                $"@page {{ size: {coverSpread.PanelWidth} {pageHeight}; margin: 0; }}" +
+                $"@page {{ size: {coverSpread.PanelWidth} {pageHeight}; bleed: {pageBleed}; margin: 0; }}" +
                 "html, body { margin: 0; padding: 0; }" +
+                $":root {{ --cover-recto-position: calc(50% + calc({rectoBindingGutter} / 2)); --cover-verso-position: calc(50% - calc({versoBindingGutter} / 2)); --cover-page-position: var(--cover-verso-position); }}" +
                 ".pagedjs_page { position: relative; overflow: visible !important; }" +
                 ".cover-as-page { position: relative; width: 100%; height: 100%; break-after: page; page-break-after: always; overflow: hidden; }" +
                 ".cover-as-page:last-child { break-after: auto; page-break-after: auto; }" +

@@ -1,6 +1,6 @@
 order_summary:
   title: "The Grand College of The Holy Royal Arch Knight Templar Priests and Order of Holy Wisdom"
-  crest: "../../images/ktp-logo.png"
+  crest: "../../images/ktp-logo-nobg.png"
   website: "http://www.knighttemplarpriests.com"
   heads: 
     - rank: "Grand High Priest"

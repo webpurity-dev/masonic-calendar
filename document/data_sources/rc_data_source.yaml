@@ -1,6 +1,6 @@
 order_summary:
   title: "Ancient and Accepted Rite"
-  crest: "../../images/rc-logo.png"
+  crest: "../../images/rc-logo-nobg.png"
   website: "https://sc33.org.uk"
   heads: 
     - rank: "Sovereign Grand Commander"

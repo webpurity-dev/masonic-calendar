@@ -1,6 +1,6 @@
 order_summary:
   title: "Royal Order of Scotland. The King of Scots hereditary Grand Master"
-  crest: "../../images/ros-logo.png"
+  crest: "../../images/ros-logo-nobg.png"
   website: "https://www.royalorderscotland.org"
   heads: 
     - rank: "Deputy Grand Master and Governor"

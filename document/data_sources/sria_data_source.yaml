@@ -1,6 +1,6 @@
 order_summary:
   title: "Societas Rosicruciana in Anglia"
-  crest: "../../images/sria-logo.png"
+  crest: "../../images/sria-logo-nobg.png"
   website: "https://www.sria.uk.com"
   heads: 
     - rank: "Supreme Magus"

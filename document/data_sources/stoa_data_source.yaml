@@ -1,6 +1,6 @@
 order_summary:
   title: "Commemorative Order of St Thomas of Acon"
-  crest: "../../images/stoa-logo.png"
+  crest: "../../images/stoa-logo-nobg.png"
   website: "http://www.thomas-of-acon.org"
   heads: 
     - rank: "Most Worthy Grand Master"

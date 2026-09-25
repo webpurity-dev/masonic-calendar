@@ -73,6 +73,7 @@ debugMode = Array.IndexOf(args, "-debug") != -1;
 // Check for proof overlay flags
 bool showBleed = Array.IndexOf(args, "-showbleed") != -1 || Array.IndexOf(args, "-showbleeds") != -1;
 bool showPrint = Array.IndexOf(args, "-showprint") != -1;
+bool hideCropMarks = Array.IndexOf(args, "-hidecropmarks") != -1;
 bool showMargins = Array.IndexOf(args, "-showmargins") != -1;
 bool includeCoversOnly = Array.IndexOf(args, "-cover") != -1;
 bool includeCoverAsPages = Array.IndexOf(args, "-cover-as-pages") != -1;
@@ -441,7 +442,7 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         }
 
         // Render using Scriban template
-        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleed, showPrint, showMargins, noPrintMode, digitalMode);
+        var renderer = new SchemaPdfRenderer(layoutLoader, schemaLoader, documentRoot, debugMode, showBleed, showPrint, showMargins, noPrintMode, digitalMode, hideCropMarks);
         
         // Log the rendering details
         if (!string.IsNullOrWhiteSpace(unitNumber) && !string.IsNullOrWhiteSpace(targetSectionId))
@@ -573,10 +574,11 @@ if (!string.IsNullOrWhiteSpace(templateName) && !string.IsNullOrWhiteSpace(docum
         var unitPart = string.IsNullOrWhiteSpace(unitNumber) ? "" : $"-unit{unitNumber}";
         var bleedPart = showBleed ? "-showBleed" : "";
         var printPart = showPrint ? "-showPrint" : "";
+        var hideCropMarksPart = hideCropMarks ? "-hideCropMarks" : "";
         var marginsPart = showMargins ? "-showMargins" : "";
         var noPrintPart = noPrintMode ? "-noprint" : "";
         var digitalPart = digitalMode ? "-digital" : "";
-        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedPart}{printPart}{marginsPart}{noPrintPart}{digitalPart}.{fileExtension}";
+        var outputFileName = $"{templateName}-{sectionPart}{unitPart}{bleedPart}{printPart}{hideCropMarksPart}{marginsPart}{noPrintPart}{digitalPart}.{fileExtension}";
         
         // If version is available, embed it in the template name: master_v1- → master_v1.4-
         if (!string.IsNullOrWhiteSpace(documentVersion))
@@ -620,6 +622,7 @@ if (!string.IsNullOrWhiteSpace(templateName) || !string.IsNullOrWhiteSpace(docum
     Console.WriteLine("  -digital    Use equal side margins for digital output (optional)");
     Console.WriteLine("  -showbleed  Show the configured dotted bleed boundary (optional, proofing only)");
     Console.WriteLine("  -showprint  Show configured crop marks (optional, proofing only)");
+    Console.WriteLine("  -hidecropmarks  Suppress crop marks while keeping the -showprint page size (optional)");
     Console.WriteLine("  -showmargins Show configured dotted page margins (optional, proofing only)");
     Console.WriteLine("  -cover      Render only the front cover and back cover sections (optional)");
     Console.WriteLine("  -cover-as-pages  Render OFC, OBC, and the centred spine as three pages (optional)");

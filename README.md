@@ -272,6 +272,7 @@ Each render includes timing information to help identify performance considerati
 | `-noprint` | No | flag | Remove print-specific margins and padding while retaining the configured page size |
 | `-showbleed` / `-showbleeds` | No | flag | Show the configured dotted bleed boundary |
 | `-showprint` | No | flag | Show configured crop marks for proofing |
+| `-hidecropmarks` | No | flag | Suppress crop marks while keeping the `-showprint` full PDF sheet size (e.g. 123 x 166 mm) |
 | `-showmargins` | No | flag | Show configured dotted page margins for proofing |
 | `-debug` | No | flag | Extra console output + debug HTML file |
 | `-output csv` | — | — | Exports `{template}-meetings.csv` (all expanded dates) and `{template}-members.csv` (all people per unit) to `output/` |

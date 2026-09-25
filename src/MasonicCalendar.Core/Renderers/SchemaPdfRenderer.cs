@@ -15,13 +15,14 @@ using MasonicCalendar.Core.Services.Renderers.SectionRenderers;
 /// Schema-driven HTML/PDF renderer that uses Scriban template engine.
 /// Supports rendering to HTML or converting HTML to PDF using Puppeteer/Chromium.
 /// </summary>
-public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleed = false, bool showPrint = false, bool showMargins = false, bool noPrintMode = false, bool digitalMode = false)
+public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoader? dataLoader = null, string? documentRoot = null, bool debugMode = false, bool showBleed = false, bool showPrint = false, bool showMargins = false, bool noPrintMode = false, bool digitalMode = false, bool hideCropMarks = false)
 {
     private readonly DocumentLayoutLoader _layoutLoader = layoutLoader;
     private readonly SchemaDataLoader? _dataLoader = dataLoader;
     private readonly bool _debugMode = debugMode;
     private readonly bool _showBleed = showBleed;
     private readonly bool _showPrint = showPrint;
+    private readonly bool _hideCropMarks = hideCropMarks;
     private readonly bool _showMargins = showMargins;
     private readonly bool _noPrintMode = noPrintMode;
     private readonly bool _digitalMode = digitalMode;
@@ -258,7 +259,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
                 ["spine_text"] = coverSpread.SpineText
             });
 
-            var cropMarksCss = _showPrint
+            var cropMarksCss = _showPrint && !_hideCropMarks
                 ? GenerateCoverSpreadCropMarksCss(layoutResult.Data.PageMargins?.CropMarks)
                 : string.Empty;
 
@@ -364,7 +365,7 @@ public class SchemaPdfRenderer(DocumentLayoutLoader layoutLoader, SchemaDataLoad
             if (string.IsNullOrWhiteSpace(pageHeight))
                 return Result<byte[]>.Fail("Cover spread page size must include a height");
 
-            var cropMarksCss = _showPrint
+            var cropMarksCss = _showPrint && !_hideCropMarks
                 ? GenerateCropMarksCss(layout.PageMargins?.CropMarks)
                 : string.Empty;
             var rectoBindingGutter = layout.PageMargins?.RightPage?.Left ?? "0mm";
@@ -1901,7 +1902,7 @@ if (window.Paged && typeof window.Paged.on === 'function') {
         if (_showBleed)
             output.AppendLine(GenerateBleedBoundaryCss(margins?.CropMarks));
 
-        if (_showPrint)
+        if (_showPrint && !_hideCropMarks)
             output.AppendLine(GenerateCropMarksCss(margins?.CropMarks));
 
         if (_showMargins)
